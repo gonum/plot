@@ -38,10 +38,6 @@ func (da *DrawArea) SetTextStyle(sty TextStyle) {
 	da.font = sty.Font
 }
 
-func (da *DrawArea) Pt2Dot(pt float64) float64 {
-	return pt/vecgfx.PtInch * da.DPI()
-}
-
 // TextStyle describes what text will look like.
 type TextStyle struct {
 	// Color is the text color.
@@ -56,21 +52,6 @@ type TextStyle struct {
 // the user doesn't have to import the vecgfx package.
 func MakeFont(name string, size float64) (vecgfx.Font, error) {
 	return vecgfx.MakeFont(name, size)
-}
-
-// FontAscent returns the ascent of the current font in dots.
-func (da *DrawArea) FontAscent() float64 {
-	return da.font.Extents().Ascent/vecgfx.PtInch * da.DPI()
-}
-
-// FontDescent returns the descent of the current font in dots.
-func (da *DrawArea) FontDescent() float64 {
-	return da.font.Extents().Descent/vecgfx.PtInch * da.DPI()
-}
-
-// TextWidth returns the width of the text in the current font in dots.
-func (da *DrawArea) TextWidth(str string) float64 {
-	return da.font.Width(str)/vecgfx.PtInch * da.DPI()
 }
 
 // Text fills the text to the drawing area.  The string is created
@@ -112,28 +93,27 @@ type LineStyle struct {
 }
 
 // Line draws a line connecting the given points.
-func (da *DrawArea) Line(pts XYer) {
-	l := pts.Len()
-	if l == 0 {
+func (da *DrawArea) Line(pts []Point) {
+	if len(pts) == 0 {
 		return
 	}
 
 	var p vecgfx.Path
-	p.Move(pts.X(0), pts.Y(0))
-	for i := 1; i < l; i++ {
-		p.Line(pts.X(i), pts.Y(i))
+	p.Move(pts[0].X, pts[0].Y)
+	for _, pt := range pts {
+		p.Line(pt.X, pt.Y)
 	}
 	da.Stroke(p)
 }
 
 // ClippedLine draws a line that is clipped at the bounds
 // the DrawArea.
-func (da *DrawArea) ClippedLine(pts XYer) {
+func (da *DrawArea) ClippedLine(pts []Point) {
 	// clip right
 	lines0 := clip(isLeft, Point{da.Max.X, da.Min.Y}, Point{-1, 0}, pts)
 
 	// clip bottom
-	var lines1 []Line
+	var lines1 [][]Point
 	for _, line := range lines0 {
 		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
 		lines1 = append(lines1, ls...)
@@ -161,11 +141,10 @@ func (da *DrawArea) ClippedLine(pts XYer) {
 
 // clip performs clipping in a single clipping line specified
 // by the norm, clip point, and in function.
-func clip(in func(Point, Point) bool, clip, norm Point, pts XYer) (lines []Line) {
-	var l Line
-	length := pts.Len()
-	for i := 1; i < length; i++ {
-		cur, next := Pt(pts, i-1), Pt(pts, i)
+func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
+	var l []Point
+	for i := 0; i < len(pts); i++ {
+		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
 		switch {
 		case curIn && nextIn:
@@ -174,7 +153,7 @@ func clip(in func(Point, Point) bool, clip, norm Point, pts XYer) (lines []Line)
 		case curIn && !nextIn:
 			l = append(l, cur, isect(cur, next, clip, norm))
 			lines = append(lines, l)
-			l = Line{}
+			l = []Point{}
 
 		case !curIn && !nextIn:
 			// do nothing
@@ -182,7 +161,7 @@ func clip(in func(Point, Point) bool, clip, norm Point, pts XYer) (lines []Line)
 		default: // !curIn && nextIn
 			l = append(l, isect(cur, next, clip, norm))
 		}
-		if nextIn && i == length-1 {
+		if nextIn && i == len(pts)-1 {
 			l = append(l, next)
 		}
 	}

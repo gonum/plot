@@ -82,9 +82,9 @@ func (a *Axis) DrawHoriz(da *DrawArea, c vecgfx.Canvas) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.SetTextStyle(a.LabelStyle)
-		y += -da.FontDescent()
+		y += -(a.LabelStyle.Font.Extents().Descent/vecgfx.PtInch * da.DPI())
 		da.Text(da.Center().X, y, -0.5, 0, a.Label)
-		y += da.FontAscent()
+		y += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()
 	}
 	if len(a.Tick.Marks) > 0 {
 		da.SetLineStyle(a.Tick.MarkStyle)
@@ -104,12 +104,12 @@ func (a *Axis) DrawHoriz(da *DrawArea, c vecgfx.Canvas) {
 			if t.Label == "" {
 				y1 = y +  len/2
 			}
-			da.Line(Line{{x, y1}, {x, y + len}})
+			da.Line([]Point{{x, y1}, {x, y + len}})
 		}
 		y += len
 	}
 	da.SetLineStyle(a.AxisStyle)
-	da.Line(Line{{da.Min.X, y}, {da.Max.X, y}})
+	da.Line([]Point{{da.Min.X, y}, {da.Max.X, y}})
 }
 
 // TickMarks is the style and location of a set of tick marks.
