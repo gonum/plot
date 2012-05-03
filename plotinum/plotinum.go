@@ -1,7 +1,14 @@
 package plotinum
 
 type Rect struct {
-	Min, Max Point
+	Min, Sz Point
+}
+
+func (r Rect) Max() Point {
+	return Point {
+		X: r.Min.X + r.Sz.X,
+		Y: r.Min.Y + r.Sz.Y,
+	}
 }
 
 type Point struct {

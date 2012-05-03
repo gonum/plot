@@ -27,8 +27,8 @@ type DrawArea struct {
 // Center returns the center point of the area
 func (da *DrawArea) Center() Point {
 	return Point{
-		X: (da.Max.X - da.Min.X)/2 + da.Min.X,
-		Y: (da.Max.Y - da.Min.Y)/2 + da.Min.Y,
+		X: (da.Max().X - da.Min.X)/2 + da.Min.X,
+		Y: (da.Max().Y - da.Min.Y)/2 + da.Min.Y,
 	}
 }
 
@@ -110,7 +110,7 @@ func (da *DrawArea) Line(pts []Point) {
 // the DrawArea.
 func (da *DrawArea) ClippedLine(pts []Point) {
 	// clip right
-	lines0 := clip(isLeft, Point{da.Max.X, da.Min.Y}, Point{-1, 0}, pts)
+	lines0 := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts)
 
 	// clip bottom
 	var lines1 [][]Point
@@ -129,7 +129,7 @@ func (da *DrawArea) ClippedLine(pts []Point) {
 	// clip top
 	lines1 = lines1[:0]
 	for _, line := range lines0 {
-		ls := clip(isBelow, Point{da.Min.X, da.Max.Y}, Point{0, 1}, line)
+		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
 		lines1 = append(lines1, ls...)
 	}
 
@@ -225,9 +225,9 @@ func EqTrianglePath(x, y, r float64) (p vecgfx.Path) {
 // upper left corner, width and height.
 func RectPath(r Rect) (p vecgfx.Path) {
 	p.Move(r.Min.X, r.Min.Y)
-	p.Line(r.Max.X, r.Min.Y)
-	p.Line(r.Max.X, r.Max.Y)
-	p.Line(r.Min.X, r.Max.Y)
+	p.Line(r.Max().X, r.Min.Y)
+	p.Line(r.Max().X, r.Max().Y)
+	p.Line(r.Min.X, r.Max().Y)
 	p.Close()
 	return
 }

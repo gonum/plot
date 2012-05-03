@@ -54,14 +54,14 @@ func MakeAxis(min, max float64) Axis {
 // for the given drawing area.
 func (a *Axis) X(da *DrawArea, x float64) float64 {
 	p := (x - a.Min) / (a.Max - a.Min)
-	return da.Min.X + p*(da.Max.X - da.Min.X)
+	return da.Min.X + p*(da.Max().X - da.Min.X)
 }
 
 // Y transforms the data point y to the drawing coordinate
 // for the given drawing area.
 func (a *Axis) Y(da *DrawArea, y float64) float64 {
 	p := (y - a.Min) / (a.Max - a.Min)
-	return da.Min.Y + p*(da.Max.Y - da.Min.Y)
+	return da.Min.Y + p*(da.Max().Y - da.Min.Y)
 }
 
 // Height returns the height of the axis in inches
@@ -109,7 +109,7 @@ func (a *Axis) DrawHoriz(da *DrawArea, c vecgfx.Canvas) {
 		y += len
 	}
 	da.SetLineStyle(a.AxisStyle)
-	da.Line([]Point{{da.Min.X, y}, {da.Max.X, y}})
+	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
 }
 
 // TickMarks is the style and location of a set of tick marks.
