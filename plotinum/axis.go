@@ -4,6 +4,7 @@ import (
 	"plotinum/vecgfx"
 	"image/color"
 	"fmt"
+	"math"
 )
 
 const (
@@ -21,8 +22,11 @@ type Axis struct{
 	// LabelStyle is the text style of the label on the axis.
 	LabelStyle TextStyle
 
-	/// AxisStyle is the style of the axis's line.
+	// AxisStyle is the style of the axis's line.
 	AxisStyle LineStyle
+
+	// Padding between the axis line and the data in inches.
+	Padding float64
 
 	// Tick are the tick marks on the axis.
 	Tick TickMarks
@@ -46,6 +50,7 @@ func MakeAxis(min, max float64) Axis {
 			Color: Black,
 			Width: 1.0/64.0,
 		},
+		Padding: 1.0/8.0,
 		Tick: MakeTickMarks(min, max),
 	}
 }
@@ -66,19 +71,20 @@ func (a *Axis) Y(da *DrawArea, y float64) float64 {
 
 // Height returns the height of the axis in inches
 //  if it is drawn as a horizontal axis.
-func (a *Axis) Height() (ht float64) {
+func (a *Axis) Height() (h float64) {
 	if a.Label != "" {
-		ht += a.LabelStyle.Font.Extents().Height/vecgfx.PtInch
+		h += a.LabelStyle.Font.Extents().Height/vecgfx.PtInch
 	}
 	if len(a.Tick.Marks) > 0 {
-		ht += a.Tick.Length + a.Tick.labelHeight()
+		h += a.Tick.Length + a.Tick.labelHeight()
 	}
-	ht += a.AxisStyle.Width/2
+	h += a.AxisStyle.Width/2
+	h += a.Padding
 	return
 }
 
 // DrawHoriz draws the axis onto the given area.
-func (a *Axis) DrawHoriz(da *DrawArea, c vecgfx.Canvas) {
+func (a *Axis) DrawHoriz(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.SetTextStyle(a.LabelStyle)
@@ -110,6 +116,66 @@ func (a *Axis) DrawHoriz(da *DrawArea, c vecgfx.Canvas) {
 	}
 	da.SetLineStyle(a.AxisStyle)
 	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
+}
+
+// Width returns the width of the axis in inches
+//  if it is drawn as a vertically axis.
+func (a *Axis) Width() (w float64) {
+	if a.Label != "" {
+		w += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch
+	}
+	if len(a.Tick.Marks) > 0 {
+		if lwidth := a.Tick.labelWidth(); lwidth > 0 {
+			w += lwidth
+			// Add a space after tick labels to separate
+			// them from the tick marks
+			w += a.Tick.LabelStyle.Font.Width(" ")/vecgfx.PtInch
+		}
+		w += a.Tick.Length
+	}
+	w += a.AxisStyle.Width/2
+	w += a.Padding
+	return
+}
+
+// DrawVert draws the axis onto the given area.
+func (a *Axis) DrawVert(da *DrawArea) {
+	x := da.Min.X
+	if a.Label != "" {
+		x += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()
+		da.SetTextStyle(a.LabelStyle)
+		da.Push()
+		da.Rotate(math.Pi/2)
+		da.Text(da.Center().Y, -x, -0.5, 0, a.Label)
+		da.Pop()
+		x += -a.LabelStyle.Font.Extents().Descent/vecgfx.PtInch * da.DPI()
+	}
+	if len(a.Tick.Marks) > 0 {
+		da.SetLineStyle(a.Tick.MarkStyle)
+		da.SetTextStyle(a.Tick.LabelStyle)
+		if lwidth := a.Tick.labelWidth(); lwidth > 0 {
+			x += lwidth * da.DPI()
+			x += a.Tick.LabelStyle.Font.Width(" ")/vecgfx.PtInch * da.DPI()
+		}
+		for _, t := range a.Tick.Marks {
+			if t.Label == "" {
+				continue
+			}
+			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label + " ")
+		}
+		len := a.Tick.Length*da.DPI()
+		for _, t := range a.Tick.Marks {
+			y := a.Y(da, t.Value)
+			x1 := x
+			if t.Label == "" {
+				x1 = x +  len/2
+			}
+			da.Line([]Point{{x1, y}, {x + len, y}})
+		}
+		x += len
+	}
+	da.SetLineStyle(a.AxisStyle)
+	da.Line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
 }
 
 // TickMarks is the style and location of a set of tick marks.
@@ -145,7 +211,9 @@ func MakeTickMarks(min, max float64) TickMarks {
 		Length: 1.0/10.0,
 		Marks: []Tick{
 			{ Value: min, Label: fmt.Sprintf("%g", min) },
-			{ Value: min + (max-min)/2 },
+			{ Value: min + (max-min)/4, },
+			{ Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min + (max-min)/2) },
+			{ Value: min + 3*(max-min)/4, },
 			{ Value: max, Label: fmt.Sprintf("%g", max) },
 		},
 	}
@@ -161,6 +229,21 @@ func (tick TickMarks) labelHeight() float64 {
 		return font.Extents().Ascent/vecgfx.PtInch
 	}
 	return 0
+}
+
+// labelWidth returns the label width in inches.
+func (tick TickMarks) labelWidth() float64 {
+	max := 0.0
+	for _, t := range tick.Marks {
+		if t.Label == "" {
+			continue
+		}
+		w := tick.LabelStyle.Font.Width(t.Label)
+		if w > max {
+			max = w
+		}
+	}
+	return max/vecgfx.PtInch
 }
 
 // A Tick is a single tick mark

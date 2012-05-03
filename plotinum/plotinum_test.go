@@ -11,18 +11,21 @@ func TestDraw(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	da := DrawArea{
+	da := &DrawArea{
 		Canvas: img,
 		Rect: Rect{ Min: Point{ 0, 0 },
 			Sz: Point{ 4*img.DPI(), 4*img.DPI() },
 		},
 	}
 	da.Stroke(RectPath(da.Rect))
-	da.Min.X += 10
-	da.Sz.X -= 20
-	ax := MakeAxis(1, 10)
-	ax.Label = "X-Axis gq"
-	ax.DrawHoriz(&da, img)
+
+	plot := NewPlot()
+	plot.Title = "This is a plot"
+	plot.XAxis = MakeAxis(1, 10)
+	plot.XAxis.Label = "X-Axis gq"
+	plot.YAxis = MakeAxis(1, 10)
+	plot.YAxis.Label = "Y-Axis gq"
+	plot.Draw(da)
 
 	err = img.SavePNG("plot.png")
 	if err != nil {
