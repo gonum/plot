@@ -2,7 +2,7 @@ package plotinum
 
 import (
 	"testing"
-	"plotinum/vecgfx/vecimg"
+	"code.google.com/p/plotinum/vecgfx/vecimg"
 )
 
 func TestDraw(t *testing.T) {

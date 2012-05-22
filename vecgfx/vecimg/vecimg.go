@@ -12,7 +12,7 @@ import (
 	"fmt"
 	"go/build"
 	"path/filepath"
-	"plotinum/vecgfx"
+	"code.google.com/p/plotinum/vecgfx"
 	"code.google.com/p/draw2d/draw2d"
 )
 
@@ -21,7 +21,7 @@ const (
 	dpi = 96
 
 	// importString is the current package import string.
-	importString = "plotinum/vecgfx/vecimg"
+	importString = "code.google.com/p/plotinum/vecgfx/vecimg"
 )
 
 type ImageCanvas struct {

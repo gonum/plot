@@ -2,7 +2,7 @@ package vecimg
 
 import (
 	"testing"
-	"plotinum/vecgfx"
+	"code.google.com/p/plotinum/vecgfx"
 )
 
 func TestFontExtents(t *testing.T) {

@@ -1,7 +1,7 @@
 package plotinum
 
 import (
-	"plotinum/vecgfx"
+	"code.google.com/p/plotinum/vecgfx"
 	"image/color"
 )
 
