@@ -32,6 +32,26 @@ func (da *DrawArea) Center() Point {
 	}
 }
 
+// crop returns a new DrawArea corresponding to the receiver
+// area with the given number of inches added to each
+// point of the area's rectangle.
+func (da *DrawArea) crop(minx, miny, szx, szy float64) *DrawArea {
+	return &DrawArea {
+		vecgfx.Canvas: vecgfx.Canvas(da),
+		font: da.font,
+		Rect: Rect {
+			Min: Point {
+				X: da.Rect.Min.X + minx*da.DPI(),
+				Y: da.Rect.Min.Y + miny*da.DPI(),
+			},
+			Sz: Point {
+				X: da.Rect.Sz.X + szx*da.DPI(),
+				Y: da.Rect.Sz.Y + szy*da.DPI(),
+			},
+		},
+	}
+}
+
 // SetTextStyle sets the current text style
 func (da *DrawArea) SetTextStyle(sty TextStyle) {
 	da.SetColor(sty.Color)

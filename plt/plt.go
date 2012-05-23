@@ -40,17 +40,11 @@ func (p *Plot) Draw(da *DrawArea) {
 		da.Sz.Y -= p.TitleStyle.Font.Extents().Height/vecgfx.PtInch * da.DPI()
 	}
 
-	area := da.Rect
-	ywidth := p.YAxis.width() * da.DPI()
-	da.Min.X += ywidth
-	da.Sz.X -= ywidth
-	p.XAxis.drawHoriz(da)
+	ywidth := p.YAxis.width()
+	p.XAxis.drawHoriz(da.crop(ywidth, 0, -ywidth, 0))
 
-	da.Rect = area
-	xheight := p.XAxis.height() * da.DPI()
-	da.Min.Y += xheight
-	da.Sz.Y -= xheight
-	p.YAxis.drawVert(da)
+	xheight := p.XAxis.height()
+	p.YAxis.drawVert(da.crop(0, xheight, 0, -xheight))
 }
 
 type Rect struct {
