@@ -1,18 +1,18 @@
 package plt
 
 import (
-	"fmt"
-	"math"
 	"code.google.com/p/plotinum/vecgfx"
+	"fmt"
 	"image/color"
+	"math"
 )
 
 var (
 	Black = color.RGBA{A: 255}
 	White = color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	Red = color.RGBA{R: 255, A: 255}
+	Red   = color.RGBA{R: 255, A: 255}
 	Green = color.RGBA{G: 255, A: 255}
-	Blue = color.RGBA{B: 255, A: 255}
+	Blue  = color.RGBA{B: 255, A: 255}
 )
 
 // A DrawArea is a vector graphics canvas along with
@@ -27,8 +27,8 @@ type DrawArea struct {
 // Center returns the center Point of the area
 func (da *DrawArea) Center() Point {
 	return Point{
-		X: (da.Max().X - da.Min.X)/2 + da.Min.X,
-		Y: (da.Max().Y - da.Min.Y)/2 + da.Min.Y,
+		X: (da.Max().X-da.Min.X)/2 + da.Min.X,
+		Y: (da.Max().Y-da.Min.Y)/2 + da.Min.Y,
 	}
 }
 
@@ -36,15 +36,15 @@ func (da *DrawArea) Center() Point {
 // area with the given number of inches added to each
 // point of the area's Rect[.
 func (da *DrawArea) crop(minx, miny, szx, szy float64) *DrawArea {
-	return &DrawArea {
+	return &DrawArea{
 		vecgfx.Canvas: vecgfx.Canvas(da),
-		font: da.font,
-		Rect: Rect {
-			Min: Point {
+		font:          da.font,
+		Rect: Rect{
+			Min: Point{
 				X: da.Rect.Min.X + minx*da.DPI(),
 				Y: da.Rect.Min.Y + miny*da.DPI(),
 			},
-			Sz: Point {
+			Sz: Point{
 				X: da.Rect.Sz.X + szx*da.DPI(),
 				Y: da.Rect.Sz.Y + szy*da.DPI(),
 			},
@@ -80,18 +80,18 @@ func MakeFont(name string, size float64) (vecgfx.Font, error) {
 // are the width and height of the rendered string.
 func (da *DrawArea) Text(x, y, fx, fy float64, f string, v ...interface{}) {
 	if da.font.Font() == nil {
-		panic("Drawing text without a current font set");
+		panic("Drawing text without a current font set")
 	}
 	str := fmt.Sprintf(f, v...)
-	w := da.font.Width(str)/vecgfx.PtInch * da.DPI()
-	h := da.font.Extents().Ascent/vecgfx.PtInch * da.DPI()
+	w := da.font.Width(str) / vecgfx.PtInch * da.DPI()
+	h := da.font.Extents().Ascent / vecgfx.PtInch * da.DPI()
 	da.FillText(da.font, x+w*fx, y+h*fy, str)
 }
 
 // SetLineStyle sets the current line style
 func (da *DrawArea) SetLineStyle(sty LineStyle) {
 	da.SetColor(sty.Color)
-	da.SetLineWidth(sty.Width*da.DPI())
+	da.SetLineWidth(sty.Width * da.DPI())
 	var dashDots []float64
 	for _, dash := range sty.Dashes {
 		dashDots = append(dashDots, dash*da.DPI())
@@ -108,7 +108,7 @@ type LineStyle struct {
 	// Width is the width of the line in inches.
 	Width float64
 
-	Dashes []float64
+	Dashes   []float64
 	DashOffs float64
 }
 
@@ -259,7 +259,7 @@ type Rect struct {
 
 // Max returns the maxmium x and y values of a Rect.
 func (r Rect) Max() Point {
-	return Point {
+	return Point{
 		X: r.Min.X + r.Sz.X,
 		Y: r.Min.Y + r.Sz.Y,
 	}

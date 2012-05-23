@@ -2,8 +2,8 @@ package plt
 
 import (
 	"code.google.com/p/plotinum/vecgfx"
-	"image/color"
 	"fmt"
+	"image/color"
 	"math"
 )
 
@@ -13,7 +13,7 @@ const (
 
 // An Axis represents either a horizontal or vertical
 // axis of a plot.
-type Axis struct{
+type Axis struct {
 	// Min and Max are the minimum and maximum data
 	// coordinates on this axis.
 	Min, Max float64
@@ -45,19 +45,19 @@ func MakeAxis() Axis {
 		panic(err)
 	}
 	return Axis{
-		Min: math.Inf(1),
-		Max: math.Inf(-1),
+		Min:   math.Inf(1),
+		Max:   math.Inf(-1),
 		Label: "",
 		LabelStyle: TextStyle{
 			Color: Black,
-			Font: labelFont,
+			Font:  labelFont,
 		},
 		AxisStyle: LineStyle{
 			Color: Black,
-			Width: 1.0/64.0,
+			Width: 1.0 / 64.0,
 		},
-		Padding: 1.0/8.0,
-		Ticks: MakeTickMarks(),
+		Padding: 1.0 / 8.0,
+		Ticks:   MakeTickMarks(),
 	}
 }
 
@@ -65,27 +65,27 @@ func MakeAxis() Axis {
 // for the given drawing area.
 func (a *Axis) X(da *DrawArea, x float64) float64 {
 	p := (x - a.Min) / (a.Max - a.Min)
-	return da.Min.X + p*(da.Max().X - da.Min.X)
+	return da.Min.X + p*(da.Max().X-da.Min.X)
 }
 
 // Y transforms the data point y to the drawing coordinate
 // for the given drawing area.
 func (a *Axis) Y(da *DrawArea, y float64) float64 {
 	p := (y - a.Min) / (a.Max - a.Min)
-	return da.Min.Y + p*(da.Max().Y - da.Min.Y)
+	return da.Min.Y + p*(da.Max().Y-da.Min.Y)
 }
 
 // height returns the height of the axis in inches
 //  if it is drawn as a horizontal axis.
 func (a *Axis) height() (h float64) {
 	if a.Label != "" {
-		h += a.LabelStyle.Font.Extents().Height/vecgfx.PtInch
+		h += a.LabelStyle.Font.Extents().Height / vecgfx.PtInch
 	}
 	marks := a.Ticks.Marks(a.Min, a.Max)
 	if len(marks) > 0 {
 		h += a.Ticks.Length + a.Ticks.labelHeight(marks)
 	}
-	h += a.AxisStyle.Width/2
+	h += a.AxisStyle.Width / 2
 	h += a.Padding
 	return
 }
@@ -95,9 +95,9 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.SetTextStyle(a.LabelStyle)
-		y += -(a.LabelStyle.Font.Extents().Descent/vecgfx.PtInch * da.DPI())
+		y += -(a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI())
 		da.Text(da.Center().X, y, -0.5, 0, a.Label)
-		y += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()
+		y += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
 	}
 	marks := a.Ticks.Marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -111,7 +111,7 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 		}
 		y += a.Ticks.labelHeight(marks) * da.DPI()
 
-		len := a.Ticks.Length*da.DPI()
+		len := a.Ticks.Length * da.DPI()
 		for _, t := range marks {
 			x := a.X(da, t.Value)
 			da.Line([]Point{{x, y + t.lengthOffset(len)}, {x, y + len}})
@@ -126,7 +126,7 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 //  if it is drawn as a vertically axis.
 func (a *Axis) width() (w float64) {
 	if a.Label != "" {
-		w += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch
+		w += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch
 	}
 	marks := a.Ticks.Marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -134,11 +134,11 @@ func (a *Axis) width() (w float64) {
 			w += lwidth
 			// Add a space after tick labels to separate
 			// them from the tick marks
-			w += a.Ticks.LabelStyle.Font.Width(" ")/vecgfx.PtInch
+			w += a.Ticks.LabelStyle.Font.Width(" ") / vecgfx.PtInch
 		}
 		w += a.Ticks.Length
 	}
-	w += a.AxisStyle.Width/2
+	w += a.AxisStyle.Width / 2
 	w += a.Padding
 	return
 }
@@ -147,13 +147,13 @@ func (a *Axis) width() (w float64) {
 func (a *Axis) drawVert(da *DrawArea) {
 	x := da.Min.X
 	if a.Label != "" {
-		x += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()
+		x += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
 		da.SetTextStyle(a.LabelStyle)
 		da.Push()
-		da.Rotate(math.Pi/2)
+		da.Rotate(math.Pi / 2)
 		da.Text(da.Center().Y, -x, -0.5, 0, a.Label)
 		da.Pop()
-		x += -a.LabelStyle.Font.Extents().Descent/vecgfx.PtInch * da.DPI()
+		x += -a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI()
 	}
 	marks := a.Ticks.Marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -161,15 +161,15 @@ func (a *Axis) drawVert(da *DrawArea) {
 		da.SetTextStyle(a.Ticks.LabelStyle)
 		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			x += lwidth * da.DPI()
-			x += a.Ticks.LabelStyle.Font.Width(" ")/vecgfx.PtInch * da.DPI()
+			x += a.Ticks.LabelStyle.Font.Width(" ") / vecgfx.PtInch * da.DPI()
 		}
 		for _, t := range marks {
 			if t.minor() {
 				continue
 			}
-			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label + " ")
+			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label+" ")
 		}
-		len := a.Ticks.Length*da.DPI()
+		len := a.Ticks.Length * da.DPI()
 		for _, t := range marks {
 			y := a.Y(da, t.Value)
 			da.Line([]Point{{x + t.lengthOffset(len), y}, {x + len, y}})
@@ -201,7 +201,7 @@ type TickMarks struct {
 
 // A TickMarker returns a slice of ticks between a given
 // range of values. 
-type TickMarker interface{
+type TickMarker interface {
 	// Marks returns a slice of ticks for the given range.
 	Marks(min, max float64) []Tick
 }
@@ -223,7 +223,7 @@ func (t Tick) minor() bool {
 // the length.
 func (t Tick) lengthOffset(len float64) float64 {
 	if t.minor() {
-		return len/2
+		return len / 2
 	}
 	return 0
 }
@@ -238,16 +238,17 @@ func MakeTickMarks() TickMarks {
 	return TickMarks{
 		LabelStyle: TextStyle{
 			Color: color.RGBA{A: 255},
-			Font: labelFont,
+			Font:  labelFont,
 		},
 		MarkStyle: LineStyle{
-			Color: color.RGBA{A:255},
-			Width: 1.0/64.0,
+			Color: color.RGBA{A: 255},
+			Width: 1.0 / 64.0,
 		},
-		Length: 1.0/10.0,
+		Length:     1.0 / 10.0,
 		TickMarker: DefaultTicks(struct{}{}),
 	}
 }
+
 // labelHeight returns the label height in inches.
 func (tick TickMarks) labelHeight(ticks []Tick) float64 {
 	for _, t := range ticks {
@@ -255,7 +256,7 @@ func (tick TickMarks) labelHeight(ticks []Tick) float64 {
 			continue
 		}
 		font := tick.LabelStyle.Font
-		return font.Extents().Ascent/vecgfx.PtInch
+		return font.Extents().Ascent / vecgfx.PtInch
 	}
 	return 0
 }
@@ -272,7 +273,7 @@ func (tick TickMarks) labelWidth(ticks []Tick) float64 {
 			maxWidth = w
 		}
 	}
-	return maxWidth/vecgfx.PtInch
+	return maxWidth / vecgfx.PtInch
 }
 
 // A DefalutTicks returns a default set of tick marks within
@@ -282,11 +283,11 @@ type DefaultTicks struct{}
 // Marks implements the TickMarker Marks method.
 func (_ DefaultTicks) Marks(min, max float64) []Tick {
 	return []Tick{
-			{ Value: min, Label: fmt.Sprintf("%g", min) },
-			{ Value: min + (max-min)/4, },
-			{ Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min + (max-min)/2) },
-			{ Value: min + 3*(max-min)/4, },
-			{ Value: max, Label: fmt.Sprintf("%g", max) },
+		{Value: min, Label: fmt.Sprintf("%g", min)},
+		{Value: min + (max-min)/4},
+		{Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min+(max-min)/2)},
+		{Value: min + 3*(max-min)/4},
+		{Value: max, Label: fmt.Sprintf("%g", max)},
 	}
 }
 

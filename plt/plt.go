@@ -9,8 +9,8 @@ import (
 // A Plot is a pair of axes, an optional title and a set of
 // data elements that can be drawn to a DrawArea.
 type Plot struct {
-	Title string
-	TitleStyle TextStyle
+	Title        string
+	TitleStyle   TextStyle
 	XAxis, YAxis Axis
 }
 
@@ -21,9 +21,9 @@ func NewPlot() *Plot {
 		panic(err)
 	}
 	return &Plot{
-		TitleStyle: TextStyle {
-			Color: color.RGBA{A:255},
-			Font: titleFont,
+		TitleStyle: TextStyle{
+			Color: color.RGBA{A: 255},
+			Font:  titleFont,
 		},
 		XAxis: MakeAxis(),
 		YAxis: MakeAxis(),
@@ -35,13 +35,13 @@ func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(White)
 	da.Fill(RectPath(da.Rect))
 
-	pad := 5.0/vecgfx.PtInch
+	pad := 5.0 / vecgfx.PtInch
 	da = da.crop(pad, pad, -2*pad, -2*pad)
 
 	if p.Title != "" {
 		da.SetTextStyle(p.TitleStyle)
 		da.Text(da.Center().X, da.Max().Y, -0.5, -1, p.Title)
-		da.Sz.Y -= p.TitleStyle.Font.Extents().Height/vecgfx.PtInch * da.DPI()
+		da.Sz.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
 	}
 
 	ywidth := p.YAxis.width()

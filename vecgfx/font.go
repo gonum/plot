@@ -151,7 +151,7 @@ func getFont(name string) (*truetype.Font, error) {
 
 // FontExtents has font metric information.  All
 // values are given in postscript points.
-type FontExtents struct{
+type FontExtents struct {
 	// Ascent is the distance that the text
 	// extends above the baseline.
 	Ascent float64
@@ -173,9 +173,9 @@ func (f *Font) Extents() FontExtents {
 	bounds := f.font.Bounds()
 	scale := f.Size / float64(f.Font().UnitsPerEm())
 	return FontExtents{
-		Ascent: float64(bounds.YMax)*scale,
-		Descent: float64(bounds.YMin)*scale,
-		Height: float64(bounds.YMax-bounds.YMin)*scale,
+		Ascent:  float64(bounds.YMax) * scale,
+		Descent: float64(bounds.YMin) * scale,
+		Height:  float64(bounds.YMax-bounds.YMin) * scale,
 	}
 }
 
@@ -197,4 +197,3 @@ func (f *Font) Width(s string) float64 {
 	}
 	return float64(width) * scale
 }
-

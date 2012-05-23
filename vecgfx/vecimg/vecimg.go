@@ -4,16 +4,16 @@
 package vecimg
 
 import (
-	"image"
-	"image/png"
-	"image/color"
-	"os"
 	"bufio"
+	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/plotinum/vecgfx"
 	"fmt"
 	"go/build"
+	"image"
+	"image/color"
+	"image/png"
+	"os"
 	"path/filepath"
-	"code.google.com/p/plotinum/vecgfx"
-	"code.google.com/p/draw2d/draw2d"
 )
 
 const (
@@ -25,8 +25,8 @@ const (
 )
 
 type ImageCanvas struct {
-	gc draw2d.GraphicContext
-	img image.Image
+	gc    draw2d.GraphicContext
+	img   image.Image
 	color color.Color
 }
 
@@ -47,9 +47,9 @@ func New(w, h float64) (*ImageCanvas, error) {
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
 	return &ImageCanvas{
-		gc: gc,
-		img: img,
-		color: color.RGBA{A:255},
+		gc:    gc,
+		img:   img,
+		color: color.RGBA{A: 255},
 	}, nil
 }
 
@@ -75,7 +75,7 @@ func (c *ImageCanvas) Translate(x, y float64) {
 	c.gc.Translate(x, y)
 }
 
-func (c *ImageCanvas) Scale(x,y float64) {
+func (c *ImageCanvas) Scale(x, y float64) {
 	c.gc.Scale(x, y)
 }
 
@@ -126,15 +126,15 @@ func (c *ImageCanvas) DPI() float64 {
 
 func (c *ImageCanvas) FillText(font vecgfx.Font, x, y float64, str string) {
 	c.gc.Save()
-	c.gc.Translate(x, y+font.Extents().Ascent/vecgfx.PtInch * c.DPI())
+	c.gc.Translate(x, y+font.Extents().Ascent/vecgfx.PtInch*c.DPI())
 	c.gc.Scale(1, -1)
 	c.gc.DrawImage(c.textImage(font, str))
 	c.gc.Restore()
 }
 
 func (c *ImageCanvas) textImage(font vecgfx.Font, str string) *image.RGBA {
-	w := font.Width(str)/vecgfx.PtInch * c.DPI()
-	h := font.Extents().Height/vecgfx.PtInch * c.DPI()
+	w := font.Width(str) / vecgfx.PtInch * c.DPI()
+	h := font.Extents().Height / vecgfx.PtInch * c.DPI()
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
 	gc := draw2d.NewGraphicContext(img)
 
@@ -156,64 +156,64 @@ func (c *ImageCanvas) textImage(font vecgfx.Font, str string) *image.RGBA {
 var (
 	fontMap = map[string]draw2d.FontData{
 		"Courier": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilyMono,
-			Style: draw2d.FontStyleNormal,
+			Style:  draw2d.FontStyleNormal,
 		},
 		"Courier-Bold": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilyMono,
-			Style: draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleBold,
 		},
 		"Courier-Oblique": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilyMono,
-			Style: draw2d.FontStyleItalic,
+			Style:  draw2d.FontStyleItalic,
 		},
 		"Courier-BoldOblique": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilyMono,
-			Style: draw2d.FontStyleItalic | draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},
 		"Helvetica": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySans,
-			Style: draw2d.FontStyleNormal,
+			Style:  draw2d.FontStyleNormal,
 		},
 		"Helvetica-Bold": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySans,
-			Style: draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleBold,
 		},
 		"Helvetica-Oblique": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySans,
-			Style: draw2d.FontStyleItalic,
+			Style:  draw2d.FontStyleItalic,
 		},
 		"Helvetica-BoldOblique": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySans,
-			Style: draw2d.FontStyleItalic | draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},
 		"Times-Roman": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySerif,
-			Style: draw2d.FontStyleNormal,
+			Style:  draw2d.FontStyleNormal,
 		},
 		"Times-Bold": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySerif,
-			Style: draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleBold,
 		},
 		"Times-Italic": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySerif,
-			Style: draw2d.FontStyleItalic,
+			Style:  draw2d.FontStyleItalic,
 		},
 		"Times-BoldItalic": draw2d.FontData{
-			Name: "Nimbus",
+			Name:   "Nimbus",
 			Family: draw2d.FontFamilySerif,
-			Style: draw2d.FontStyleItalic | draw2d.FontStyleBold,
+			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},
 	}
 )

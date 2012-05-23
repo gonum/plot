@@ -3,14 +3,14 @@
 package veceps
 
 import (
-	"code.google.com/p/plotinum/vecgfx"
-	"image/color"
-	"bytes"
-	"time"
-	"fmt"
-	"os"
 	"bufio"
+	"bytes"
+	"code.google.com/p/plotinum/vecgfx"
+	"fmt"
+	"image/color"
 	"math"
+	"os"
+	"time"
 )
 
 type EpsCanvas struct {
@@ -19,12 +19,12 @@ type EpsCanvas struct {
 }
 
 type ctx struct {
-	color color.Color
-	width float64
+	color  color.Color
+	width  float64
 	dashes []float64
-	offs float64
-	font string
-	fsize float64
+	offs   float64
+	font   string
+	fsize  float64
 }
 
 // pr is the amount of precision to use when outputting float64s.
@@ -46,13 +46,13 @@ func New(w, h float64, title string) *EpsCanvas {
 	s += "1 setlinewidth\n"
 	s += "[] 0 setdash\n"
 	c := ctx{
-		color: color.RGBA{A: 255},
-		width: 1,
+		color:  color.RGBA{A: 255},
+		width:  1,
 		dashes: []float64{},
-		offs: 0,
+		offs:   0,
 	}
-	return &EpsCanvas {
-		stk: []ctx { c },
+	return &EpsCanvas{
+		stk: []ctx{c},
 		buf: bytes.NewBufferString(s),
 	}
 }
@@ -133,7 +133,7 @@ func (e *EpsCanvas) Fill(path vecgfx.Path) {
 }
 
 func (e *EpsCanvas) trace(path vecgfx.Path) {
-	e.buf.WriteString("newpath\n");
+	e.buf.WriteString("newpath\n")
 	for _, comp := range path {
 		switch comp.Type {
 		case vecgfx.MoveComp:
@@ -168,7 +168,7 @@ func (e *EpsCanvas) DPI() float64 {
 }
 
 // Save saves the plot to the given path.
-func(e *EpsCanvas) Save(path string) error {
+func (e *EpsCanvas) Save(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
