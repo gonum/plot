@@ -32,11 +32,8 @@ func NewPlot() *Plot {
 
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
-	pad := 5.0/vecgfx.PtInch * da.DPI()
-	da.Min.X += pad
-	da.Min.Y += pad
-	da.Sz.X -= 2*pad
-	da.Sz.Y -= 2*pad
+	pad := 5.0/vecgfx.PtInch
+	da = da.crop(pad, pad, -2*pad, -2*pad)
 
 	if p.Title != "" {
 		da.SetTextStyle(p.TitleStyle)
