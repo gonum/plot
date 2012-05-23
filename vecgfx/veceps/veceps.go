@@ -33,15 +33,14 @@ const pr = 5
 // New returns a new EpsCanvas with the width and height given
 // in inches and a title string.
 func New(w, h float64, title string) *EpsCanvas {
-	s := "%%!PS-Adobe-3.0\n"
-	s += "%%%%Creator code.google.com/p/plotinum/vecgfx/veceps\n"
+	s := "%%!PS-Adobe-3.0 EPSF-3.0\n"
+	s += "%%Creator code.google.com/p/plotinum/vecgfx/veceps\n"
 	s += "%%Title: " + title + "\n"
 	s += fmt.Sprintf("%%%%BoundingBox 0 0 %.*g %.*g\n", pr, w*vecgfx.PtInch,
 		pr, h*vecgfx.PtInch)
 	s += fmt.Sprintf("%%%%CreationDate: %s\n", time.Now())
-	s += "%%Pages: 0\n"
 	s += "%%Orientation: Portrait\n"
-	s += "%%%%EndComments\n"
+	s += "%%EndComments\n"
 	s += "\n"
 	s += "0 0 0 setrgbcolor\n"
 	s += "1 setlinewidth\n"
