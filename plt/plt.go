@@ -6,12 +6,15 @@ import (
 	"image/color"
 )
 
+// A Plot is a pair of axes, an optional title and a set of
+// data elements that can be drawn to a DrawArea.
 type Plot struct {
 	Title string
 	TitleStyle TextStyle
 	XAxis, YAxis Axis
 }
 
+// NewPlot returns a new plot.
 func NewPlot() *Plot {
 	titleFont, err := MakeFont("Times-Roman", 12)
 	if err != nil {
@@ -27,6 +30,7 @@ func NewPlot() *Plot {
 	}
 }
 
+// Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
 	pad := 5.0/vecgfx.PtInch * da.DPI()
 	da.Min.X += pad
@@ -47,10 +51,12 @@ func (p *Plot) Draw(da *DrawArea) {
 	p.YAxis.drawVert(da.crop(0, xheight, 0, -xheight))
 }
 
+// A Rect represents a rectangular region of 2d space.
 type Rect struct {
 	Min, Sz Point
 }
 
+// Max returns the maxmium x and y values of a Rect.
 func (r Rect) Max() Point {
 	return Point {
 		X: r.Min.X + r.Sz.X,
@@ -58,11 +64,12 @@ func (r Rect) Max() Point {
 	}
 }
 
+// A Point is a location in 2d space.
 type Point struct {
 	X, Y float64
 }
 
-// Pt returns a point with the given x and y values.
+// Pt returns a Point with the given x and y values.
 func Pt(x, y float64) Point {
 	return Point{x, y}
 }

@@ -16,7 +16,7 @@ var (
 )
 
 // A DrawArea is a vector graphics canvas along with
-// an associated rectangle defining a section of the canvas
+// an associated Rect defining a section of the canvas
 // to which drawing should take place.
 type DrawArea struct {
 	vecgfx.Canvas
@@ -24,7 +24,7 @@ type DrawArea struct {
 	Rect
 }
 
-// Center returns the center point of the area
+// Center returns the center Point of the area
 func (da *DrawArea) Center() Point {
 	return Point{
 		X: (da.Max().X - da.Min.X)/2 + da.Min.X,
@@ -34,7 +34,7 @@ func (da *DrawArea) Center() Point {
 
 // crop returns a new DrawArea corresponding to the receiver
 // area with the given number of inches added to each
-// point of the area's rectangle.
+// point of the area's Rect[.
 func (da *DrawArea) crop(minx, miny, szx, szy float64) *DrawArea {
 	return &DrawArea {
 		vecgfx.Canvas: vecgfx.Canvas(da),
