@@ -3,9 +3,10 @@ package plt
 import (
 	"testing"
 	"code.google.com/p/plotinum/vecgfx/vecimg"
+	"code.google.com/p/plotinum/vecgfx/veceps"
 )
 
-func TestDraw(t *testing.T) {
+func TestDrawImage(t *testing.T) {
 	img, err := vecimg.New(4, 4)
 	if err != nil {
 		t.Fatal(err)
@@ -17,8 +18,30 @@ func TestDraw(t *testing.T) {
 			Sz: Point{ 4*img.DPI(), 4*img.DPI() },
 		},
 	}
-	da.Stroke(RectPath(da.Rect))
+	draw(da)
+	err = img.SavePNG("test.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
 
+func TestDrawEps(t *testing.T) {
+	eps := veceps.New(4, 4, "test")
+	da := &DrawArea{
+		Canvas: eps,
+		Rect: Rect{ Min: Point{ 0, 0 },
+			Sz: Point{ 4*eps.DPI(), 4*eps.DPI() },
+		},
+	}
+	draw(da)
+	err := eps.Save("test.eps")
+	if err != nil {
+		t.Fatal(err)
+	}
+}
+
+// draw draws a simple test plot
+func draw(da *DrawArea) {
 	plot := NewPlot()
 	plot.Title = "This is a plot"
 	plot.XAxis.Min = 1
@@ -29,9 +52,4 @@ func TestDraw(t *testing.T) {
 	plot.YAxis.Ticks.TickMarker = ConstantTicks([]Tick{ { 10, "ten" }, { 15, "" }, { 20, "twenty" } })
 	plot.YAxis.Label = "Y-Axis gq"
 	plot.Draw(da)
-
-	err = img.SavePNG("plot.png")
-	if err != nil {
-		t.Fatal(err)
-	}
 }
