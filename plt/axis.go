@@ -98,7 +98,7 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 		da.SetLineStyle(a.Ticks.MarkStyle)
 		da.SetTextStyle(a.Ticks.LabelStyle)
 		for _, t := range marks {
-			if t.Label == "" {
+			if t.minor() {
 				continue
 			}
 			da.Text(a.X(da, t.Value), y, -0.5, 0, t.Label)
@@ -108,11 +108,7 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 		len := a.Ticks.Length*da.DPI()
 		for _, t := range marks {
 			x := a.X(da, t.Value)
-			y1 := y
-			if t.Label == "" {
-				y1 = y +  len/2
-			}
-			da.Line([]Point{{x, y1}, {x, y + len}})
+			da.Line([]Point{{x, y + t.lengthOffset(len)}, {x, y + len}})
 		}
 		y += len
 	}
@@ -162,7 +158,7 @@ func (a *Axis) drawVert(da *DrawArea) {
 			x += a.Ticks.LabelStyle.Font.Width(" ")/vecgfx.PtInch * da.DPI()
 		}
 		for _, t := range marks {
-			if t.Label == "" {
+			if t.minor() {
 				continue
 			}
 			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label + " ")
@@ -170,11 +166,7 @@ func (a *Axis) drawVert(da *DrawArea) {
 		len := a.Ticks.Length*da.DPI()
 		for _, t := range marks {
 			y := a.Y(da, t.Value)
-			x1 := x
-			if t.Label == "" {
-				x1 = x +  len/2
-			}
-			da.Line([]Point{{x1, y}, {x + len, y}})
+			da.Line([]Point{{x + t.lengthOffset(len), y}, {x + len, y}})
 		}
 		x += len
 	}
@@ -182,18 +174,22 @@ func (a *Axis) drawVert(da *DrawArea) {
 	da.Line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
 }
 
-// TickMarks is the style and location of a set of tick marks.
+// TickMarks specifies the style and location of the tick marks
+// on an axis.
 type TickMarks struct {
-	// LabelStyle is the text style on the tick labels.
+	// LabelStyle is the TextStyle on the tick labels.
 	LabelStyle TextStyle
 
-	// MarkStyle is the style of the tick mark lines.
+	// MarkStyle is the LineStyle of the tick mark lines.
 	MarkStyle LineStyle
 
-	// Length is the length of a major tick mark specified
-	// in inches.
+	// Length is the length of a major tick mark in inches.
+	// Minor tick marks are half of the length of major
+	// tick marks.
 	Length float64
 
+	// TickMarker locates the tick marks given the
+	// minimum and maximum values.
 	TickMarker
 }
 
@@ -208,6 +204,22 @@ type TickMarker interface{
 type Tick struct {
 	Value float64
 	Label string
+}
+
+// minor returns true if this is a minor tick mark.
+func (t Tick) minor() bool {
+	return t.Label == ""
+}
+
+// lengthOffset returns an offset that should be added to the
+// tick mark's line to accout for its length.  I.e., the start of
+// the line for a minor tick mark must be shifted by half of
+// the length.
+func (t Tick) lengthOffset(len float64) float64 {
+	if t.minor() {
+		return len/2
+	}
+	return 0
 }
 
 // MakeTickMarks returns a TickMarks using the default style
@@ -233,7 +245,7 @@ func MakeTickMarks() TickMarks {
 // labelHeight returns the label height in inches.
 func (tick TickMarks) labelHeight(ticks []Tick) float64 {
 	for _, t := range ticks {
-		if t.Label == "" {
+		if t.minor() {
 			continue
 		}
 		font := tick.LabelStyle.Font
@@ -246,7 +258,7 @@ func (tick TickMarks) labelHeight(ticks []Tick) float64 {
 func (tick TickMarks) labelWidth(ticks []Tick) float64 {
 	maxWidth := 0.0
 	for _, t := range ticks {
-		if t.Label == "" {
+		if t.minor() {
 			continue
 		}
 		w := tick.LabelStyle.Font.Width(t.Label)
