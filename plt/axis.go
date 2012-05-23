@@ -11,12 +11,15 @@ const (
 	DefaultFont = "Times-Roman"
 )
 
+// An Axis represents either a horizontal or vertical
+// axis of a plot.
 type Axis struct{
 	// Min and Max are the minimum and maximum data
 	// coordinates on this axis.
 	Min, Max float64
 
-	// Label is the axis label
+	// Label is the axis label.  If the label is the empty string
+	//  then no label is dislayed.
 	Label string
 
 	// LabelStyle is the text style of the label on the axis.
@@ -32,7 +35,10 @@ type Axis struct{
 	Ticks TickMarks
 }
 
-// MakeAxis returns a default axis.
+// MakeAxis returns a default Axis.
+//
+// The default range is (∞, ­∞), and thus any finite
+// value is less than Min and greater than Max.
 func MakeAxis() Axis {
 	labelFont, err := MakeFont(DefaultFont, 12)
 	if err != nil {
