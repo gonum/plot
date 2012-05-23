@@ -32,6 +32,9 @@ func NewPlot() *Plot {
 
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
+	da.SetColor(White)
+	da.Fill(RectPath(da.Rect))
+
 	pad := 5.0/vecgfx.PtInch
 	da = da.crop(pad, pad, -2*pad, -2*pad)
 
