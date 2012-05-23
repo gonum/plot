@@ -28,19 +28,19 @@ type Axis struct{
 	// Padding between the axis line and the data in inches.
 	Padding float64
 
-	// Tick are the tick marks on the axis.
-	Tick TickMarks
+	// Ticks are the tick marks on the axis.
+	Ticks TickMarks
 }
 
-// MakeAxis returns a default axis with the given data dimensions.
-func MakeAxis(min, max float64) Axis {
+// MakeAxis returns a default axis.
+func MakeAxis() Axis {
 	labelFont, err := MakeFont(DefaultFont, 12)
 	if err != nil {
 		panic(err)
 	}
 	return Axis{
-		Min: min,
-		Max: max,
+		Min: math.Inf(1),
+		Max: math.Inf(-1),
 		Label: "",
 		LabelStyle: TextStyle{
 			Color: Black,
@@ -51,7 +51,7 @@ func MakeAxis(min, max float64) Axis {
 			Width: 1.0/64.0,
 		},
 		Padding: 1.0/8.0,
-		Tick: MakeTickMarks(min, max),
+		Ticks: MakeTickMarks(),
 	}
 }
 
@@ -75,8 +75,9 @@ func (a *Axis) height() (h float64) {
 	if a.Label != "" {
 		h += a.LabelStyle.Font.Extents().Height/vecgfx.PtInch
 	}
-	if len(a.Tick.Marks) > 0 {
-		h += a.Tick.Length + a.Tick.labelHeight()
+	marks := a.Ticks.Marks(a.Min, a.Max)
+	if len(marks) > 0 {
+		h += a.Ticks.Length + a.Ticks.labelHeight(marks)
 	}
 	h += a.AxisStyle.Width/2
 	h += a.Padding
@@ -92,19 +93,20 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 		da.Text(da.Center().X, y, -0.5, 0, a.Label)
 		y += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()
 	}
-	if len(a.Tick.Marks) > 0 {
-		da.SetLineStyle(a.Tick.MarkStyle)
-		da.SetTextStyle(a.Tick.LabelStyle)
-		for _, t := range a.Tick.Marks {
+	marks := a.Ticks.Marks(a.Min, a.Max)
+	if len(marks) > 0 {
+		da.SetLineStyle(a.Ticks.MarkStyle)
+		da.SetTextStyle(a.Ticks.LabelStyle)
+		for _, t := range marks {
 			if t.Label == "" {
 				continue
 			}
 			da.Text(a.X(da, t.Value), y, -0.5, 0, t.Label)
 		}
-		y += a.Tick.labelHeight() * da.DPI()
+		y += a.Ticks.labelHeight(marks) * da.DPI()
 
-		len := a.Tick.Length*da.DPI()
-		for _, t := range a.Tick.Marks {
+		len := a.Ticks.Length*da.DPI()
+		for _, t := range marks {
 			x := a.X(da, t.Value)
 			y1 := y
 			if t.Label == "" {
@@ -124,14 +126,15 @@ func (a *Axis) width() (w float64) {
 	if a.Label != "" {
 		w += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch
 	}
-	if len(a.Tick.Marks) > 0 {
-		if lwidth := a.Tick.labelWidth(); lwidth > 0 {
+	marks := a.Ticks.Marks(a.Min, a.Max)
+	if len(marks) > 0 {
+		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			w += lwidth
 			// Add a space after tick labels to separate
 			// them from the tick marks
-			w += a.Tick.LabelStyle.Font.Width(" ")/vecgfx.PtInch
+			w += a.Ticks.LabelStyle.Font.Width(" ")/vecgfx.PtInch
 		}
-		w += a.Tick.Length
+		w += a.Ticks.Length
 	}
 	w += a.AxisStyle.Width/2
 	w += a.Padding
@@ -150,21 +153,22 @@ func (a *Axis) drawVert(da *DrawArea) {
 		da.Pop()
 		x += -a.LabelStyle.Font.Extents().Descent/vecgfx.PtInch * da.DPI()
 	}
-	if len(a.Tick.Marks) > 0 {
-		da.SetLineStyle(a.Tick.MarkStyle)
-		da.SetTextStyle(a.Tick.LabelStyle)
-		if lwidth := a.Tick.labelWidth(); lwidth > 0 {
+	marks := a.Ticks.Marks(a.Min, a.Max)
+	if len(marks) > 0 {
+		da.SetLineStyle(a.Ticks.MarkStyle)
+		da.SetTextStyle(a.Ticks.LabelStyle)
+		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			x += lwidth * da.DPI()
-			x += a.Tick.LabelStyle.Font.Width(" ")/vecgfx.PtInch * da.DPI()
+			x += a.Ticks.LabelStyle.Font.Width(" ")/vecgfx.PtInch * da.DPI()
 		}
-		for _, t := range a.Tick.Marks {
+		for _, t := range marks {
 			if t.Label == "" {
 				continue
 			}
 			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label + " ")
 		}
-		len := a.Tick.Length*da.DPI()
-		for _, t := range a.Tick.Marks {
+		len := a.Ticks.Length*da.DPI()
+		for _, t := range marks {
 			y := a.Y(da, t.Value)
 			x1 := x
 			if t.Label == "" {
@@ -190,11 +194,25 @@ type TickMarks struct {
 	// in inches.
 	Length float64
 
-	// Marks is a slice of the locations of the tick marks.
-	Marks []Tick
+	TickMarker
 }
 
-func MakeTickMarks(min, max float64) TickMarks {
+// A TickMarker returns a slice of ticks between a given
+// range of values. 
+type TickMarker interface{
+	// Marks returns a slice of ticks for the given range.
+	Marks(min, max float64) []Tick
+}
+
+// A Tick is a single tick mark
+type Tick struct {
+	Value float64
+	Label string
+}
+
+// MakeTickMarks returns a TickMarks using the default style
+// and TickMarker.
+func MakeTickMarks() TickMarks {
 	labelFont, err := MakeFont(DefaultFont, 10)
 	if err != nil {
 		panic(err)
@@ -209,19 +227,12 @@ func MakeTickMarks(min, max float64) TickMarks {
 			Width: 1.0/64.0,
 		},
 		Length: 1.0/10.0,
-		Marks: []Tick{
-			{ Value: min, Label: fmt.Sprintf("%g", min) },
-			{ Value: min + (max-min)/4, },
-			{ Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min + (max-min)/2) },
-			{ Value: min + 3*(max-min)/4, },
-			{ Value: max, Label: fmt.Sprintf("%g", max) },
-		},
+		TickMarker: DefaultTicks(struct{}{}),
 	}
 }
-
 // labelHeight returns the label height in inches.
-func (tick TickMarks) labelHeight() float64 {
-	for _, t := range tick.Marks {
+func (tick TickMarks) labelHeight(ticks []Tick) float64 {
+	for _, t := range ticks {
 		if t.Label == "" {
 			continue
 		}
@@ -232,22 +243,39 @@ func (tick TickMarks) labelHeight() float64 {
 }
 
 // labelWidth returns the label width in inches.
-func (tick TickMarks) labelWidth() float64 {
-	max := 0.0
-	for _, t := range tick.Marks {
+func (tick TickMarks) labelWidth(ticks []Tick) float64 {
+	maxWidth := 0.0
+	for _, t := range ticks {
 		if t.Label == "" {
 			continue
 		}
 		w := tick.LabelStyle.Font.Width(t.Label)
-		if w > max {
-			max = w
+		if w > maxWidth {
+			maxWidth = w
 		}
 	}
-	return max/vecgfx.PtInch
+	return maxWidth/vecgfx.PtInch
 }
 
-// A Tick is a single tick mark
-type Tick struct {
-	Value float64
-	Label string
+// A DefalutTicks returns a default set of tick marks within
+// the given range.
+type DefaultTicks struct{}
+
+// Marks implements the TickMarker Marks method.
+func (_ DefaultTicks) Marks(min, max float64) []Tick {
+	return []Tick{
+			{ Value: min, Label: fmt.Sprintf("%g", min) },
+			{ Value: min + (max-min)/4, },
+			{ Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min + (max-min)/2) },
+			{ Value: min + 3*(max-min)/4, },
+			{ Value: max, Label: fmt.Sprintf("%g", max) },
+	}
+}
+
+// A ConstTicks always returns the same set of tick marks.
+type ConstTicks []Tick
+
+// Marks implements the TickMarker Marks method.
+func (tks ConstTicks) Marks(min, max float64) []Tick {
+	return tks
 }

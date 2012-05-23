@@ -21,9 +21,12 @@ func TestDraw(t *testing.T) {
 
 	plot := NewPlot()
 	plot.Title = "This is a plot"
-	plot.XAxis = MakeAxis(1, 10)
+	plot.XAxis.Min = 1
+	plot.XAxis.Max = 10
 	plot.XAxis.Label = "X-Axis gq"
-	plot.YAxis = MakeAxis(1, 10)
+	plot.YAxis.Min = 10
+	plot.YAxis.Max = 20
+	plot.YAxis.Ticks.TickMarker = ConstTicks([]Tick{ { 10, "ten" }, { 15, "" }, { 20, "twenty" } })
 	plot.YAxis.Label = "Y-Axis gq"
 	plot.Draw(da)
 

@@ -25,8 +25,8 @@ func NewPlot() *Plot {
 			Color: color.RGBA{A:255},
 			Font: titleFont,
 		},
-		XAxis: MakeAxis(0, 0),
-		YAxis: MakeAxis(0, 0),
+		XAxis: MakeAxis(),
+		YAxis: MakeAxis(),
 	}
 }
 
