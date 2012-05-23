@@ -285,7 +285,7 @@ func (p Point) plus(q Point) Point {
 	return Point{p.X + q.X, p.Y + q.Y}
 }
 
-// minus returns the component-wise differenec of two points.
+// minus returns the component-wise difference of two points.
 func (p Point) minus(q Point) Point {
 	return Point{p.X - q.X, p.Y - q.Y}
 }
