@@ -1,4 +1,5 @@
-package plotinum
+// The plt package implements low-level plotting functionality.
+package plt
 
 import (
 	"code.google.com/p/plotinum/vecgfx"
@@ -40,16 +41,16 @@ func (p *Plot) Draw(da *DrawArea) {
 	}
 
 	area := da.Rect
-	ywidth := p.YAxis.Width() * da.DPI()
+	ywidth := p.YAxis.width() * da.DPI()
 	da.Min.X += ywidth
 	da.Sz.X -= ywidth
-	p.XAxis.DrawHoriz(da)
+	p.XAxis.drawHoriz(da)
 
 	da.Rect = area
-	xheight := p.XAxis.Height() * da.DPI()
+	xheight := p.XAxis.height() * da.DPI()
 	da.Min.Y += xheight
 	da.Sz.Y -= xheight
-	p.YAxis.DrawVert(da)
+	p.YAxis.drawVert(da)
 }
 
 type Rect struct {

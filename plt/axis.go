@@ -1,4 +1,4 @@
-package plotinum
+package plt
 
 import (
 	"code.google.com/p/plotinum/vecgfx"
@@ -69,9 +69,9 @@ func (a *Axis) Y(da *DrawArea, y float64) float64 {
 	return da.Min.Y + p*(da.Max().Y - da.Min.Y)
 }
 
-// Height returns the height of the axis in inches
+// height returns the height of the axis in inches
 //  if it is drawn as a horizontal axis.
-func (a *Axis) Height() (h float64) {
+func (a *Axis) height() (h float64) {
 	if a.Label != "" {
 		h += a.LabelStyle.Font.Extents().Height/vecgfx.PtInch
 	}
@@ -83,8 +83,8 @@ func (a *Axis) Height() (h float64) {
 	return
 }
 
-// DrawHoriz draws the axis onto the given area.
-func (a *Axis) DrawHoriz(da *DrawArea) {
+// drawHoriz draws the axis onto the given area.
+func (a *Axis) drawHoriz(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.SetTextStyle(a.LabelStyle)
@@ -118,9 +118,9 @@ func (a *Axis) DrawHoriz(da *DrawArea) {
 	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
 }
 
-// Width returns the width of the axis in inches
+// width returns the width of the axis in inches
 //  if it is drawn as a vertically axis.
-func (a *Axis) Width() (w float64) {
+func (a *Axis) width() (w float64) {
 	if a.Label != "" {
 		w += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch
 	}
@@ -138,8 +138,8 @@ func (a *Axis) Width() (w float64) {
 	return
 }
 
-// DrawVert draws the axis onto the given area.
-func (a *Axis) DrawVert(da *DrawArea) {
+// drawVert draws the axis onto the given area.
+func (a *Axis) drawVert(da *DrawArea) {
 	x := da.Min.X
 	if a.Label != "" {
 		x += a.LabelStyle.Font.Extents().Ascent/vecgfx.PtInch * da.DPI()

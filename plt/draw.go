@@ -1,4 +1,4 @@
-package plotinum
+package plt
 
 import (
 	"fmt"
