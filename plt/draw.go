@@ -194,10 +194,10 @@ func isAbove(p, clip Point) bool {
 // clipping line specified by the clip point and normal.
 func isect(p0, p1, clip, norm Point) Point {
 	// t = (norm · (p0 - clip)) / (norm · (p0 - p1))
-	t := p0.Minus(clip).Dot(norm) / p0.Minus(p1).Dot(norm)
+	t := p0.minus(clip).dot(norm) / p0.minus(p1).dot(norm)
 
 	// p = p0 + t*(p1 - p0)
-	return p1.Minus(p0).Scale(t).Plus(p0)
+	return p1.minus(p0).scale(t).plus(p0)
 }
 
 // CirclePath returns the path of a circle centered at x,y with

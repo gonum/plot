@@ -68,18 +68,27 @@ type Point struct {
 	X, Y float64
 }
 
-func (p Point) Dot(q Point) float64 {
+// Pt returns a point with the given x and y values.
+func Pt(x, y float64) Point {
+	return Point{x, y}
+}
+
+// dot returns the dot product of two points.
+func (p Point) dot(q Point) float64 {
 	return p.X*q.X + p.Y*q.Y
 }
 
-func (p Point) Plus(q Point) Point {
+// plus returns the component-wise sum of two points.
+func (p Point) plus(q Point) Point {
 	return Point{p.X + q.X, p.Y + q.Y}
 }
 
-func (p Point) Minus(q Point) Point {
+// minus returns the component-wise differenec of two points.
+func (p Point) minus(q Point) Point {
 	return Point{p.X - q.X, p.Y - q.Y}
 }
 
-func (p Point) Scale(s float64) Point {
+// scale returns the component-wise product of a point and a scalar.
+func (p Point) scale(s float64) Point {
 	return Point{p.X * s, p.Y * s}
 }
