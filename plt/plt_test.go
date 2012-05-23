@@ -26,7 +26,7 @@ func TestDraw(t *testing.T) {
 	plot.XAxis.Label = "X-Axis gq"
 	plot.YAxis.Min = 10
 	plot.YAxis.Max = 20
-	plot.YAxis.Ticks.TickMarker = ConstTicks([]Tick{ { 10, "ten" }, { 15, "" }, { 20, "twenty" } })
+	plot.YAxis.Ticks.TickMarker = ConstantTicks([]Tick{ { 10, "ten" }, { 15, "" }, { 20, "twenty" } })
 	plot.YAxis.Label = "Y-Axis gq"
 	plot.Draw(da)
 

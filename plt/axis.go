@@ -273,9 +273,9 @@ func (_ DefaultTicks) Marks(min, max float64) []Tick {
 }
 
 // A ConstTicks always returns the same set of tick marks.
-type ConstTicks []Tick
+type ConstantTicks []Tick
 
 // Marks implements the TickMarker Marks method.
-func (tks ConstTicks) Marks(min, max float64) []Tick {
+func (tks ConstantTicks) Marks(min, max float64) []Tick {
 	return tks
 }
