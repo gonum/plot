@@ -51,22 +51,21 @@ func (da *DrawArea) Y(y float64) float64 {
 }
 
 // crop returns a new DrawArea corresponding to the receiver
-// area with the given number of inches added to each
-// point of the area's Rect[.
-func (da *DrawArea) crop(minx, miny, szx, szy float64) *DrawArea {
+// area with the given number of inches added to the minimum
+// and maximum x and y values of the DrawArea's Rect.
+func (da *DrawArea) crop(minx, miny, maxx, maxy float64) *DrawArea {
+	minpt := Point{
+		X: da.Rect.Min.X + minx*da.DPI(),
+		Y: da.Rect.Min.Y + miny*da.DPI(),
+	}
+	sz := Point{
+		X: da.Max().X + maxx*da.DPI() - minpt.X,
+		Y: da.Max().Y + maxy*da.DPI() - minpt.Y,
+	}
 	return &DrawArea{
 		vecgfx.Canvas: vecgfx.Canvas(da),
 		font:          da.font,
-		Rect: Rect{
-			Min: Point{
-				X: da.Rect.Min.X + minx*da.DPI(),
-				Y: da.Rect.Min.Y + miny*da.DPI(),
-			},
-			Size: Point{
-				X: da.Rect.Size.X + szx*da.DPI(),
-				Y: da.Rect.Size.Y + szy*da.DPI(),
-			},
-		},
+		Rect: Rect{ Min: minpt, Size: sz },
 	}
 }
 

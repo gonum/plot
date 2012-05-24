@@ -36,7 +36,7 @@ func (p *Plot) Draw(da *DrawArea) {
 	da.Fill(RectPath(da.Rect))
 
 	pad := 5.0 / vecgfx.PtInch
-	da = da.crop(pad, pad, -2*pad, -2*pad)
+	da = da.crop(pad, pad, -pad, -pad)
 
 	if p.Title != "" {
 		da.SetTextStyle(p.TitleStyle)
@@ -45,8 +45,8 @@ func (p *Plot) Draw(da *DrawArea) {
 	}
 
 	ywidth := p.YAxis.width()
-	p.XAxis.drawHoriz(da.crop(ywidth, 0, -ywidth, 0))
+	p.XAxis.drawHoriz(da.crop(ywidth, 0, 0, 0))
 
 	xheight := p.XAxis.height()
-	p.YAxis.drawVert(da.crop(0, xheight, 0, -xheight))
+	p.YAxis.drawVert(da.crop(0, xheight, 0, 0))
 }
