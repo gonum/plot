@@ -15,7 +15,7 @@ func TestDrawImage(t *testing.T) {
 	da := &DrawArea{
 		Canvas: img,
 		Rect: Rect{Min: Point{0, 0},
-			Sz: Point{4 * img.DPI(), 4 * img.DPI()},
+			Size: Point{4 * img.DPI(), 4 * img.DPI()},
 		},
 	}
 	draw(da)
@@ -30,7 +30,7 @@ func TestDrawEps(t *testing.T) {
 	da := &DrawArea{
 		Canvas: eps,
 		Rect: Rect{Min: Point{0, 0},
-			Sz: Point{4 * eps.DPI(), 4 * eps.DPI()},
+			Size: Point{4 * eps.DPI(), 4 * eps.DPI()},
 		},
 	}
 	draw(da)

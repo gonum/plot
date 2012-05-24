@@ -41,7 +41,7 @@ func (p *Plot) Draw(da *DrawArea) {
 	if p.Title != "" {
 		da.SetTextStyle(p.TitleStyle)
 		da.Text(da.Center().X, da.Max().Y, -0.5, -1, p.Title)
-		da.Sz.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
+		da.Size.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
 	}
 
 	ywidth := p.YAxis.width()

@@ -44,9 +44,9 @@ func (da *DrawArea) crop(minx, miny, szx, szy float64) *DrawArea {
 				X: da.Rect.Min.X + minx*da.DPI(),
 				Y: da.Rect.Min.Y + miny*da.DPI(),
 			},
-			Sz: Point{
-				X: da.Rect.Sz.X + szx*da.DPI(),
-				Y: da.Rect.Sz.Y + szy*da.DPI(),
+			Size: Point{
+				X: da.Rect.Size.X + szx*da.DPI(),
+				Y: da.Rect.Size.Y + szy*da.DPI(),
 			},
 		},
 	}
@@ -254,14 +254,14 @@ func RectPath(r Rect) (p vecgfx.Path) {
 
 // A Rect represents a rectangular region of 2d space.
 type Rect struct {
-	Min, Sz Point
+	Min, Size Point
 }
 
 // Max returns the maxmium x and y values of a Rect.
 func (r Rect) Max() Point {
 	return Point{
-		X: r.Min.X + r.Sz.X,
-		Y: r.Min.Y + r.Sz.Y,
+		X: r.Min.X + r.Size.X,
+		Y: r.Min.Y + r.Size.Y,
 	}
 }
 
