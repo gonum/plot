@@ -64,15 +64,21 @@ func MakeAxis() Axis {
 // X transfroms the data point x to the drawing coordinate
 // for the given drawing area.
 func (a *Axis) X(da *DrawArea, x float64) float64 {
-	p := (x - a.Min) / (a.Max - a.Min)
-	return da.Min.X + p*(da.Max().X-da.Min.X)
+	return da.X(a.Norm(x))
 }
 
 // Y transforms the data point y to the drawing coordinate
 // for the given drawing area.
 func (a *Axis) Y(da *DrawArea, y float64) float64 {
-	p := (y - a.Min) / (a.Max - a.Min)
-	return da.Min.Y + p*(da.Max().Y-da.Min.Y)
+	return da.Y(a.Norm(y))
+}
+
+// Norm return the value of x, given in the data coordinate
+// system, normalized to its distance as a fraction of the
+// range of this axis.  For example, if x is a.Min then the return
+// value is 0, and if x is a.Max then the return value is 1.
+func (a *Axis) Norm(x float64) float64 {
+	return (x-a.Min)/(a.Max-a.Min)
 }
 
 // height returns the height of the axis in inches

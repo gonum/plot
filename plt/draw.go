@@ -32,6 +32,24 @@ func (da *DrawArea) Center() Point {
 	}
 }
 
+// X returns the value of x, given in the unit range,
+// in the drawing coordinates of this draw area.
+// A value of 0, for example, will return the minimum
+// x value of the draw area and a value of 1 will
+// return the maximum.
+func (da *DrawArea) X(x float64) float64 {
+	return x*(da.Max().X - da.Min.X) + da.Min.X
+}
+
+// Y returns the value of x, given in the unit range,
+// in the drawing coordinates of this draw area.
+// A value of 0, for example, will return the minimum
+// y value of the draw area and a value of 1 will
+// return the maximum.
+func (da *DrawArea) Y(y float64) float64 {
+	return y*(da.Max().Y - da.Min.Y) + da.Min.Y
+}
+
 // crop returns a new DrawArea corresponding to the receiver
 // area with the given number of inches added to each
 // point of the area's Rect[.
