@@ -128,6 +128,23 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
 }
 
+// glyphsHoriz returns normalized GlyphBoxes for the glyphs
+// representing the tick mark text for a horizontal axis.
+func (a *Axis) glyphsHoriz() (boxes []GlyphBox) {
+	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
+		if t.minor() {
+			continue
+		}
+		w := a.Ticks.LabelStyle.Font.Width(t.Label)
+		box := GlyphBox{
+			Point: Point{ X: a.Norm(t.Value) },
+			Rect: Rect{ Min: Point{ X: -w/2 }, Size: Point{ X: w } },
+		}
+		boxes = append(boxes, box)
+	}
+	return
+}
+
 // width returns the width of the axis in inches
 //  if it is drawn as a vertically axis.
 func (a *Axis) width() (w float64) {
@@ -184,6 +201,23 @@ func (a *Axis) drawVert(da *DrawArea) {
 	}
 	da.SetLineStyle(a.AxisStyle)
 	da.Line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
+}
+
+// glyphsVert returns normalized GlyphBoxes for the glyphs
+// representing the tick mark text for a vertical axis.
+func (a *Axis) glyphsVert() (boxes []GlyphBox) {
+	h := a.Ticks.LabelStyle.Font.Extents().Height
+	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
+		if t.minor() {
+			continue
+		}
+		box := GlyphBox{
+			Point: Point{ Y: a.Norm(t.Value) },
+			Rect: Rect{ Min: Point{ Y: -h/2 }, Size: Point{ Y: h } },
+		}
+		boxes = append(boxes, box)
+	}
+	return
 }
 
 // TickMarks specifies the style and location of the tick marks

@@ -44,8 +44,8 @@ func TestDrawEps(t *testing.T) {
 func draw(da *DrawArea) {
 	plot := NewPlot()
 	plot.Title = "This is a plot"
-	plot.XAxis.Min = 1
-	plot.XAxis.Max = 10
+	plot.XAxis.Min = 100000
+	plot.XAxis.Max = 100001
 	plot.XAxis.Label = "X-Axis gq"
 	plot.YAxis.Min = 10
 	plot.YAxis.Max = 20

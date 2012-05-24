@@ -69,6 +69,64 @@ func (da *DrawArea) crop(minx, miny, maxx, maxy float64) *DrawArea {
 	}
 }
 
+// squishX returns a new DrawArea with a squished width such
+// that any of the given set of glyphs will draw within the original
+// draw area when they are mapped to the coordinate system
+// of the returned DrawArea.
+//
+// The location of the glyphs that are given as a parameter are
+// assumed to be on the unit interval, with 0 meaning the left-most
+// side of the draw area and 1 meaning the right-most side.
+func (da *DrawArea) squishX(boxes []GlyphBox) *DrawArea {
+	if len(boxes) == 0 {
+		return da
+	}
+
+	var left, right GlyphBox
+	minx, maxx := math.Inf(1), math.Inf(-1)
+	for _, b := range boxes {
+		if x := da.X(b.Point.X) + b.Rect.Min.X; x < minx {
+			left = b
+			minx = x
+		}
+		if x := da.X(b.Point.X) + b.Rect.Min.X + b.Rect.Size.X; x > maxx {
+			right = b
+			maxx = x
+		}
+	}
+
+	if minx >= da.Min.X {
+		minx = da.Min.X
+	}
+	if maxx <= da.Max().X {
+		maxx = da.Max().X
+	}
+
+	// where we want the left and right points to end up
+	l := da.Min.X + (da.Min.X - minx)
+	r := da.Max().X - (maxx - da.Max().X)
+	n := (left.Point.X*r - right.Point.X*l)/(left.Point.X - right.Point.X)
+	m := ((left.Point.X-1)*r - right.Point.X*l + l)/(left.Point.X - right.Point.X)
+	return &DrawArea{
+		vecgfx.Canvas: vecgfx.Canvas(da),
+		font:          da.font,
+		Rect: Rect{
+			Min: Point{ X: n, Y: da.Min.Y },
+			Size: Point{ X: m - n, Y: da.Size.Y },
+		},
+	}
+}
+
+// A GlyphBox describes the location of a glyph
+// and the offset/size of its bounding box.
+type GlyphBox struct {
+	// Point is the location of the glyph
+	Point
+	// Rect is the offset of the glyph's minimum drawing
+	// point relative to the glyph location and its size.
+	Rect
+}
+
 // SetTextStyle sets the current text style
 func (da *DrawArea) SetTextStyle(sty TextStyle) {
 	da.SetColor(sty.Color)
