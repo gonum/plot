@@ -140,7 +140,7 @@ func (a *HorizontalAxis) glyphBoxes() (boxes []glyphBox) {
 		if t.minor() {
 			continue
 		}
-		w := a.Ticks.LabelStyle.Font.Width(t.Label)
+		w := a.Ticks.LabelStyle.Font.Width(t.Label)/vecgfx.PtInch
 		box := glyphBox{
 			Point: Point{ X: a.norm(t.Value) },
 			Rect: Rect{ Min: Point{ X: -w/2 }, Size: Point{ X: w } },
@@ -215,7 +215,7 @@ func (a *VerticalAxis) draw(da *DrawArea) {
 // glyphBoxes returns normalized glyphBoxes for the glyphs
 // representing the tick mark text.
 func (a *VerticalAxis) glyphBoxes() (boxes []glyphBox) {
-	h := a.Ticks.LabelStyle.Font.Extents().Height
+	h := a.Ticks.LabelStyle.Font.Extents().Height/vecgfx.PtInch
 	for _, t := range a.Ticks.marks(a.Min, a.Max) {
 		if t.minor() {
 			continue

@@ -85,11 +85,11 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 	var left, right glyphBox
 	minx, maxx := math.Inf(1), math.Inf(-1)
 	for _, b := range boxes {
-		if x := da.x(b.Point.X) + b.Rect.Min.X; x < minx {
+		if x := da.x(b.Point.X) + b.Rect.Min.X*da.DPI(); x < minx {
 			left = b
 			minx = x
 		}
-		if x := da.x(b.Point.X) + b.Rect.Min.X + b.Rect.Size.X; x > maxx {
+		if x := da.x(b.Point.X) + b.Rect.Min.X*da.DPI() + b.Rect.Size.X*da.DPI(); x > maxx {
 			right = b
 			maxx = x
 		}
