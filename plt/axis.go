@@ -35,11 +35,11 @@ type Axis struct {
 	Ticks TickMarks
 }
 
-// MakeAxis returns a default Axis.
+// makeAxis returns a default Axis.
 //
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
-func MakeAxis() Axis {
+func makeAxis() Axis {
 	labelFont, err := MakeFont(DefaultFont, 12)
 	if err != nil {
 		panic(err)
@@ -57,27 +57,27 @@ func MakeAxis() Axis {
 			Width: 1.0 / 64.0,
 		},
 		Padding: 1.0 / 8.0,
-		Ticks:   MakeTickMarks(),
+		Ticks:   makeTickMarks(),
 	}
 }
 
 // X transfroms the data point x to the drawing coordinate
 // for the given drawing area.
-func (a *Axis) X(da *DrawArea, x float64) float64 {
-	return da.X(a.Norm(x))
+func (a *Axis) x(da *DrawArea, x float64) float64 {
+	return da.x(a.norm(x))
 }
 
 // Y transforms the data point y to the drawing coordinate
 // for the given drawing area.
-func (a *Axis) Y(da *DrawArea, y float64) float64 {
-	return da.Y(a.Norm(y))
+func (a *Axis) y(da *DrawArea, y float64) float64 {
+	return da.y(a.norm(y))
 }
 
-// Norm return the value of x, given in the data coordinate
+// norm return the value of x, given in the data coordinate
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
-func (a *Axis) Norm(x float64) float64 {
+func (a *Axis) norm(x float64) float64 {
 	return (x-a.Min)/(a.Max-a.Min)
 }
 
@@ -92,7 +92,7 @@ func (a *HorizontalAxis) size() (h float64) {
 	if a.Label != "" {
 		h += a.LabelStyle.Font.Extents().Height / vecgfx.PtInch
 	}
-	marks := a.Ticks.Marks(a.Min, a.Max)
+	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
 		h += a.Ticks.Length + a.Ticks.labelHeight(marks)
 	}
@@ -105,44 +105,44 @@ func (a *HorizontalAxis) size() (h float64) {
 func (a *HorizontalAxis) draw(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
-		da.SetTextStyle(a.LabelStyle)
+		da.setTextStyle(a.LabelStyle)
 		y += -(a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI())
-		da.Text(da.Center().X, y, -0.5, 0, a.Label)
+		da.text(da.center().X, y, -0.5, 0, a.Label)
 		y += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
 	}
-	marks := a.Ticks.Marks(a.Min, a.Max)
+	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
-		da.SetLineStyle(a.Ticks.MarkStyle)
-		da.SetTextStyle(a.Ticks.LabelStyle)
+		da.setLineStyle(a.Ticks.MarkStyle)
+		da.setTextStyle(a.Ticks.LabelStyle)
 		for _, t := range marks {
 			if t.minor() {
 				continue
 			}
-			da.Text(a.X(da, t.Value), y, -0.5, 0, t.Label)
+			da.text(a.x(da, t.Value), y, -0.5, 0, t.Label)
 		}
 		y += a.Ticks.labelHeight(marks) * da.DPI()
 
 		len := a.Ticks.Length * da.DPI()
 		for _, t := range marks {
-			x := a.X(da, t.Value)
-			da.Line([]Point{{x, y + t.lengthOffset(len)}, {x, y + len}})
+			x := a.x(da, t.Value)
+			da.line([]Point{{x, y + t.lengthOffset(len)}, {x, y + len}})
 		}
 		y += len
 	}
-	da.SetLineStyle(a.AxisStyle)
-	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
+	da.setLineStyle(a.AxisStyle)
+	da.line([]Point{{da.Min.X, y}, {da.Max().X, y}})
 }
 
-// glyphBoxes returns normalized GlyphBoxes for the glyphs
+// glyphBoxes returns normalized glyphBoxes for the glyphs
 // representing the tick mark text.
-func (a *HorizontalAxis) glyphBoxes() (boxes []GlyphBox) {
-	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
+func (a *HorizontalAxis) glyphBoxes() (boxes []glyphBox) {
+	for _, t := range a.Ticks.marks(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
 		w := a.Ticks.LabelStyle.Font.Width(t.Label)
-		box := GlyphBox{
-			Point: Point{ X: a.Norm(t.Value) },
+		box := glyphBox{
+			Point: Point{ X: a.norm(t.Value) },
 			Rect: Rect{ Min: Point{ X: -w/2 }, Size: Point{ X: w } },
 		}
 		boxes = append(boxes, box)
@@ -160,7 +160,7 @@ func (a *VerticalAxis) size() (w float64) {
 	if a.Label != "" {
 		w += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch
 	}
-	marks := a.Ticks.Marks(a.Min, a.Max)
+	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
 		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			w += lwidth
@@ -180,17 +180,17 @@ func (a *VerticalAxis) draw(da *DrawArea) {
 	x := da.Min.X
 	if a.Label != "" {
 		x += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
-		da.SetTextStyle(a.LabelStyle)
+		da.setTextStyle(a.LabelStyle)
 		da.Push()
 		da.Rotate(math.Pi / 2)
-		da.Text(da.Center().Y, -x, -0.5, 0, a.Label)
+		da.text(da.center().Y, -x, -0.5, 0, a.Label)
 		da.Pop()
 		x += -a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI()
 	}
-	marks := a.Ticks.Marks(a.Min, a.Max)
+	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
-		da.SetLineStyle(a.Ticks.MarkStyle)
-		da.SetTextStyle(a.Ticks.LabelStyle)
+		da.setLineStyle(a.Ticks.MarkStyle)
+		da.setTextStyle(a.Ticks.LabelStyle)
 		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			x += lwidth * da.DPI()
 			x += a.Ticks.LabelStyle.Font.Width(" ") / vecgfx.PtInch * da.DPI()
@@ -199,29 +199,29 @@ func (a *VerticalAxis) draw(da *DrawArea) {
 			if t.minor() {
 				continue
 			}
-			da.Text(x, a.Y(da, t.Value), -1, -0.5, t.Label+" ")
+			da.text(x, a.y(da, t.Value), -1, -0.5, t.Label+" ")
 		}
 		len := a.Ticks.Length * da.DPI()
 		for _, t := range marks {
-			y := a.Y(da, t.Value)
-			da.Line([]Point{{x + t.lengthOffset(len), y}, {x + len, y}})
+			y := a.y(da, t.Value)
+			da.line([]Point{{x + t.lengthOffset(len), y}, {x + len, y}})
 		}
 		x += len
 	}
-	da.SetLineStyle(a.AxisStyle)
-	da.Line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
+	da.setLineStyle(a.AxisStyle)
+	da.line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
 }
 
-// glyphBoxes returns normalized GlyphBoxes for the glyphs
+// glyphBoxes returns normalized glyphBoxes for the glyphs
 // representing the tick mark text.
-func (a *VerticalAxis) glyphBoxes() (boxes []GlyphBox) {
+func (a *VerticalAxis) glyphBoxes() (boxes []glyphBox) {
 	h := a.Ticks.LabelStyle.Font.Extents().Height
-	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
+	for _, t := range a.Ticks.marks(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
-		box := GlyphBox{
-			Point: Point{ Y: a.Norm(t.Value) },
+		box := glyphBox{
+			Point: Point{ Y: a.norm(t.Value) },
 			Rect: Rect{ Min: Point{ Y: -h/2 }, Size: Point{ Y: h } },
 		}
 		boxes = append(boxes, box)
@@ -251,8 +251,8 @@ type TickMarks struct {
 // A TickMarker returns a slice of ticks between a given
 // range of values. 
 type TickMarker interface {
-	// Marks returns a slice of ticks for the given range.
-	Marks(min, max float64) []Tick
+	// marks returns a slice of ticks for the given range.
+	marks(min, max float64) []Tick
 }
 
 // A Tick is a single tick mark
@@ -277,9 +277,9 @@ func (t Tick) lengthOffset(len float64) float64 {
 	return 0
 }
 
-// MakeTickMarks returns a TickMarks using the default style
+// makeTickMarks returns a TickMarks using the default style
 // and TickMarker.
-func MakeTickMarks() TickMarks {
+func makeTickMarks() TickMarks {
 	labelFont, err := MakeFont(DefaultFont, 10)
 	if err != nil {
 		panic(err)
@@ -330,7 +330,7 @@ func (tick TickMarks) labelWidth(ticks []Tick) float64 {
 type DefaultTicks struct{}
 
 // Marks implements the TickMarker Marks method.
-func (_ DefaultTicks) Marks(min, max float64) []Tick {
+func (_ DefaultTicks) marks(min, max float64) []Tick {
 	return []Tick{
 		{Value: min, Label: fmt.Sprintf("%g", min)},
 		{Value: min + (max-min)/4},
@@ -344,6 +344,6 @@ func (_ DefaultTicks) Marks(min, max float64) []Tick {
 type ConstantTicks []Tick
 
 // Marks implements the TickMarker Marks method.
-func (tks ConstantTicks) Marks(min, max float64) []Tick {
+func (tks ConstantTicks) marks(min, max float64) []Tick {
 	return tks
 }

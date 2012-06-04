@@ -26,22 +26,24 @@ func NewPlot() *Plot {
 			Color: color.RGBA{A: 255},
 			Font:  titleFont,
 		},
-		XAxis: HorizontalAxis{ MakeAxis() },
-		YAxis: VerticalAxis{ MakeAxis() },
+		XAxis: HorizontalAxis{ makeAxis() },
+		YAxis: VerticalAxis{ makeAxis() },
 	}
 }
 
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(White)
-	da.Fill(RectPath(da.Rect))
+	da.Fill(rectPath(da.Rect))
+	da.SetColor(Black)
+	da.Stroke(rectPath(da.Rect))
 
 	pad := 5.0 / vecgfx.PtInch
 	da = da.crop(0, pad, 0, -pad)
 
 	if p.Title != "" {
-		da.SetTextStyle(p.TitleStyle)
-		da.Text(da.Center().X, da.Max().Y, -0.5, -1, p.Title)
+		da.setTextStyle(p.TitleStyle)
+		da.text(da.center().X, da.Max().Y, -0.5, -1, p.Title)
 		da.Size.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
 	}
 

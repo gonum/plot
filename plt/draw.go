@@ -24,29 +24,29 @@ type DrawArea struct {
 	Rect
 }
 
-// Center returns the center Point of the area
-func (da *DrawArea) Center() Point {
+// center returns the center Point of the area
+func (da *DrawArea) center() Point {
 	return Point{
 		X: (da.Max().X-da.Min.X)/2 + da.Min.X,
 		Y: (da.Max().Y-da.Min.Y)/2 + da.Min.Y,
 	}
 }
 
-// X returns the value of x, given in the unit range,
+// x returns the value of x, given in the unit range,
 // in the drawing coordinates of this draw area.
 // A value of 0, for example, will return the minimum
 // x value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) X(x float64) float64 {
+func (da *DrawArea) x(x float64) float64 {
 	return x*(da.Max().X - da.Min.X) + da.Min.X
 }
 
-// Y returns the value of x, given in the unit range,
+// y returns the value of x, given in the unit range,
 // in the drawing coordinates of this draw area.
 // A value of 0, for example, will return the minimum
 // y value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) Y(y float64) float64 {
+func (da *DrawArea) y(y float64) float64 {
 	return y*(da.Max().Y - da.Min.Y) + da.Min.Y
 }
 
@@ -77,19 +77,19 @@ func (da *DrawArea) crop(minx, miny, maxx, maxy float64) *DrawArea {
 // The location of the glyphs that are given as a parameter are
 // assumed to be on the unit interval, with 0 meaning the left-most
 // side of the draw area and 1 meaning the right-most side.
-func (da *DrawArea) squishX(boxes []GlyphBox) *DrawArea {
+func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 	if len(boxes) == 0 {
 		return da
 	}
 
-	var left, right GlyphBox
+	var left, right glyphBox
 	minx, maxx := math.Inf(1), math.Inf(-1)
 	for _, b := range boxes {
-		if x := da.X(b.Point.X) + b.Rect.Min.X; x < minx {
+		if x := da.x(b.Point.X) + b.Rect.Min.X; x < minx {
 			left = b
 			minx = x
 		}
-		if x := da.X(b.Point.X) + b.Rect.Min.X + b.Rect.Size.X; x > maxx {
+		if x := da.x(b.Point.X) + b.Rect.Min.X + b.Rect.Size.X; x > maxx {
 			right = b
 			maxx = x
 		}
@@ -117,9 +117,9 @@ func (da *DrawArea) squishX(boxes []GlyphBox) *DrawArea {
 	}
 }
 
-// A GlyphBox describes the location of a glyph
+// A glyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
-type GlyphBox struct {
+type glyphBox struct {
 	// Point is the location of the glyph
 	Point
 	// Rect is the offset of the glyph's minimum drawing
@@ -127,8 +127,8 @@ type GlyphBox struct {
 	Rect
 }
 
-// SetTextStyle sets the current text style
-func (da *DrawArea) SetTextStyle(sty TextStyle) {
+// setTextStyle sets the current text style
+func (da *DrawArea) setTextStyle(sty TextStyle) {
 	da.SetColor(sty.Color)
 	da.font = sty.Font
 }
@@ -149,11 +149,11 @@ func MakeFont(name string, size float64) (vecgfx.Font, error) {
 	return vecgfx.MakeFont(name, size)
 }
 
-// Text fills the text to the drawing area.  The string is created
+// text fills the text to the drawing area.  The string is created
 // using the printf-style format specification and the text is
 // located at x + width*fx, y + height*fy, where width and height
 // are the width and height of the rendered string.
-func (da *DrawArea) Text(x, y, fx, fy float64, f string, v ...interface{}) {
+func (da *DrawArea) text(x, y, fx, fy float64, f string, v ...interface{}) {
 	if da.font.Font() == nil {
 		panic("Drawing text without a current font set")
 	}
@@ -163,8 +163,8 @@ func (da *DrawArea) Text(x, y, fx, fy float64, f string, v ...interface{}) {
 	da.FillText(da.font, x+w*fx, y+h*fy, str)
 }
 
-// SetLineStyle sets the current line style
-func (da *DrawArea) SetLineStyle(sty LineStyle) {
+// setLineStyle sets the current line style
+func (da *DrawArea) setLineStyle(sty LineStyle) {
 	da.SetColor(sty.Color)
 	da.SetLineWidth(sty.Width * da.DPI())
 	var dashDots []float64
@@ -187,8 +187,8 @@ type LineStyle struct {
 	DashOffs float64
 }
 
-// Line draws a line connecting the given points.
-func (da *DrawArea) Line(pts []Point) {
+// line draws a line connecting the given points.
+func (da *DrawArea) line(pts []Point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -201,9 +201,9 @@ func (da *DrawArea) Line(pts []Point) {
 	da.Stroke(p)
 }
 
-// ClippedLine draws a line that is clipped at the bounds
+// clippedLine draws a line that is clipped at the bounds
 // the DrawArea.
-func (da *DrawArea) ClippedLine(pts []Point) {
+func (da *DrawArea) clippedLine(pts []Point) {
 	// clip right
 	lines0 := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts)
 
@@ -229,7 +229,7 @@ func (da *DrawArea) ClippedLine(pts []Point) {
 	}
 
 	for _, l := range lines1 {
-		da.Line(l)
+		da.line(l)
 	}
 	return
 }
@@ -295,20 +295,20 @@ func isect(p0, p1, clip, norm Point) Point {
 	return p1.minus(p0).scale(t).plus(p0)
 }
 
-// CirclePath returns the path of a circle centered at x,y with
+// circlePath returns the path of a circle centered at x,y with
 // radius r.
-func CirclePath(x, y, r float64) (p vecgfx.Path) {
+func circlePath(x, y, r float64) (p vecgfx.Path) {
 	p.Move(x+r, y)
 	p.Arc(x, y, r, 0, 2*math.Pi)
 	p.Close()
 	return
 }
 
-// EqTrianglePath returns the path for an equilateral triangle
+// eqTrianglePath returns the path for an equilateral triangle
 // that is circumscribed by a circle centered at x,y with
 // radius r.  One point of the triangle is directly above the
 // center point of the circle.
-func EqTrianglePath(x, y, r float64) (p vecgfx.Path) {
+func eqTrianglePath(x, y, r float64) (p vecgfx.Path) {
 	p.Move(x, y+r)
 	p.Line(x+r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
 	p.Line(x-r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
@@ -316,9 +316,9 @@ func EqTrianglePath(x, y, r float64) (p vecgfx.Path) {
 	return
 }
 
-// RectPath returns the path of a rectangle specified by its
+// rectPath returns the path of a rectangle specified by its
 // upper left corner, width and height.
-func RectPath(r Rect) (p vecgfx.Path) {
+func rectPath(r Rect) (p vecgfx.Path) {
 	p.Move(r.Min.X, r.Min.Y)
 	p.Line(r.Max().X, r.Min.Y)
 	p.Line(r.Max().X, r.Max().Y)
