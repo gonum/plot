@@ -11,7 +11,8 @@ import (
 type Plot struct {
 	Title        string
 	TitleStyle   TextStyle
-	XAxis, YAxis Axis
+	XAxis HorizontalAxis
+	YAxis VerticalAxis
 }
 
 // NewPlot returns a new plot.
@@ -25,8 +26,8 @@ func NewPlot() *Plot {
 			Color: color.RGBA{A: 255},
 			Font:  titleFont,
 		},
-		XAxis: MakeAxis(),
-		YAxis: MakeAxis(),
+		XAxis: HorizontalAxis{ MakeAxis() },
+		YAxis: VerticalAxis{ MakeAxis() },
 	}
 }
 
@@ -44,9 +45,9 @@ func (p *Plot) Draw(da *DrawArea) {
 		da.Size.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
 	}
 
-	ywidth := p.YAxis.width()
-	p.XAxis.drawHoriz(da.crop(ywidth, 0, 0, 0).squishX(p.XAxis.glyphsHoriz()))
+	ywidth := p.YAxis.size()
+	p.XAxis.draw(da.crop(ywidth, 0, 0, 0).squishX(p.XAxis.glyphBoxes()))
 
-	xheight := p.XAxis.height()
-	p.YAxis.drawVert(da.crop(0, xheight, 0, 0))
+	xheight := p.XAxis.size()
+	p.YAxis.draw(da.crop(0, xheight, 0, 0))
 }

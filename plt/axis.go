@@ -81,9 +81,14 @@ func (a *Axis) Norm(x float64) float64 {
 	return (x-a.Min)/(a.Max-a.Min)
 }
 
-// height returns the height of the axis in inches
-//  if it is drawn as a horizontal axis.
-func (a *Axis) height() (h float64) {
+// A HorizantalAxis draws horizontally across the bottom
+// of a plot.
+type HorizontalAxis struct {
+	Axis
+}
+
+// size returns the height of the axis in inches.
+func (a *HorizontalAxis) size() (h float64) {
 	if a.Label != "" {
 		h += a.LabelStyle.Font.Extents().Height / vecgfx.PtInch
 	}
@@ -96,8 +101,8 @@ func (a *Axis) height() (h float64) {
 	return
 }
 
-// drawHoriz draws the axis onto the given area.
-func (a *Axis) drawHoriz(da *DrawArea) {
+// draw draws the axis onto the given area.
+func (a *HorizontalAxis) draw(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.SetTextStyle(a.LabelStyle)
@@ -128,9 +133,9 @@ func (a *Axis) drawHoriz(da *DrawArea) {
 	da.Line([]Point{{da.Min.X, y}, {da.Max().X, y}})
 }
 
-// glyphsHoriz returns normalized GlyphBoxes for the glyphs
-// representing the tick mark text for a horizontal axis.
-func (a *Axis) glyphsHoriz() (boxes []GlyphBox) {
+// glyphBoxes returns normalized GlyphBoxes for the glyphs
+// representing the tick mark text.
+func (a *HorizontalAxis) glyphBoxes() (boxes []GlyphBox) {
 	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
 		if t.minor() {
 			continue
@@ -145,9 +150,13 @@ func (a *Axis) glyphsHoriz() (boxes []GlyphBox) {
 	return
 }
 
-// width returns the width of the axis in inches
-//  if it is drawn as a vertically axis.
-func (a *Axis) width() (w float64) {
+// A VerticalAxis is drawn vertically up the left side of a plot.
+type VerticalAxis struct {
+	Axis
+}
+
+// size returns the width of the axis in inches.
+func (a *VerticalAxis) size() (w float64) {
 	if a.Label != "" {
 		w += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch
 	}
@@ -166,8 +175,8 @@ func (a *Axis) width() (w float64) {
 	return
 }
 
-// drawVert draws the axis onto the given area.
-func (a *Axis) drawVert(da *DrawArea) {
+// draw draws the axis onto the given area.
+func (a *VerticalAxis) draw(da *DrawArea) {
 	x := da.Min.X
 	if a.Label != "" {
 		x += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
@@ -203,9 +212,9 @@ func (a *Axis) drawVert(da *DrawArea) {
 	da.Line([]Point{{x, da.Min.Y}, {x, da.Max().Y}})
 }
 
-// glyphsVert returns normalized GlyphBoxes for the glyphs
-// representing the tick mark text for a vertical axis.
-func (a *Axis) glyphsVert() (boxes []GlyphBox) {
+// glyphBoxes returns normalized GlyphBoxes for the glyphs
+// representing the tick mark text.
+func (a *VerticalAxis) glyphBoxes() (boxes []GlyphBox) {
 	h := a.Ticks.LabelStyle.Font.Extents().Height
 	for _, t := range a.Ticks.Marks(a.Min, a.Max) {
 		if t.minor() {
