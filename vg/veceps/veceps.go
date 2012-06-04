@@ -1,11 +1,11 @@
-// The veceps implemens the vecgfx.Canvas interface using
+// The veceps implemens the vg.Canvas interface using
 // encapsulated postscript.
 package veceps
 
 import (
 	"bufio"
 	"bytes"
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"math"
@@ -34,10 +34,10 @@ const pr = 5
 // in inches and a title string.
 func New(w, h float64, title string) *EpsCanvas {
 	s := "%%!PS-Adobe-3.0 EPSF-3.0\n"
-	s += "%%Creator code.google.com/p/plotinum/vecgfx/veceps\n"
+	s += "%%Creator code.google.com/p/plotinum/vg/veceps\n"
 	s += "%%Title: " + title + "\n"
-	s += fmt.Sprintf("%%%%BoundingBox 0 0 %.*g %.*g\n", pr, w*vecgfx.PtInch,
-		pr, h*vecgfx.PtInch)
+	s += fmt.Sprintf("%%%%BoundingBox 0 0 %.*g %.*g\n", pr, w*vg.PtInch,
+		pr, h*vg.PtInch)
 	s += fmt.Sprintf("%%%%CreationDate: %s\n", time.Now())
 	s += "%%Orientation: Portrait\n"
 	s += "%%EndComments\n"
@@ -122,29 +122,29 @@ func (e *EpsCanvas) Pop() {
 	e.buf.WriteString("grestore\n")
 }
 
-func (e *EpsCanvas) Stroke(path vecgfx.Path) {
+func (e *EpsCanvas) Stroke(path vg.Path) {
 	e.trace(path)
 	e.buf.WriteString("stroke\n")
 }
 
-func (e *EpsCanvas) Fill(path vecgfx.Path) {
+func (e *EpsCanvas) Fill(path vg.Path) {
 	e.trace(path)
 	e.buf.WriteString("fill\n")
 }
 
-func (e *EpsCanvas) trace(path vecgfx.Path) {
+func (e *EpsCanvas) trace(path vg.Path) {
 	e.buf.WriteString("newpath\n")
 	for _, comp := range path {
 		switch comp.Type {
-		case vecgfx.MoveComp:
+		case vg.MoveComp:
 			fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, comp.X, pr, comp.Y)
-		case vecgfx.LineComp:
+		case vg.LineComp:
 			fmt.Fprintf(e.buf, "%.*g %.*g lineto\n", pr, comp.X, pr, comp.Y)
-		case vecgfx.ArcComp:
+		case vg.ArcComp:
 			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g arc\n", pr, comp.X, pr, comp.Y,
 				pr, comp.Radius, pr, comp.Start*180/math.Pi, pr,
 				comp.Finish*180/math.Pi)
-		case vecgfx.CloseComp:
+		case vg.CloseComp:
 			e.buf.WriteString("closepath\n")
 		default:
 			panic(fmt.Sprintf("Unknown path component type: %d\n", comp.Type))
@@ -152,7 +152,7 @@ func (e *EpsCanvas) trace(path vecgfx.Path) {
 	}
 }
 
-func (e *EpsCanvas) FillText(fnt vecgfx.Font, x float64, y float64, str string) {
+func (e *EpsCanvas) FillText(fnt vg.Font, x float64, y float64, str string) {
 	if e.cur().font != fnt.Name() || e.cur().fsize != fnt.Size {
 		e.cur().font = fnt.Name()
 		e.cur().fsize = fnt.Size
@@ -164,7 +164,7 @@ func (e *EpsCanvas) FillText(fnt vecgfx.Font, x float64, y float64, str string) 
 }
 
 func (e *EpsCanvas) DPI() float64 {
-	return vecgfx.PtInch
+	return vg.PtInch
 }
 
 // Save saves the plot to the given path.

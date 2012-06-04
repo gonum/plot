@@ -1,4 +1,4 @@
-// vecimg implements the vecgfx.Canvas interface
+// vecimg implements the vg.Canvas interface
 // using the draw2d package as a backend to output
 // raster images.
 package vecimg
@@ -6,7 +6,7 @@ package vecimg
 import (
 	"bufio"
 	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"go/build"
 	"image"
@@ -21,7 +21,7 @@ const (
 	dpi = 96
 
 	// importString is the current package import string.
-	importString = "code.google.com/p/plotinum/vecgfx/vecimg"
+	importString = "code.google.com/p/plotinum/vg/vecimg"
 )
 
 type ImageCanvas struct {
@@ -87,31 +87,31 @@ func (c *ImageCanvas) Pop() {
 	c.gc.Restore()
 }
 
-func (c *ImageCanvas) Stroke(p vecgfx.Path) {
+func (c *ImageCanvas) Stroke(p vg.Path) {
 	c.outline(p)
 	c.gc.Stroke()
 }
 
-func (c *ImageCanvas) Fill(p vecgfx.Path) {
+func (c *ImageCanvas) Fill(p vg.Path) {
 	c.outline(p)
 	c.gc.Fill()
 }
 
-func (c *ImageCanvas) outline(p vecgfx.Path) {
+func (c *ImageCanvas) outline(p vg.Path) {
 	c.gc.BeginPath()
 	for _, comp := range p {
 		switch comp.Type {
-		case vecgfx.MoveComp:
+		case vg.MoveComp:
 			c.gc.MoveTo(comp.X, comp.Y)
 
-		case vecgfx.LineComp:
+		case vg.LineComp:
 			c.gc.LineTo(comp.X, comp.Y)
 
-		case vecgfx.ArcComp:
+		case vg.ArcComp:
 			c.gc.ArcTo(comp.X, comp.Y, comp.Radius,
 				comp.Radius, comp.Start, comp.Finish)
 
-		case vecgfx.CloseComp:
+		case vg.CloseComp:
 			c.gc.Close()
 
 		default:
@@ -124,17 +124,17 @@ func (c *ImageCanvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
 
-func (c *ImageCanvas) FillText(font vecgfx.Font, x, y float64, str string) {
+func (c *ImageCanvas) FillText(font vg.Font, x, y float64, str string) {
 	c.gc.Save()
-	c.gc.Translate(x, y+font.Extents().Ascent/vecgfx.PtInch*c.DPI())
+	c.gc.Translate(x, y+font.Extents().Ascent/vg.PtInch*c.DPI())
 	c.gc.Scale(1, -1)
 	c.gc.DrawImage(c.textImage(font, str))
 	c.gc.Restore()
 }
 
-func (c *ImageCanvas) textImage(font vecgfx.Font, str string) *image.RGBA {
-	w := font.Width(str) / vecgfx.PtInch * c.DPI()
-	h := font.Extents().Height / vecgfx.PtInch * c.DPI()
+func (c *ImageCanvas) textImage(font vg.Font, str string) *image.RGBA {
+	w := font.Width(str) / vg.PtInch * c.DPI()
+	h := font.Extents().Height / vg.PtInch * c.DPI()
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
 	gc := draw2d.NewGraphicContext(img)
 

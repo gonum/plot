@@ -1,8 +1,8 @@
 package plt
 
 import (
-	"code.google.com/p/plotinum/vecgfx/veceps"
-	"code.google.com/p/plotinum/vecgfx/vecimg"
+	"code.google.com/p/plotinum/vg/veceps"
+	"code.google.com/p/plotinum/vg/vecimg"
 	"testing"
 )
 

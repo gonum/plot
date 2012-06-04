@@ -1,7 +1,7 @@
 package plt
 
 import (
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"math"
@@ -19,8 +19,8 @@ var (
 // an associated Rect defining a section of the canvas
 // to which drawing should take place.
 type DrawArea struct {
-	vecgfx.Canvas
-	font vecgfx.Font
+	vg.Canvas
+	font vg.Font
 	Rect
 }
 
@@ -63,7 +63,7 @@ func (da *DrawArea) crop(minx, miny, maxx, maxy float64) *DrawArea {
 		Y: da.Max().Y + maxy*da.DPI() - minpt.Y,
 	}
 	return &DrawArea{
-		vecgfx.Canvas: vecgfx.Canvas(da),
+		vg.Canvas: vg.Canvas(da),
 		font:          da.font,
 		Rect: Rect{ Min: minpt, Size: sz },
 	}
@@ -108,7 +108,7 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 	n := (left.Point.X*r - right.Point.X*l)/(left.Point.X - right.Point.X)
 	m := ((left.Point.X-1)*r - right.Point.X*l + l)/(left.Point.X - right.Point.X)
 	return &DrawArea{
-		vecgfx.Canvas: vecgfx.Canvas(da),
+		vg.Canvas: vg.Canvas(da),
 		font:          da.font,
 		Rect: Rect{
 			Min: Point{ X: n, Y: da.Min.Y },
@@ -139,14 +139,14 @@ type TextStyle struct {
 	Color color.Color
 
 	// Font is the font description.
-	Font vecgfx.Font
+	Font vg.Font
 }
 
 // MakeFont returns a font object.
 // This function is merely included for convenience so that
-// the user doesn't have to import the vecgfx package.
-func MakeFont(name string, size float64) (vecgfx.Font, error) {
-	return vecgfx.MakeFont(name, size)
+// the user doesn't have to import the vg package.
+func MakeFont(name string, size float64) (vg.Font, error) {
+	return vg.MakeFont(name, size)
 }
 
 // text fills the text to the drawing area.  The string is created
@@ -158,8 +158,8 @@ func (da *DrawArea) text(x, y, fx, fy float64, f string, v ...interface{}) {
 		panic("Drawing text without a current font set")
 	}
 	str := fmt.Sprintf(f, v...)
-	w := da.font.Width(str) / vecgfx.PtInch * da.DPI()
-	h := da.font.Extents().Ascent / vecgfx.PtInch * da.DPI()
+	w := da.font.Width(str) / vg.PtInch * da.DPI()
+	h := da.font.Extents().Ascent / vg.PtInch * da.DPI()
 	da.FillText(da.font, x+w*fx, y+h*fy, str)
 }
 
@@ -193,7 +193,7 @@ func (da *DrawArea) line(pts []Point) {
 		return
 	}
 
-	var p vecgfx.Path
+	var p vg.Path
 	p.Move(pts[0].X, pts[0].Y)
 	for _, pt := range pts {
 		p.Line(pt.X, pt.Y)
@@ -297,7 +297,7 @@ func isect(p0, p1, clip, norm Point) Point {
 
 // circlePath returns the path of a circle centered at x,y with
 // radius r.
-func circlePath(x, y, r float64) (p vecgfx.Path) {
+func circlePath(x, y, r float64) (p vg.Path) {
 	p.Move(x+r, y)
 	p.Arc(x, y, r, 0, 2*math.Pi)
 	p.Close()
@@ -308,7 +308,7 @@ func circlePath(x, y, r float64) (p vecgfx.Path) {
 // that is circumscribed by a circle centered at x,y with
 // radius r.  One point of the triangle is directly above the
 // center point of the circle.
-func eqTrianglePath(x, y, r float64) (p vecgfx.Path) {
+func eqTrianglePath(x, y, r float64) (p vg.Path) {
 	p.Move(x, y+r)
 	p.Line(x+r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
 	p.Line(x-r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
@@ -318,7 +318,7 @@ func eqTrianglePath(x, y, r float64) (p vecgfx.Path) {
 
 // rectPath returns the path of a rectangle specified by its
 // upper left corner, width and height.
-func rectPath(r Rect) (p vecgfx.Path) {
+func rectPath(r Rect) (p vg.Path) {
 	p.Move(r.Min.X, r.Min.Y)
 	p.Line(r.Max().X, r.Min.Y)
 	p.Line(r.Max().X, r.Max().Y)

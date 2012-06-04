@@ -1,7 +1,7 @@
 package vecimg
 
 import (
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"testing"
 )
 
@@ -10,7 +10,7 @@ func TestFontExtents(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	vecgfx.DrawFontExtents(t, img)
+	vg.DrawFontExtents(t, img)
 	err = img.SavePNG("extents.png")
 	if err != nil {
 		t.Fatal(err)
@@ -22,7 +22,7 @@ func TestFonts(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	vecgfx.DrawFonts(t, img)
+	vg.DrawFonts(t, img)
 	err = img.SavePNG("fonts.png")
 	if err != nil {
 		t.Fatal(err)

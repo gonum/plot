@@ -4,7 +4,7 @@
 // the following copyright notice:
 // Copyright 2010 The Freetype-Go Authors. All rights reserved.
 
-package vecgfx
+package vg
 
 import (
 	"code.google.com/p/freetype-go/freetype"
@@ -20,7 +20,7 @@ const (
 	// importString is the import string expected for
 	// this package.  It is used to find the font
 	// directory included with the package source.
-	importString = "code.google.com/p/plotinum/vecgfx"
+	importString = "code.google.com/p/plotinum/vg"
 )
 
 var (

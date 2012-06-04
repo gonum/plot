@@ -1,7 +1,7 @@
-// vecgfx defines an interface for drawing 2D vector graphics.
+// vg defines an interface for drawing 2D vector graphics.
 // This package is designed with the hope that many different
 // vector graphics back-ends can conform to the interface.
-package vecgfx
+package vg
 
 import (
 	"image/color"

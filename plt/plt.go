@@ -2,7 +2,7 @@
 package plt
 
 import (
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"image/color"
 )
 
@@ -38,13 +38,13 @@ func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(Black)
 	da.Stroke(rectPath(da.Rect))
 
-	pad := 5.0 / vecgfx.PtInch
+	pad := 5.0 / vg.PtInch
 	da = da.crop(0, pad, 0, -pad)
 
 	if p.Title != "" {
 		da.setTextStyle(p.TitleStyle)
 		da.text(da.center().X, da.Max().Y, -0.5, -1, p.Title)
-		da.Size.Y -= p.TitleStyle.Font.Extents().Height / vecgfx.PtInch * da.DPI()
+		da.Size.Y -= p.TitleStyle.Font.Extents().Height / vg.PtInch * da.DPI()
 	}
 
 	ywidth := p.YAxis.size()

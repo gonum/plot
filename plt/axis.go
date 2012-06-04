@@ -1,7 +1,7 @@
 package plt
 
 import (
-	"code.google.com/p/plotinum/vecgfx"
+	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"math"
@@ -90,7 +90,7 @@ type HorizontalAxis struct {
 // size returns the height of the axis in inches.
 func (a *HorizontalAxis) size() (h float64) {
 	if a.Label != "" {
-		h += a.LabelStyle.Font.Extents().Height / vecgfx.PtInch
+		h += a.LabelStyle.Font.Extents().Height / vg.PtInch
 	}
 	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -106,9 +106,9 @@ func (a *HorizontalAxis) draw(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label != "" {
 		da.setTextStyle(a.LabelStyle)
-		y += -(a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI())
+		y += -(a.LabelStyle.Font.Extents().Descent / vg.PtInch * da.DPI())
 		da.text(da.center().X, y, -0.5, 0, a.Label)
-		y += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
+		y += a.LabelStyle.Font.Extents().Ascent / vg.PtInch * da.DPI()
 	}
 	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -140,7 +140,7 @@ func (a *HorizontalAxis) glyphBoxes() (boxes []glyphBox) {
 		if t.minor() {
 			continue
 		}
-		w := a.Ticks.LabelStyle.Font.Width(t.Label)/vecgfx.PtInch
+		w := a.Ticks.LabelStyle.Font.Width(t.Label)/vg.PtInch
 		box := glyphBox{
 			Point: Point{ X: a.norm(t.Value) },
 			Rect: Rect{ Min: Point{ X: -w/2 }, Size: Point{ X: w } },
@@ -158,7 +158,7 @@ type VerticalAxis struct {
 // size returns the width of the axis in inches.
 func (a *VerticalAxis) size() (w float64) {
 	if a.Label != "" {
-		w += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch
+		w += a.LabelStyle.Font.Extents().Ascent / vg.PtInch
 	}
 	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -166,7 +166,7 @@ func (a *VerticalAxis) size() (w float64) {
 			w += lwidth
 			// Add a space after tick labels to separate
 			// them from the tick marks
-			w += a.Ticks.LabelStyle.Font.Width(" ") / vecgfx.PtInch
+			w += a.Ticks.LabelStyle.Font.Width(" ") / vg.PtInch
 		}
 		w += a.Ticks.Length
 	}
@@ -179,13 +179,13 @@ func (a *VerticalAxis) size() (w float64) {
 func (a *VerticalAxis) draw(da *DrawArea) {
 	x := da.Min.X
 	if a.Label != "" {
-		x += a.LabelStyle.Font.Extents().Ascent / vecgfx.PtInch * da.DPI()
+		x += a.LabelStyle.Font.Extents().Ascent / vg.PtInch * da.DPI()
 		da.setTextStyle(a.LabelStyle)
 		da.Push()
 		da.Rotate(math.Pi / 2)
 		da.text(da.center().Y, -x, -0.5, 0, a.Label)
 		da.Pop()
-		x += -a.LabelStyle.Font.Extents().Descent / vecgfx.PtInch * da.DPI()
+		x += -a.LabelStyle.Font.Extents().Descent / vg.PtInch * da.DPI()
 	}
 	marks := a.Ticks.marks(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -193,7 +193,7 @@ func (a *VerticalAxis) draw(da *DrawArea) {
 		da.setTextStyle(a.Ticks.LabelStyle)
 		if lwidth := a.Ticks.labelWidth(marks); lwidth > 0 {
 			x += lwidth * da.DPI()
-			x += a.Ticks.LabelStyle.Font.Width(" ") / vecgfx.PtInch * da.DPI()
+			x += a.Ticks.LabelStyle.Font.Width(" ") / vg.PtInch * da.DPI()
 		}
 		for _, t := range marks {
 			if t.minor() {
@@ -215,7 +215,7 @@ func (a *VerticalAxis) draw(da *DrawArea) {
 // glyphBoxes returns normalized glyphBoxes for the glyphs
 // representing the tick mark text.
 func (a *VerticalAxis) glyphBoxes() (boxes []glyphBox) {
-	h := a.Ticks.LabelStyle.Font.Extents().Height/vecgfx.PtInch
+	h := a.Ticks.LabelStyle.Font.Extents().Height/vg.PtInch
 	for _, t := range a.Ticks.marks(a.Min, a.Max) {
 		if t.minor() {
 			continue
@@ -305,7 +305,7 @@ func (tick TickMarks) labelHeight(ticks []Tick) float64 {
 			continue
 		}
 		font := tick.LabelStyle.Font
-		return font.Extents().Ascent / vecgfx.PtInch
+		return font.Extents().Ascent / vg.PtInch
 	}
 	return 0
 }
@@ -322,7 +322,7 @@ func (tick TickMarks) labelWidth(ticks []Tick) float64 {
 			maxWidth = w
 		}
 	}
-	return maxWidth / vecgfx.PtInch
+	return maxWidth / vg.PtInch
 }
 
 // A DefalutTicks returns a default set of tick marks within

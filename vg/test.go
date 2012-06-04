@@ -1,4 +1,4 @@
-package vecgfx
+package vg
 
 import (
 	"fmt"
