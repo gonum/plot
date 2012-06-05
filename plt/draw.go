@@ -16,17 +16,17 @@ var (
 )
 
 // A DrawArea is a vector graphics canvas along with
-// an associated Rect defining a section of the canvas
+// an associated rect defining a section of the canvas
 // to which drawing should take place.
 type DrawArea struct {
 	vg.Canvas
 	font vg.Font
-	Rect
+	rect
 }
 
-// center returns the center Point of the area
-func (da *DrawArea) center() Point {
-	return Point{
+// center returns the center point of the area
+func (da *DrawArea) center() point {
+	return point{
 		X: (da.Max().X-da.Min.X)/2 + da.Min.X,
 		Y: (da.Max().Y-da.Min.Y)/2 + da.Min.Y,
 	}
@@ -37,8 +37,8 @@ func (da *DrawArea) center() Point {
 // A value of 0, for example, will return the minimum
 // x value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) x(x float64) float64 {
-	return x*(da.Max().X - da.Min.X) + da.Min.X
+func (da *DrawArea) x(x float64) vg.Length {
+	return vg.Length(x)*(da.Max().X-da.Min.X) + da.Min.X
 }
 
 // y returns the value of x, given in the unit range,
@@ -46,26 +46,26 @@ func (da *DrawArea) x(x float64) float64 {
 // A value of 0, for example, will return the minimum
 // y value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) y(y float64) float64 {
-	return y*(da.Max().Y - da.Min.Y) + da.Min.Y
+func (da *DrawArea) y(y float64) vg.Length {
+	return vg.Length(y)*(da.Max().Y-da.Min.Y) + da.Min.Y
 }
 
 // crop returns a new DrawArea corresponding to the receiver
 // area with the given number of inches added to the minimum
-// and maximum x and y values of the DrawArea's Rect.
-func (da *DrawArea) crop(minx, miny, maxx, maxy float64) *DrawArea {
-	minpt := Point{
-		X: da.Rect.Min.X + minx*da.DPI(),
-		Y: da.Rect.Min.Y + miny*da.DPI(),
+// and maximum x and y values of the DrawArea's rect.
+func (da *DrawArea) crop(minx, miny, maxx, maxy vg.Length) *DrawArea {
+	minpt := point{
+		X: da.rect.Min.X + minx,
+		Y: da.rect.Min.Y + miny,
 	}
-	sz := Point{
-		X: da.Max().X + maxx*da.DPI() - minpt.X,
-		Y: da.Max().Y + maxy*da.DPI() - minpt.Y,
+	sz := point{
+		X: da.Max().X + maxx - minpt.X,
+		Y: da.Max().Y + maxy - minpt.Y,
 	}
 	return &DrawArea{
 		vg.Canvas: vg.Canvas(da),
-		font:          da.font,
-		Rect: Rect{ Min: minpt, Size: sz },
+		font:      da.font,
+		rect:      rect{Min: minpt, Size: sz},
 	}
 }
 
@@ -82,15 +82,15 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 		return da
 	}
 
-	var left, right glyphBox
-	minx, maxx := math.Inf(1), math.Inf(-1)
+	var left, right vg.Length
+	minx, maxx := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
 	for _, b := range boxes {
-		if x := da.x(b.Point.X) + b.Rect.Min.X*da.DPI(); x < minx {
-			left = b
+		if x := da.x(b.X) + b.rect.Min.X; x < minx {
+			left = vg.Length(b.X)
 			minx = x
 		}
-		if x := da.x(b.Point.X) + b.Rect.Min.X*da.DPI() + b.Rect.Size.X*da.DPI(); x > maxx {
-			right = b
+		if x := da.x(b.X) + b.Min.X + b.Size.X; x > maxx {
+			right = vg.Length(b.X)
 			maxx = x
 		}
 	}
@@ -105,14 +105,14 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 	// where we want the left and right points to end up
 	l := da.Min.X + (da.Min.X - minx)
 	r := da.Max().X - (maxx - da.Max().X)
-	n := (left.Point.X*r - right.Point.X*l)/(left.Point.X - right.Point.X)
-	m := ((left.Point.X-1)*r - right.Point.X*l + l)/(left.Point.X - right.Point.X)
+	n := (left*r - right*l) / (left - right)
+	m := ((left-1)*r - right*l + l) / (left - right)
 	return &DrawArea{
 		vg.Canvas: vg.Canvas(da),
-		font:          da.font,
-		Rect: Rect{
-			Min: Point{ X: n, Y: da.Min.Y },
-			Size: Point{ X: m - n, Y: da.Size.Y },
+		font:      da.font,
+		rect: rect{
+			Min:  point{X: n, Y: da.Min.Y},
+			Size: point{X: m - n, Y: da.Size.Y},
 		},
 	}
 }
@@ -120,11 +120,11 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 // A glyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
 type glyphBox struct {
-	// Point is the location of the glyph
-	Point
-	// Rect is the offset of the glyph's minimum drawing
+	// The glyph location in normalized coordinates.
+	X, Y float64
+	// rect is the offset of the glyph's minimum drawing
 	// point relative to the glyph location and its size.
-	Rect
+	rect
 }
 
 // setTextStyle sets the current text style
@@ -145,7 +145,7 @@ type TextStyle struct {
 // MakeFont returns a font object.
 // This function is merely included for convenience so that
 // the user doesn't have to import the vg package.
-func MakeFont(name string, size float64) (vg.Font, error) {
+func MakeFont(name string, size vg.Length) (vg.Font, error) {
 	return vg.MakeFont(name, size)
 }
 
@@ -153,25 +153,25 @@ func MakeFont(name string, size float64) (vg.Font, error) {
 // using the printf-style format specification and the text is
 // located at x + width*fx, y + height*fy, where width and height
 // are the width and height of the rendered string.
-func (da *DrawArea) text(x, y, fx, fy float64, f string, v ...interface{}) {
+func (da *DrawArea) text(x, y vg.Length, fx, fy float64, f string, v ...interface{}) {
 	if da.font.Font() == nil {
 		panic("Drawing text without a current font set")
 	}
 	str := fmt.Sprintf(f, v...)
-	w := da.font.Width(str) / vg.PtInch * da.DPI()
-	h := da.font.Extents().Ascent / vg.PtInch * da.DPI()
-	da.FillText(da.font, x+w*fx, y+h*fy, str)
+	w := da.font.Width(str)
+	h := da.font.Extents().Ascent
+	da.FillText(da.font, x+w*vg.Length(fx), y+h*vg.Length(fy), str)
 }
 
 // setLineStyle sets the current line style
 func (da *DrawArea) setLineStyle(sty LineStyle) {
 	da.SetColor(sty.Color)
-	da.SetLineWidth(sty.Width * da.DPI())
-	var dashDots []float64
+	da.SetLineWidth(sty.Width)
+	var dashDots []vg.Length
 	for _, dash := range sty.Dashes {
-		dashDots = append(dashDots, dash*da.DPI())
+		dashDots = append(dashDots, dash)
 	}
-	da.SetLineDash(dashDots, sty.DashOffs*da.DPI())
+	da.SetLineDash(dashDots, sty.DashOffs)
 
 }
 
@@ -181,14 +181,14 @@ type LineStyle struct {
 	Color color.Color
 
 	// Width is the width of the line in inches.
-	Width float64
+	Width vg.Length
 
-	Dashes   []float64
-	DashOffs float64
+	Dashes   []vg.Length
+	DashOffs vg.Length
 }
 
 // line draws a line connecting the given points.
-func (da *DrawArea) line(pts []Point) {
+func (da *DrawArea) line(pts []point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -203,28 +203,28 @@ func (da *DrawArea) line(pts []Point) {
 
 // clippedLine draws a line that is clipped at the bounds
 // the DrawArea.
-func (da *DrawArea) clippedLine(pts []Point) {
+func (da *DrawArea) clippedLine(pts []point) {
 	// clip right
-	lines0 := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts)
+	lines0 := clip(isLeft, point{da.Max().X, da.Min.Y}, point{-1, 0}, pts)
 
 	// clip bottom
-	var lines1 [][]Point
+	var lines1 [][]point
 	for _, line := range lines0 {
-		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
+		ls := clip(isAbove, point{da.Min.X, da.Min.Y}, point{0, -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 
 	// clip left
 	lines0 = lines0[:0]
 	for _, line := range lines1 {
-		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
+		ls := clip(isRight, point{da.Min.X, da.Min.Y}, point{1, 0}, line)
 		lines0 = append(lines0, ls...)
 	}
 
 	// clip top
 	lines1 = lines1[:0]
 	for _, line := range lines0 {
-		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
+		ls := clip(isBelow, point{da.Min.X, da.Max().Y}, point{0, 1}, line)
 		lines1 = append(lines1, ls...)
 	}
 
@@ -236,8 +236,8 @@ func (da *DrawArea) clippedLine(pts []Point) {
 
 // clip performs clipping in a single clipping line specified
 // by the norm, clip point, and in function.
-func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
-	var l []Point
+func clip(in func(point, point) bool, clip, norm point, pts []point) (lines [][]point) {
+	var l []point
 	for i := 0; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
@@ -248,7 +248,7 @@ func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]
 		case curIn && !nextIn:
 			l = append(l, cur, isect(cur, next, clip, norm))
 			lines = append(lines, l)
-			l = []Point{}
+			l = []point{}
 
 		case !curIn && !nextIn:
 			// do nothing
@@ -269,25 +269,25 @@ func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]
 // slop is some slop for floating point equality
 const slop = 3e-8 // ≈ √1⁻¹⁵
 
-func isLeft(p, clip Point) bool {
+func isLeft(p, clip point) bool {
 	return p.X <= clip.X+slop
 }
 
-func isRight(p, clip Point) bool {
+func isRight(p, clip point) bool {
 	return p.X >= clip.X-slop
 }
 
-func isBelow(p, clip Point) bool {
+func isBelow(p, clip point) bool {
 	return p.Y <= clip.Y+slop
 }
 
-func isAbove(p, clip Point) bool {
+func isAbove(p, clip point) bool {
 	return p.Y >= clip.Y-slop
 }
 
 // isect returns the intersection of a line p0→p1 with the
 // clipping line specified by the clip point and normal.
-func isect(p0, p1, clip, norm Point) Point {
+func isect(p0, p1, clip, norm point) point {
 	// t = (norm · (p0 - clip)) / (norm · (p0 - p1))
 	t := p0.minus(clip).dot(norm) / p0.minus(p1).dot(norm)
 
@@ -295,30 +295,9 @@ func isect(p0, p1, clip, norm Point) Point {
 	return p1.minus(p0).scale(t).plus(p0)
 }
 
-// circlePath returns the path of a circle centered at x,y with
-// radius r.
-func circlePath(x, y, r float64) (p vg.Path) {
-	p.Move(x+r, y)
-	p.Arc(x, y, r, 0, 2*math.Pi)
-	p.Close()
-	return
-}
-
-// eqTrianglePath returns the path for an equilateral triangle
-// that is circumscribed by a circle centered at x,y with
-// radius r.  One point of the triangle is directly above the
-// center point of the circle.
-func eqTrianglePath(x, y, r float64) (p vg.Path) {
-	p.Move(x, y+r)
-	p.Line(x+r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
-	p.Line(x-r*math.Cos(math.Pi/6), y-r*math.Sin(math.Pi/6))
-	p.Close()
-	return
-}
-
 // rectPath returns the path of a rectangle specified by its
 // upper left corner, width and height.
-func rectPath(r Rect) (p vg.Path) {
+func rectPath(r rect) (p vg.Path) {
 	p.Move(r.Min.X, r.Min.Y)
 	p.Line(r.Max().X, r.Min.Y)
 	p.Line(r.Max().X, r.Max().Y)
@@ -327,45 +306,45 @@ func rectPath(r Rect) (p vg.Path) {
 	return
 }
 
-// A Rect represents a rectangular region of 2d space.
-type Rect struct {
-	Min, Size Point
+// A rect represents a rectangular region of 2d space.
+type rect struct {
+	Min, Size point
 }
 
-// Max returns the maxmium x and y values of a Rect.
-func (r Rect) Max() Point {
-	return Point{
+// Max returns the maxmium x and y values of a rect.
+func (r rect) Max() point {
+	return point{
 		X: r.Min.X + r.Size.X,
 		Y: r.Min.Y + r.Size.Y,
 	}
 }
 
-// A Point is a location in 2d space.
-type Point struct {
-	X, Y float64
+// A point is a location in 2d space.
+type point struct {
+	X, Y vg.Length
 }
 
-// Pt returns a Point with the given x and y values.
-func Pt(x, y float64) Point {
-	return Point{x, y}
+// Pt returns a point with the given x and y values.
+func Pt(x, y vg.Length) point {
+	return point{x, y}
 }
 
 // dot returns the dot product of two points.
-func (p Point) dot(q Point) float64 {
+func (p point) dot(q point) vg.Length {
 	return p.X*q.X + p.Y*q.Y
 }
 
 // plus returns the component-wise sum of two points.
-func (p Point) plus(q Point) Point {
-	return Point{p.X + q.X, p.Y + q.Y}
+func (p point) plus(q point) point {
+	return point{p.X + q.X, p.Y + q.Y}
 }
 
 // minus returns the component-wise difference of two points.
-func (p Point) minus(q Point) Point {
-	return Point{p.X - q.X, p.Y - q.Y}
+func (p point) minus(q point) point {
+	return point{p.X - q.X, p.Y - q.Y}
 }
 
 // scale returns the component-wise product of a point and a scalar.
-func (p Point) scale(s float64) Point {
-	return Point{p.X * s, p.Y * s}
+func (p point) scale(s vg.Length) point {
+	return point{p.X * s, p.Y * s}
 }

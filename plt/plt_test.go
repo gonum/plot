@@ -1,21 +1,22 @@
 package plt
 
 import (
+	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
 	"testing"
 )
 
 func TestDrawImage(t *testing.T) {
-	img, err := vecimg.New(4, 4)
+	img, err := vecimg.New(vg.Inches(4), vg.Inches(4))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	da := &DrawArea{
 		Canvas: img,
-		Rect: Rect{Min: Point{0, 0},
-			Size: Point{4 * img.DPI(), 4 * img.DPI()},
+		rect: rect{Min: point{0, 0},
+			Size: point{vg.Inches(4), vg.Inches(4)},
 		},
 	}
 	draw(da)
@@ -26,11 +27,11 @@ func TestDrawImage(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	eps := veceps.New(4, 4, "test")
+	eps := veceps.New(vg.Inches(4), vg.Inches(4), "test")
 	da := &DrawArea{
 		Canvas: eps,
-		Rect: Rect{Min: Point{0, 0},
-			Size: Point{4 * eps.DPI(), 4 * eps.DPI()},
+		rect: rect{Min: point{0, 0},
+			Size: point{vg.Inches(4), vg.Inches(4)},
 		},
 	}
 	draw(da)

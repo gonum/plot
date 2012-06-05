@@ -6,7 +6,7 @@ import (
 )
 
 func TestFontExtents(t *testing.T) {
-	img, err := New(4, 4)
+	img, err := New(vg.Inches(4), vg.Inches(4))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -18,7 +18,7 @@ func TestFontExtents(t *testing.T) {
 }
 
 func TestFonts(t *testing.T) {
-	img, err := New(4, 4)
+	img, err := New(vg.Inches(4), vg.Inches(4))
 	if err != nil {
 		t.Fatal(err)
 	}

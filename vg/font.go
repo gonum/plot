@@ -56,8 +56,8 @@ var (
 // A Font represents one of the supported font
 // faces.
 type Font struct {
-	// Size is the size of the font in points.
-	Size float64
+	// Size is the size of the font.
+	Size Length
 
 	// name is the name of this font.
 	name string
@@ -82,8 +82,7 @@ type Font struct {
 }
 
 // MakeFont returns a font object.
-// The font size is specified in points.
-func MakeFont(name string, size float64) (font Font, err error) {
+func MakeFont(name string, size Length) (font Font, err error) {
 	font.Size = size
 	font.name = name
 	font.font, err = getFont(name)
@@ -149,41 +148,40 @@ func getFont(name string) (*truetype.Font, error) {
 	return font, err
 }
 
-// FontExtents has font metric information.  All
-// values are given in postscript points.
+// FontExtents has font metric information.
 type FontExtents struct {
 	// Ascent is the distance that the text
 	// extends above the baseline.
-	Ascent float64
+	Ascent Length
 
 	// Descent is the distance that the text
 	// extends below the baseline.  The descent
 	// is given as a negative value.
-	Descent float64
+	Descent Length
 
 	// Height is the distance from the lowest
 	// descending point to the highest ascending
 	// point.
-	Height float64
+	Height Length
 }
 
 // Height returns height of a string when rendered
 // using this font.
 func (f *Font) Extents() FontExtents {
 	bounds := f.font.Bounds()
-	scale := f.Size / float64(f.Font().UnitsPerEm())
+	scale := f.Size / Points(float64(f.Font().UnitsPerEm()))
 	return FontExtents{
-		Ascent:  float64(bounds.YMax) * scale,
-		Descent: float64(bounds.YMin) * scale,
-		Height:  float64(bounds.YMax-bounds.YMin) * scale,
+		Ascent:  Points(float64(bounds.YMax)) * scale,
+		Descent: Points(float64(bounds.YMin)) * scale,
+		Height:  Points(float64(bounds.YMax-bounds.YMin)) * scale,
 	}
 }
 
 // Width returns width of a string when rendered
 // using this font.
-func (f *Font) Width(s string) float64 {
+func (f *Font) Width(s string) Length {
 	// scale converts truetype.FUnit to float64
-	scale := f.Size / float64(f.font.UnitsPerEm())
+	scale := f.Size / Points(float64(f.font.UnitsPerEm()))
 
 	width := 0
 	prev, hasPrev := truetype.Index(0), false
@@ -195,5 +193,5 @@ func (f *Font) Width(s string) float64 {
 		width += int(f.font.HMetric(index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
-	return float64(width) * scale
+	return Points(float64(width)) * scale
 }

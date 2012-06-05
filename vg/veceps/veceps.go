@@ -20,11 +20,11 @@ type EpsCanvas struct {
 
 type ctx struct {
 	color  color.Color
-	width  float64
-	dashes []float64
-	offs   float64
+	width  vg.Length
+	dashes []vg.Length
+	offs   vg.Length
 	font   string
-	fsize  float64
+	fsize  vg.Length
 }
 
 // pr is the amount of precision to use when outputting float64s.
@@ -32,29 +32,32 @@ const pr = 5
 
 // New returns a new EpsCanvas with the width and height given
 // in inches and a title string.
-func New(w, h float64, title string) *EpsCanvas {
-	s := "%%!PS-Adobe-3.0 EPSF-3.0\n"
-	s += "%%Creator code.google.com/p/plotinum/vg/veceps\n"
-	s += "%%Title: " + title + "\n"
-	s += fmt.Sprintf("%%%%BoundingBox 0 0 %.*g %.*g\n", pr, w*vg.PtInch,
-		pr, h*vg.PtInch)
-	s += fmt.Sprintf("%%%%CreationDate: %s\n", time.Now())
-	s += "%%Orientation: Portrait\n"
-	s += "%%EndComments\n"
-	s += "\n"
-	s += "0 0 0 setrgbcolor\n"
-	s += "1 setlinewidth\n"
-	s += "[] 0 setdash\n"
-	c := ctx{
-		color:  color.RGBA{A: 255},
-		width:  1,
-		dashes: []float64{},
-		offs:   0,
+func New(w, h vg.Length, title string) *EpsCanvas {
+	c := &EpsCanvas{
+		stk: []ctx{
+			ctx{
+				color:  color.RGBA{A: 255},
+				width:  1,
+				dashes: []vg.Length{},
+				offs:   0,
+			},
+		},
+		buf: new(bytes.Buffer),
 	}
-	return &EpsCanvas{
-		stk: []ctx{c},
-		buf: bytes.NewBufferString(s),
-	}
+	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
+	c.buf.WriteString("%%Creator code.google.com/p/plotinum/vg/veceps\n")
+	c.buf.WriteString("%%Title: " + title + "\n")
+	c.buf.WriteString(fmt.Sprintf("%%%%BoundingBox 0 0 %.*g %.*g\n",
+		pr, w.Dots(c),
+		pr, h.Dots(c)))
+	c.buf.WriteString(fmt.Sprintf("%%%%CreationDate: %s\n", time.Now()))
+	c.buf.WriteString("%%Orientation: Portrait\n")
+	c.buf.WriteString("%%EndComments\n")
+	c.buf.WriteString("\n")
+	c.buf.WriteString("0 0 0 setrgbcolor\n")
+	c.buf.WriteString("1 setlinewidth\n")
+	c.buf.WriteString("[] 0 setdash\n")
+	return c
 }
 
 // cur returns the top context on the stack.
@@ -62,14 +65,14 @@ func (e *EpsCanvas) cur() *ctx {
 	return &e.stk[len(e.stk)-1]
 }
 
-func (e *EpsCanvas) SetLineWidth(w float64) {
+func (e *EpsCanvas) SetLineWidth(w vg.Length) {
 	if e.cur().width != w {
 		e.cur().width = w
-		fmt.Fprintf(e.buf, "%.*g setlinewidth\n", pr, w)
+		fmt.Fprintf(e.buf, "%.*g setlinewidth\n", pr, w.Dots(e))
 	}
 }
 
-func (e *EpsCanvas) SetLineDash(dashes []float64, o float64) {
+func (e *EpsCanvas) SetLineDash(dashes []vg.Length, o vg.Length) {
 	dashEq := true
 	curDash := e.cur().dashes
 	for i, d := range dashes {
@@ -83,10 +86,10 @@ func (e *EpsCanvas) SetLineDash(dashes []float64, o float64) {
 		e.cur().offs = o
 		e.buf.WriteString("[")
 		for _, d := range dashes {
-			fmt.Fprintf(e.buf, " %.*g", pr, d)
+			fmt.Fprintf(e.buf, " %.*g", pr, d.Dots(e))
 		}
 		e.buf.WriteString(" ] ")
-		fmt.Fprintf(e.buf, "%.*g setdash\n", pr, o)
+		fmt.Fprintf(e.buf, "%.*g setdash\n", pr, o.Dots(e))
 	}
 }
 
@@ -104,11 +107,12 @@ func (e *EpsCanvas) Rotate(r float64) {
 	fmt.Fprintf(e.buf, "%.*g rotate\n", pr, r*180/math.Pi)
 }
 
-func (e *EpsCanvas) Translate(x float64, y float64) {
-	fmt.Fprintf(e.buf, "%.*g %.*g translate\n", pr, x, pr, y)
+func (e *EpsCanvas) Translate(x, y vg.Length) {
+	fmt.Fprintf(e.buf, "%.*g %.*g translate\n",
+		pr, x.Dots(e), pr, y.Dots(e))
 }
 
-func (e *EpsCanvas) Scale(x float64, y float64) {
+func (e *EpsCanvas) Scale(x, y float64) {
 	fmt.Fprintf(e.buf, "%.*g %.*g scale\n", pr, x, pr, y)
 }
 
@@ -152,19 +156,19 @@ func (e *EpsCanvas) trace(path vg.Path) {
 	}
 }
 
-func (e *EpsCanvas) FillText(fnt vg.Font, x float64, y float64, str string) {
+func (e *EpsCanvas) FillText(fnt vg.Font, x, y vg.Length, str string) {
 	if e.cur().font != fnt.Name() || e.cur().fsize != fnt.Size {
 		e.cur().font = fnt.Name()
 		e.cur().fsize = fnt.Size
 		fmt.Fprintf(e.buf, "/%s findfont %.*g scalefont setfont\n",
 			fnt.Name(), pr, fnt.Size)
 	}
-	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, x, pr, y)
+	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, x.Dots(e), pr, y.Dots(e))
 	fmt.Fprintf(e.buf, "(%s) show\n", str)
 }
 
 func (e *EpsCanvas) DPI() float64 {
-	return vg.PtInch
+	return 72
 }
 
 // Save saves the plot to the given path.

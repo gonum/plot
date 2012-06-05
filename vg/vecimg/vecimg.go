@@ -32,15 +32,15 @@ type ImageCanvas struct {
 
 // New returns a new image canvas with the size specified in inches,
 // rounded up to the nearest pixel.
-func New(w, h float64) (*ImageCanvas, error) {
+func New(width, height vg.Length) (*ImageCanvas, error) {
 	pkg, err := build.Import(importString, "", build.FindOnly)
 	if err != nil {
 		return nil, err
 	}
 	draw2d.SetFontFolder(filepath.Join(pkg.Dir, "fonts"))
 
-	w *= dpi
-	h *= dpi
+	w := width.Inches() * dpi
+	h := height.Inches() * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
 	gc := draw2d.NewGraphicContext(img)
 	gc.SetDPI(dpi)
@@ -53,12 +53,16 @@ func New(w, h float64) (*ImageCanvas, error) {
 	}, nil
 }
 
-func (c *ImageCanvas) SetLineWidth(w float64) {
-	c.gc.SetLineWidth(w)
+func (c *ImageCanvas) SetLineWidth(w vg.Length) {
+	c.gc.SetLineWidth(w.Dots(c))
 }
 
-func (c *ImageCanvas) SetLineDash(ds []float64, offs float64) {
-	c.gc.SetLineDash(ds, offs)
+func (c *ImageCanvas) SetLineDash(ds []vg.Length, offs vg.Length) {
+	dashes := make([]float64, len(ds))
+	for i, d := range ds {
+		dashes[i] = d.Dots(c)
+	}
+	c.gc.SetLineDash(dashes, offs.Dots(c))
 }
 
 func (c *ImageCanvas) SetColor(color color.Color) {
@@ -71,8 +75,8 @@ func (c *ImageCanvas) Rotate(t float64) {
 	c.gc.Rotate(t)
 }
 
-func (c *ImageCanvas) Translate(x, y float64) {
-	c.gc.Translate(x, y)
+func (c *ImageCanvas) Translate(x, y vg.Length) {
+	c.gc.Translate(x.Dots(c), y.Dots(c))
 }
 
 func (c *ImageCanvas) Scale(x, y float64) {
@@ -102,14 +106,15 @@ func (c *ImageCanvas) outline(p vg.Path) {
 	for _, comp := range p {
 		switch comp.Type {
 		case vg.MoveComp:
-			c.gc.MoveTo(comp.X, comp.Y)
+			c.gc.MoveTo(comp.X.Dots(c), comp.Y.Dots(c))
 
 		case vg.LineComp:
-			c.gc.LineTo(comp.X, comp.Y)
+			c.gc.LineTo(comp.X.Dots(c), comp.Y.Dots(c))
 
 		case vg.ArcComp:
-			c.gc.ArcTo(comp.X, comp.Y, comp.Radius,
-				comp.Radius, comp.Start, comp.Finish)
+			c.gc.ArcTo(comp.X.Dots(c), comp.Y.Dots(c),
+				comp.Radius.Dots(c), comp.Radius.Dots(c),
+				comp.Start, comp.Finish)
 
 		case vg.CloseComp:
 			c.gc.Close()
@@ -124,17 +129,17 @@ func (c *ImageCanvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
 
-func (c *ImageCanvas) FillText(font vg.Font, x, y float64, str string) {
+func (c *ImageCanvas) FillText(font vg.Font, x, y vg.Length, str string) {
 	c.gc.Save()
-	c.gc.Translate(x, y+font.Extents().Ascent/vg.PtInch*c.DPI())
+	c.gc.Translate(x.Dots(c), (y + font.Extents().Ascent).Dots(c))
 	c.gc.Scale(1, -1)
 	c.gc.DrawImage(c.textImage(font, str))
 	c.gc.Restore()
 }
 
 func (c *ImageCanvas) textImage(font vg.Font, str string) *image.RGBA {
-	w := font.Width(str) / vg.PtInch * c.DPI()
-	h := font.Extents().Height / vg.PtInch * c.DPI()
+	w := font.Width(str).Dots(c)
+	h := font.Extents().Height.Dots(c)
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
 	gc := draw2d.NewGraphicContext(img)
 
@@ -146,8 +151,8 @@ func (c *ImageCanvas) textImage(font vg.Font, str string) *image.RGBA {
 	}
 
 	gc.SetFontData(data)
-	gc.SetFontSize(font.Size)
-	gc.MoveTo(0, h+font.Extents().Descent)
+	gc.SetFontSize(font.Size.Points())
+	gc.MoveTo(0, h+font.Extents().Descent.Dots(c))
 	gc.FillString(str)
 
 	return img

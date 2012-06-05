@@ -10,16 +10,16 @@ import (
 // various extents and width with lines. Expects
 // about a 4x4 inch canvas.
 func DrawFontExtents(t *testing.T, c Canvas) {
-	x, y := c.DPI(), 2*c.DPI()
+	x, y := Inches(1), Inches(2)
 	str := "Eloquent"
 	font, err := MakeFont("Times-Roman", 18)
 	if err != nil {
 		t.Fatal(err)
 	}
-	width := font.Width(str) / PtInch * c.DPI()
+	width := font.Width(str)
 	ext := font.Extents()
-	des := ext.Descent / PtInch * c.DPI()
-	asc := ext.Ascent / PtInch * c.DPI()
+	des := ext.Descent
+	asc := ext.Ascent
 
 	c.FillText(font, x, y, str)
 
@@ -48,20 +48,20 @@ func DrawFontExtents(t *testing.T, c Canvas) {
 // fonts along with a box to make sure that their
 // sizes are computed correctly.
 func DrawFonts(t *testing.T, c Canvas) {
-	y := 0.0
+	y := Points(0)
 	for fname := range FontMap {
 		font, err := MakeFont(fname, 12)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		w := font.Width(fname+"Xqg") / PtInch * c.DPI()
-		h := font.Extents().Ascent / PtInch * c.DPI()
+		w := font.Width(fname + "Xqg")
+		h := font.Extents().Ascent
 
 		// Shift the bottom font up so that its descents
 		// aren't clipped.
 		if y == 0.0 {
-			y -= font.Extents().Descent / PtInch * c.DPI()
+			y -= font.Extents().Descent
 		}
 
 		c.FillText(font, 0, y, fname+"Xqg")

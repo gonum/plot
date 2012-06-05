@@ -7,24 +7,13 @@ import (
 	"image/color"
 )
 
-const (
-	// PtInch is the number of points in an inch.
-	PtInch = 72
-)
-
 // A Canvas is the main drawing interface for 2D vector
 // graphics.  The origin is in the bottom left corner.
-//
-// The units for all Canvas routines (unless otherwise stated)
-// are 'dots.'  To convert between dots (which may differ
-// for each different canvas implementation) and a set
-// of units for which you may be more familiar, you should
-// use the GetDPI() method
 type Canvas interface {
 	// SetLineWidth sets the width of stroked paths.
 	//
 	// The initial line width is 1 dot.
-	SetLineWidth(float64)
+	SetLineWidth(Length)
 
 	// SetLineDash sets the dash pattern for lines.
 	// The first argument is the pattern (units on,
@@ -32,7 +21,7 @@ type Canvas interface {
 	// is the initial offset into the pattern.
 	//
 	// The inital dash pattern is a solid line.
-	SetLineDash([]float64, float64)
+	SetLineDash([]Length, Length)
 
 	// SetColor sets the current drawing color.
 	// Note that fill color and stroke color are
@@ -49,14 +38,11 @@ type Canvas interface {
 	Rotate(float64)
 
 	// Translate applies a translational transform
-	// to the context.  The parameters are specified
-	// in dots.
-	Translate(float64, float64)
+	// to the context.
+	Translate(Length, Length)
 
 	// Scale applies a scaling transform to the
-	// context.  Note that, after scaling,
-	// conversions between dots and inches
-	// must be scaled too.
+	// context.
 	Scale(float64, float64)
 
 	// Push saves the entire context (line width,
@@ -77,7 +63,7 @@ type Canvas interface {
 
 	// FillText fills in text at the specified
 	// location using the given font.
-	FillText(Font, float64, float64, string)
+	FillText(Font, Length, Length, string)
 
 	// DPI returns the number of canvas dots in
 	// an inch.
@@ -88,20 +74,20 @@ type Path []PathComp
 
 // Move moves the current location of the path to
 // the given point.
-func (p *Path) Move(x, y float64) {
+func (p *Path) Move(x, y Length) {
 	*p = append(*p, PathComp{Type: MoveComp, X: x, Y: y})
 }
 
 // Line draws a line from the current point to the
 // given point.
-func (p *Path) Line(x, y float64) {
+func (p *Path) Line(x, y Length) {
 	*p = append(*p, PathComp{Type: LineComp, X: x, Y: y})
 }
 
 // Arc adds an arc to the path defined by the center
 // point of the arc's circle, the radius of the circle
 // and the start and finish angles.
-func (p *Path) Arc(x, y, rad, s, f float64) {
+func (p *Path) Arc(x, y, rad Length, s, f float64) {
 	*p = append(*p, PathComp{
 		Type:   ArcComp,
 		X:      x,
@@ -139,11 +125,11 @@ type PathComp struct {
 	// of a MoveComp or LineComp and is the center
 	// point of an ArcComp.  It is not used in
 	// the CloseComp.
-	X, Y float64
+	X, Y Length
 
 	// Radius is only used for ArcComps, it is
 	// the radius of the circle defining the arc.
-	Radius float64
+	Radius Length
 
 	// Start and Finish are only used for ArcComps.
 	// They define the start and finish angles of
