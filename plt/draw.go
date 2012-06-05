@@ -237,7 +237,7 @@ type LineStyle struct {
 }
 
 // line draws a line connecting the given points.
-func (da *drawArea) line(pts []point) {
+func (da *drawArea) line(pts ...point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -252,7 +252,7 @@ func (da *drawArea) line(pts []point) {
 
 // clippedLine draws a line that is clipped at the bounds
 // the drawArea.
-func (da *drawArea) clippedLine(pts []point) {
+func (da *drawArea) clippedLine(pts ...point) {
 	// clip right
 	lines0 := clip(isLeft, point{da.max().x, da.min.y}, point{-1, 0}, pts)
 
@@ -278,7 +278,7 @@ func (da *drawArea) clippedLine(pts []point) {
 	}
 
 	for _, l := range lines1 {
-		da.line(l)
+		da.line(l...)
 	}
 	return
 }

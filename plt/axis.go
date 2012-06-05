@@ -155,12 +155,12 @@ func (a *horizontalAxis) draw(da *drawArea) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := a.x(da, t.Value)
-			da.line([]point{{x, y + t.lengthOffset(len)}, {x, y + len}})
+			da.line(point{x, y + t.lengthOffset(len)}, point{x, y + len})
 		}
 		y += len
 	}
 	da.setLineStyle(a.LineStyle)
-	da.line([]point{{da.min.x, y}, {da.max().x, y}})
+	da.line(point{da.min.x, y}, point{da.max().x, y})
 }
 
 // glyphBoxes returns glyphBoxes for the glyphs
@@ -236,12 +236,12 @@ func (a *verticalAxis) draw(da *drawArea) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			y := a.y(da, t.Value)
-			da.line([]point{{x + t.lengthOffset(len), y}, {x + len, y}})
+			da.line(point{x + t.lengthOffset(len), y}, point{x + len, y})
 		}
 		x += len
 	}
 	da.setLineStyle(a.LineStyle)
-	da.line([]point{{x, da.min.y}, {x, da.max().y}})
+	da.line(point{x, da.min.y}, point{x, da.max().y})
 }
 
 // glyphBoxes returns glyphBoxes for the glyphs
