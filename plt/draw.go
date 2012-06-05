@@ -373,11 +373,6 @@ type point struct {
 	X, Y vg.Length
 }
 
-// Pt returns a point with the given x and y values.
-func Pt(x, y vg.Length) point {
-	return point{x, y}
-}
-
 // dot returns the dot product of two points.
 func (p point) dot(q point) vg.Length {
 	return p.X*q.X + p.Y*q.Y
