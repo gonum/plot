@@ -30,7 +30,7 @@ type ImageCanvas struct {
 	color color.Color
 }
 
-// New returns a new image canvas with the size specified in inches,
+// New returns a new image canvas with the size specified.
 // rounded up to the nearest pixel.
 func New(width, height vg.Length) (*ImageCanvas, error) {
 	pkg, err := build.Import(importString, "", build.FindOnly)

@@ -30,8 +30,7 @@ type ctx struct {
 // pr is the amount of precision to use when outputting float64s.
 const pr = 5
 
-// New returns a new EpsCanvas with the width and height given
-// in inches and a title string.
+// New returns a new EpsCanvas.
 func New(w, h vg.Length, title string) *EpsCanvas {
 	c := &EpsCanvas{
 		stk: []ctx{

@@ -229,7 +229,7 @@ type LineStyle struct {
 	// Color is the color of the line.
 	Color color.Color
 
-	// Width is the width of the line in inches.
+	// Width is the width of the line.
 	Width vg.Length
 
 	Dashes   []vg.Length

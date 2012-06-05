@@ -28,7 +28,7 @@ type Axis struct {
 	// LineStyle is the style of the axis line.
 	LineStyle
 
-	// Padding between the axis line and the data in inches.
+	// Padding between the axis line and the data.
 	Padding vg.Length
 
 	Tick struct {
@@ -38,7 +38,7 @@ type Axis struct {
 		// LineStyle is the LineStyle of the tick mark lines.
 		LineStyle
 
-		// Length is the length of a major tick mark in inches.
+		// Length is the length of a major tick mark.
 		// Minor tick marks are half of the length of major
 		// tick marks.
 		Length vg.Length
@@ -117,7 +117,7 @@ type horizontalAxis struct {
 	Axis
 }
 
-// size returns the height of the axis in inches.
+// size returns the height of the axis.
 func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
 		h += a.Label.Font.Extents().Height
@@ -131,7 +131,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	return
 }
 
-// draw draws the axis onto the given area.
+// draw draws the axis along the lower edge of the given drawArea.
 func (a *horizontalAxis) draw(da *drawArea) {
 	y := da.min.y
 	if a.Label.Text != "" {
@@ -163,8 +163,10 @@ func (a *horizontalAxis) draw(da *drawArea) {
 	da.line([]point{{da.min.x, y}, {da.max().x, y}})
 }
 
-// glyphBoxes returns normalized glyphBoxes for the glyphs
-// representing the tick mark text.
+// glyphBoxes returns glyphBoxes for the glyphs
+// representing the tick mark labels.  The location
+// of the glyphBox is normalized to the unit range
+// based on its distance along the axis.
 func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
 	for _, t := range a.Tick.marks(a.Min, a.Max) {
 		if t.minor() {
@@ -185,7 +187,7 @@ type verticalAxis struct {
 	Axis
 }
 
-// size returns the width of the axis in inches.
+// size returns the width of the axis.
 func (a *verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" {
 		w += a.Label.Font.Extents().Ascent
@@ -205,7 +207,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 	return
 }
 
-// draw draws the axis onto the given area.
+// draw draws the axis along the left side of the drawArea.
 func (a *verticalAxis) draw(da *drawArea) {
 	x := da.min.x
 	if a.Label.Text != "" {
@@ -242,8 +244,10 @@ func (a *verticalAxis) draw(da *drawArea) {
 	da.line([]point{{x, da.min.y}, {x, da.max().y}})
 }
 
-// glyphBoxes returns normalized glyphBoxes for the glyphs
-// representing the tick mark text.
+// glyphBoxes returns glyphBoxes for the glyphs
+// representing the tick mark labels.  The location
+// of the glyphBox is normalized to the unit range
+// based on its distance along the axis.
 func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
 	h := a.Tick.Label.Font.Extents().Height
 	for _, t := range a.Tick.marks(a.Min, a.Max) {
@@ -288,7 +292,7 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 	return 0
 }
 
-// tickLabelHeight returns the label height.
+// tickLabelHeight returns height of the tick mark labels.
 func tickLabelHeight(f vg.Font, ticks []Tick) vg.Length {
 	for _, t := range ticks {
 		if t.minor() {
@@ -299,7 +303,7 @@ func tickLabelHeight(f vg.Font, ticks []Tick) vg.Length {
 	return 0
 }
 
-// tickLabelWidth returns the label width.
+// tickLabelWidth returns the width of the widest tick mark label.
 func tickLabelWidth(f vg.Font, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
@@ -318,7 +322,7 @@ func tickLabelWidth(f vg.Font, ticks []Tick) vg.Length {
 // the given range.
 type DefaultTicks struct{}
 
-// Marks implements the TickMarker Marks method.
+// marks implements the TickMarker marks method.
 func (_ DefaultTicks) marks(min, max float64) []Tick {
 	return []Tick{
 		{Value: min, Label: fmt.Sprintf("%g", min)},
@@ -332,7 +336,7 @@ func (_ DefaultTicks) marks(min, max float64) []Tick {
 // A ConstantTicks always returns the same set of tick marks.
 type ConstantTicks []Tick
 
-// Marks implements the TickMarker Marks method.
+// marks implements the TickMarker marks method.
 func (tks ConstantTicks) marks(min, max float64) []Tick {
 	return tks
 }
