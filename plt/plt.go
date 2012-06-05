@@ -51,5 +51,5 @@ func (p *Plot) Draw(da *DrawArea) {
 	p.XAxis.draw(da.crop(ywidth, 0, 0, 0).squishX(p.XAxis.glyphBoxes()))
 
 	xheight := p.XAxis.size()
-	p.YAxis.draw(da.crop(0, xheight, 0, 0))
+	p.YAxis.draw(da.crop(0, xheight, 0, 0).squishY(p.YAxis.glyphBoxes()))
 }

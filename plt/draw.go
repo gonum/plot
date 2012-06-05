@@ -117,6 +117,55 @@ func (da *DrawArea) squishX(boxes []glyphBox) *DrawArea {
 	}
 }
 
+// squishY returns a new DrawArea with a squished height such
+// that any of the given set of glyphs will draw within the original
+// draw area when they are mapped to the coordinate system
+// of the returned DrawArea.
+//
+// The location of the glyphs that are given as a parameter are
+// assumed to be on the unit interval, with 0 meaning the
+// bottom-most side of the draw area and 1 meaning the
+// top-most side.
+func (da *DrawArea) squishY(boxes []glyphBox) *DrawArea {
+	if len(boxes) == 0 {
+		return da
+	}
+
+	var top, bot vg.Length
+	miny, maxy := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
+	for _, b := range boxes {
+		if y := da.y(b.Y) + b.rect.Min.Y; y < miny {
+			bot = vg.Length(b.Y)
+			miny = y
+		}
+		if y := da.y(b.Y) + b.Min.Y + b.Size.Y; y > maxy {
+			top = vg.Length(b.Y)
+			maxy = y
+		}
+	}
+
+	if miny >= da.Min.Y {
+		miny = da.Min.Y
+	}
+	if maxy <= da.Max().Y {
+		maxy = da.Max().Y
+	}
+
+	// where we want the top and bottom points to end up
+	b := da.Min.Y + (da.Min.Y - miny)
+	t := da.Max().Y - (maxy - da.Max().Y)
+	n := (bot*t - top*b) / (bot - top)
+	m := ((bot-1)*t - top*b + b) / (bot - top)
+	return &DrawArea{
+		vg.Canvas: vg.Canvas(da),
+		font:      da.font,
+		rect: rect{
+			Min:  point{X: da.Min.X, Y: n},
+			Size: point{X: da.Size.X, Y: m - n, },
+		},
+	}
+}
+
 // A glyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
 type glyphBox struct {
