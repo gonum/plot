@@ -13,10 +13,10 @@ func TestDrawImage(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	da := &DrawArea{
+	da := &drawArea{
 		Canvas: img,
-		rect: rect{Min: point{0, 0},
-			Size: point{vg.Inches(4), vg.Inches(4)},
+		rect: rect{min: point{0, 0},
+			size: point{vg.Inches(4), vg.Inches(4)},
 		},
 	}
 	draw(da)
@@ -28,10 +28,10 @@ func TestDrawImage(t *testing.T) {
 
 func TestDrawEps(t *testing.T) {
 	eps := veceps.New(vg.Inches(4), vg.Inches(4), "test")
-	da := &DrawArea{
+	da := &drawArea{
 		Canvas: eps,
-		rect: rect{Min: point{0, 0},
-			Size: point{vg.Inches(4), vg.Inches(4)},
+		rect: rect{min: point{0, 0},
+			size: point{vg.Inches(4), vg.Inches(4)},
 		},
 	}
 	draw(da)
@@ -42,7 +42,7 @@ func TestDrawEps(t *testing.T) {
 }
 
 // draw draws a simple test plot
-func draw(da *DrawArea) {
+func draw(da *drawArea) {
 	plot := NewPlot()
 	plot.Title = "This is a plot"
 	plot.XAxis.Min = 100000
@@ -53,5 +53,5 @@ func draw(da *DrawArea) {
 	plot.YAxis.Ticks.LabelStyle.Font.Size = vg.Points(24)
 	plot.YAxis.Ticks.TickMarker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
 	plot.YAxis.Label = "Y-Axis gq"
-	plot.Draw(da)
+	plot.draw(da)
 }

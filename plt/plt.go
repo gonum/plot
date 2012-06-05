@@ -7,12 +7,12 @@ import (
 )
 
 // A Plot is a pair of axes, an optional title and a set of
-// data elements that can be drawn to a DrawArea.
+// data elements that can be drawn to a drawArea.
 type Plot struct {
 	Title      string
 	TitleStyle TextStyle
-	XAxis      HorizontalAxis
-	YAxis      VerticalAxis
+	XAxis      horizontalAxis
+	YAxis      verticalAxis
 }
 
 // NewPlot returns a new plot.
@@ -26,13 +26,13 @@ func NewPlot() *Plot {
 			Color: color.RGBA{A: 255},
 			Font:  titleFont,
 		},
-		XAxis: HorizontalAxis{makeAxis()},
-		YAxis: VerticalAxis{makeAxis()},
+		XAxis: horizontalAxis{makeAxis()},
+		YAxis: verticalAxis{makeAxis()},
 	}
 }
 
-// Draw draws a plot to a DrawArea.
-func (p *Plot) Draw(da *DrawArea) {
+// draw draws a plot to a drawArea.
+func (p *Plot) draw(da *drawArea) {
 	da.SetColor(White)
 	da.Fill(rectPath(da.rect))
 	da.SetColor(Black)
@@ -43,8 +43,8 @@ func (p *Plot) Draw(da *DrawArea) {
 
 	if p.Title != "" {
 		da.setTextStyle(p.TitleStyle)
-		da.text(da.center().X, da.Max().Y, -0.5, -1, p.Title)
-		da.Size.Y -= p.TitleStyle.Font.Extents().Height
+		da.text(da.center().x, da.max().y, -0.5, -1, p.Title)
+		da.size.y -= p.TitleStyle.Font.Extents().Height
 	}
 
 	ywidth := p.YAxis.size()
