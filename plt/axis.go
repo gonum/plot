@@ -120,7 +120,7 @@ type horizontalAxis struct {
 // size returns the height of the axis.
 func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
-		h += a.Label.Font.Extents().Height
+		h += textHeight(a.Label.Font, a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -137,8 +137,8 @@ func (a *horizontalAxis) draw(da *drawArea) {
 	if a.Label.Text != "" {
 		da.setTextStyle(a.Label.TextStyle)
 		y -= a.Label.Font.Extents().Descent
-		da.text(da.center().x, y, -0.5, 0, a.Label.Text)
-		y += a.Label.Font.Extents().Ascent
+		fillText(da, da.center().x, y, -0.5, 0, a.Label.Text)
+		y += textHeight(a.Label.Font, a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -148,19 +148,19 @@ func (a *horizontalAxis) draw(da *drawArea) {
 			if t.minor() {
 				continue
 			}
-			da.text(a.x(da, t.Value), y, -0.5, 0, t.Label)
+			fillText(da, a.x(da, t.Value), y, -0.5, 0, t.Label)
 		}
 		y += tickLabelHeight(a.Tick.Label.Font, marks)
 
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := a.x(da, t.Value)
-			da.line([]point{{x, y + t.lengthOffset(len)}, {x, y + len}})
+			strokeLine2(da, x, y + t.lengthOffset(len),x, y + len)
 		}
 		y += len
 	}
 	da.setLineStyle(a.LineStyle)
-	da.line([]point{{da.min.x, y}, {da.max().x, y}})
+	strokeLine2(da, da.min.x, y, da.max().x, y)
 }
 
 // glyphBoxes returns glyphBoxes for the glyphs
@@ -172,7 +172,7 @@ func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
 		if t.minor() {
 			continue
 		}
-		w := a.Tick.Label.Font.Width(t.Label)
+		w := textWidth(a.Tick.Label.Font, t.Label)
 		box := glyphBox{
 			x:    a.norm(t.Value),
 			rect: rect{min: point{x: -w / 2}, size: point{x: w}},
@@ -190,15 +190,12 @@ type verticalAxis struct {
 // size returns the width of the axis.
 func (a *verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" {
-		w += a.Label.Font.Extents().Ascent
+		w += textHeight(a.Label.Font, a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label.Font, marks); lwidth > 0 {
 			w += lwidth
-			// Add a space after tick labels to separate
-			// them from the tick marks
-			w += a.Tick.Label.Font.Width(" ")
 		}
 		w += a.Tick.Length
 	}
@@ -211,11 +208,11 @@ func (a *verticalAxis) size() (w vg.Length) {
 func (a *verticalAxis) draw(da *drawArea) {
 	x := da.min.x
 	if a.Label.Text != "" {
-		x += a.Label.Font.Extents().Ascent
+		x += textHeight(a.Label.Font, a.Label.Text)
 		da.setTextStyle(a.Label.TextStyle)
 		da.Push()
 		da.Rotate(math.Pi / 2)
-		da.text(da.center().y, -x, -0.5, 0, a.Label.Text)
+		fillText(da, da.center().y, -x, -0.5, 0, a.Label.Text)
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
@@ -225,23 +222,22 @@ func (a *verticalAxis) draw(da *drawArea) {
 		da.setTextStyle(a.Tick.Label)
 		if lwidth := tickLabelWidth(a.Tick.Label.Font, marks); lwidth > 0 {
 			x += lwidth
-			x += a.Tick.Label.Font.Width(" ")
 		}
 		for _, t := range marks {
 			if t.minor() {
 				continue
 			}
-			da.text(x, a.y(da, t.Value), -1, -0.5, t.Label+" ")
+			fillText(da, x, a.y(da, t.Value), -1, -0.5, t.Label)
 		}
 		len := a.Tick.Length
 		for _, t := range marks {
 			y := a.y(da, t.Value)
-			da.line([]point{{x + t.lengthOffset(len), y}, {x + len, y}})
+			strokeLine2(da, x + t.lengthOffset(len), y, x + len, y)
 		}
 		x += len
 	}
 	da.setLineStyle(a.LineStyle)
-	da.line([]point{{x, da.min.y}, {x, da.max().y}})
+	strokeLine2(da, x, da.min.y, x, da.max().y)
 }
 
 // glyphBoxes returns glyphBoxes for the glyphs
@@ -249,11 +245,11 @@ func (a *verticalAxis) draw(da *drawArea) {
 // of the glyphBox is normalized to the unit range
 // based on its distance along the axis.
 func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
-	h := a.Tick.Label.Font.Extents().Height
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
+		h := textHeight(a.Tick.Label.Font, t.Label)
 		box := glyphBox{
 			y:    a.norm(t.Value),
 			rect: rect{min: point{y: -h / 2}, size: point{y: h}},
@@ -307,13 +303,17 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 
 // tickLabelHeight returns height of the tick mark labels.
 func tickLabelHeight(f vg.Font, ticks []Tick) vg.Length {
+	maxHeight := vg.Length(0)
 	for _, t := range ticks {
 		if t.minor() {
 			continue
 		}
-		return f.Extents().Ascent
+		h := textHeight(f, t.Label)
+		if h > maxHeight {
+			maxHeight = h
+		}
 	}
-	return 0
+	return maxHeight
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
@@ -323,7 +323,7 @@ func tickLabelWidth(f vg.Font, ticks []Tick) vg.Length {
 		if t.minor() {
 			continue
 		}
-		w := f.Width(t.Label)
+		w := textWidth(f, t.Label)
 		if w > maxWidth {
 			maxWidth = w
 		}

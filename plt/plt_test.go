@@ -44,14 +44,14 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *drawArea) {
 	p := NewPlot()
-	p.Title.Text = "This is a plot"
+	p.Title.Text = "This is a plot with a\nthree line\ntitle"
 	p.XAxis.Min = 100000
 	p.XAxis.Max = 100001
-	p.XAxis.Label.Text = "X-Axis gq"
+	p.XAxis.Label.Text = "X\nAxis gq"
 	p.YAxis.Min = 10
 	p.YAxis.Max = 20
 	p.YAxis.Tick.Label.Font.Size = vg.Points(24)
 	p.YAxis.Tick.Marker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
-	p.YAxis.Label.Text = "Y-Axis gq"
+	p.YAxis.Label.Text = "Y\nAxis gq"
 	p.draw(da)
 }

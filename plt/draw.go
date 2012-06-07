@@ -2,9 +2,10 @@ package plt
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"fmt"
 	"image/color"
 	"math"
+	"strings"
+
 )
 
 var (
@@ -21,6 +22,44 @@ var (
 type drawArea struct {
 	vg.Canvas
 	font vg.Font
+	rect
+}
+
+// TextStyle describes what text will look like.
+type TextStyle struct {
+	// Color is the text color.
+	Color color.Color
+
+	// Font is the font description.
+	Font vg.Font
+}
+
+// MakeFont returns a font object.
+// This function is merely included for convenience so that
+// the user doesn't have to import the vg package.
+func MakeFont(name string, size vg.Length) (vg.Font, error) {
+	return vg.MakeFont(name, size)
+}
+
+// LineStyle describes what a line will look like.
+type LineStyle struct {
+	// Color is the color of the line.
+	Color color.Color
+
+	// Width is the width of the line.
+	Width vg.Length
+
+	Dashes   []vg.Length
+	DashOffs vg.Length
+}
+
+// A glyphBox describes the location of a glyph
+// and the offset/size of its bounding box.
+type glyphBox struct {
+	// The glyph location in normalized coordinates.
+	x, y float64
+	// rect is the offset of the glyph's minimum drawing
+	// point relative to the glyph location and its size.
 	rect
 }
 
@@ -166,50 +205,10 @@ func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
 	}
 }
 
-// A glyphBox describes the location of a glyph
-// and the offset/size of its bounding box.
-type glyphBox struct {
-	// The glyph location in normalized coordinates.
-	x, y float64
-	// rect is the offset of the glyph's minimum drawing
-	// point relative to the glyph location and its size.
-	rect
-}
-
 // setTextStyle sets the current text style
 func (da *drawArea) setTextStyle(sty TextStyle) {
 	da.SetColor(sty.Color)
 	da.font = sty.Font
-}
-
-// TextStyle describes what text will look like.
-type TextStyle struct {
-	// Color is the text color.
-	Color color.Color
-
-	// Font is the font description.
-	Font vg.Font
-}
-
-// MakeFont returns a font object.
-// This function is merely included for convenience so that
-// the user doesn't have to import the vg package.
-func MakeFont(name string, size vg.Length) (vg.Font, error) {
-	return vg.MakeFont(name, size)
-}
-
-// text fills the text to the drawing area.  The string is created
-// using the printf-style format specification and the text is
-// located at x + width*fx, y + height*fy, where width and height
-// are the width and height of the rendered string.
-func (da *drawArea) text(x, y vg.Length, fx, fy float64, f string, v ...interface{}) {
-	if da.font.Font() == nil {
-		panic("Drawing text without a current font set")
-	}
-	str := fmt.Sprintf(f, v...)
-	w := da.font.Width(str)
-	h := da.font.Extents().Ascent
-	da.FillText(da.font, x+w*vg.Length(fx), y+h*vg.Length(fy), str)
 }
 
 // setLineStyle sets the current line style
@@ -224,20 +223,9 @@ func (da *drawArea) setLineStyle(sty LineStyle) {
 
 }
 
-// LineStyle describes what a line will look like.
-type LineStyle struct {
-	// Color is the color of the line.
-	Color color.Color
-
-	// Width is the width of the line.
-	Width vg.Length
-
-	Dashes   []vg.Length
-	DashOffs vg.Length
-}
-
-// line draws a line connecting the given points.
-func (da *drawArea) line(pts []point) {
+// drawLine draws a line connecting a set of points
+// in the given drawArea.
+func strokeLine(da *drawArea, pts ...point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -250,9 +238,15 @@ func (da *drawArea) line(pts []point) {
 	da.Stroke(p)
 }
 
-// clippedLine draws a line that is clipped at the bounds
+// strokeLine2 draws a line between two points in the given
+// drawArea.
+func strokeLine2(da *drawArea, x0, y0, x1, y1 vg.Length) {
+	strokeLine(da, point{x0, y0}, point{x1, y1})
+}
+
+// strokeClippedLine draws a line that is clipped at the bounds
 // the drawArea.
-func (da *drawArea) clippedLine(pts []point) {
+func strokeClippedLine(da *drawArea, pts ...point) {
 	// clip right
 	lines0 := clip(isLeft, point{da.max().x, da.min.y}, point{-1, 0}, pts)
 
@@ -278,7 +272,7 @@ func (da *drawArea) clippedLine(pts []point) {
 	}
 
 	for _, l := range lines1 {
-		da.line(l)
+		strokeLine(da, l...)
 	}
 	return
 }
@@ -342,6 +336,68 @@ func isect(p0, p1, clip, norm point) point {
 
 	// p = p0 + t*(p1 - p0)
 	return p1.minus(p0).scale(t).plus(p0)
+}
+
+// fillText fills lines of text in the draw area.
+// The text is offset by its width times xalign and
+// its height times yalign.  x and y give the bottom
+// left corner of the text befor e it is offset.
+func fillText(da *drawArea, x, y vg.Length, xalign, yalign float64, txt string) {
+	txt = strings.TrimRight(txt, "\n")
+	if len(txt) == 0 {
+		return
+	}
+
+	if da.font.Font() == nil {
+		panic("Drawing text without a current font set")
+	}
+
+	ht := textHeight(da.font, txt)
+	y += ht * vg.Length(yalign) - da.font.Extents().Ascent
+	nl := textNLines(txt)
+	for i, line := range strings.Split(txt, "\n") {
+		xoffs := vg.Length(xalign) * da.font.Width(line)
+		n := vg.Length(nl - i)
+		da.FillText(da.font, x + xoffs, y + n*da.font.Size, line)
+	}
+}
+
+// textWidth returns the width of lines of text
+// when using the given font.
+func textWidth(fnt vg.Font, txt string) (max vg.Length) {
+	txt = strings.TrimRight(txt, "\n")
+	for _, line := range strings.Split(txt, "\n") {
+		if w := fnt.Width(line); w > max {
+			max = w
+		}
+	}
+	return
+}
+
+// textHeight returns the height of the text when using
+// the given font.
+func textHeight(fnt vg.Font, txt string) vg.Length {
+	nl := textNLines(txt)
+	if nl == 0 {
+		return vg.Length(0)
+	}
+	e := fnt.Extents()
+	return e.Height*vg.Length(nl - 1) + e.Ascent
+}
+
+// textNLines returns the number of lines in the text.
+func textNLines(txt string) int {
+	txt = strings.TrimRight(txt, "\n")
+	if len(txt) == 0 {
+		return 0
+	}
+	n := 1
+	for _, r := range txt {
+		if r == '\n' {
+			n++
+		}
+	}
+	return n
 }
 
 // rectPath returns the path of a rectangle specified by its

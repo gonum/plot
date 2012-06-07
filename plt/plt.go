@@ -2,7 +2,6 @@
 package plt
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"image/color"
 )
 
@@ -41,13 +40,10 @@ func (p *Plot) draw(da *drawArea) {
 	da.SetColor(Black)
 	da.Stroke(rectPath(da.rect))
 
-	pad := vg.Points(5.0)
-	da = da.crop(0, pad, 0, -pad)
-
 	if p.Title.Text != "" {
 		da.setTextStyle(p.Title.TextStyle)
-		da.text(da.center().x, da.max().y, -0.5, -1, p.Title.Text)
-		da.size.y -= p.Title.Font.Extents().Height
+		fillText(da, da.center().x, da.max().y, -0.5, -1, p.Title.Text)
+		da.size.y -= textHeight(p.Title.Font, p.Title.Text)
 	}
 
 	ywidth := p.YAxis.size()
