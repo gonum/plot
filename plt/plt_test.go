@@ -51,7 +51,7 @@ func draw(da *drawArea) {
 	p.YAxis.Min = 10
 	p.YAxis.Max = 20
 	p.YAxis.Tick.Label.Font.Size = vg.Points(24)
-	p.YAxis.Tick.TickMarker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
+	p.YAxis.Tick.Marker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
 	p.YAxis.Label.Text = "Y-Axis gq"
 	p.draw(da)
 }

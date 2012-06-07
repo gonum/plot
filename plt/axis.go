@@ -43,9 +43,9 @@ type Axis struct {
 		// tick marks.
 		Length vg.Length
 
-		// TickMarker locates the tick marks given the
-		// minimum and maximum values.
-		TickMarker
+		// Marker returns the tick marks given the minimum
+		// and maximum values of the axis.
+		Marker func(min, max float64) []Tick
 	}
 }
 
@@ -86,7 +86,7 @@ func makeAxis() Axis {
 		Width: vg.Inches(1.0 / 64.0),
 	}
 	a.Tick.Length = vg.Inches(1.0/10.0)
-	a.Tick.TickMarker = DefaultTicks(struct{}{})
+	a.Tick.Marker = DefaultTicks
 
 	return a
 }
@@ -122,7 +122,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
 		h += a.Label.Font.Extents().Height
 	}
-	marks := a.Tick.marks(a.Min, a.Max)
+	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		h += a.Tick.Length + tickLabelHeight(a.Tick.Label.Font, marks)
 	}
@@ -140,7 +140,7 @@ func (a *horizontalAxis) draw(da *drawArea) {
 		da.text(da.center().x, y, -0.5, 0, a.Label.Text)
 		y += a.Label.Font.Extents().Ascent
 	}
-	marks := a.Tick.marks(a.Min, a.Max)
+	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		da.setLineStyle(a.Tick.LineStyle)
 		da.setTextStyle(a.Tick.Label)
@@ -168,7 +168,7 @@ func (a *horizontalAxis) draw(da *drawArea) {
 // of the glyphBox is normalized to the unit range
 // based on its distance along the axis.
 func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
-	for _, t := range a.Tick.marks(a.Min, a.Max) {
+	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
@@ -192,7 +192,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" {
 		w += a.Label.Font.Extents().Ascent
 	}
-	marks := a.Tick.marks(a.Min, a.Max)
+	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label.Font, marks); lwidth > 0 {
 			w += lwidth
@@ -219,7 +219,7 @@ func (a *verticalAxis) draw(da *drawArea) {
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
-	marks := a.Tick.marks(a.Min, a.Max)
+	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		da.setLineStyle(a.Tick.LineStyle)
 		da.setTextStyle(a.Tick.Label)
@@ -250,7 +250,7 @@ func (a *verticalAxis) draw(da *drawArea) {
 // based on its distance along the axis.
 func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
 	h := a.Tick.Label.Font.Extents().Height
-	for _, t := range a.Tick.marks(a.Min, a.Max) {
+	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
@@ -263,11 +263,24 @@ func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
 	return
 }
 
-// A TickMarker returns a slice of ticks between a given
-// range of values. 
-type TickMarker interface {
-	// marks returns a slice of ticks for the given range.
-	marks(min, max float64) []Tick
+// DefaultTicks is suitable for the Marker field of an Axis, it returns
+// the default set of tick marks.
+func DefaultTicks(min, max float64) []Tick {
+	return []Tick{
+		{Value: min, Label: fmt.Sprintf("%g", min)},
+		{Value: min + (max-min)/4},
+		{Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min+(max-min)/2)},
+		{Value: min + 3*(max-min)/4},
+		{Value: max, Label: fmt.Sprintf("%g", max)},
+	}
+}
+
+// ConstantTicks returns a function suitable for the Marker field
+// of an Axis.  This function returns the given set of ticks.
+func ConstantTicks(ts []Tick) func(float64,float64)[]Tick {
+	return func(float64,float64) []Tick {
+		return ts
+	}
 }
 
 // A Tick is a single tick mark
@@ -316,27 +329,4 @@ func tickLabelWidth(f vg.Font, ticks []Tick) vg.Length {
 		}
 	}
 	return maxWidth
-}
-
-// A DefaultTicks returns a default set of tick marks within
-// the given range.
-type DefaultTicks struct{}
-
-// marks implements the TickMarker marks method.
-func (_ DefaultTicks) marks(min, max float64) []Tick {
-	return []Tick{
-		{Value: min, Label: fmt.Sprintf("%g", min)},
-		{Value: min + (max-min)/4},
-		{Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min+(max-min)/2)},
-		{Value: min + 3*(max-min)/4},
-		{Value: max, Label: fmt.Sprintf("%g", max)},
-	}
-}
-
-// A ConstantTicks always returns the same set of tick marks.
-type ConstantTicks []Tick
-
-// marks implements the TickMarker marks method.
-func (tks ConstantTicks) marks(min, max float64) []Tick {
-	return tks
 }
