@@ -279,9 +279,13 @@ func ConstantTicks(ts []Tick) func(float64,float64)[]Tick {
 	}
 }
 
-// A Tick is a single tick mark
+// A Tick is a single tick mark on an axis.
 type Tick struct {
+	// Value is the value denoted by the tick.
 	Value float64
+	// Label is the text to display at the tick mark.
+	// If Label is an empty string then this is a minor
+	// tick mark.
 	Label string
 }
 
