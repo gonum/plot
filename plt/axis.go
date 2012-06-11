@@ -59,17 +59,17 @@ func makeAxis() Axis {
 		panic(err)
 	}
 	a := Axis{
-		Min:   math.Inf(1),
-		Max:   math.Inf(-1),
+		Min: math.Inf(1),
+		Max: math.Inf(-1),
 		LineStyle: LineStyle{
-			Color: Black,
+			Color: color.Black,
 			Width: vg.Inches(1.0 / 64.0),
 		},
 		Padding: vg.Inches(1.0 / 8.0),
 	}
 
 	a.Label.TextStyle = TextStyle{
-		Color: Black,
+		Color: color.Black,
 		Font:  labelFont,
 	}
 
@@ -78,14 +78,14 @@ func makeAxis() Axis {
 		panic(err)
 	}
 	a.Tick.Label = TextStyle{
-		Color: color.RGBA{A: 255},
+		Color: color.Black,
 		Font:  tickFont,
 	}
 	a.Tick.LineStyle = LineStyle{
-		Color: color.RGBA{A: 255},
+		Color: color.Black,
 		Width: vg.Inches(1.0 / 64.0),
 	}
-	a.Tick.Length = vg.Inches(1.0/10.0)
+	a.Tick.Length = vg.Inches(1.0 / 10.0)
 	a.Tick.Marker = DefaultTicks
 
 	return a
@@ -155,7 +155,7 @@ func (a *horizontalAxis) draw(da *drawArea) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := a.x(da, t.Value)
-			strokeLine2(da, x, y + t.lengthOffset(len),x, y + len)
+			strokeLine2(da, x, y+t.lengthOffset(len), x, y+len)
 		}
 		y += len
 	}
@@ -232,7 +232,7 @@ func (a *verticalAxis) draw(da *drawArea) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			y := a.y(da, t.Value)
-			strokeLine2(da, x + t.lengthOffset(len), y, x + len, y)
+			strokeLine2(da, x+t.lengthOffset(len), y, x+len, y)
 		}
 		x += len
 	}
@@ -273,8 +273,8 @@ func DefaultTicks(min, max float64) []Tick {
 
 // ConstantTicks returns a function suitable for the Marker field
 // of an Axis.  This function returns the given set of ticks.
-func ConstantTicks(ts []Tick) func(float64,float64)[]Tick {
-	return func(float64,float64) []Tick {
+func ConstantTicks(ts []Tick) func(float64, float64) []Tick {
+	return func(float64, float64) []Tick {
 		return ts
 	}
 }

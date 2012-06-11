@@ -5,15 +5,6 @@ import (
 	"image/color"
 	"math"
 	"strings"
-
-)
-
-var (
-	Black = color.RGBA{A: 255}
-	White = color.RGBA{R: 255, G: 255, B: 255, A: 255}
-	Red   = color.RGBA{R: 255, A: 255}
-	Green = color.RGBA{G: 255, A: 255}
-	Blue  = color.RGBA{B: 255, A: 255}
 )
 
 // A drawArea is a vector graphics canvas along with
@@ -193,7 +184,7 @@ func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
 		font:      da.font,
 		rect: rect{
 			min:  point{x: da.min.x, y: n},
-			size: point{x: da.size.x, y: m - n, },
+			size: point{x: da.size.x, y: m - n},
 		},
 	}
 }
@@ -346,12 +337,12 @@ func fillText(da *drawArea, x, y vg.Length, xalign, yalign float64, txt string) 
 	}
 
 	ht := textHeight(da.font, txt)
-	y += ht * vg.Length(yalign) - da.font.Extents().Ascent
+	y += ht*vg.Length(yalign) - da.font.Extents().Ascent
 	nl := textNLines(txt)
 	for i, line := range strings.Split(txt, "\n") {
 		xoffs := vg.Length(xalign) * da.font.Width(line)
 		n := vg.Length(nl - i)
-		da.FillText(da.font, x + xoffs, y + n*da.font.Size, line)
+		da.FillText(da.font, x+xoffs, y+n*da.font.Size, line)
 	}
 }
 
@@ -375,7 +366,7 @@ func textHeight(fnt vg.Font, txt string) vg.Length {
 		return vg.Length(0)
 	}
 	e := fnt.Extents()
-	return e.Height*vg.Length(nl - 1) + e.Ascent
+	return e.Height*vg.Length(nl-1) + e.Ascent
 }
 
 // textNLines returns the number of lines in the text.

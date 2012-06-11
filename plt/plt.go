@@ -2,13 +2,13 @@
 package plt
 
 import (
-	"image/color"
 	"code.google.com/p/plotinum/vg"
+	"image/color"
 )
 
 // Plot is the basic type representing a plot.
 type Plot struct {
-	Title      struct {
+	Title struct {
 		Text string
 		TextStyle
 	}
@@ -26,7 +26,7 @@ func New() *Plot {
 		Y: makeAxis(),
 	}
 	p.Title.TextStyle = TextStyle{
-		Color: color.RGBA{A: 255},
+		Color: color.Black,
 		Font:  titleFont,
 	}
 	return p
@@ -34,9 +34,9 @@ func New() *Plot {
 
 // draw draws a plot to a drawArea.
 func (p *Plot) draw(da *drawArea) {
-	da.SetColor(White)
+	da.SetColor(color.White)
 	da.Fill(rectPath(da.rect))
-	da.SetColor(Black)
+	da.SetColor(color.Black)
 	da.Stroke(rectPath(da.rect))
 
 	if p.Title.Text != "" {
