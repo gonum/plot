@@ -12,8 +12,7 @@ type Plot struct {
 		Text string
 		TextStyle
 	}
-	XAxis      horizontalAxis
-	YAxis      verticalAxis
+	XAxis, YAxis Axis
 }
 
 // NewPlot returns a new plot.
@@ -23,8 +22,8 @@ func NewPlot() *Plot {
 		panic(err)
 	}
 	p := &Plot{
-		XAxis: horizontalAxis{makeAxis()},
-		YAxis: verticalAxis{makeAxis()},
+		XAxis: makeAxis(),
+		YAxis: makeAxis(),
 	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.RGBA{A: 255},
@@ -46,9 +45,12 @@ func (p *Plot) draw(da *drawArea) {
 		da.size.y -= textHeight(p.Title.Font, p.Title.Text)
 	}
 
-	ywidth := p.YAxis.size()
-	p.XAxis.draw(da.crop(ywidth, 0, 0, 0).squishX(p.XAxis.glyphBoxes()))
+	x := horizontalAxis{p.XAxis}
+	y := verticalAxis{p.YAxis}
 
-	xheight := p.XAxis.size()
-	p.YAxis.draw(da.crop(0, xheight, 0, 0).squishY(p.YAxis.glyphBoxes()))
+	ywidth := y.size()
+	x.draw(da.crop(ywidth, 0, 0, 0).squishX(x.glyphBoxes()))
+
+	xheight := x.size()
+	y.draw(da.crop(0, xheight, 0, 0).squishY(y.glyphBoxes()))
 }
