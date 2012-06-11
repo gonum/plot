@@ -6,6 +6,10 @@ import (
 	"image/color"
 )
 
+const (
+	defaultFont = "Times-Roman"
+)
+
 // Plot is the basic type representing a plot.
 type Plot struct {
 	Title struct {
@@ -17,7 +21,7 @@ type Plot struct {
 
 // New returns a new plot.
 func New() *Plot {
-	titleFont, err := vg.MakeFont("Times-Roman", 12)
+	titleFont, err := vg.MakeFont(defaultFont, 12)
 	if err != nil {
 		panic(err)
 	}
