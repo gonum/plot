@@ -15,8 +15,8 @@ type Plot struct {
 	X, Y Axis
 }
 
-// NewPlot returns a new plot.
-func NewPlot() *Plot {
+// New returns a new plot.
+func New() *Plot {
 	titleFont, err := vg.MakeFont("Times-Roman", 12)
 	if err != nil {
 		panic(err)

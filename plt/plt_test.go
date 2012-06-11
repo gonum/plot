@@ -43,7 +43,7 @@ func TestDrawEps(t *testing.T) {
 
 // draw draws a simple test plot
 func draw(da *drawArea) {
-	p := NewPlot()
+	p := New()
 	p.Title.Text = "This is a plot with a\nthree line\ntitle"
 	p.X.Min = 100000
 	p.X.Max = 100001
