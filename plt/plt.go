@@ -5,14 +5,13 @@ import (
 	"image/color"
 )
 
-// A Plot is a pair of axes, an optional title and a set of
-// data elements that can be drawn to a drawArea.
+// Plot is the basic type representing a plot.
 type Plot struct {
 	Title      struct {
 		Text string
 		TextStyle
 	}
-	XAxis, YAxis Axis
+	X, Y Axis
 }
 
 // NewPlot returns a new plot.
@@ -22,8 +21,8 @@ func NewPlot() *Plot {
 		panic(err)
 	}
 	p := &Plot{
-		XAxis: makeAxis(),
-		YAxis: makeAxis(),
+		X: makeAxis(),
+		Y: makeAxis(),
 	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.RGBA{A: 255},
@@ -45,8 +44,8 @@ func (p *Plot) draw(da *drawArea) {
 		da.size.y -= textHeight(p.Title.Font, p.Title.Text)
 	}
 
-	x := horizontalAxis{p.XAxis}
-	y := verticalAxis{p.YAxis}
+	x := horizontalAxis{p.X}
+	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
 	x.draw(da.crop(ywidth, 0, 0, 0).squishX(x.glyphBoxes()))
