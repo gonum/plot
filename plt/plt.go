@@ -3,6 +3,7 @@ package plt
 
 import (
 	"image/color"
+	"code.google.com/p/plotinum/vg"
 )
 
 // Plot is the basic type representing a plot.
@@ -16,7 +17,7 @@ type Plot struct {
 
 // NewPlot returns a new plot.
 func NewPlot() *Plot {
-	titleFont, err := MakeFont("Times-Roman", 12)
+	titleFont, err := vg.MakeFont("Times-Roman", 12)
 	if err != nil {
 		panic(err)
 	}

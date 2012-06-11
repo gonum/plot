@@ -34,13 +34,6 @@ type TextStyle struct {
 	Font vg.Font
 }
 
-// MakeFont returns a font object.
-// This function is merely included for convenience so that
-// the user doesn't have to import the vg package.
-func MakeFont(name string, size vg.Length) (vg.Font, error) {
-	return vg.MakeFont(name, size)
-}
-
 // LineStyle describes what a line will look like.
 type LineStyle struct {
 	// Color is the color of the line.

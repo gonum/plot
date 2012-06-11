@@ -54,7 +54,7 @@ type Axis struct {
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
 func makeAxis() Axis {
-	labelFont, err := MakeFont(DefaultFont, vg.Points(12))
+	labelFont, err := vg.MakeFont(DefaultFont, vg.Points(12))
 	if err != nil {
 		panic(err)
 	}
@@ -73,7 +73,7 @@ func makeAxis() Axis {
 		Font:  labelFont,
 	}
 
-	tickFont, err := MakeFont(DefaultFont, vg.Points(10))
+	tickFont, err := vg.MakeFont(DefaultFont, vg.Points(10))
 	if err != nil {
 		panic(err)
 	}
