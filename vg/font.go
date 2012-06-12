@@ -56,7 +56,9 @@ var (
 // A Font represents one of the supported font
 // faces.
 type Font struct {
-	// Size is the size of the font.
+	// Size is the size of the font.  The font size can
+	// be used as a reasonable value for the horizontal
+	// distance between two lines in the given font.
 	Size Length
 
 	// name is the name of this font.
