@@ -265,7 +265,7 @@ func strokeClippedLine(da *drawArea, pts ...point) {
 // by the norm, clip point, and in function.
 func clip(in func(point, point) bool, clip, norm point, pts []point) (lines [][]point) {
 	var l []point
-	for i := 0; i < len(pts); i++ {
+	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
 		switch {

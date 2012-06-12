@@ -44,9 +44,11 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *drawArea) {
 	p := New()
+	p.Add(MakeLine(DefaultLineStyle,
+		Point{100000, 10},
+		Point{100000.5, 30},
+		Point{100001, 10}))
 	p.Title.Text = "This is a plot with a\nthree line\ntitle"
-	p.X.Min = 100000
-	p.X.Max = 100001
 	p.X.Label.Text = "X\n gq"
 	p.Y.Min = 10
 	p.Y.Max = 20
