@@ -101,8 +101,9 @@ func (f *Font) Font() *truetype.Font {
 	return f.font
 }
 
-// SetName set the name of the font to name.  If an
-// error is returned then the font is left unchanged.
+// SetName sets the name of the font, effectively
+// changing the font.  If an error is returned then
+// the font is left unchanged.
 func (f *Font) SetName(name string) error {
 	font, err := getFont(name)
 	if err != nil {
