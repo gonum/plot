@@ -116,6 +116,7 @@ type horizontalAxis struct {
 // size returns the height of the axis.
 func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
+		h -= a.Label.Font.Extents().Descent
 		h += textHeight(a.Label.Font, a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
@@ -159,23 +160,29 @@ func (a *horizontalAxis) draw(da *drawArea) {
 	strokeLine2(da, da.min.x, y, da.max().x, y)
 }
 
-// glyphBoxes returns glyphBoxes for the glyphs
-// representing the tick mark labels.  The location
-// of the glyphBox is normalized to the unit range
-// based on its distance along the axis.
+// glyphBoxes returns the necessary glyphBoxes such
+// that the drawArea can be squished to prevent the
+// tick labels from being clipped by the side of the plot.
 func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
+	var rightMajor *Tick
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
-		w := textWidth(a.Tick.Label.Font, t.Label)
-		box := glyphBox{
-			x:    a.norm(t.Value),
-			rect: rect{min: point{x: -w / 2}, size: point{x: w}},
+		if rightMajor == nil || t.Value > rightMajor.Value {
+			rightMajor = &t
 		}
-		boxes = append(boxes, box)
 	}
-	return
+	if rightMajor == nil {
+		return []glyphBox{}
+	}
+	w := textWidth(a.Tick.Label.Font, rightMajor.Label)
+	return []glyphBox{
+		glyphBox{
+			x: a.norm(rightMajor.Value),
+			rect: rect{min: point{x: -w / 2}, size: point{x: w}},
+		},
+	}
 }
 
 // A verticalAxis is drawn vertically up the left side of a plot.
@@ -186,12 +193,14 @@ type verticalAxis struct {
 // size returns the width of the axis.
 func (a *verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" {
+		w -= a.Label.Font.Extents().Descent
 		w += textHeight(a.Label.Font, a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label.Font, marks); lwidth > 0 {
 			w += lwidth
+			w += textWidth(a.Tick.Label.Font, " ")
 		}
 		w += a.Tick.Length
 	}
@@ -219,11 +228,16 @@ func (a *verticalAxis) draw(da *drawArea) {
 		if lwidth := tickLabelWidth(a.Tick.Label.Font, marks); lwidth > 0 {
 			x += lwidth
 		}
+		major := false
 		for _, t := range marks {
 			if t.minor() {
 				continue
 			}
 			fillText(da, x, a.y(da, t.Value), -1, -0.5, t.Label)
+			major = true
+		}
+		if major {
+			x += textWidth(a.Tick.Label.Font, " ")
 		}
 		len := a.Tick.Length
 		for _, t := range marks {
@@ -241,18 +255,25 @@ func (a *verticalAxis) draw(da *drawArea) {
 // of the glyphBox is normalized to the unit range
 // based on its distance along the axis.
 func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
+	var topMajor *Tick
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
-		h := textHeight(a.Tick.Label.Font, t.Label)
-		box := glyphBox{
-			y:    a.norm(t.Value),
-			rect: rect{min: point{y: -h / 2}, size: point{y: h}},
+		if topMajor == nil || t.Value > topMajor.Value {
+			topMajor = &t
 		}
-		boxes = append(boxes, box)
 	}
-	return
+	if topMajor == nil {
+		return []glyphBox{}
+	}
+	h := textHeight(a.Tick.Label.Font, topMajor.Label)
+	return []glyphBox{
+		glyphBox{
+			y: a.norm(topMajor.Value),
+			rect: rect{min: point{y: -h / 2}, size: point{y: h}},
+		},
+	}
 }
 
 // DefaultTicks is suitable for the Marker field of an Axis, it returns

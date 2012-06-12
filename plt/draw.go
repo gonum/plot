@@ -105,6 +105,8 @@ func (da *drawArea) squishX(boxes []glyphBox) *drawArea {
 		return da
 	}
 
+	boxes = append(boxes, glyphBox{ }, glyphBox{x: 1})
+
 	var left, right vg.Length
 	minx, maxx := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
 	for _, b := range boxes {
@@ -153,6 +155,8 @@ func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
 	if len(boxes) == 0 {
 		return da
 	}
+
+	boxes = append(boxes, glyphBox{ }, glyphBox{y: 1})
 
 	var top, bot vg.Length
 	miny, maxy := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))

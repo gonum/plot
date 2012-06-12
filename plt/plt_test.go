@@ -48,12 +48,11 @@ func draw(da *drawArea) {
 		Point{100000, 10},
 		Point{100000.5, 30},
 		Point{100001, 10}))
-	p.Title.Text = "This is a plot with a\nthree line\ntitle"
-	p.X.Label.Text = "X\n gq"
+	p.Title.Text = "This is a plot with\ntwo different lines"
+	p.X.Label.Text = "X Label\ngq"
 	p.Y.Min = 10
 	p.Y.Max = 20
-	p.Y.Tick.Label.Font.Size = vg.Points(24)
-	p.Y.Tick.Marker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
-	p.Y.Label.Text = "Y\n gq"
+//	p.Y.Tick.Marker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
+	p.Y.Label.Text = "Y Label\ngq"
 	p.draw(da)
 }
