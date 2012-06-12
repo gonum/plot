@@ -59,9 +59,9 @@ func makeAxis() Axis {
 		Max: math.Inf(-1),
 		LineStyle: LineStyle{
 			Color: color.Black,
-			Width: vg.Inches(1.0 / 64.0),
+			Width: vg.Points(1),
 		},
-		Padding: vg.Inches(1.0 / 8.0),
+		Padding: vg.Points(5),
 	}
 
 	a.Label.TextStyle = TextStyle{
@@ -79,9 +79,9 @@ func makeAxis() Axis {
 	}
 	a.Tick.LineStyle = LineStyle{
 		Color: color.Black,
-		Width: vg.Inches(1.0 / 64.0),
+		Width: vg.Points(1),
 	}
-	a.Tick.Length = vg.Inches(1.0 / 10.0)
+	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks
 
 	return a
