@@ -46,10 +46,10 @@ func New() *Plot {
 	return p
 }
 
-// Add adds Data to the plot and changes the minimum
+// AddData adds Data to the plot and changes the minimum
 // and maximum values of the X and Y axes to fit the
 // newly added data.
-func (p *Plot) Add(d Data) {
+func (p *Plot) AddData(d Data) {
 	xmin, ymin, xmax, ymax := d.extents()
 	p.X.Min = math.Min(p.X.Min, xmin)
 	p.X.Max = math.Max(p.X.Max, xmax)

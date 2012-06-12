@@ -44,7 +44,7 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *drawArea) {
 	p := New()
-	p.Add(MakeLine(DefaultLineStyle,
+	p.AddData(MakeLine(DefaultLineStyle,
 		Point{100000, 10},
 		Point{100000.5, 30},
 		Point{100001, 10}))
