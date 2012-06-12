@@ -167,8 +167,8 @@ type FontExtents struct {
 	Height Length
 }
 
-// Height returns height of a string when rendered
-// using this font.
+// Extents returns the FontExtents structure for the
+// given font.
 func (f *Font) Extents() FontExtents {
 	bounds := f.font.Bounds()
 	scale := f.Size / Points(float64(f.Font().UnitsPerEm()))
