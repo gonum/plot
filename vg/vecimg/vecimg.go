@@ -65,13 +65,13 @@ func (c *Canvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 	c.gc.SetLineDash(dashes, offs.Dots(c))
 }
 
-func (c *Canvas) SetColor(color color.Color) {
-	if color == nil {
-		color = color.Black
+func (c *Canvas) SetColor(clr color.Color) {
+	if clr == nil {
+		clr = color.Black
 	}
-	c.gc.SetFillColor(color)
-	c.gc.SetStrokeColor(color)
-	c.color = color
+	c.gc.SetFillColor(clr)
+	c.gc.SetStrokeColor(clr)
+	c.color = clr
 }
 
 func (c *Canvas) Rotate(t float64) {
