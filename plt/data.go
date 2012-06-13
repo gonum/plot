@@ -96,8 +96,7 @@ func (points Points) extents() (xmin, ymin, xmax, ymax float64) {
 	return
 }
 
-// Point is a structure that represents a point in the
-// data coordinate system.
+// Point is a point in the 2D data coordinate system.
 type Point struct {
 	X, Y float64
 }
