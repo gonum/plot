@@ -179,7 +179,7 @@ func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
 	w := textWidth(a.Tick.Label.Font, rightMajor.Label)
 	return []glyphBox{
 		glyphBox{
-			x: a.norm(rightMajor.Value),
+			x:    a.norm(rightMajor.Value),
 			rect: rect{min: point{x: -w / 2}, size: point{x: w}},
 		},
 	}
@@ -270,7 +270,7 @@ func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
 	h := textHeight(a.Tick.Label.Font, topMajor.Label)
 	return []glyphBox{
 		glyphBox{
-			y: a.norm(topMajor.Value),
+			y:    a.norm(topMajor.Value),
 			rect: rect{min: point{y: -h / 2}, size: point{y: h}},
 		},
 	}

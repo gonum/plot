@@ -1,17 +1,20 @@
 package plt
 
 import (
-	"math"
-	"image/color"
 	"code.google.com/p/plotinum/vg"
+	"image/color"
+	"math"
 )
 
 var (
-	// DefaultLineStyle is the LineStyle that is used if none
-	// is specified otherwise.
 	DefaultLineStyle = LineStyle{
 		Width: vg.Points(0.75),
 		Color: color.Black,
+	}
+
+	DefaultGlyphStyle = GlyphStyle{
+		Radius: vg.Points(2),
+		Color:  color.Black,
 	}
 )
 
@@ -30,7 +33,7 @@ type Data interface {
 // lineData implements the Data interface, drawing a line
 // for the plot method.
 type lineData struct {
-	points []Point
+	Points
 	LineStyle
 }
 
@@ -39,25 +42,52 @@ type lineData struct {
 func MakeLine(sty LineStyle, pts ...Point) Data {
 	ptscopy := make([]Point, len(pts))
 	copy(ptscopy, pts)
-	return lineData{ points: ptscopy, LineStyle: sty }
+	return lineData{Points: ptscopy, LineStyle: sty}
 }
 
 func (l lineData) plot(da *drawArea, plt *Plot) {
 	da.setLineStyle(l.LineStyle)
-	pts := make([]point, len(l.points))
-	for i, pt := range l.points {
+	pts := make([]point, len(l.Points))
+	for i, pt := range l.Points {
 		pts[i].x = plt.X.x(da, pt.X)
 		pts[i].y = plt.Y.y(da, pt.Y)
 	}
 	strokeClippedLine(da, pts...)
 }
 
-func (l lineData) extents() (xmin, ymin, xmax, ymax float64) {
+// scatterData implements the Data interface, drawing
+// glyphs at each of the given points.
+type scatterData struct {
+	Points
+	GlyphStyle
+}
+
+// MakeScatter returns a Data interface, drawing the given
+// points as glyphs for the plot method.
+func MakeScatter(sty GlyphStyle, pts ...Point) Data {
+	ptscopy := make([]Point, len(pts))
+	copy(ptscopy, pts)
+	return scatterData{Points: ptscopy, GlyphStyle: sty}
+}
+
+func (s scatterData) plot(da *drawArea, plt *Plot) {
+	for _, pt := range s.Points {
+		x, y := plt.X.x(da, pt.X), plt.Y.y(da, pt.Y)
+		drawGlyph(da, s.GlyphStyle, point{x, y})
+	}
+}
+
+// Points is a slice of points.
+type Points []Point
+
+// extents returns the minimum and maximum x
+// and y values of all points.
+func (points Points) extents() (xmin, ymin, xmax, ymax float64) {
 	xmin = math.Inf(1)
 	ymin = xmin
 	xmax = math.Inf(-1)
 	ymax = xmax
-	for _, pt := range l.points {
+	for _, pt := range points {
 		xmin = math.Min(xmin, pt.X)
 		xmax = math.Max(xmax, pt.X)
 		ymin = math.Min(ymin, pt.Y)

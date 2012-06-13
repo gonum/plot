@@ -35,6 +35,10 @@ func draw(da *drawArea) {
 		Point{100000, 10},
 		Point{100000.5, 30},
 		Point{100001, 10}))
+	p.AddData(MakeScatter(DefaultGlyphStyle,
+		Point{100000, 10},
+		Point{100000.5, 30},
+		Point{100001, 10}))
 	p.Title.Text = "This is a plot with\ntwo different lines"
 	p.X.Label.Text = "X Label\ngq"
 	p.Y.Min = 10

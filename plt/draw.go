@@ -4,6 +4,7 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
+	"fmt"
 	"image/color"
 	"math"
 	"strings"
@@ -16,28 +17,6 @@ type drawArea struct {
 	vg.Canvas
 	font vg.Font
 	rect
-}
-
-// NewDrawArea returns a new drawArea of a specified
-// size using the given canvas.
-func NewDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
-	return &drawArea{ Canvas: c, rect: rect{min: point{0, 0}, size: point{w, h}} }
-}
-
-// NewEPSDrawArea returns a new drawArea that saves to an
-// encapsulated postscript file.
-func NewEPSDrawArea(w, h vg.Length, title string) *drawArea {
-	return NewDrawArea(veceps.New(w, h, title), w, h)
-}
-
-// NewPNGDrawArea makes a new drawArea that saves
-// to a PNG file.
-func NewPNGDrawArea(w, h vg.Length) (*drawArea, error) {
-	img, err := vecimg.New(w, h)
-	if err != nil {
-		return nil, err
-	}
-	return NewDrawArea(img, w, h), nil
 }
 
 // TextStyle describes what text will look like.
@@ -61,14 +40,68 @@ type LineStyle struct {
 	DashOffs vg.Length
 }
 
+// A GlyphShape is a lable representing a shape for drawing
+// a glyph that represents a point.
+//
+// GlyphShape values that corresponding to ASCII letters
+// or numbers, represent the shape of the corresponding
+// character.  A handful of other GlyphShape values are
+// defined as constants, all other GlyphShape values are
+// invalid.
+type GlyphShape uint8
+
+const (
+	// CircleGlyph is a filled circle
+	CircleGlyph GlyphShape = iota
+
+	// RingGlyph is an outlined circle
+	RingGlyph
+)
+
+// A GlyphStyle specifies the look of a glyph used to draw
+// a point on a plot.
+type GlyphStyle struct {
+	// Color is the color used to draw the glyph.
+	color.Color
+
+	// Shape is the shape of the glyph.
+	Shape GlyphShape
+
+	// Radius specifies the size of the glyph's radius.
+	Radius vg.Length
+}
+
 // A glyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
 type glyphBox struct {
 	// The glyph location in normalized coordinates.
 	x, y float64
+
 	// rect is the offset of the glyph's minimum drawing
 	// point relative to the glyph location and its size.
 	rect
+}
+
+// NewDrawArea returns a new drawArea of a specified
+// size using the given canvas.
+func NewDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
+	return &drawArea{Canvas: c, rect: rect{min: point{0, 0}, size: point{w, h}}}
+}
+
+// NewEPSDrawArea returns a new drawArea that saves to an
+// encapsulated postscript file.
+func NewEPSDrawArea(w, h vg.Length, title string) *drawArea {
+	return NewDrawArea(veceps.New(w, h, title), w, h)
+}
+
+// NewPNGDrawArea makes a new drawArea that saves
+// to a PNG file.
+func NewPNGDrawArea(w, h vg.Length) (*drawArea, error) {
+	img, err := vecimg.New(w, h)
+	if err != nil {
+		return nil, err
+	}
+	return NewDrawArea(img, w, h), nil
 }
 
 // center returns the center point of the area
@@ -77,6 +110,12 @@ func (da *drawArea) center() point {
 		x: (da.max().x-da.min.x)/2 + da.min.x,
 		y: (da.max().y-da.min.y)/2 + da.min.y,
 	}
+}
+
+// contains returns true if the drawArea contains the point.
+func (da *drawArea) contains(p point) bool {
+	return p.x <= da.max().x && p.x >= da.min.x &&
+		p.y <= da.max().y && p.y >= da.min.y
 }
 
 // x returns the value of x, given in the unit range,
@@ -129,7 +168,7 @@ func (da *drawArea) squishX(boxes []glyphBox) *drawArea {
 		return da
 	}
 
-	boxes = append(boxes, glyphBox{ }, glyphBox{x: 1})
+	boxes = append(boxes, glyphBox{}, glyphBox{x: 1})
 
 	var left, right vg.Length
 	minx, maxx := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
@@ -180,7 +219,7 @@ func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
 		return da
 	}
 
-	boxes = append(boxes, glyphBox{ }, glyphBox{y: 1})
+	boxes = append(boxes, glyphBox{}, glyphBox{y: 1})
 
 	var top, bot vg.Length
 	miny, maxy := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
@@ -233,6 +272,33 @@ func (da *drawArea) setLineStyle(sty LineStyle) {
 	}
 	da.SetLineDash(dashDots, sty.DashOffs)
 
+}
+
+// drawGlyph draws a glyph at a specified location.  If
+// the location is outside of the drawArea then it is
+// not drawn.
+func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
+	if !da.contains(pt) {
+		return
+	}
+	switch {
+	case sty.Shape == CircleGlyph:
+		var p vg.Path
+		p.Move(pt.x+sty.Radius, pt.y)
+		p.Arc(pt.x, pt.y, sty.Radius, 0, 2*math.Pi)
+		p.Close()
+		da.Fill(p)
+
+	case sty.Shape == RingGlyph:
+		var p vg.Path
+		p.Move(pt.x+sty.Radius, pt.y)
+		p.Arc(pt.x, pt.y, sty.Radius, 0, 2*math.Pi)
+		p.Close()
+		da.Stroke(p)
+
+	default:
+		panic(fmt.Sprintf("Invalid GlyphShape: %d", sty.Shape))
+	}
 }
 
 // drawLine draws a line connecting a set of points
