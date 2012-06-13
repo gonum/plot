@@ -93,6 +93,9 @@ func (e *Canvas) SetLineDash(dashes []vg.Length, o vg.Length) {
 }
 
 func (e *Canvas) SetColor(c color.Color) {
+	if c == nil {
+		c = color.Black
+	}
 	if e.cur().color != c {
 		e.cur().color = c
 		r, g, b, _ := c.RGBA()

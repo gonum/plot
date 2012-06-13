@@ -66,6 +66,9 @@ func (c *Canvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 }
 
 func (c *Canvas) SetColor(color color.Color) {
+	if color == nil {
+		color = color.Black
+	}
 	c.gc.SetFillColor(color)
 	c.gc.SetStrokeColor(color)
 	c.color = color

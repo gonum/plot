@@ -29,7 +29,8 @@ type Canvas interface {
 	// and stroke colorls then you must use two
 	// separate calls to SetColor.
 	//
-	// The initial color is black.
+	// The initial color is black.  If SetColor is
+	// called with a nil color then black is used.
 	SetColor(color.Color)
 
 	// Rotate applies a rotation transform to the
