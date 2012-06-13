@@ -281,6 +281,10 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 	if !da.contains(pt) {
 		return
 	}
+
+	da.setLineStyle(LineStyle{ Width: vg.Points(1) })
+	da.SetColor(sty.Color)
+
 	switch {
 	case sty.Shape == CircleGlyph:
 		var p vg.Path
