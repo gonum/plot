@@ -2,6 +2,8 @@ package plt
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/vg/veceps"
+	"code.google.com/p/plotinum/vg/vecimg"
 	"image/color"
 	"math"
 	"strings"
@@ -14,6 +16,28 @@ type drawArea struct {
 	vg.Canvas
 	font vg.Font
 	rect
+}
+
+// newDrawArea returns a new drawArea of a specified
+// size using the given canvas.
+func newDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
+	return &drawArea{ Canvas: c, rect: rect{min: point{0, 0}, size: point{w, h}} }
+}
+
+// NewEPSDrawArea returns a new drawArea that saves to an
+// encapsulated postscript file.
+func NewEPSDrawArea(w, h vg.Length, title string) *drawArea {
+	return newDrawArea(veceps.New(w, h, title), w, h)
+}
+
+// NewPNGDrawArea makes a new drawArea that saves
+// to a PNG file.
+func NewPNGDrawArea(w, h vg.Length) (*drawArea, error) {
+	img, err := vecimg.New(w, h)
+	if err != nil {
+		return nil, err
+	}
+	return newDrawArea(img, w, h), nil
 }
 
 // TextStyle describes what text will look like.

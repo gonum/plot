@@ -58,8 +58,8 @@ func (p *Plot) AddData(d Data) {
 	p.data = append(p.data, d)
 }
 
-// draw draws a plot to a drawArea.
-func (p *Plot) draw(da *drawArea) {
+// Draw draws a plot to a drawArea.
+func (p *Plot) Draw(da *drawArea) {
 	da.SetColor(color.White)
 	da.Fill(rectPath(da.rect))
 	da.SetColor(color.Black)

@@ -24,7 +24,7 @@ const (
 	importString = "code.google.com/p/plotinum/vg/vecimg"
 )
 
-type ImageCanvas struct {
+type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
 	color color.Color
@@ -32,7 +32,7 @@ type ImageCanvas struct {
 
 // New returns a new image canvas with the size specified.
 // rounded up to the nearest pixel.
-func New(width, height vg.Length) (*ImageCanvas, error) {
+func New(width, height vg.Length) (*Canvas, error) {
 	pkg, err := build.Import(importString, "", build.FindOnly)
 	if err != nil {
 		return nil, err
@@ -46,18 +46,18 @@ func New(width, height vg.Length) (*ImageCanvas, error) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	return &ImageCanvas{
+	return &Canvas{
 		gc:    gc,
 		img:   img,
 		color: color.RGBA{A: 255},
 	}, nil
 }
 
-func (c *ImageCanvas) SetLineWidth(w vg.Length) {
+func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.gc.SetLineWidth(w.Dots(c))
 }
 
-func (c *ImageCanvas) SetLineDash(ds []vg.Length, offs vg.Length) {
+func (c *Canvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 	dashes := make([]float64, len(ds))
 	for i, d := range ds {
 		dashes[i] = d.Dots(c)
@@ -65,43 +65,43 @@ func (c *ImageCanvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 	c.gc.SetLineDash(dashes, offs.Dots(c))
 }
 
-func (c *ImageCanvas) SetColor(color color.Color) {
+func (c *Canvas) SetColor(color color.Color) {
 	c.gc.SetFillColor(color)
 	c.gc.SetStrokeColor(color)
 	c.color = color
 }
 
-func (c *ImageCanvas) Rotate(t float64) {
+func (c *Canvas) Rotate(t float64) {
 	c.gc.Rotate(t)
 }
 
-func (c *ImageCanvas) Translate(x, y vg.Length) {
+func (c *Canvas) Translate(x, y vg.Length) {
 	c.gc.Translate(x.Dots(c), y.Dots(c))
 }
 
-func (c *ImageCanvas) Scale(x, y float64) {
+func (c *Canvas) Scale(x, y float64) {
 	c.gc.Scale(x, y)
 }
 
-func (c *ImageCanvas) Push() {
+func (c *Canvas) Push() {
 	c.gc.Save()
 }
 
-func (c *ImageCanvas) Pop() {
+func (c *Canvas) Pop() {
 	c.gc.Restore()
 }
 
-func (c *ImageCanvas) Stroke(p vg.Path) {
+func (c *Canvas) Stroke(p vg.Path) {
 	c.outline(p)
 	c.gc.Stroke()
 }
 
-func (c *ImageCanvas) Fill(p vg.Path) {
+func (c *Canvas) Fill(p vg.Path) {
 	c.outline(p)
 	c.gc.Fill()
 }
 
-func (c *ImageCanvas) outline(p vg.Path) {
+func (c *Canvas) outline(p vg.Path) {
 	c.gc.BeginPath()
 	for _, comp := range p {
 		switch comp.Type {
@@ -125,11 +125,11 @@ func (c *ImageCanvas) outline(p vg.Path) {
 	}
 }
 
-func (c *ImageCanvas) DPI() float64 {
+func (c *Canvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
 
-func (c *ImageCanvas) FillText(font vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillText(font vg.Font, x, y vg.Length, str string) {
 	c.gc.Save()
 	c.gc.Translate(x.Dots(c), (y + font.Extents().Ascent).Dots(c))
 	c.gc.Scale(1, -1)
@@ -137,7 +137,7 @@ func (c *ImageCanvas) FillText(font vg.Font, x, y vg.Length, str string) {
 	c.gc.Restore()
 }
 
-func (c *ImageCanvas) textImage(font vg.Font, str string) *image.RGBA {
+func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 	w := font.Width(str).Dots(c)
 	h := font.Extents().Height.Dots(c)
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
@@ -223,7 +223,7 @@ var (
 	}
 )
 
-func (c *ImageCanvas) SavePNG(path string) error {
+func (c *Canvas) SavePNG(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err

@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type EpsCanvas struct {
+type Canvas struct {
 	stk []ctx
 	buf *bytes.Buffer
 }
@@ -30,9 +30,9 @@ type ctx struct {
 // pr is the amount of precision to use when outputting float64s.
 const pr = 5
 
-// New returns a new EpsCanvas.
-func New(w, h vg.Length, title string) *EpsCanvas {
-	c := &EpsCanvas{
+// New returns a new Canvas.
+func New(w, h vg.Length, title string) *Canvas {
+	c := &Canvas{
 		stk: []ctx{
 			ctx{
 				color:  color.RGBA{A: 255},
@@ -60,18 +60,18 @@ func New(w, h vg.Length, title string) *EpsCanvas {
 }
 
 // cur returns the top context on the stack.
-func (e *EpsCanvas) cur() *ctx {
+func (e *Canvas) cur() *ctx {
 	return &e.stk[len(e.stk)-1]
 }
 
-func (e *EpsCanvas) SetLineWidth(w vg.Length) {
+func (e *Canvas) SetLineWidth(w vg.Length) {
 	if e.cur().width != w {
 		e.cur().width = w
 		fmt.Fprintf(e.buf, "%.*g setlinewidth\n", pr, w.Dots(e))
 	}
 }
 
-func (e *EpsCanvas) SetLineDash(dashes []vg.Length, o vg.Length) {
+func (e *Canvas) SetLineDash(dashes []vg.Length, o vg.Length) {
 	dashEq := true
 	curDash := e.cur().dashes
 	for i, d := range dashes {
@@ -92,7 +92,7 @@ func (e *EpsCanvas) SetLineDash(dashes []vg.Length, o vg.Length) {
 	}
 }
 
-func (e *EpsCanvas) SetColor(c color.Color) {
+func (e *Canvas) SetColor(c color.Color) {
 	if e.cur().color != c {
 		e.cur().color = c
 		r, g, b, _ := c.RGBA()
@@ -102,40 +102,40 @@ func (e *EpsCanvas) SetColor(c color.Color) {
 	}
 }
 
-func (e *EpsCanvas) Rotate(r float64) {
+func (e *Canvas) Rotate(r float64) {
 	fmt.Fprintf(e.buf, "%.*g rotate\n", pr, r*180/math.Pi)
 }
 
-func (e *EpsCanvas) Translate(x, y vg.Length) {
+func (e *Canvas) Translate(x, y vg.Length) {
 	fmt.Fprintf(e.buf, "%.*g %.*g translate\n",
 		pr, x.Dots(e), pr, y.Dots(e))
 }
 
-func (e *EpsCanvas) Scale(x, y float64) {
+func (e *Canvas) Scale(x, y float64) {
 	fmt.Fprintf(e.buf, "%.*g %.*g scale\n", pr, x, pr, y)
 }
 
-func (e *EpsCanvas) Push() {
+func (e *Canvas) Push() {
 	e.stk = append(e.stk, *e.cur())
 	e.buf.WriteString("gsave\n")
 }
 
-func (e *EpsCanvas) Pop() {
+func (e *Canvas) Pop() {
 	e.stk = e.stk[:len(e.stk)-1]
 	e.buf.WriteString("grestore\n")
 }
 
-func (e *EpsCanvas) Stroke(path vg.Path) {
+func (e *Canvas) Stroke(path vg.Path) {
 	e.trace(path)
 	e.buf.WriteString("stroke\n")
 }
 
-func (e *EpsCanvas) Fill(path vg.Path) {
+func (e *Canvas) Fill(path vg.Path) {
 	e.trace(path)
 	e.buf.WriteString("fill\n")
 }
 
-func (e *EpsCanvas) trace(path vg.Path) {
+func (e *Canvas) trace(path vg.Path) {
 	e.buf.WriteString("newpath\n")
 	for _, comp := range path {
 		switch comp.Type {
@@ -155,7 +155,7 @@ func (e *EpsCanvas) trace(path vg.Path) {
 	}
 }
 
-func (e *EpsCanvas) FillText(fnt vg.Font, x, y vg.Length, str string) {
+func (e *Canvas) FillText(fnt vg.Font, x, y vg.Length, str string) {
 	if e.cur().font != fnt.Name() || e.cur().fsize != fnt.Size {
 		e.cur().font = fnt.Name()
 		e.cur().fsize = fnt.Size
@@ -166,12 +166,12 @@ func (e *EpsCanvas) FillText(fnt vg.Font, x, y vg.Length, str string) {
 	fmt.Fprintf(e.buf, "(%s) show\n", str)
 }
 
-func (e *EpsCanvas) DPI() float64 {
+func (e *Canvas) DPI() float64 {
 	return 72
 }
 
 // Save saves the plot to the given path.
-func (e *EpsCanvas) Save(path string) error {
+func (e *Canvas) Save(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err

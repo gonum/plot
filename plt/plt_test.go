@@ -8,34 +8,21 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	img, err := vecimg.New(vg.Inches(4), vg.Inches(4))
+	da, err := NewPNGDrawArea(vg.Inches(4), vg.Inches(4))
 	if err != nil {
-		t.Fatal(err)
-	}
-
-	da := &drawArea{
-		Canvas: img,
-		rect: rect{min: point{0, 0},
-			size: point{vg.Inches(4), vg.Inches(4)},
-		},
+		t.Error(err)
 	}
 	draw(da)
-	err = img.SavePNG("test.png")
+	err = da.Canvas.(*vecimg.Canvas).SavePNG("test.png")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	eps := veceps.New(vg.Inches(4), vg.Inches(4), "test")
-	da := &drawArea{
-		Canvas: eps,
-		rect: rect{min: point{0, 0},
-			size: point{vg.Inches(4), vg.Inches(4)},
-		},
-	}
+	da := NewEPSDrawArea(vg.Inches(4), vg.Inches(4), "test")
 	draw(da)
-	err := eps.Save("test.eps")
+	err := da.Canvas.(*veceps.Canvas).Save("test.eps")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -52,7 +39,7 @@ func draw(da *drawArea) {
 	p.X.Label.Text = "X Label\ngq"
 	p.Y.Min = 10
 	p.Y.Max = 20
-//	p.Y.Tick.Marker = ConstantTicks([]Tick{{10, "ten"}, {15, ""}, {20, "twenty"}})
+	p.Y.Tick.Marker = ConstantTicks([]Tick{{10, "Ten\n(10)"}, {15, ""}, {20, "Twenty\n(20)"}})
 	p.Y.Label.Text = "Y Label\ngq"
-	p.draw(da)
+	p.Draw(da)
 }
