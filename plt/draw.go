@@ -43,8 +43,8 @@ type LineStyle struct {
 // A GlyphShape is a lable representing a shape for drawing
 // a glyph that represents a point.
 //
-// GlyphShape values that corresponding to ASCII letters
-// or numbers, represent the shape of the corresponding
+// GlyphShape values that corresponding to uppercase ASCII
+// letters (A'–'Z'), represent the shape of the corresponding
 // character.  A handful of other GlyphShape values are
 // defined as constants, all other GlyphShape values are
 // invalid.
@@ -282,7 +282,7 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 		return
 	}
 
-	da.setLineStyle(LineStyle{ Width: vg.Points(1) })
+	da.setLineStyle(LineStyle{Width: vg.Points(0.5)})
 	da.SetColor(sty.Color)
 
 	switch {
@@ -299,6 +299,16 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 		p.Arc(pt.x, pt.y, sty.Radius, 0, 2*math.Pi)
 		p.Close()
 		da.Stroke(p)
+
+	case sty.Shape >= 'A' && sty.Shape <= 'Z':
+		font, err := vg.MakeFont(defaultFont, sty.Radius*2)
+		if err != nil {
+			panic(err)
+		}
+		str := string([]byte{byte(sty.Shape)})
+		x := pt.x - font.Width(str)/2
+		y := pt.y + font.Extents().Descent
+		da.FillText(font, x, y, str)
 
 	default:
 		panic(fmt.Sprintf("Invalid GlyphShape: %d", sty.Shape))
