@@ -18,16 +18,16 @@ type drawArea struct {
 	rect
 }
 
-// newDrawArea returns a new drawArea of a specified
+// NewDrawArea returns a new drawArea of a specified
 // size using the given canvas.
-func newDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
+func NewDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
 	return &drawArea{ Canvas: c, rect: rect{min: point{0, 0}, size: point{w, h}} }
 }
 
 // NewEPSDrawArea returns a new drawArea that saves to an
 // encapsulated postscript file.
 func NewEPSDrawArea(w, h vg.Length, title string) *drawArea {
-	return newDrawArea(veceps.New(w, h, title), w, h)
+	return NewDrawArea(veceps.New(w, h, title), w, h)
 }
 
 // NewPNGDrawArea makes a new drawArea that saves
@@ -37,7 +37,7 @@ func NewPNGDrawArea(w, h vg.Length) (*drawArea, error) {
 	if err != nil {
 		return nil, err
 	}
-	return newDrawArea(img, w, h), nil
+	return NewDrawArea(img, w, h), nil
 }
 
 // TextStyle describes what text will look like.
