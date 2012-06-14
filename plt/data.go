@@ -33,7 +33,7 @@ type Data interface {
 // lineData implements the Data interface, drawing a line
 // for the plot method.
 type lineData struct {
-	Points
+	points
 	LineStyle
 }
 
@@ -42,13 +42,13 @@ type lineData struct {
 func MakeLine(sty LineStyle, pts ...Point) Data {
 	ptscopy := make([]Point, len(pts))
 	copy(ptscopy, pts)
-	return lineData{Points: ptscopy, LineStyle: sty}
+	return lineData{points: ptscopy, LineStyle: sty}
 }
 
 func (l lineData) plot(da *drawArea, plt *Plot) {
 	da.setLineStyle(l.LineStyle)
-	pts := make([]point, len(l.Points))
-	for i, pt := range l.Points {
+	pts := make([]point, len(l.points))
+	for i, pt := range l.points {
 		pts[i].x = plt.X.x(da, pt.X)
 		pts[i].y = plt.Y.y(da, pt.Y)
 	}
@@ -58,7 +58,7 @@ func (l lineData) plot(da *drawArea, plt *Plot) {
 // scatterData implements the Data interface, drawing
 // glyphs at each of the given points.
 type scatterData struct {
-	Points
+	points
 	GlyphStyle
 }
 
@@ -67,27 +67,29 @@ type scatterData struct {
 func MakeScatter(sty GlyphStyle, pts ...Point) Data {
 	ptscopy := make([]Point, len(pts))
 	copy(ptscopy, pts)
-	return scatterData{Points: ptscopy, GlyphStyle: sty}
+	return scatterData{points: ptscopy, GlyphStyle: sty}
 }
 
 func (s scatterData) plot(da *drawArea, plt *Plot) {
-	for _, pt := range s.Points {
-		x, y := plt.X.x(da, pt.X), plt.Y.y(da, pt.Y)
-		drawGlyph(da, s.GlyphStyle, point{x, y})
+	for _, pt := range s.points {
+		p := point{plt.X.x(da, pt.X), plt.Y.y(da, pt.Y)}
+		if da.contains(p) {
+			drawGlyph(da, s.GlyphStyle, p)
+		}
 	}
 }
 
-// Points is a slice of points.
-type Points []Point
+// points is a slice of points.
+type points []Point
 
 // extents returns the minimum and maximum x
 // and y values of all points.
-func (points Points) extents() (xmin, ymin, xmax, ymax float64) {
+func (ps points) extents() (xmin, ymin, xmax, ymax float64) {
 	xmin = math.Inf(1)
 	ymin = xmin
 	xmax = math.Inf(-1)
 	ymax = xmax
-	for _, pt := range points {
+	for _, pt := range ps {
 		xmin = math.Min(xmin, pt.X)
 		xmax = math.Max(xmax, pt.X)
 		ymin = math.Min(ymin, pt.Y)
