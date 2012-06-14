@@ -179,15 +179,15 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	q1y := da.Y(p.Y.Norm(b.Q1))
 	q3y := da.Y(p.Y.Norm(b.Q3))
 	medy := da.Y(p.Y.Norm(b.Med))
-	da.StrokeLine(b.BoxStyle,
-		plt.Point{ x - b.Width/2, q1y },
-		plt.Point{ x - b.Width/2, q3y },
-		plt.Point{ x + b.Width/2, q3y },
-		plt.Point{ x + b.Width/2, q1y },
-		plt.Point{ x - b.Width/2 - b.BoxStyle.Width/2, q1y })
-	da.StrokeLine(b.BoxStyle,
-		plt.Point{ x - b.Width/2, medy },
-		plt.Point{ x + b.Width/2, medy })
+	da.StrokeLines(b.BoxStyle, []plt.Point{
+		{ x - b.Width/2, q1y },
+		{ x - b.Width/2, q3y },
+		{ x + b.Width/2, q3y },
+		{ x + b.Width/2, q1y },
+		{ x - b.Width/2 - b.BoxStyle.Width/2, q1y }})
+	da.StrokeLines(b.BoxStyle, []plt.Point{
+		{ x - b.Width/2, medy },
+		{ x + b.Width/2, medy }})
 
 	min, max := b.Q1, b.Q3
 	if filtered := filteredIndices(b.Yer, b.Points); len(filtered) > 0 {
@@ -196,21 +196,21 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	}
 	miny := da.Y(p.Y.Norm(min))
 	maxy := da.Y(p.Y.Norm(max))
-	da.StrokeLine(b.WhiskerStyle,
-		plt.Point{x, q3y},
-		plt.Point{x, maxy})
-	da.StrokeLine(b.WhiskerStyle,
-		plt.Point{x - b.CapWidth/2, maxy},
-		plt.Point{x + b.CapWidth/2, maxy})
-	da.StrokeLine(b.WhiskerStyle,
-		plt.Point{x, q1y},
-		plt.Point{x, miny})
-	da.StrokeLine(b.WhiskerStyle,
-		plt.Point{x - b.CapWidth/2, miny},
-		plt.Point{x + b.CapWidth/2, miny})
+	da.StrokeLines(b.WhiskerStyle, []plt.Point{
+		{x, q3y},
+		{x, maxy}})
+	da.StrokeLines(b.WhiskerStyle, []plt.Point{
+		{x - b.CapWidth/2, maxy},
+		{x + b.CapWidth/2, maxy}})
+	da.StrokeLines(b.WhiskerStyle, []plt.Point{
+		{x, q1y},
+		{x, miny}})
+	da.StrokeLines(b.WhiskerStyle, []plt.Point{
+		{x - b.CapWidth/2, miny},
+		{x + b.CapWidth/2, miny}})
 
 	for _, i := range b.Points {
-		da.DrawGlyph(b.GlyphStyle, plt.Point{x, da.Y(p.Y.Norm(b.Y(i)))})
+		da.DrawGlyph(b.GlyphStyle,  plt.Point{x, da.Y(p.Y.Norm(b.Y(i)))})
 	}
 }
 

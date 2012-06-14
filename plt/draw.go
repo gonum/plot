@@ -178,25 +178,30 @@ func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
 
 // StrokeLine draws a line connecting a set of points
 // in the given DrawArea.
-func (da *DrawArea) StrokeLine(sty LineStyle, pts ...Point) {
-	if len(pts) == 0 {
+func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
+	if len(lines) == 0 {
 		return
 	}
 
 	da.setLineStyle(sty)
 
-	var p vg.Path
-	p.Move(pts[0].X, pts[0].Y)
-	for _, pt := range pts {
-		p.Line(pt.X, pt.Y)
+	for _, l := range lines {
+		if len(l) == 0 {
+			continue
+		}
+		var p vg.Path
+		p.Move(l[0].X, l[0].Y)
+		for _, pt := range l {
+			p.Line(pt.X, pt.Y)
+		}
+		da.Stroke(p)
 	}
-	da.Stroke(p)
 }
 
 // StrokeLine2 draws a line between two points in the given
 // DrawArea.
 func (da *DrawArea) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
-	da.StrokeLine(sty, Point{x0, y0}, Point{x1, y1})
+	da.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
 }
 
 // StrokeClippedLine draws a line that is clipped at the bounds
@@ -226,9 +231,41 @@ func (da *DrawArea) StrokeClippedLine(sty LineStyle, pts ...Point) {
 		lines1 = append(lines1, ls...)
 	}
 
-	for _, l := range lines1 {
-		da.StrokeLine(sty, l...)
+	da.StrokeLines(sty, lines1...)
+}
+
+// ClipLineXY returns a slice of lines that
+// represent the given line clipped in both
+// X and Y directions.
+func (da *DrawArea) ClipLineXY(pts []Point) (lines [][]Point) {
+	for _, line := range da.ClipLineX(pts) {
+		ls := da.ClipLineY(line)
+		lines = append(lines, ls...)
 	}
+	return
+}
+
+// ClipLineX returns a slice of lines that
+// represent the given line clipped in the
+// X direction.
+func (da *DrawArea) ClipLineX(pts []Point) (lines [][]Point) {
+	for _, line := range clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts) {
+		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
+		lines = append(lines, ls...)
+	}
+
+	return
+}
+
+// ClipLineY returns a slice of lines that
+// represent the given line clipped in the
+// Y direction.
+func (da *DrawArea) ClipLineY(pts []Point) (lines [][]Point) {
+	for _, line := range clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, pts) {
+		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
+		lines = append(lines, ls...)
+	}
+
 	return
 }
 
