@@ -62,8 +62,6 @@ func (p *Plot) AddData(d Data) {
 func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(color.White)
 	da.Fill(rectPath(da.Rect))
-	da.SetColor(color.Black)
-	da.Stroke(rectPath(da.Rect))
 
 	if p.Title.Text != "" {
 		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)

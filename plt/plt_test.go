@@ -34,8 +34,13 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *DrawArea) {
 	p := New()
-	p.AddData(MakeLine(DefaultLineStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
-	p.AddData(MakeScatter(DefaultGlyphStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
+	p.AddData(MakeLine(DefaultLineStyle,
+		DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
+	p.AddData(MakeScatter(DefaultGlyphStyle,
+		DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
+	sty := DefaultGlyphStyle
+	sty.Radius = vg.Points(18)
+	p.AddData(MakeScatter(sty, DataPoints{{100001, 20}} ))
 	gsty := DefaultGlyphStyle
 	gsty.Shape = RingGlyph
 	gsty.Radius = vg.Points(18)
