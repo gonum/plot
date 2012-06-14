@@ -17,6 +17,7 @@ var (
 		Color:  color.Black,
 	}
 )
+
 // Data is an interface that wraps all of the methods required
 // to add data elements to a plot.
 type Data interface {
