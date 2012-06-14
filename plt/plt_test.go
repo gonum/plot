@@ -8,19 +8,22 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	da, err := NewPNGDrawArea(vg.Inches(4), vg.Inches(4))
+	w, h := vg.Inches(4), vg.Inches(4)
+	img, err := vecimg.New(w, h)
 	if err != nil {
 		t.Error(err)
 	}
+	da := NewDrawArea(img, w, h)
 	draw(da)
-	err = da.Canvas.(*vecimg.Canvas).SavePNG("test.png")
+	err = img.SavePNG("test.png")
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	da := NewEPSDrawArea(vg.Inches(4), vg.Inches(4), "test")
+	w, h := vg.Inches(4), vg.Inches(4)
+	da := NewDrawArea(veceps.New(w, h, "test"), w, h)
 	draw(da)
 	err := da.Canvas.(*veceps.Canvas).Save("test.eps")
 	if err != nil {
@@ -29,16 +32,10 @@ func TestDrawEps(t *testing.T) {
 }
 
 // draw draws a simple test plot
-func draw(da *drawArea) {
+func draw(da *DrawArea) {
 	p := New()
-	p.AddData(MakeLine(DefaultLineStyle,
-		Point{100000, 10},
-		Point{100000.5, 30},
-		Point{100001, 10}))
-	p.AddData(MakeScatter(DefaultGlyphStyle,
-		Point{100000, 10},
-		Point{100000.5, 30},
-		Point{100001, 10}))
+	p.AddData(MakeLine(DefaultLineStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
+	p.AddData(MakeScatter(DefaultGlyphStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
 	p.Title.Text = "This is a plot with\ntwo different lines"
 	p.X.Label.Text = "X Label\ngq"
 	p.Y.Min = 10

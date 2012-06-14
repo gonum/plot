@@ -21,7 +21,7 @@ func DrawFontExtents(t *testing.T, c Canvas) {
 	des := ext.Descent
 	asc := ext.Ascent
 
-	c.FillText(font, x, y, str)
+	c.FillString(font, x, y, str)
 
 	// baseline
 	path := Path{}
@@ -64,7 +64,7 @@ func DrawFonts(t *testing.T, c Canvas) {
 			y -= font.Extents().Descent
 		}
 
-		c.FillText(font, 0, y, fname+"Xqg")
+		c.FillString(font, 0, y, fname+"Xqg")
 		fmt.Println(fname)
 
 		path := Path{}

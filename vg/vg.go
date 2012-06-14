@@ -62,9 +62,9 @@ type Canvas interface {
 	// Fill fills the given path.
 	Fill(Path)
 
-	// FillText fills in text at the specified
+	// FillString fills in text at the specified
 	// location using the given font.
-	FillText(Font, Length, Length, string)
+	FillString(Font, Length, Length, string)
 
 	// DPI returns the number of canvas dots in
 	// an inch.

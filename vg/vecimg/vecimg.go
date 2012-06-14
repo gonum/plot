@@ -132,7 +132,7 @@ func (c *Canvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
 
-func (c *Canvas) FillText(font vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 	c.gc.Save()
 	c.gc.Translate(x.Dots(c), (y + font.Extents().Ascent).Dots(c))
 	c.gc.Scale(1, -1)

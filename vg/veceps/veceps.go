@@ -158,7 +158,7 @@ func (e *Canvas) trace(path vg.Path) {
 	}
 }
 
-func (e *Canvas) FillText(fnt vg.Font, x, y vg.Length, str string) {
+func (e *Canvas) FillString(fnt vg.Font, x, y vg.Length, str string) {
 	if e.cur().font != fnt.Name() || e.cur().fsize != fnt.Size {
 		e.cur().font = fnt.Name()
 		e.cur().fsize = fnt.Size

@@ -50,7 +50,7 @@ func New() *Plot {
 // and maximum values of the X and Y axes to fit the
 // newly added data.
 func (p *Plot) AddData(d Data) {
-	xmin, ymin, xmax, ymax := d.extents()
+	xmin, ymin, xmax, ymax := d.Extents()
 	p.X.Min = math.Min(p.X.Min, xmin)
 	p.X.Max = math.Max(p.X.Max, xmax)
 	p.Y.Min = math.Min(p.Y.Min, ymin)
@@ -58,16 +58,16 @@ func (p *Plot) AddData(d Data) {
 	p.data = append(p.data, d)
 }
 
-// Draw draws a plot to a drawArea.
-func (p *Plot) Draw(da *drawArea) {
+// Draw draws a plot to a DrawArea.
+func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(color.White)
-	da.Fill(rectPath(da.rect))
+	da.Fill(rectPath(da.Rect))
 	da.SetColor(color.Black)
-	da.Stroke(rectPath(da.rect))
+	da.Stroke(rectPath(da.Rect))
 
 	if p.Title.Text != "" {
-		da.fillText(p.Title.TextStyle, da.center().x, da.max().y, -0.5, -1, p.Title.Text)
-		da.size.y -= p.Title.height(p.Title.Text)
+		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
+		da.Size.Y -= p.Title.Height(p.Title.Text)
 	}
 
 	x := horizontalAxis{p.X}
@@ -82,6 +82,6 @@ func (p *Plot) Draw(da *drawArea) {
 	da = da.crop(ywidth, xheight, 0, 0)
 	da = da.squishX(x.glyphBoxes()).squishY(y.glyphBoxes())
 	for _, data := range p.data {
-		data.plot(da, p)
+		data.Plot(*da, p)
 	}
 }

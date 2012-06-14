@@ -87,23 +87,11 @@ func makeAxis() Axis {
 	return a
 }
 
-// X transfroms the data point x to the drawing coordinate
-// for the given drawing area.
-func (a *Axis) x(da *drawArea, x float64) vg.Length {
-	return da.x(a.norm(x))
-}
-
-// Y transforms the data point y to the drawing coordinate
-// for the given drawing area.
-func (a *Axis) y(da *drawArea, y float64) vg.Length {
-	return da.y(a.norm(y))
-}
-
-// norm return the value of x, given in the data coordinate
+// Norm return the value of x, given in the data coordinate
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
-func (a *Axis) norm(x float64) float64 {
+func (a *Axis) Norm(x float64) float64 {
 	return (x - a.Min) / (a.Max - a.Min)
 }
 
@@ -117,7 +105,7 @@ type horizontalAxis struct {
 func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
 		h -= a.Label.Font.Extents().Descent
-		h += a.Label.height(a.Label.Text)
+		h += a.Label.Height(a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -128,13 +116,13 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	return
 }
 
-// draw draws the axis along the lower edge of the given drawArea.
-func (a *horizontalAxis) draw(da *drawArea) {
-	y := da.min.y
+// draw draws the axis along the lower edge of the given DrawArea.
+func (a *horizontalAxis) draw(da *DrawArea) {
+	y := da.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		da.fillText(a.Label.TextStyle, da.center().x, y, -0.5, 0, a.Label.Text)
-		y += a.Label.height(a.Label.Text)
+		da.FillText(a.Label.TextStyle, da.Center().X, y, -0.5, 0, a.Label.Text)
+		y += a.Label.Height(a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
@@ -142,24 +130,24 @@ func (a *horizontalAxis) draw(da *drawArea) {
 			if t.minor() {
 				continue
 			}
-			da.fillText(a.Tick.Label, a.x(da, t.Value), y, -0.5, 0, t.Label)
+			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, -0.5, 0, t.Label)
 		}
 		y += tickLabelHeight(a.Tick.Label, marks)
 
 		len := a.Tick.Length
 		for _, t := range marks {
-			x := a.x(da, t.Value)
-			da.strokeLine2(a.Tick.LineStyle, x, y+t.lengthOffset(len), x, y+len)
+			x := da.X(a.Norm(t.Value))
+			da.StrokeLine2(a.Tick.LineStyle, x, y+t.lengthOffset(len), x, y+len)
 		}
 		y += len
 	}
-	da.strokeLine2(a.LineStyle, da.min.x, y, da.max().x, y)
+	da.StrokeLine2(a.LineStyle, da.Min.X, y, da.Max().X, y)
 }
 
 // glyphBoxes returns the necessary glyphBoxes such
-// that the drawArea can be squished to prevent the
+// that the DrawArea can be squished to prevent the
 // tick labels from being clipped by the side of the plot.
-func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
+func (a *horizontalAxis) glyphBoxes() (boxes []GlyphBox) {
 	var rightMajor *Tick
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
@@ -170,13 +158,13 @@ func (a *horizontalAxis) glyphBoxes() (boxes []glyphBox) {
 		}
 	}
 	if rightMajor == nil {
-		return []glyphBox{}
+		return []GlyphBox{}
 	}
-	w := a.Tick.Label.width(rightMajor.Label)
-	return []glyphBox{
-		glyphBox{
-			x:    a.norm(rightMajor.Value),
-			rect: rect{min: point{x: -w / 2}, size: point{x: w}},
+	w := a.Tick.Label.Width(rightMajor.Label)
+	return []GlyphBox{
+		GlyphBox{
+			X:    a.Norm(rightMajor.Value),
+			Rect: Rect{Min: Point{X: -w / 2}, Size: Point{X: w}},
 		},
 	}
 }
@@ -190,13 +178,13 @@ type verticalAxis struct {
 func (a *verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" {
 		w -= a.Label.Font.Extents().Descent
-		w += a.Label.height(a.Label.Text)
+		w += a.Label.Height(a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
-			w += a.Label.width(" ")
+			w += a.Label.Width(" ")
 		}
 		w += a.Tick.Length
 	}
@@ -205,14 +193,14 @@ func (a *verticalAxis) size() (w vg.Length) {
 	return
 }
 
-// draw draws the axis along the left side of the drawArea.
-func (a *verticalAxis) draw(da *drawArea) {
-	x := da.min.x
+// draw draws the axis along the left side of the DrawArea.
+func (a *verticalAxis) draw(da *DrawArea) {
+	x := da.Min.X
 	if a.Label.Text != "" {
-		x += a.Label.height(a.Label.Text)
+		x += a.Label.Height(a.Label.Text)
 		da.Push()
 		da.Rotate(math.Pi / 2)
-		da.fillText(a.Label.TextStyle, da.center().y, -x, -0.5, 0, a.Label.Text)
+		da.FillText(a.Label.TextStyle, da.Center().Y, -x, -0.5, 0, a.Label.Text)
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
@@ -226,27 +214,27 @@ func (a *verticalAxis) draw(da *drawArea) {
 			if t.minor() {
 				continue
 			}
-			da.fillText(a.Tick.Label, x, a.y(da, t.Value), -1, -0.5, t.Label)
+			da.FillText(a.Tick.Label, x, da.Y(a.Norm(t.Value)), -1, -0.5, t.Label)
 			major = true
 		}
 		if major {
-			x += a.Tick.Label.width(" ")
+			x += a.Tick.Label.Width(" ")
 		}
 		len := a.Tick.Length
 		for _, t := range marks {
-			y := a.y(da, t.Value)
-			da.strokeLine2(a.Tick.LineStyle, x+t.lengthOffset(len), y, x+len, y)
+			y := da.Y(a.Norm(t.Value))
+			da.StrokeLine2(a.Tick.LineStyle, x+t.lengthOffset(len), y, x+len, y)
 		}
 		x += len
 	}
-	da.strokeLine2(a.LineStyle, x, da.min.y, x, da.max().y)
+	da.StrokeLine2(a.LineStyle, x, da.Min.Y, x, da.Max().Y)
 }
 
 // glyphBoxes returns glyphBoxes for the glyphs
 // representing the tick mark labels.  The location
-// of the glyphBox is normalized to the unit range
+// of the GlyphBox is normalized to the unit range
 // based on its distance along the axis.
-func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
+func (a *verticalAxis) glyphBoxes() (boxes []GlyphBox) {
 	var topMajor *Tick
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
@@ -257,13 +245,13 @@ func (a *verticalAxis) glyphBoxes() (boxes []glyphBox) {
 		}
 	}
 	if topMajor == nil {
-		return []glyphBox{}
+		return []GlyphBox{}
 	}
-	h := a.Tick.Label.height(topMajor.Label)
-	return []glyphBox{
-		glyphBox{
-			y:    a.norm(topMajor.Value),
-			rect: rect{min: point{y: -h / 2}, size: point{y: h}},
+	h := a.Tick.Label.Height(topMajor.Label)
+	return []GlyphBox{
+		GlyphBox{
+			Y:    a.Norm(topMajor.Value),
+			Rect: Rect{Min: Point{Y: -h / 2}, Size: Point{Y: h}},
 		},
 	}
 }
@@ -321,7 +309,7 @@ func tickLabelHeight(sty TextStyle, ticks []Tick) vg.Length {
 		if t.minor() {
 			continue
 		}
-		h := sty.height(t.Label)
+		h := sty.Height(t.Label)
 		if h > maxHeight {
 			maxHeight = h
 		}
@@ -336,7 +324,7 @@ func tickLabelWidth(sty TextStyle, ticks []Tick) vg.Length {
 		if t.minor() {
 			continue
 		}
-		w := sty.width(t.Label)
+		w := sty.Width(t.Label)
 		if w > maxWidth {
 			maxWidth = w
 		}

@@ -2,20 +2,18 @@ package plt
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"code.google.com/p/plotinum/vg/veceps"
-	"code.google.com/p/plotinum/vg/vecimg"
 	"fmt"
 	"image/color"
 	"math"
 	"strings"
 )
 
-// A drawArea is a vector graphics canvas along with
-// an associated rect defining a section of the canvas
+// A DrawArea is a vector graphics canvas along with
+// an associated Rect defining a section of the canvas
 // to which drawing should take place.
-type drawArea struct {
+type DrawArea struct {
 	vg.Canvas
-	rect
+	Rect
 }
 
 // TextStyle describes what text will look like.
@@ -70,190 +68,174 @@ type GlyphStyle struct {
 	Radius vg.Length
 }
 
-// A glyphBox describes the location of a glyph
+// A GlyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
-type glyphBox struct {
+type GlyphBox struct {
 	// The glyph location in normalized coordinates.
-	x, y float64
+	X, Y float64
 
-	// rect is the offset of the glyph's minimum drawing
+	// Rect is the offset of the glyph's minimum drawing
 	// point relative to the glyph location and its size.
-	rect
+	Rect
 }
 
-// NewDrawArea returns a new drawArea of a specified
+// NewDrawArea returns a new DrawArea of a specified
 // size using the given canvas.
-func NewDrawArea(c vg.Canvas, w, h vg.Length) *drawArea {
-	return &drawArea{Canvas: c, rect: rect{min: point{0, 0}, size: point{w, h}}}
+func NewDrawArea(c vg.Canvas, w, h vg.Length) *DrawArea {
+	return &DrawArea{Canvas: c, Rect: Rect{Min: Point{}, Size: Point{w, h}}}
 }
 
-// NewEPSDrawArea returns a new drawArea that saves to an
-// encapsulated postscript file.
-func NewEPSDrawArea(w, h vg.Length, title string) *drawArea {
-	return NewDrawArea(veceps.New(w, h, title), w, h)
-}
-
-// NewPNGDrawArea makes a new drawArea that saves
-// to a PNG file.
-func NewPNGDrawArea(w, h vg.Length) (*drawArea, error) {
-	img, err := vecimg.New(w, h)
-	if err != nil {
-		return nil, err
-	}
-	return NewDrawArea(img, w, h), nil
-}
-
-// center returns the center point of the area
-func (da *drawArea) center() point {
-	return point{
-		x: (da.max().x-da.min.x)/2 + da.min.x,
-		y: (da.max().y-da.min.y)/2 + da.min.y,
+// Center returns the center point of the area
+func (da *DrawArea) Center() Point {
+	return Point{
+		X: (da.Max().X-da.Min.X)/2 + da.Min.X,
+		Y: (da.Max().Y-da.Min.Y)/2 + da.Min.Y,
 	}
 }
 
-// contains returns true if the drawArea contains the point.
-func (da *drawArea) contains(p point) bool {
-	return p.x <= da.max().x && p.x >= da.min.x &&
-		p.y <= da.max().y && p.y >= da.min.y
+// Contains returns true if the DrawArea contains the point.
+func (da *DrawArea) Contains(p Point) bool {
+	return p.X <= da.Max().X && p.X >= da.Min.X &&
+		p.Y <= da.Max().Y && p.Y >= da.Min.Y
 }
 
-// x returns the value of x, given in the unit range,
+// X returns the value of x, given in the unit range,
 // in the drawing coordinates of this draw area.
 // A value of 0, for example, will return the minimum
 // x value of the draw area and a value of 1 will
 // return the maximum.
-func (da *drawArea) x(x float64) vg.Length {
-	return vg.Length(x)*(da.max().x-da.min.x) + da.min.x
+func (da *DrawArea) X(x float64) vg.Length {
+	return vg.Length(x)*(da.Max().X-da.Min.X) + da.Min.X
 }
 
-// y returns the value of x, given in the unit range,
+// Y returns the value of x, given in the unit range,
 // in the drawing coordinates of this draw area.
 // A value of 0, for example, will return the minimum
 // y value of the draw area and a value of 1 will
 // return the maximum.
-func (da *drawArea) y(y float64) vg.Length {
-	return vg.Length(y)*(da.max().y-da.min.y) + da.min.y
+func (da *DrawArea) Y(y float64) vg.Length {
+	return vg.Length(y)*(da.Max().Y-da.Min.Y) + da.Min.Y
 }
 
-// crop returns a new drawArea corresponding to the receiver
+// crop returns a new DrawArea corresponding to the receiver
 // area with the given number of inches added to the minimum
-// and maximum x and y values of the drawArea's rect.
-func (da *drawArea) crop(minx, miny, maxx, maxy vg.Length) *drawArea {
-	minpt := point{
-		x: da.rect.min.x + minx,
-		y: da.rect.min.y + miny,
+// and maximum x and y values of the DrawArea's Rect.
+func (da *DrawArea) crop(minx, miny, maxx, maxy vg.Length) *DrawArea {
+	minpt := Point{
+		X: da.Min.X + minx,
+		Y: da.Min.Y + miny,
 	}
-	sz := point{
-		x: da.max().x + maxx - minpt.x,
-		y: da.max().y + maxy - minpt.y,
+	sz := Point{
+		X: da.Max().X + maxx - minpt.X,
+		Y: da.Max().Y + maxy - minpt.Y,
 	}
-	return &drawArea{
+	return &DrawArea{
 		vg.Canvas: vg.Canvas(da),
-		rect:      rect{min: minpt, size: sz},
+		Rect:      Rect{Min: minpt, Size: sz},
 	}
 }
 
-// squishX returns a new drawArea with a squished width such
+// squishX returns a new DrawArea with a squished width such
 // that any of the given set of glyphs will draw within the original
 // draw area when they are mapped to the coordinate system
-// of the returned drawArea.
+// of the returned DrawArea.
 //
 // The location of the glyphs that are given as a parameter are
 // assumed to be on the unit interval, with 0 meaning the left-most
 // side of the draw area and 1 meaning the right-most side.
-func (da *drawArea) squishX(boxes []glyphBox) *drawArea {
+func (da *DrawArea) squishX(boxes []GlyphBox) *DrawArea {
 	if len(boxes) == 0 {
 		return da
 	}
 
-	boxes = append(boxes, glyphBox{}, glyphBox{x: 1})
+	boxes = append(boxes, GlyphBox{}, GlyphBox{X: 1})
 
 	var left, right vg.Length
 	minx, maxx := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
 	for _, b := range boxes {
-		if x := da.x(b.x) + b.rect.min.x; x < minx {
-			left = vg.Length(b.x)
+		if x := da.X(b.X) + b.Min.X; x < minx {
+			left = vg.Length(b.X)
 			minx = x
 		}
-		if x := da.x(b.x) + b.min.x + b.size.x; x > maxx {
-			right = vg.Length(b.x)
+		if x := da.X(b.X) + b.Min.X + b.Size.X; x > maxx {
+			right = vg.Length(b.X)
 			maxx = x
 		}
 	}
 
-	if minx >= da.min.x {
-		minx = da.min.x
+	if minx >= da.Min.X {
+		minx = da.Min.X
 	}
-	if maxx <= da.max().x {
-		maxx = da.max().x
+	if maxx <= da.Max().X {
+		maxx = da.Max().X
 	}
 
 	// where we want the left and right points to end up
-	l := da.min.x + (da.min.x - minx)
-	r := da.max().x - (maxx - da.max().x)
+	l := da.Min.X + (da.Min.X - minx)
+	r := da.Max().X - (maxx - da.Max().X)
 	n := (left*r - right*l) / (left - right)
 	m := ((left-1)*r - right*l + l) / (left - right)
-	return &drawArea{
+	return &DrawArea{
 		vg.Canvas: vg.Canvas(da),
-		rect: rect{
-			min:  point{x: n, y: da.min.y},
-			size: point{x: m - n, y: da.size.y},
+		Rect: Rect{
+			Min:  Point{X: n, Y: da.Min.Y},
+			Size: Point{X: m - n, Y: da.Size.Y},
 		},
 	}
 }
 
-// squishY returns a new drawArea with a squished height such
+// squishY returns a new DrawArea with a squished height such
 // that any of the given set of glyphs will draw within the original
 // draw area when they are mapped to the coordinate system
-// of the returned drawArea.
+// of the returned DrawArea.
 //
 // The location of the glyphs that are given as a parameter are
 // assumed to be on the unit interval, with 0 meaning the
 // bottom-most side of the draw area and 1 meaning the
 // top-most side.
-func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
+func (da *DrawArea) squishY(boxes []GlyphBox) *DrawArea {
 	if len(boxes) == 0 {
 		return da
 	}
 
-	boxes = append(boxes, glyphBox{}, glyphBox{y: 1})
+	boxes = append(boxes, GlyphBox{}, GlyphBox{Y: 1})
 
 	var top, bot vg.Length
 	miny, maxy := vg.Length(math.Inf(1)), vg.Length(math.Inf(-1))
 	for _, b := range boxes {
-		if y := da.y(b.y) + b.rect.min.y; y < miny {
-			bot = vg.Length(b.y)
+		if y := da.Y(b.Y) + b.Rect.Min.Y; y < miny {
+			bot = vg.Length(b.Y)
 			miny = y
 		}
-		if y := da.y(b.y) + b.min.y + b.size.y; y > maxy {
-			top = vg.Length(b.y)
+		if y := da.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy {
+			top = vg.Length(b.Y)
 			maxy = y
 		}
 	}
 
-	if miny >= da.min.y {
-		miny = da.min.y
+	if miny >= da.Min.Y {
+		miny = da.Min.Y
 	}
-	if maxy <= da.max().y {
-		maxy = da.max().y
+	if maxy <= da.Max().Y {
+		maxy = da.Max().Y
 	}
 
 	// where we want the top and bottom points to end up
-	b := da.min.y + (da.min.y - miny)
-	t := da.max().y - (maxy - da.max().y)
+	b := da.Min.Y + (da.Min.Y - miny)
+	t := da.Max().Y - (maxy - da.Max().Y)
 	n := (bot*t - top*b) / (bot - top)
 	m := ((bot-1)*t - top*b + b) / (bot - top)
-	return &drawArea{
+	return &DrawArea{
 		vg.Canvas: vg.Canvas(da),
-		rect: rect{
-			min:  point{x: da.min.x, y: n},
-			size: point{x: da.size.x, y: m - n},
+		Rect: Rect{
+			Min:  Point{X: da.Min.X, Y: n},
+			Size: Point{X: da.Size.X, Y: m - n},
 		},
 	}
 }
 
 // setLineStyle sets the current line style
-func (da *drawArea) setLineStyle(sty LineStyle) {
+func (da *DrawArea) setLineStyle(sty LineStyle) {
 	da.SetColor(sty.Color)
 	da.SetLineWidth(sty.Width)
 	var dashDots []vg.Length
@@ -263,11 +245,11 @@ func (da *drawArea) setLineStyle(sty LineStyle) {
 	da.SetLineDash(dashDots, sty.DashOffs)
 }
 
-// drawGlyph draws a glyph at a specified location.  If
-// the location is outside of the drawArea then it is
+// DrawGlyph draws a glyph at a specified location.  If
+// the location is outside of the DrawArea then it is
 // not drawn.
-func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
-	if !da.contains(pt) {
+func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
+	if !da.Contains(pt) {
 		return
 	}
 
@@ -277,15 +259,15 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 	switch {
 	case sty.Shape == CircleGlyph:
 		var p vg.Path
-		p.Move(pt.x+sty.Radius, pt.y)
-		p.Arc(pt.x, pt.y, sty.Radius, 0, 2*math.Pi)
+		p.Move(pt.X+sty.Radius, pt.Y)
+		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
 		p.Close()
 		da.Fill(p)
 
 	case sty.Shape == RingGlyph:
 		var p vg.Path
-		p.Move(pt.x+sty.Radius, pt.y)
-		p.Arc(pt.x, pt.y, sty.Radius, 0, 2*math.Pi)
+		p.Move(pt.X+sty.Radius, pt.Y)
+		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
 		p.Close()
 		da.Stroke(p)
 
@@ -295,18 +277,18 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 			panic(err)
 		}
 		str := string([]byte{byte(sty.Shape)})
-		x := pt.x - font.Width(str)/2
-		y := pt.y + font.Extents().Descent
-		da.FillText(font, x, y, str)
+		x := pt.X - font.Width(str)/2
+		y := pt.Y + font.Extents().Descent
+		da.FillString(font, x, y, str)
 
 	default:
 		panic(fmt.Sprintf("Invalid GlyphShape: %d", sty.Shape))
 	}
 }
 
-// drawLine draws a line connecting a set of points
-// in the given drawArea.
-func (da *drawArea) strokeLine(sty LineStyle, pts ...point) {
+// StrokeLine draws a line connecting a set of points
+// in the given DrawArea.
+func (da *DrawArea) StrokeLine(sty LineStyle, pts ...Point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -314,56 +296,56 @@ func (da *drawArea) strokeLine(sty LineStyle, pts ...point) {
 	da.setLineStyle(sty)
 
 	var p vg.Path
-	p.Move(pts[0].x, pts[0].y)
+	p.Move(pts[0].X, pts[0].Y)
 	for _, pt := range pts {
-		p.Line(pt.x, pt.y)
+		p.Line(pt.X, pt.Y)
 	}
 	da.Stroke(p)
 }
 
-// strokeLine2 draws a line between two points in the given
-// drawArea.
-func (da *drawArea) strokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
-	da.strokeLine(sty, point{x0, y0}, point{x1, y1})
+// StrokeLine2 draws a line between two points in the given
+// DrawArea.
+func (da *DrawArea) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
+	da.StrokeLine(sty, Point{x0, y0}, Point{x1, y1})
 }
 
-// strokeClippedLine draws a line that is clipped at the bounds
-// the drawArea.
-func (da *drawArea) strokeClippedLine(sty LineStyle, pts ...point) {
+// StrokeClippedLine draws a line that is clipped at the bounds
+// the DrawArea.
+func (da *DrawArea) StrokeClippedLine(sty LineStyle, pts ...Point) {
 	// clip right
-	lines0 := clip(isLeft, point{da.max().x, da.min.y}, point{-1, 0}, pts)
+	lines0 := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts)
 
 	// clip bottom
-	var lines1 [][]point
+	var lines1 [][]Point
 	for _, line := range lines0 {
-		ls := clip(isAbove, point{da.min.x, da.min.y}, point{0, -1}, line)
+		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 
 	// clip left
 	lines0 = lines0[:0]
 	for _, line := range lines1 {
-		ls := clip(isRight, point{da.min.x, da.min.y}, point{1, 0}, line)
+		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
 		lines0 = append(lines0, ls...)
 	}
 
 	// clip top
 	lines1 = lines1[:0]
 	for _, line := range lines0 {
-		ls := clip(isBelow, point{da.min.x, da.max().y}, point{0, 1}, line)
+		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
 		lines1 = append(lines1, ls...)
 	}
 
 	for _, l := range lines1 {
-		da.strokeLine(sty, l...)
+		da.StrokeLine(sty, l...)
 	}
 	return
 }
 
 // clip performs clipping in a single clipping line specified
 // by the norm, clip point, and in function.
-func clip(in func(point, point) bool, clip, norm point, pts []point) (lines [][]point) {
-	var l []point
+func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
+	var l []Point
 	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
@@ -374,7 +356,7 @@ func clip(in func(point, point) bool, clip, norm point, pts []point) (lines [][]
 		case curIn && !nextIn:
 			l = append(l, cur, isect(cur, next, clip, norm))
 			lines = append(lines, l)
-			l = []point{}
+			l = []Point{}
 
 		case !curIn && !nextIn:
 			// do nothing
@@ -395,25 +377,25 @@ func clip(in func(point, point) bool, clip, norm point, pts []point) (lines [][]
 // slop is some slop for floating point equality
 const slop = 3e-8 // ≈ √1⁻¹⁵
 
-func isLeft(p, clip point) bool {
-	return p.x <= clip.x+slop
+func isLeft(p, clip Point) bool {
+	return p.X <= clip.X+slop
 }
 
-func isRight(p, clip point) bool {
-	return p.x >= clip.x-slop
+func isRight(p, clip Point) bool {
+	return p.X >= clip.X-slop
 }
 
-func isBelow(p, clip point) bool {
-	return p.y <= clip.y+slop
+func isBelow(p, clip Point) bool {
+	return p.Y <= clip.Y+slop
 }
 
-func isAbove(p, clip point) bool {
-	return p.y >= clip.y-slop
+func isAbove(p, clip Point) bool {
+	return p.Y >= clip.Y-slop
 }
 
 // isect returns the intersection of a line p0→p1 with the
 // clipping line specified by the clip point and normal.
-func isect(p0, p1, clip, norm point) point {
+func isect(p0, p1, clip, norm Point) Point {
 	// t = (norm · (p0 - clip)) / (norm · (p0 - p1))
 	t := p0.minus(clip).dot(norm) / p0.minus(p1).dot(norm)
 
@@ -421,11 +403,11 @@ func isect(p0, p1, clip, norm point) point {
 	return p1.minus(p0).scale(t).plus(p0)
 }
 
-// fillText fills lines of text in the draw area.
+// FillText fills lines of text in the draw area.
 // The text is offset by its width times xalign and
 // its height times yalign.  x and y give the bottom
 // left corner of the text befor e it is offset.
-func (da *drawArea) fillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
+func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
@@ -433,19 +415,19 @@ func (da *drawArea) fillText(sty TextStyle, x, y vg.Length, xalign, yalign float
 
 	da.SetColor(sty.Color)
 
-	ht := sty.height(txt)
+	ht := sty.Height(txt)
 	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
 	nl := textNLines(txt)
 	for i, line := range strings.Split(txt, "\n") {
 		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
-		da.FillText(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
+		da.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
 	}
 }
 
-// width returns the width of lines of text
+// Width returns the width of lines of text
 // when using the given font.
-func (sty TextStyle) width(txt string) (max vg.Length) {
+func (sty TextStyle) Width(txt string) (max vg.Length) {
 	txt = strings.TrimRight(txt, "\n")
 	for _, line := range strings.Split(txt, "\n") {
 		if w := sty.Font.Width(line); w > max {
@@ -455,9 +437,9 @@ func (sty TextStyle) width(txt string) (max vg.Length) {
 	return
 }
 
-// height returns the height of the text when using
+// Height returns the height of the text when using
 // the given font.
-func (sty TextStyle) height(txt string) vg.Length {
+func (sty TextStyle) Height(txt string) vg.Length {
 	nl := textNLines(txt)
 	if nl == 0 {
 		return vg.Length(0)
@@ -481,51 +463,51 @@ func textNLines(txt string) int {
 	return n
 }
 
-// rectPath returns the path of a rectangle specified by its
+// rectPath returns the path of a Rectangle specified by its
 // upper left corner, width and height.
-func rectPath(r rect) (p vg.Path) {
-	p.Move(r.min.x, r.min.y)
-	p.Line(r.max().x, r.min.y)
-	p.Line(r.max().x, r.max().y)
-	p.Line(r.min.x, r.max().y)
+func rectPath(r Rect) (p vg.Path) {
+	p.Move(r.Min.X, r.Min.Y)
+	p.Line(r.Max().X, r.Min.Y)
+	p.Line(r.Max().X, r.Max().Y)
+	p.Line(r.Min.X, r.Max().Y)
 	p.Close()
 	return
 }
 
-// A rect represents a rectangular region of 2d space.
-type rect struct {
-	min, size point
+// A Rect represents a Rectangular region of 2d space.
+type Rect struct {
+	Min, Size Point
 }
 
-// max returns the maxmium x and y values of a rect.
-func (r rect) max() point {
-	return point{
-		x: r.min.x + r.size.x,
-		y: r.min.y + r.size.y,
+// Max returns the maxmium x and y values of a Rect.
+func (r Rect) Max() Point {
+	return Point{
+		X: r.Min.X + r.Size.X,
+		Y: r.Min.Y + r.Size.Y,
 	}
 }
 
 // A point is a location in 2d space.
-type point struct {
-	x, y vg.Length
+type Point struct {
+	X, Y vg.Length
 }
 
 // dot returns the dot product of two points.
-func (p point) dot(q point) vg.Length {
-	return p.x*q.x + p.y*q.y
+func (p Point) dot(q Point) vg.Length {
+	return p.X*q.X + p.Y*q.Y
 }
 
 // plus returns the component-wise sum of two points.
-func (p point) plus(q point) point {
-	return point{p.x + q.x, p.y + q.y}
+func (p Point) plus(q Point) Point {
+	return Point{p.X + q.X, p.Y + q.Y}
 }
 
 // minus returns the component-wise difference of two points.
-func (p point) minus(q point) point {
-	return point{p.x - q.x, p.y - q.y}
+func (p Point) minus(q Point) Point {
+	return Point{p.X - q.X, p.Y - q.Y}
 }
 
 // scale returns the component-wise product of a point and a scalar.
-func (p point) scale(s vg.Length) point {
-	return point{p.x * s, p.y * s}
+func (p Point) scale(s vg.Length) Point {
+	return Point{p.X * s, p.Y * s}
 }
