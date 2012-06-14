@@ -29,6 +29,18 @@ type Plot struct {
 	data []Data
 }
 
+// Data is an interface that wraps all of the methods required
+// to add data elements to a plot.
+type Data interface {
+	// Plot draws the data to the given DrawArea using
+	// the axes from the given Plot.
+	Plot(DrawArea, *Plot)
+
+	// Extents returns the minimum and maximum
+	// values of the data.
+	Extents() (xmin, ymin, xmax, ymax float64)
+}
+
 // New returns a new plot.
 func New() *Plot {
 	titleFont, err := vg.MakeFont(defaultFont, 12)
@@ -70,7 +82,16 @@ func (p *Plot) Draw(da *DrawArea) {
 		da.Size.Y -= p.Title.Height(p.Title.Text)
 	}
 
+	if p.X.Min == p.X.Max {
+		p.X.Min -= 1
+		p.X.Max += 1
+	}
 	x := horizontalAxis{p.X}
+
+	if p.Y.Min == p.Y.Max {
+		p.Y.Min -= 1
+		p.Y.Max += 1
+	}
 	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
