@@ -48,11 +48,11 @@ type LineStyle struct {
 type GlyphShape uint8
 
 const (
-	// CircleGlyph is a filled circle
-	CircleGlyph GlyphShape = iota
-
 	// RingGlyph is an outlined circle
-	RingGlyph
+	RingGlyph GlyphShape = iota
+
+	// CircleGlyph is a filled circle
+	CircleGlyph
 )
 
 // A GlyphStyle specifies the look of a glyph used to draw
