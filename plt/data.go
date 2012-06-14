@@ -30,8 +30,8 @@ type Data interface {
 	Extents() (xmin, ymin, xmax, ymax float64)
 }
 
-// An XYer wraps methods for a type that can return
-// multiple X and Y data values.
+// An XYer wraps methods for getting a set of
+// X and Y data values.
 type XYer interface {
 	// Len returns the number of X and Y values
 	// that are available.
@@ -58,10 +58,10 @@ func MakeLine(sty LineStyle, pts XYer) Data {
 }
 
 func (l lineData) Plot(da DrawArea, plt *Plot) {
-	pts := make([]Point, l.pts.Len())
+	pts := make([]Point, l.Len())
 	for i := range pts {
-		pts[i].X = da.X(plt.X.Norm(l.pts.X(i)))
-		pts[i].Y = da.Y(plt.Y.Norm(l.pts.Y(i)))
+		pts[i].X = da.X(plt.X.Norm(l.X(i)))
+		pts[i].Y = da.Y(plt.Y.Norm(l.Y(i)))
 	}
 	da.StrokeClippedLine(l.LineStyle, pts...)
 }
@@ -80,18 +80,18 @@ func MakeScatter(sty GlyphStyle, pts XYer) Data {
 }
 
 func (s scatterData) Plot(da DrawArea, plt *Plot) {
-	for i := 0; i < s.pts.Len(); i++ {
-		x, y := da.X(plt.X.Norm(s.pts.X(i))), da.Y(plt.Y.Norm(s.pts.Y(i)))
+	for i := 0; i < s.Len(); i++ {
+		x, y := da.X(plt.X.Norm(s.X(i))), da.Y(plt.Y.Norm(s.Y(i)))
 		da.DrawGlyph(s.GlyphStyle, Point{x, y})
 	}
 }
 
 func (s scatterData) GlyphBoxes(plt *Plot) (boxes []GlyphBox) {
 	r := Rect{Point{-s.Radius, -s.Radius}, Point{s.Radius * 2, s.Radius * 2}}
-	for i := 0; i < s.pts.Len(); i++ {
+	for i := 0; i < s.Len(); i++ {
 		box := GlyphBox{
-			X:    plt.X.Norm(s.pts.X(i)),
-			Y:    plt.Y.Norm(s.pts.Y(i)),
+			X:    plt.X.Norm(s.X(i)),
+			Y:    plt.Y.Norm(s.Y(i)),
 			Rect: r,
 		}
 		boxes = append(boxes, box)
@@ -101,7 +101,7 @@ func (s scatterData) GlyphBoxes(plt *Plot) (boxes []GlyphBox) {
 
 // xyData wraps an XYer with an Extents method.
 type xyData struct {
-	pts XYer
+	XYer
 }
 
 // extents returns the minimum and maximum x
@@ -111,8 +111,8 @@ func (xy xyData) Extents() (xmin, ymin, xmax, ymax float64) {
 	ymin = xmin
 	xmax = math.Inf(-1)
 	ymax = xmax
-	for i := 0; i < xy.pts.Len(); i++ {
-		x, y := xy.pts.X(i), xy.pts.Y(i)
+	for i := 0; i < xy.Len(); i++ {
+		x, y := xy.X(i), xy.Y(i)
 		xmin = math.Min(xmin, x)
 		xmax = math.Max(xmax, x)
 		ymin = math.Min(ymin, y)
