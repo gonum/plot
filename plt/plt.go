@@ -49,13 +49,15 @@ func New() *Plot {
 // AddData adds Data to the plot and changes the minimum
 // and maximum values of the X and Y axes to fit the
 // newly added data.
-func (p *Plot) AddData(d Data) {
-	xmin, ymin, xmax, ymax := d.Extents()
-	p.X.Min = math.Min(p.X.Min, xmin)
-	p.X.Max = math.Max(p.X.Max, xmax)
-	p.Y.Min = math.Min(p.Y.Min, ymin)
-	p.Y.Max = math.Max(p.Y.Max, ymax)
-	p.data = append(p.data, d)
+func (p *Plot) AddData(data ...Data) {
+	for _, d := range data {
+		xmin, ymin, xmax, ymax := d.Extents()
+		p.X.Min = math.Min(p.X.Min, xmin)
+		p.X.Max = math.Max(p.X.Max, xmax)
+		p.Y.Min = math.Min(p.Y.Min, ymin)
+		p.Y.Max = math.Max(p.Y.Max, ymax)
+	}
+	p.data = append(p.data, data...)
 }
 
 // Draw draws a plot to a DrawArea.
