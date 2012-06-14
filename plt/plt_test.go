@@ -36,6 +36,9 @@ func draw(da *DrawArea) {
 	p := New()
 	p.AddData(MakeLine(DefaultLineStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
 	p.AddData(MakeScatter(DefaultGlyphStyle, DataPoints{ {100000, 10}, {100000.5, 30}, {100001, 10}} ))
+	gsty := DefaultGlyphStyle
+	gsty.Shape = RingGlyph
+	gsty.Radius = vg.Points(18)
 	p.Title.Text = "This is a plot with\ntwo different lines"
 	p.X.Label.Text = "X Label\ngq"
 	p.Y.Min = 10

@@ -144,29 +144,20 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 	da.StrokeLine2(a.LineStyle, da.Min.X, y, da.Max().X, y)
 }
 
-// glyphBoxes returns the necessary glyphBoxes such
-// that the DrawArea can be squished to prevent the
-// tick labels from being clipped by the side of the plot.
-func (a *horizontalAxis) glyphBoxes() (boxes []GlyphBox) {
-	var rightMajor *Tick
+// GlyphBoxes returns the GlyphBoxes for the tick labels.
+func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
-		if rightMajor == nil || t.Value > rightMajor.Value {
-			rightMajor = &t
+		w := a.Tick.Label.Width(t.Label)
+		box := GlyphBox{
+			X: a.Norm(t.Value),
+			Rect: Rect{Point{X: -w / 2}, Point{X: w}},
 		}
+		boxes = append(boxes, box)
 	}
-	if rightMajor == nil {
-		return []GlyphBox{}
-	}
-	w := a.Tick.Label.Width(rightMajor.Label)
-	return []GlyphBox{
-		GlyphBox{
-			X:    a.Norm(rightMajor.Value),
-			Rect: Rect{Min: Point{X: -w / 2}, Size: Point{X: w}},
-		},
-	}
+	return
 }
 
 // A verticalAxis is drawn vertically up the left side of a plot.
@@ -230,30 +221,20 @@ func (a *verticalAxis) draw(da *DrawArea) {
 	da.StrokeLine2(a.LineStyle, x, da.Min.Y, x, da.Max().Y)
 }
 
-// glyphBoxes returns glyphBoxes for the glyphs
-// representing the tick mark labels.  The location
-// of the GlyphBox is normalized to the unit range
-// based on its distance along the axis.
-func (a *verticalAxis) glyphBoxes() (boxes []GlyphBox) {
-	var topMajor *Tick
+// GlyphBoxes returns the GlyphBoxes for the tick labels
+func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
 		if t.minor() {
 			continue
 		}
-		if topMajor == nil || t.Value > topMajor.Value {
-			topMajor = &t
+		h := a.Tick.Label.Height(t.Label)
+		box := GlyphBox{
+			Y: a.Norm(t.Value),
+			Rect: Rect{Point{Y: -h / 2}, Point{Y: h}},
 		}
+		boxes = append(boxes, box)
 	}
-	if topMajor == nil {
-		return []GlyphBox{}
-	}
-	h := a.Tick.Label.Height(topMajor.Label)
-	return []GlyphBox{
-		GlyphBox{
-			Y:    a.Norm(topMajor.Value),
-			Rect: Rect{Min: Point{Y: -h / 2}, Size: Point{Y: h}},
-		},
-	}
+	return
 }
 
 // DefaultTicks is suitable for the Marker field of an Axis, it returns
