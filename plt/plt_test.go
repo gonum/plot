@@ -34,23 +34,12 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *DrawArea) {
 	p := New()
-	p.AddData(MakeLine(DefaultLineStyle,
-		DataPoints{{100000, 10}, {100000.5, 30}, {100001, 10}}))
-	p.AddData(MakeScatter(DefaultGlyphStyle,
-		DataPoints{{100000, 10}, {100000.5, 30}, {100001, 10}}))
-	sty := DefaultGlyphStyle
-	sty.Radius = vg.Points(18)
-	p.AddData(MakeScatter(sty, DataPoints{{100001, 20}}))
-	gsty := DefaultGlyphStyle
-	gsty.Shape = RingGlyph
-	gsty.Radius = vg.Points(18)
 	p.Title.Text = "This is a plot with\ntwo different lines"
 	p.X.Label.Text = "X Label\ngq"
+	p.X.Min = 100000
+	p.X.Max = 100001
+	p.Y.Label.Text = "Y Label\ngq"
 	p.Y.Min = 10
 	p.Y.Max = 20
-	p.Y.Tick.Marker = ConstantTicks([]Tick{
-		{10, "Ten\n(10)"}, {15, ""},
-		{20, "Twenty\n(20)"}})
-	p.Y.Label.Text = "Y Label\ngq"
 	p.Draw(da)
 }
