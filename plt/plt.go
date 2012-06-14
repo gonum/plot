@@ -66,9 +66,8 @@ func (p *Plot) Draw(da *drawArea) {
 	da.Stroke(rectPath(da.rect))
 
 	if p.Title.Text != "" {
-		da.setTextStyle(p.Title.TextStyle)
-		fillText(da, da.center().x, da.max().y, -0.5, -1, p.Title.Text)
-		da.size.y -= textHeight(p.Title.Font, p.Title.Text)
+		da.fillText(p.Title.TextStyle, da.center().x, da.max().y, -0.5, -1, p.Title.Text)
+		da.size.y -= p.Title.height(p.Title.Text)
 	}
 
 	x := horizontalAxis{p.X}

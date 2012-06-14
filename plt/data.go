@@ -46,13 +46,12 @@ func MakeLine(sty LineStyle, pts ...Point) Data {
 }
 
 func (l lineData) plot(da *drawArea, plt *Plot) {
-	da.setLineStyle(l.LineStyle)
 	pts := make([]point, len(l.points))
 	for i, pt := range l.points {
 		pts[i].x = plt.X.x(da, pt.X)
 		pts[i].y = plt.Y.y(da, pt.Y)
 	}
-	strokeClippedLine(da, pts...)
+	da.strokeClippedLine(l.LineStyle, pts...)
 }
 
 // scatterData implements the Data interface, drawing

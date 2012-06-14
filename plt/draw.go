@@ -15,7 +15,6 @@ import (
 // to which drawing should take place.
 type drawArea struct {
 	vg.Canvas
-	font vg.Font
 	rect
 }
 
@@ -150,7 +149,6 @@ func (da *drawArea) crop(minx, miny, maxx, maxy vg.Length) *drawArea {
 	}
 	return &drawArea{
 		vg.Canvas: vg.Canvas(da),
-		font:      da.font,
 		rect:      rect{min: minpt, size: sz},
 	}
 }
@@ -197,7 +195,6 @@ func (da *drawArea) squishX(boxes []glyphBox) *drawArea {
 	m := ((left-1)*r - right*l + l) / (left - right)
 	return &drawArea{
 		vg.Canvas: vg.Canvas(da),
-		font:      da.font,
 		rect: rect{
 			min:  point{x: n, y: da.min.y},
 			size: point{x: m - n, y: da.size.y},
@@ -248,18 +245,11 @@ func (da *drawArea) squishY(boxes []glyphBox) *drawArea {
 	m := ((bot-1)*t - top*b + b) / (bot - top)
 	return &drawArea{
 		vg.Canvas: vg.Canvas(da),
-		font:      da.font,
 		rect: rect{
 			min:  point{x: da.min.x, y: n},
 			size: point{x: da.size.x, y: m - n},
 		},
 	}
-}
-
-// setTextStyle sets the current text style
-func (da *drawArea) setTextStyle(sty TextStyle) {
-	da.SetColor(sty.Color)
-	da.font = sty.Font
 }
 
 // setLineStyle sets the current line style
@@ -271,7 +261,6 @@ func (da *drawArea) setLineStyle(sty LineStyle) {
 		dashDots = append(dashDots, dash)
 	}
 	da.SetLineDash(dashDots, sty.DashOffs)
-
 }
 
 // drawGlyph draws a glyph at a specified location.  If
@@ -317,10 +306,12 @@ func drawGlyph(da *drawArea, sty GlyphStyle, pt point) {
 
 // drawLine draws a line connecting a set of points
 // in the given drawArea.
-func strokeLine(da *drawArea, pts ...point) {
+func (da *drawArea) strokeLine(sty LineStyle, pts ...point) {
 	if len(pts) == 0 {
 		return
 	}
+
+	da.setLineStyle(sty)
 
 	var p vg.Path
 	p.Move(pts[0].x, pts[0].y)
@@ -332,13 +323,13 @@ func strokeLine(da *drawArea, pts ...point) {
 
 // strokeLine2 draws a line between two points in the given
 // drawArea.
-func strokeLine2(da *drawArea, x0, y0, x1, y1 vg.Length) {
-	strokeLine(da, point{x0, y0}, point{x1, y1})
+func (da *drawArea) strokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
+	da.strokeLine(sty, point{x0, y0}, point{x1, y1})
 }
 
 // strokeClippedLine draws a line that is clipped at the bounds
 // the drawArea.
-func strokeClippedLine(da *drawArea, pts ...point) {
+func (da *drawArea) strokeClippedLine(sty LineStyle, pts ...point) {
 	// clip right
 	lines0 := clip(isLeft, point{da.max().x, da.min.y}, point{-1, 0}, pts)
 
@@ -364,7 +355,7 @@ func strokeClippedLine(da *drawArea, pts ...point) {
 	}
 
 	for _, l := range lines1 {
-		strokeLine(da, l...)
+		da.strokeLine(sty, l...)
 	}
 	return
 }
@@ -434,46 +425,44 @@ func isect(p0, p1, clip, norm point) point {
 // The text is offset by its width times xalign and
 // its height times yalign.  x and y give the bottom
 // left corner of the text befor e it is offset.
-func fillText(da *drawArea, x, y vg.Length, xalign, yalign float64, txt string) {
+func (da *drawArea) fillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
 	}
 
-	if da.font.Font() == nil {
-		panic("Drawing text without a current font set")
-	}
+	da.SetColor(sty.Color)
 
-	ht := textHeight(da.font, txt)
-	y += ht*vg.Length(yalign) - da.font.Extents().Ascent
+	ht := sty.height(txt)
+	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
 	nl := textNLines(txt)
 	for i, line := range strings.Split(txt, "\n") {
-		xoffs := vg.Length(xalign) * da.font.Width(line)
+		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
-		da.FillText(da.font, x+xoffs, y+n*da.font.Size, line)
+		da.FillText(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
 	}
 }
 
-// textWidth returns the width of lines of text
+// width returns the width of lines of text
 // when using the given font.
-func textWidth(fnt vg.Font, txt string) (max vg.Length) {
+func (sty TextStyle) width(txt string) (max vg.Length) {
 	txt = strings.TrimRight(txt, "\n")
 	for _, line := range strings.Split(txt, "\n") {
-		if w := fnt.Width(line); w > max {
+		if w := sty.Font.Width(line); w > max {
 			max = w
 		}
 	}
 	return
 }
 
-// textHeight returns the height of the text when using
+// height returns the height of the text when using
 // the given font.
-func textHeight(fnt vg.Font, txt string) vg.Length {
+func (sty TextStyle) height(txt string) vg.Length {
 	nl := textNLines(txt)
 	if nl == 0 {
 		return vg.Length(0)
 	}
-	e := fnt.Extents()
+	e := sty.Font.Extents()
 	return e.Height*vg.Length(nl-1) + e.Ascent
 }
 
