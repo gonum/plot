@@ -110,7 +110,7 @@ func padX(p *Plot, da *DrawArea) *DrawArea {
 // rightMost returns the right-most GlyphBox.
 func rightMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	maxx := da.Max().X
-	r := GlyphBox{ X: 1, Rect: Rect{ Min: Point{ X: maxx } } }
+	r := GlyphBox{X: 1, Rect: Rect{Min: Point{X: maxx}}}
 	for _, b := range boxes {
 		if x := da.X(b.X) + b.Min.X + b.Size.X; x > maxx && b.X <= 1 {
 			maxx = x
@@ -123,7 +123,7 @@ func rightMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 // leftMost returns the left-most GlyphBox.
 func leftMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	minx := da.Min.X
-	l := GlyphBox{ Rect: Rect{ Min: Point{ X: minx } } }
+	l := GlyphBox{Rect: Rect{Min: Point{X: minx}}}
 	for _, b := range boxes {
 		if x := da.X(b.X) + b.Min.X; x < minx && b.X >= 0 {
 			minx = x
@@ -160,7 +160,7 @@ func padY(p *Plot, da *DrawArea) *DrawArea {
 // topMost returns the top-most GlyphBox.
 func topMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	maxy := da.Max().Y
-	t := GlyphBox{ Y: 1, Rect: Rect{ Min: Point{ Y: maxy } } }
+	t := GlyphBox{Y: 1, Rect: Rect{Min: Point{Y: maxy}}}
 	for _, b := range boxes {
 		if y := da.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy && b.Y <= 1 {
 			maxy = y
@@ -173,7 +173,7 @@ func topMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 // bottomMost returns the bottom-most GlyphBox.
 func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	miny := da.Min.Y
-	l := GlyphBox{ Rect: Rect{ Min: Point{ Y: miny } } }
+	l := GlyphBox{Rect: Rect{Min: Point{Y: miny}}}
 	for _, b := range boxes {
 		if y := da.Y(b.Y) + b.Min.Y; y < miny && b.Y >= 0 {
 			miny = y

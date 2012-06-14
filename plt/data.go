@@ -87,11 +87,11 @@ func (s scatterData) Plot(da DrawArea, plt *Plot) {
 }
 
 func (s scatterData) GlyphBoxes(plt *Plot) (boxes []GlyphBox) {
-	r := Rect{ Point{ -s.Radius, -s.Radius }, Point{ s.Radius*2, s.Radius*2 } }
+	r := Rect{Point{-s.Radius, -s.Radius}, Point{s.Radius * 2, s.Radius * 2}}
 	for i := 0; i < s.pts.Len(); i++ {
 		box := GlyphBox{
-			X: plt.X.Norm(s.pts.X(i)),
-			Y: plt.Y.Norm(s.pts.Y(i)),
+			X:    plt.X.Norm(s.pts.X(i)),
+			Y:    plt.Y.Norm(s.pts.Y(i)),
 			Rect: r,
 		}
 		boxes = append(boxes, box)
