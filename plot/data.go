@@ -1,4 +1,4 @@
-[package plot
+package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
@@ -9,11 +9,15 @@ import (
 )
 
 var (
+	// DefaultLineStyle is a reasonable default LineStyle
+	// for drawing most lines in a plot.
 	DefaultLineStyle = plt.LineStyle{
 		Width: vg.Points(0.75),
 		Color: color.Black,
 	}
 
+	// DefaultGlyhpStyle is a reasonable default GlyphStyle
+	// for drawing points on a plot.
 	DefaultGlyphStyle = plt.GlyphStyle{
 		Radius: vg.Points(2),
 		Color:  color.Black,
@@ -51,6 +55,8 @@ type Line struct {
 	plt.LineStyle
 }
 
+// Plot implements the Plot method of the Data interface,
+// drawing a line that connects each point in the Line.
 func (l Line) Plot(da plt.DrawArea, p *plt.Plot) {
 	line := make([]plt.Point, l.Len())
 	for i := range line {
@@ -60,6 +66,8 @@ func (l Line) Plot(da plt.DrawArea, p *plt.Plot) {
 	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
 
+// Extents implemnets the Extents function of the
+// Data interface.
 func (s Line) Extents() (xmin, ymin, xmax, ymax float64) {
 	return xyExtents(s.XYer)
 }
@@ -72,6 +80,8 @@ type Scatter struct {
 	plt.GlyphStyle
 }
 
+// Plot implements the Plot method of the Data interface,
+// drawing a glyph for each point in the Scatter.
 func (s Scatter) Plot(da plt.DrawArea, p *plt.Plot) {
 	for i := 0; i < s.Len(); i++ {
 		x, y := da.X(p.X.Norm(s.X(i))), da.Y(p.Y.Norm(s.Y(i)))
@@ -79,6 +89,8 @@ func (s Scatter) Plot(da plt.DrawArea, p *plt.Plot) {
 	}
 }
 
+// GlyphBoxes returns a slice of GlyphBoxes, one for
+// each of the glyphs in the Scatter.
 func (s Scatter) GlyphBoxes(p *plt.Plot) (boxes []plt.GlyphBox) {
 	r := plt.Rect{
 		plt.Point{-s.Radius, -s.Radius},
@@ -95,6 +107,8 @@ func (s Scatter) GlyphBoxes(p *plt.Plot) (boxes []plt.GlyphBox) {
 	return
 }
 
+// Extents implemnets the Extents function of the
+// Data interface.
 func (s Scatter) Extents() (xmin, ymin, xmax, ymax float64) {
 	return xyExtents(s.XYer)
 }
@@ -174,6 +188,8 @@ func MakeBox(w vg.Length, x float64, ys Yer) *Box {
 	}
 }
 
+// Plot implements the Plot function of the Data interface,
+// drawing a boxplot.
 func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	x := da.X(p.X.Norm(b.X))
 	q1y := da.Y(p.Y.Norm(b.Q1))
@@ -204,6 +220,8 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	}
 }
 
+// Extents implements the Extents function of the Data
+// interface.
 func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 	xmin = b.X
 	ymin = xmin
@@ -217,6 +235,8 @@ func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 	return
 }
 
+// GlyphBoxes returns a slice of GlyphBoxes for the
+// points and for the median line of the boxplot.
 func (b *Box) GlyphBoxes(p *plt.Plot) (boxes []plt.GlyphBox) {
 	x := p.X.Norm(b.X)
 	boxes = append(boxes, plt.GlyphBox {
@@ -325,14 +345,18 @@ type ySorter struct {
 	inds []int
 }
 
+// Len returns the number of indices.
 func (y ySorter) Len() int {
 	return len(y.inds)
 }
 
+// Less returns true if the Y value at index i
+// is less than the Y value at index j.
 func (y ySorter) Less(i, j int) bool {
 	return y.Y(y.inds[i]) < y.Y(y.inds[j])
 }
 
+// Swap swaps the ith and jth indices.
 func (y ySorter) Swap(i, j int) {
 	y.inds[i], y.inds[j] = y.inds[j], y.inds[i]
 }
@@ -341,14 +365,17 @@ func (y ySorter) Swap(i, j int) {
 // XYer interface.
 type Points []struct{ X, Y float64 }
 
+// Len returns the number of points.
 func (p Points) Len() int {
 	return len(p)
 }
 
+// X returns the ith X value.
 func (p Points) X(i int) float64 {
 	return p[i].X
 }
 
+// Y returns the ith Y value.
 func (p Points) Y(i int) float64 {
 	return p[i].Y
 }
@@ -357,10 +384,12 @@ func (p Points) Y(i int) float64 {
 // interface.
 type Values []float64
 
+// Len returns the number of values.
 func (v Values) Len() int {
 	return len(v)
 }
 
+// Y returns the ith Y value.
 func (v Values) Y(i int) float64 {
 	return v[i]
 }
