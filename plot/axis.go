@@ -1,4 +1,4 @@
-package plt
+package plot
 
 import (
 	"code.google.com/p/plotinum/vg"

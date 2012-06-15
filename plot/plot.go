@@ -1,5 +1,5 @@
-// The plt package implements low-level plotting functionality.
-package plt
+// plot provides an API for building and drawing plots in Go.
+package plot
 
 import (
 	"code.google.com/p/plotinum/vg"

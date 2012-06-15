@@ -1,7 +1,6 @@
 package plot
 
 import (
-	"code.google.com/p/plotinum/plt"
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
@@ -16,7 +15,7 @@ func TestDrawImage(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
-	da := plt.NewDrawArea(img, w, h)
+	da := NewDrawArea(img, w, h)
 	draw(da)
 	err = img.SavePNG("test.png")
 	if err != nil {
@@ -26,7 +25,7 @@ func TestDrawImage(t *testing.T) {
 
 func TestDrawEps(t *testing.T) {
 	w, h := vg.Inches(4), vg.Inches(4)
-	da := plt.NewDrawArea(veceps.New(w, h, "test"), w, h)
+	da := NewDrawArea(veceps.New(w, h, "test"), w, h)
 	draw(da)
 	err := da.Canvas.(*veceps.Canvas).Save("test.eps")
 	if err != nil {
@@ -35,8 +34,8 @@ func TestDrawEps(t *testing.T) {
 }
 
 // draw draws a simple test plot
-func draw(da *plt.DrawArea) {
-	p := plt.New()
+func draw(da *DrawArea) {
+	p := New()
 	p.Title.Text = "Title"
 	p.Y.Label.Text = "Y Label"
 	vs0 := make(Values, 10)
@@ -55,7 +54,7 @@ func draw(da *plt.DrawArea) {
 	p.AddData(MakeBox(vg.Points(20), 0, vs0))
 	p.AddData(MakeBox(vg.Points(20), 1, vs1))
 	p.AddData(MakeBox(vg.Points(20), 2, vs2))
-	p.X.Tick.Marker = plt.ConstantTicks([]plt.Tick{
+	p.X.Tick.Marker = ConstantTicks([]Tick{
 		{0, "Uniform\nDistribution",}, {1, "Normal\nDistribution",},
 		{2, "Exponential\nDistribution"},
 	})

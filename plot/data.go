@@ -2,7 +2,6 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"code.google.com/p/plotinum/plt"
 	"image/color"
 	"math"
 	"sort"
@@ -11,14 +10,14 @@ import (
 var (
 	// DefaultLineStyle is a reasonable default LineStyle
 	// for drawing most lines in a plot.
-	DefaultLineStyle = plt.LineStyle{
+	DefaultLineStyle = LineStyle{
 		Width: vg.Points(0.75),
 		Color: color.Black,
 	}
 
 	// DefaultGlyhpStyle is a reasonable default GlyphStyle
 	// for drawing points on a plot.
-	DefaultGlyphStyle = plt.GlyphStyle{
+	DefaultGlyphStyle = GlyphStyle{
 		Radius: vg.Points(2),
 		Color:  color.Black,
 	}
@@ -48,17 +47,17 @@ type Yer interface {
 	Y(int) float64
 }
 
-// Line implements the plt.Data interface, drawing a line
+// Line implements the Data interface, drawing a line
 // for the Plot method.
 type Line struct {
 	XYer
-	plt.LineStyle
+	LineStyle
 }
 
 // Plot implements the Plot method of the Data interface,
 // drawing a line that connects each point in the Line.
-func (l Line) Plot(da plt.DrawArea, p *plt.Plot) {
-	line := make([]plt.Point, l.Len())
+func (l Line) Plot(da DrawArea, p *Plot) {
+	line := make([]Point, l.Len())
 	for i := range line {
 		line[i].X = da.X(p.X.Norm(l.X(i)))
 		line[i].Y = da.Y(p.Y.Norm(l.Y(i)))
@@ -77,27 +76,27 @@ func (s Line) Extents() (xmin, ymin, xmax, ymax float64) {
 // glyphs at each of the given points.
 type Scatter struct {
 	XYer
-	plt.GlyphStyle
+	GlyphStyle
 }
 
 // Plot implements the Plot method of the Data interface,
 // drawing a glyph for each point in the Scatter.
-func (s Scatter) Plot(da plt.DrawArea, p *plt.Plot) {
+func (s Scatter) Plot(da DrawArea, p *Plot) {
 	for i := 0; i < s.Len(); i++ {
 		x, y := da.X(p.X.Norm(s.X(i))), da.Y(p.Y.Norm(s.Y(i)))
-		da.DrawGlyph(s.GlyphStyle, plt.Point{x, y})
+		da.DrawGlyph(s.GlyphStyle, Point{x, y})
 	}
 }
 
 // GlyphBoxes returns a slice of GlyphBoxes, one for
 // each of the glyphs in the Scatter.
-func (s Scatter) GlyphBoxes(p *plt.Plot) (boxes []plt.GlyphBox) {
-	r := plt.Rect{
-		plt.Point{-s.Radius, -s.Radius},
-		plt.Point{s.Radius * 2, s.Radius * 2},
+func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	r := Rect{
+		Point{-s.Radius, -s.Radius},
+		Point{s.Radius * 2, s.Radius * 2},
 	}
 	for i := 0; i < s.Len(); i++ {
-		box := plt.GlyphBox{
+		box := GlyphBox{
 			X:    p.X.Norm(s.X(i)),
 			Y:    p.Y.Norm(s.Y(i)),
 			Rect: r,
@@ -148,17 +147,17 @@ type Box struct {
 
 	// BoxStyle is the style used to draw the line
 	// around the box, the median line.
-	BoxStyle plt.LineStyle
+	BoxStyle LineStyle
 
 	// WhiskerStyle is the style used to draw the
 	// whiskers.
-	WhiskerStyle plt.LineStyle
+	WhiskerStyle LineStyle
 
 	// CapWidth is the width of the cap on the whiskers.
 	CapWidth vg.Length
 
 	// GlyphStyle is the style of the points.
-	GlyphStyle plt.GlyphStyle
+	GlyphStyle GlyphStyle
 
 	// Med, Q1, and Q3 are the median, first, and third
 	// quartiles respectively.
@@ -190,16 +189,16 @@ func MakeBox(w vg.Length, x float64, ys Yer) *Box {
 
 // Plot implements the Plot function of the Data interface,
 // drawing a boxplot.
-func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
+func (b *Box) Plot(da DrawArea, p *Plot) {
 	x := da.X(p.X.Norm(b.X))
 	q1y := da.Y(p.Y.Norm(b.Q1))
 	q3y := da.Y(p.Y.Norm(b.Q3))
 	medy := da.Y(p.Y.Norm(b.Med))
-	box := da.ClipLinesY([]plt.Point{
+	box := da.ClipLinesY([]Point{
 		{ x - b.Width/2, q1y }, { x - b.Width/2, q3y },
 		{ x + b.Width/2, q3y }, { x + b.Width/2, q1y },
 		{ x - b.Width/2 - b.BoxStyle.Width/2, q1y } },
-		[]plt.Point{ { x - b.Width/2, medy }, { x + b.Width/2, medy } })
+		[]Point{ { x - b.Width/2, medy }, { x + b.Width/2, medy } })
 	da.StrokeLines(b.BoxStyle, box...)
 
 	min, max := b.Q1, b.Q3
@@ -209,14 +208,14 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	}
 	miny := da.Y(p.Y.Norm(min))
 	maxy := da.Y(p.Y.Norm(max))
-	whisk := da.ClipLinesY([]plt.Point{{x, q3y}, {x, maxy} },
-		[]plt.Point{ {x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy} },
-		[]plt.Point{ {x, q1y}, {x, miny} },
-		[]plt.Point{ {x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny} })
+	whisk := da.ClipLinesY([]Point{{x, q3y}, {x, maxy} },
+		[]Point{ {x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy} },
+		[]Point{ {x, q1y}, {x, miny} },
+		[]Point{ {x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny} })
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range b.Points {
-		da.DrawGlyph(b.GlyphStyle,  plt.Point{x, da.Y(p.Y.Norm(b.Y(i)))})
+		da.DrawGlyph(b.GlyphStyle,  Point{x, da.Y(p.Y.Norm(b.Y(i)))})
 	}
 }
 
@@ -237,21 +236,21 @@ func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
-func (b *Box) GlyphBoxes(p *plt.Plot) (boxes []plt.GlyphBox) {
+func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	x := p.X.Norm(b.X)
-	boxes = append(boxes, plt.GlyphBox {
+	boxes = append(boxes, GlyphBox {
 		X: x,
 		Y: p.Y.Norm(b.Med),
-		plt.Rect: plt.Rect{
-			Min: plt.Point{ X: -(b.Width/2 + b.BoxStyle.Width/2)},
-			Size: plt.Point{ X: b.Width + b.BoxStyle.Width },
+		Rect: Rect{
+			Min: Point{ X: -(b.Width/2 + b.BoxStyle.Width/2)},
+			Size: Point{ X: b.Width + b.BoxStyle.Width },
 		},
 	})
 
 	r := b.GlyphStyle.Radius
-	rect := plt.Rect{ plt.Point{-r, -r}, plt.Point{r*2, r*2} }
+	rect := Rect{ Point{-r, -r}, Point{r*2, r*2} }
 	for _, i := range b.Points {
-		box := plt.GlyphBox{
+		box := GlyphBox{
 			X:    x,
 			Y:    p.Y.Norm(b.Y(i)),
 			Rect: rect,
