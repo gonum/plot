@@ -11,8 +11,10 @@ import (
 // graphics.  The origin is in the bottom left corner.
 type Canvas interface {
 	// SetLineWidth sets the width of stroked paths.
-	//
-	// The initial line width is 1 dot.
+	// If the width is set to 0 then stroked lines are
+	// not drawn.
+	// 
+	// The initial line width is 1 point.
 	SetLineWidth(Length)
 
 	// SetLineDash sets the dash pattern for lines.
@@ -69,6 +71,14 @@ type Canvas interface {
 	// DPI returns the number of canvas dots in
 	// an inch.
 	DPI() float64
+}
+
+// Initialize sets all of the canvas's values to their
+// initial values.
+func Initialize(c Canvas) {
+	c.SetLineWidth(Points(1))
+	c.SetLineDash([]Length{}, 0)
+	c.SetColor(color.Black)
 }
 
 type Path []PathComp

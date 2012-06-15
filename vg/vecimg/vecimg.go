@@ -28,6 +28,9 @@ type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
 	color color.Color
+
+	// width is the current line width.
+	width vg.Length
 }
 
 // New returns a new image canvas with the size specified.
@@ -46,14 +49,13 @@ func New(width, height vg.Length) (*Canvas, error) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	return &Canvas{
-		gc:    gc,
-		img:   img,
-		color: color.RGBA{A: 255},
-	}, nil
+	c := &Canvas{ gc: gc, img: img }
+	vg.Initialize(c)
+	return c, nil
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
+	c.width = w
 	c.gc.SetLineWidth(w.Dots(c))
 }
 
@@ -95,6 +97,9 @@ func (c *Canvas) Pop() {
 }
 
 func (c *Canvas) Stroke(p vg.Path) {
+	if c.width == 0 {
+		return
+	}
 	c.outline(p)
 	c.gc.Stroke()
 }

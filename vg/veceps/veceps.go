@@ -32,17 +32,7 @@ const pr = 5
 
 // New returns a new Canvas.
 func New(w, h vg.Length, title string) *Canvas {
-	c := &Canvas{
-		stk: []ctx{
-			ctx{
-				color:  color.RGBA{A: 255},
-				width:  1,
-				dashes: []vg.Length{},
-				offs:   0,
-			},
-		},
-		buf: new(bytes.Buffer),
-	}
+	c := &Canvas{ stk: []ctx{ ctx{ } }, buf: new(bytes.Buffer) }
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
 	c.buf.WriteString("%%Creator code.google.com/p/plotinum/vg/veceps\n")
 	c.buf.WriteString("%%Title: " + title + "\n")
@@ -53,9 +43,7 @@ func New(w, h vg.Length, title string) *Canvas {
 	c.buf.WriteString("%%Orientation: Portrait\n")
 	c.buf.WriteString("%%EndComments\n")
 	c.buf.WriteString("\n")
-	c.buf.WriteString("0 0 0 setrgbcolor\n")
-	c.buf.WriteString("1 setlinewidth\n")
-	c.buf.WriteString("[] 0 setdash\n")
+	vg.Initialize(c)
 	return c
 }
 
@@ -129,6 +117,9 @@ func (e *Canvas) Pop() {
 }
 
 func (e *Canvas) Stroke(path vg.Path) {
+	if e.cur().width == 0 {
+		return
+	}
 	e.trace(path)
 	e.buf.WriteString("stroke\n")
 }
