@@ -65,15 +65,9 @@ func draw(da *DrawArea) {
 		Line{ meds, DefaultLineStyle },
 		Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} })
 
-	p.X.Tick.Marker = ConstantTicks([]Tick{
-		{0, "Uniform\nDistribution",}, {1, "Normal\nDistribution",},
-		{2, "Exponential\nDistribution"},
-	})
-	p.Y.Padding = p.X.Tick.Label.Width("Uniform\nDistribution")/2
-	p.X.Tick.Label.Font.Size = vg.Points(12)
-	p.X.Tick.Width = 0
-	p.X.Tick.Length = 0
-	p.X.Width = 0
+	p.NominalX("Uniform\nDistribution",
+		"Normal\nDistribution",
+		"Exponential\nDistribution")
 
 	p.Y.Min = 0
 	p.Y.Max = 1000
