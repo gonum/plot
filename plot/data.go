@@ -260,7 +260,7 @@ func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	return
 }
 
-// tukeyPoints returns values that are more than ½ of the
+// tukeyPoints returns values that are more than 1½ of the
 // inter-quartile range beyond the 1st and 3rd quartile.
 // According to John Tukey, these values are reasonable
 // to draw separately as points.
