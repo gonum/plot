@@ -51,9 +51,9 @@ func draw(da *DrawArea) {
 	for i := range vs2 {
 		vs2[i] = rand.ExpFloat64()*300
 	}
-	p.AddData(MakeBox(vg.Points(20), 0, vs0))
-	p.AddData(MakeBox(vg.Points(20), 1, vs1))
-	p.AddData(MakeBox(vg.Points(20), 2, vs2))
+	p.AddData(NewBox(vg.Points(20), 0, vs0))
+	p.AddData(NewBox(vg.Points(20), 1, vs1))
+	p.AddData(NewBox(vg.Points(20), 2, vs2))
 	p.X.Tick.Marker = ConstantTicks([]Tick{
 		{0, "Uniform\nDistribution",}, {1, "Normal\nDistribution",},
 		{2, "Exponential\nDistribution"},

@@ -168,9 +168,9 @@ type Box struct {
 	Points []int
 }
 
-// MakeBox returns a Data which draws a box plot
+// NewBox returns a Data which draws a box plot
 // of the given y values at the given x value.
-func MakeBox(w vg.Length, x float64, ys Yer) *Box {
+func NewBox(w vg.Length, x float64, ys Yer) *Box {
 	sorted := sortedIndices(ys)
 	return &Box{
 		Yer: ys,
