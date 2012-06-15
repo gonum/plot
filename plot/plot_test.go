@@ -52,12 +52,14 @@ func draw(da *plt.DrawArea) {
 	for i := range vs2 {
 		vs2[i] = rand.ExpFloat64()*300
 	}
-	p.AddData(MakeBox(vg.Points(18), 0, vs0))
-	p.AddData(MakeBox(vg.Points(18), 1, vs1))
-	p.AddData(MakeBox(vg.Points(18), 2, vs2))
+	p.AddData(MakeBox(vg.Points(20), 0, vs0))
+	p.AddData(MakeBox(vg.Points(20), 1, vs1))
+	p.AddData(MakeBox(vg.Points(20), 2, vs2))
 	p.X.Tick.Marker = plt.ConstantTicks([]plt.Tick{
-		{0, "Uniform",}, {1, "Normal",}, {2, "Exponential"},
+		{0, "Uniform\nDistribution",}, {1, "Normal\nDistribution",},
+		{2, "Exponential\nDistribution"},
 	})
+	p.Y.Padding = p.X.Tick.Label.Width("Uniform\nDistribution")/2
 	p.X.Tick.Label.Font.Size = vg.Points(12)
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
