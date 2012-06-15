@@ -1,4 +1,4 @@
-package plot
+[package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
@@ -258,7 +258,8 @@ func tukeyPoints(ys Yer, sorted []int) (pts []int) {
 	return
 }
 
-// median returns the median
+// median returns the median Y value given a sorted
+// slice of indices.
 func median(ys Yer, sorted []int) float64 {
 	med := ys.Y(sorted[len(sorted)/2])
 	if len(sorted) % 2 == 0 {
