@@ -59,7 +59,7 @@ func makeAxis() Axis {
 		Max: math.Inf(-1),
 		LineStyle: LineStyle{
 			Color: color.Black,
-			Width: vg.Points(1),
+			Width: vg.Points(0.5),
 		},
 		Padding: vg.Points(5),
 	}
@@ -79,7 +79,7 @@ func makeAxis() Axis {
 	}
 	a.Tick.LineStyle = LineStyle{
 		Color: color.Black,
-		Width: vg.Points(1),
+		Width: vg.Points(0.5),
 	}
 	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks
