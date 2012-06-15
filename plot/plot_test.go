@@ -65,8 +65,7 @@ func draw(da *DrawArea) {
 		Line{ meds, DefaultLineStyle },
 		Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} })
 
-	p.NominalX("Uniform\nDistribution",
-		"Normal\nDistribution",
+	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
 
 	p.Y.Min = 0

@@ -95,6 +95,11 @@ func (a *Axis) Norm(x float64) float64 {
 	return (x - a.Min) / (a.Max - a.Min)
 }
 
+// drawTicks returns true if the tick marks should be drawn.
+func (a *Axis) drawTicks() bool {
+	return a.Tick.Width > 0 && a.Tick.Length > 0
+}
+
 // A HorizantalAxis draws horizontally across the bottom
 // of a plot.
 type horizontalAxis struct {
@@ -107,9 +112,11 @@ func (a *horizontalAxis) size() (h vg.Length) {
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	marks := a.Tick.Marker(a.Min, a.Max)
-	if len(marks) > 0 {
-		h += a.Tick.Length + tickLabelHeight(a.Tick.Label, marks)
+	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
+		if a.drawTicks() {
+			h += a.Tick.Length
+		}
+		h += tickLabelHeight(a.Tick.Label, marks)
 	}
 	h += a.Width / 2
 	h += a.Padding
@@ -124,8 +131,7 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 		da.FillText(a.Label.TextStyle, da.Center().X, y, -0.5, 0, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
-	marks := a.Tick.Marker(a.Min, a.Max)
-	if len(marks) > 0 {
+	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
 		for _, t := range marks {
 			if t.minor() {
 				continue
@@ -133,13 +139,14 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, -0.5, 0, t.Label)
 		}
 		y += tickLabelHeight(a.Tick.Label, marks)
-
-		len := a.Tick.Length
-		for _, t := range marks {
-			x := da.X(a.Norm(t.Value))
-			da.StrokeLine2(a.Tick.LineStyle, x, y+t.lengthOffset(len), x, y+len)
+		if a.drawTicks() {
+			len := a.Tick.Length
+			for _, t := range marks {
+				x := da.X(a.Norm(t.Value))
+				da.StrokeLine2(a.Tick.LineStyle, x, y+t.lengthOffset(len), x, y+len)
+			}
+			y += len
 		}
-		y += len
 	}
 	da.StrokeLine2(a.LineStyle, da.Min.X, y, da.Max().X, y)
 }
@@ -171,13 +178,14 @@ func (a *verticalAxis) size() (w vg.Length) {
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	marks := a.Tick.Marker(a.Min, a.Max)
-	if len(marks) > 0 {
+	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
 		}
-		w += a.Tick.Length
+		if a.drawTicks() {
+			w += a.Tick.Length
+		}
 	}
 	w += a.Width / 2
 	w += a.Padding
@@ -195,8 +203,7 @@ func (a *verticalAxis) draw(da *DrawArea) {
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
-	marks := a.Tick.Marker(a.Min, a.Max)
-	if len(marks) > 0 {
+	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			x += lwidth
 		}
@@ -211,12 +218,14 @@ func (a *verticalAxis) draw(da *DrawArea) {
 		if major {
 			x += a.Tick.Label.Width(" ")
 		}
-		len := a.Tick.Length
-		for _, t := range marks {
-			y := da.Y(a.Norm(t.Value))
-			da.StrokeLine2(a.Tick.LineStyle, x+t.lengthOffset(len), y, x+len, y)
+		if a.drawTicks() {
+			len := a.Tick.Length
+			for _, t := range marks {
+				y := da.Y(a.Norm(t.Value))
+				da.StrokeLine2(a.Tick.LineStyle, x+t.lengthOffset(len), y, x+len, y)
+			}
+			x += len
 		}
-		x += len
 	}
 	da.StrokeLine2(a.LineStyle, x, da.Min.Y, x, da.Max().Y)
 }
