@@ -9,6 +9,8 @@ import (
 	"testing"
 )
 
+var seed = time.Now().UnixNano()
+
 func TestDrawImage(t *testing.T) {
 	w, h := vg.Inches(4), vg.Inches(4)
 	img, err := vecimg.New(w, h)
@@ -38,8 +40,8 @@ func draw(da *DrawArea) {
 	p := New()
 	p.Title.Text = "Title"
 	p.Y.Label.Text = "Y Label"
+	rand.Seed(seed)
 	vs0 := make(Values, 10)
-	rand.Seed(time.Now().UnixNano())
 	for i := range vs0 {
 		vs0[i] = rand.Float64()*1000
 	}

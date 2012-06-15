@@ -11,7 +11,7 @@ var (
 	// DefaultLineStyle is a reasonable default LineStyle
 	// for drawing most lines in a plot.
 	DefaultLineStyle = LineStyle{
-		Width: vg.Points(0.75),
+		Width: vg.Points(0.5),
 		Color: color.Black,
 	}
 
