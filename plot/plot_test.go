@@ -45,17 +45,26 @@ func draw(da *DrawArea) {
 	for i := range vs0 {
 		vs0[i] = rand.Float64()*1000
 	}
+	b0 := NewBox(vg.Points(20), 0, vs0)
+
 	vs1 := make(Values, 10)
 	for i := range vs1 {
 		vs1[i] = rand.NormFloat64()*200 + 500
 	}
+	b1 := NewBox(vg.Points(20), 1, vs1)
+
 	vs2 := make(Values, 10)
 	for i := range vs2 {
 		vs2[i] = rand.ExpFloat64()*300
 	}
-	p.AddData(NewBox(vg.Points(20), 0, vs0))
-	p.AddData(NewBox(vg.Points(20), 1, vs1))
-	p.AddData(NewBox(vg.Points(20), 2, vs2))
+	b2 := NewBox(vg.Points(20), 2, vs2)
+
+	meds :=  Points{ { b0.X, b0.Med }, { b1.X, b1.Med }, { b2.X, b2.Med } }
+
+	p.AddData(b0, b1, b2,
+		Line{ meds, DefaultLineStyle },
+		Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} })
+
 	p.X.Tick.Marker = ConstantTicks([]Tick{
 		{0, "Uniform\nDistribution",}, {1, "Normal\nDistribution",},
 		{2, "Exponential\nDistribution"},
