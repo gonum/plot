@@ -204,68 +204,42 @@ func (da *DrawArea) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
 	da.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
 }
 
-// StrokeClippedLine draws a line that is clipped at the bounds
-// the DrawArea.
-func (da *DrawArea) StrokeClippedLine(sty LineStyle, pts ...Point) {
-	// clip right
-	lines0 := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts)
-
-	// clip bottom
-	var lines1 [][]Point
-	for _, line := range lines0 {
-		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
-		lines1 = append(lines1, ls...)
-	}
-
-	// clip left
-	lines0 = lines0[:0]
-	for _, line := range lines1 {
-		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
-		lines0 = append(lines0, ls...)
-	}
-
-	// clip top
-	lines1 = lines1[:0]
-	for _, line := range lines0 {
-		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
-		lines1 = append(lines1, ls...)
-	}
-
-	da.StrokeLines(sty, lines1...)
-}
-
 // ClipLineXY returns a slice of lines that
 // represent the given line clipped in both
 // X and Y directions.
-func (da *DrawArea) ClipLineXY(pts []Point) (lines [][]Point) {
-	for _, line := range da.ClipLineX(pts) {
-		ls := da.ClipLineY(line)
-		lines = append(lines, ls...)
-	}
-	return
+func (da *DrawArea) ClipLinesXY(lines ...[]Point) [][]Point {
+	return da.ClipLinesY(da.ClipLinesX(lines...)...)
 }
 
 // ClipLineX returns a slice of lines that
 // represent the given line clipped in the
 // X direction.
-func (da *DrawArea) ClipLineX(pts []Point) (lines [][]Point) {
-	for _, line := range clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, pts) {
-		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
-		lines = append(lines, ls...)
+func (da *DrawArea) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
+	var lines1 [][]Point
+	for _, line := range lines {
+		ls := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, line)
+		lines1 = append(lines1, ls...)
 	}
-
+	for _, line := range lines1 {
+		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
+		clipped = append(clipped, ls...)
+	}
 	return
 }
 
 // ClipLineY returns a slice of lines that
 // represent the given line clipped in the
 // Y direction.
-func (da *DrawArea) ClipLineY(pts []Point) (lines [][]Point) {
-	for _, line := range clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, pts) {
-		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
-		lines = append(lines, ls...)
+func (da *DrawArea) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
+	var lines1 [][]Point
+	for _, line := range lines {
+		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
+		lines1 = append(lines1, ls...)
 	}
-
+	for _, line := range lines1 {
+		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
+		clipped = append(clipped, ls...)
+	}
 	return
 }
 

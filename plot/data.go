@@ -52,12 +52,12 @@ type Line struct {
 }
 
 func (l Line) Plot(da plt.DrawArea, p *plt.Plot) {
-	pts := make([]plt.Point, l.Len())
-	for i := range pts {
-		pts[i].X = da.X(p.X.Norm(l.X(i)))
-		pts[i].Y = da.Y(p.Y.Norm(l.Y(i)))
+	line := make([]plt.Point, l.Len())
+	for i := range line {
+		line[i].X = da.X(p.X.Norm(l.X(i)))
+		line[i].Y = da.Y(p.Y.Norm(l.Y(i)))
 	}
-	da.StrokeClippedLine(l.LineStyle, pts...)
+	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
 
 func (s Line) Extents() (xmin, ymin, xmax, ymax float64) {
@@ -179,15 +179,12 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	q1y := da.Y(p.Y.Norm(b.Q1))
 	q3y := da.Y(p.Y.Norm(b.Q3))
 	medy := da.Y(p.Y.Norm(b.Med))
-	da.StrokeLines(b.BoxStyle, []plt.Point{
-		{ x - b.Width/2, q1y },
-		{ x - b.Width/2, q3y },
-		{ x + b.Width/2, q3y },
-		{ x + b.Width/2, q1y },
-		{ x - b.Width/2 - b.BoxStyle.Width/2, q1y }})
-	da.StrokeLines(b.BoxStyle, []plt.Point{
-		{ x - b.Width/2, medy },
-		{ x + b.Width/2, medy }})
+	box := da.ClipLinesY([]plt.Point{
+		{ x - b.Width/2, q1y }, { x - b.Width/2, q3y },
+		{ x + b.Width/2, q3y }, { x + b.Width/2, q1y },
+		{ x - b.Width/2 - b.BoxStyle.Width/2, q1y } },
+		[]plt.Point{ { x - b.Width/2, medy }, { x + b.Width/2, medy } })
+	da.StrokeLines(b.BoxStyle, box...)
 
 	min, max := b.Q1, b.Q3
 	if filtered := filteredIndices(b.Yer, b.Points); len(filtered) > 0 {
@@ -196,18 +193,11 @@ func (b *Box) Plot(da plt.DrawArea, p *plt.Plot) {
 	}
 	miny := da.Y(p.Y.Norm(min))
 	maxy := da.Y(p.Y.Norm(max))
-	da.StrokeLines(b.WhiskerStyle, []plt.Point{
-		{x, q3y},
-		{x, maxy}})
-	da.StrokeLines(b.WhiskerStyle, []plt.Point{
-		{x - b.CapWidth/2, maxy},
-		{x + b.CapWidth/2, maxy}})
-	da.StrokeLines(b.WhiskerStyle, []plt.Point{
-		{x, q1y},
-		{x, miny}})
-	da.StrokeLines(b.WhiskerStyle, []plt.Point{
-		{x - b.CapWidth/2, miny},
-		{x + b.CapWidth/2, miny}})
+	whisk := da.ClipLinesY([]plt.Point{{x, q3y}, {x, maxy} },
+		[]plt.Point{ {x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy} },
+		[]plt.Point{ {x, q1y}, {x, miny} },
+		[]plt.Point{ {x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny} })
+	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range b.Points {
 		da.DrawGlyph(b.GlyphStyle,  plt.Point{x, da.Y(p.Y.Norm(b.Y(i)))})

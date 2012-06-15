@@ -5,6 +5,8 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
+	"math/rand"
+	"time"
 	"testing"
 )
 
@@ -36,13 +38,32 @@ func TestDrawEps(t *testing.T) {
 func draw(da *plt.DrawArea) {
 	p := plt.New()
 	p.Title.Text = "Title"
-	p.X.Label.Text = "X Label"
 	p.Y.Label.Text = "Y Label"
-	p.AddData(MakeBox(vg.Points(12), 0, Values{
-		-50, -45, 5, 10, 15, 20, 25, 30, 35, 40, 80,
-	}))
-	p.AddData(MakeBox(vg.Points(12), 1, Values{
-		-50, -45, 5, 10, 15, 20, 25, 30, 35, 40, 80,
-	}))
+	vs0 := make(Values, 10)
+	rand.Seed(time.Now().UnixNano())
+	for i := range vs0 {
+		vs0[i] = rand.Float64()*1000
+	}
+	vs1 := make(Values, 10)
+	for i := range vs1 {
+		vs1[i] = rand.NormFloat64()*200 + 500
+	}
+	vs2 := make(Values, 10)
+	for i := range vs2 {
+		vs2[i] = rand.ExpFloat64()*300
+	}
+	p.AddData(MakeBox(vg.Points(18), 0, vs0))
+	p.AddData(MakeBox(vg.Points(18), 1, vs1))
+	p.AddData(MakeBox(vg.Points(18), 2, vs2))
+	p.X.Tick.Marker = plt.ConstantTicks([]plt.Tick{
+		{0, "Uniform",}, {1, "Normal",}, {2, "Exponential"},
+	})
+	p.X.Tick.Label.Font.Size = vg.Points(12)
+	p.X.Tick.Width = 0
+	p.X.Tick.Length = 0
+	p.X.Width = 0
+
+	p.Y.Min = 0
+	p.Y.Max = 1000
 	p.Draw(da)
 }
