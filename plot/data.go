@@ -168,8 +168,13 @@ type Box struct {
 	Points []int
 }
 
-// NewBox returns a Data which draws a box plot
-// of the given y values at the given x value.
+// NewBox returns new Box representing a distribution
+// of values.   The box surrounds the center of the range
+// of data values, the middle line is the median, data
+// 1.5x the inter-quartile range before the first or after
+// the third quartile are drawn as points, and the whiskers
+// extend to the extremes of the data that are not drawn
+// as points.
 func NewBox(w vg.Length, x float64, ys Yer) *Box {
 	sorted := sortedIndices(ys)
 	return &Box{
