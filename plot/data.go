@@ -158,37 +158,24 @@ type Box struct {
 
 	// GlyphStyle is the style of the points.
 	GlyphStyle GlyphStyle
-
-	// Med, Q1, and Q3 are the median, first, and third
-	// quartiles respectively.
-	Med, Q1, Q3 float64
-
-	// Points is a slice containing the indices Y values
-	// that should be drawn separately as points.
-	Points []int
 }
 
 // NewBox returns new Box representing a distribution
-// of values.   The box surrounds the center of the range
-// of data values, the middle line is the median, data
-// 1.5x the inter-quartile range before the first or after
-// the third quartile are drawn as points, and the whiskers
-// extend to the extremes of the data that are not drawn
-// as points.
-func NewBox(w vg.Length, x float64, ys Yer) *Box {
-	sorted := sortedIndices(ys)
+// of values.   The width parameter is the width of the
+// box. The box surrounds the center of the range of
+// data values, the middle line is the median, the points
+// are as described in the Statistics method, and the
+// whiskers extend to the extremes of all data that are
+// not drawn as separate points.
+func NewBox(width vg.Length, x float64, ys Yer) *Box {
 	return &Box{
 		Yer: ys,
 		X: x,
-		Width: w,
+		Width: width,
 		BoxStyle: DefaultLineStyle,
 		WhiskerStyle: DefaultLineStyle,
-		CapWidth: w / 2,
+		CapWidth: width / 2,
 		GlyphStyle: DefaultGlyphStyle,
-		Med: median(ys, sorted),
-		Q1: percentile(ys, sorted, 0.25),
-		Q3: percentile(ys, sorted, 0.75),
-		Points: tukeyPoints(ys, sortedIndices(ys)),
 	}
 }
 
@@ -196,9 +183,10 @@ func NewBox(w vg.Length, x float64, ys Yer) *Box {
 // drawing a boxplot.
 func (b *Box) Plot(da DrawArea, p *Plot) {
 	x := da.X(p.X.Norm(b.X))
-	q1y := da.Y(p.Y.Norm(b.Q1))
-	q3y := da.Y(p.Y.Norm(b.Q3))
-	medy := da.Y(p.Y.Norm(b.Med))
+	q1, med, q3, points := b.Statistics()
+	q1y := da.Y(p.Y.Norm(q1))
+	q3y := da.Y(p.Y.Norm(q3))
+	medy := da.Y(p.Y.Norm(med))
 	box := da.ClipLinesY([]Point{
 		{ x - b.Width/2, q1y }, { x - b.Width/2, q3y },
 		{ x + b.Width/2, q3y }, { x + b.Width/2, q1y },
@@ -206,8 +194,8 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 		[]Point{ { x - b.Width/2, medy }, { x + b.Width/2, medy } })
 	da.StrokeLines(b.BoxStyle, box...)
 
-	min, max := b.Q1, b.Q3
-	if filtered := filteredIndices(b.Yer, b.Points); len(filtered) > 0 {
+	min, max := q1, q3
+	if filtered := filteredIndices(b.Yer, points); len(filtered) > 0 {
 		min = b.Y(filtered[0])
 		max = b.Y(filtered[len(filtered)-1])
 	}
@@ -219,7 +207,7 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 		[]Point{ {x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny} })
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
-	for _, i := range b.Points {
+	for _, i := range points {
 		da.DrawGlyph(b.GlyphStyle,  Point{x, da.Y(p.Y.Norm(b.Y(i)))})
 	}
 }
@@ -242,10 +230,10 @@ func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
 func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
-	x := p.X.Norm(b.X)
+	_, med, _, pts := b.Statistics()
 	boxes = append(boxes, GlyphBox {
-		X: x,
-		Y: p.Y.Norm(b.Med),
+		X: p.X.Norm(b.X),
+		Y: p.Y.Norm(med),
 		Rect: Rect{
 			Min: Point{ X: -(b.Width/2 + b.BoxStyle.Width/2)},
 			Size: Point{ X: b.Width + b.BoxStyle.Width },
@@ -254,31 +242,31 @@ func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 
 	r := b.GlyphStyle.Radius
 	rect := Rect{ Point{-r, -r}, Point{r*2, r*2} }
-	for _, i := range b.Points {
-		box := GlyphBox{
-			X:    x,
+	for _, i := range pts {
+		boxes = append(boxes, GlyphBox{
+			X:    p.X.Norm(b.X),
 			Y:    p.Y.Norm(b.Y(i)),
 			Rect: rect,
-		}
-		boxes = append(boxes, box)
+		})
 	}
 	return
 }
 
-// tukeyPoints returns values that are more than 1½ of the
-// inter-quartile range beyond the 1st and 3rd quartile.
-// According to John Tukey, these values are reasonable
-// to draw separately as points.
-func tukeyPoints(ys Yer, sorted []int) (pts []int) {
-	q1 := percentile(ys, sorted, 0.25)
-	q3 := percentile(ys, sorted, 0.75)
-	min := q1 - 1.5*(q3 - q1)
-	max := q3 + 1.5*(q3 - q1)
-	for _, i := range sorted {
-		if y := ys.Y(i); y > max || y < min {
-			pts = append(pts, i)
-		}
-	}
+// Statistics returns the `boxplot' statistics: the
+// first quartile, the median, the third quartile,
+// and a slice of indices to be drawn as separate
+// points. This latter slice is computed as
+// recommended by John Tukey in his book
+// Exploratory Data Analysis: all values that are 1.5x
+// the inter-quartile range before the first quartile
+// and 1.5x the inter-quartile range after the third
+// quartile.
+func (b *Box) Statistics() (q1, med, q3 float64, points []int) {
+	sorted := sortedIndices(b)
+	q1 = percentile(b, sorted, 0.25)
+	med = median(b, sorted)
+	q3 =percentile(b, sorted, 0.75)
+	points = tukeyPoints(b, sorted)
 	return
 }
 
@@ -325,6 +313,23 @@ func sortedIndices(ys Yer) []int {
 
 }
 
+// tukeyPoints returns values that are more than 1½ of the
+// inter-quartile range beyond the 1st and 3rd quartile.
+// According to John Tukey, these values are reasonable
+// to draw separately as points.
+func tukeyPoints(ys Yer, sorted []int) (pts []int) {
+	q1 := percentile(ys, sorted, 0.25)
+	q3 := percentile(ys, sorted, 0.75)
+	min := q1 - 1.5*(q3 - q1)
+	max := q3 + 1.5*(q3 - q1)
+	for _, i := range sorted {
+		if y := ys.Y(i); y > max || y < min {
+			pts = append(pts, i)
+		}
+	}
+	return
+}
+
 // filteredIndices returns a slice of the indices sorted in
 // ascending order of their corresponding Y value, and
 // excluding all indices in outList.
@@ -341,6 +346,7 @@ func filteredIndices(ys Yer, outList []int) (data []int) {
 	sort.Sort(ySorter{ys, data})
 	return data
 }
+
 
 // ySorted implements sort.Interface, sorting a slice
 // of indices for the given Yer.
