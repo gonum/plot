@@ -38,43 +38,39 @@ func TestDrawEps(t *testing.T) {
 // draw draws a simple test plot
 func draw(da *DrawArea) {
 	rand.Seed(seed)
-	vs0 := make(Values, 10)
-	for i := range vs0 {
-		vs0[i] = rand.Float64()*1000
+	n := 10
+	uniform := make(Values, n)
+	normal := make(Values, n)
+	expon := make(Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()*1000
+		normal[i] = rand.NormFloat64()*200 + 500
+		expon[i] = rand.ExpFloat64()*300
 	}
-	b0 := NewBox(vg.Points(20), 0, vs0)
-	_, med0, _, _ := b0.Statistics()
-
-	vs1 := make(Values, 10)
-	for i := range vs1 {
-		vs1[i] = rand.NormFloat64()*200 + 500
-	}
-	b1 := NewBox(vg.Points(20), 1, vs1)
-	_, med1, _, _ := b1.Statistics()
-
-	vs2 := make(Values, 10)
-	for i := range vs2 {
-		vs2[i] = rand.ExpFloat64()*300
-	}
-	b2 := NewBox(vg.Points(20), 2, vs2)
-	_, med2, _, _ := b2.Statistics()
-
-	meds :=  Points{ { b0.X, med0 }, { b1.X, med1 }, { b2.X, med2 } }
-
-	l := Line{ meds, DefaultLineStyle }
-	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
-
 	p, err := New()
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Title"
-	p.Y.Label.Text = "Y Label"
-	p.AddData(b0, b1, b2, l, s)
+	p.Title.Text = "Plot Title"
+	p.Y.Label.Text = "Y Values"
+
+	b0 := NewBox(vg.Points(20), 0, uniform)
+	b1 := NewBox(vg.Points(20), 1, normal)
+	b2 := NewBox(vg.Points(20), 2, expon)
+	p.AddData(b0, b1, b2)
 	p.Legend.AddEntry("outliers", b0.GlyphStyle)
-	p.Legend.AddEntry("median", l, s)
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
+
+	_, med0, _, _ := b0.Statistics()
+	_, med1, _, _ := b1.Statistics()
+	_, med2, _, _ := b2.Statistics()
+	meds :=  Points{ { b0.X, med0 }, { b1.X, med1 }, { b2.X, med2 } }
+	l := Line{ meds, DefaultLineStyle }
+	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
+	p.AddData(l, s)
+	p.Legend.AddEntry("median", l, s)
+
 	p.Y.Min = 0
 	p.Y.Max = 1000
 	p.Legend.Top = true
