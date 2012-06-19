@@ -12,7 +12,7 @@ import (
 var seed = int64(0) // time.Now().UnixNano()
 
 func TestDrawImage(t *testing.T) {
-	w, h := vg.Inches(4), vg.Inches(4)
+	w, h := vg.Inches(4), vg.Inches(2)
 	img, err := vecimg.New(w, h)
 	if err != nil {
 		t.Error(err)
