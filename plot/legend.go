@@ -39,12 +39,12 @@ type legendEntry struct {
 	// text is the text associated with this entry. 
 	text string
 
-	// thumbs is a slice of all of the icon styles
-	thumbs []Thumbnailer
+	// thumbs is a slice of all of the thumbnails styles
+	thumbs []thumbnailer
 }
 
-// Thumbnailer wraps the DrawIcon method
-type Thumbnailer interface {
+// thumbnailer wraps the DrawIcon method
+type thumbnailer interface {
 	// Thumbnail draws an thumbnail representing
 	// a legend entry.  The thumbnail will usually show
 	// a smaller representation of the style used
@@ -112,6 +112,6 @@ func (l *Legend) entryHeight() (height vg.Length) {
 // AddEntry adds an entry to the legend with the given name.
 // The entry's thumbnail is drawn as the composite of all of the
 // thumbnails.
-func (l *Legend) AddEntry(name string, thumbs ...Thumbnailer) {
+func (l *Legend) AddEntry(name string, thumbs ...thumbnailer) {
 	l.entries = append(l.entries, legendEntry{ text: name, thumbs: thumbs })
 }
