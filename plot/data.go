@@ -150,8 +150,8 @@ func xyExtents(xy XYer) (xmin, ymin, xmax, ymax float64) {
 type Box struct {
 	Yer
 
-	// X is the X value, in data coordinates, at which
-	// to draw the box.
+	// X is the X or Y value, in data coordinates, around
+	// which the box is centered.
 	X float64
 
 	// Width is the width of the box.
@@ -359,6 +359,94 @@ func filteredIndices(ys Yer, outList []int) (data []int) {
 	return data
 }
 
+// HorizBox is a boxplot that draws horizontally
+// instead of vertically.  The distribution of Y values
+// are shown along the X axis.  The box is centered
+// around the Y value that corresponds to the X
+// value of the box.
+type HorizBox struct {
+	*Box
+}
+
+// NewHorizBox returns a HorizBox.  This is the
+// same as NewBox except that the box draws
+// horizontally instead of vertically.
+func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
+	return HorizBox{ NewBox(width, y, vals) }
+}
+
+// Plot implements the Plot function of the Data interface,
+// drawing a boxplot.
+func (b HorizBox) Plot(da DrawArea, p *Plot) {
+	y := da.Y(p.Y.Norm(b.X))
+	q1, med, q3, points := b.Statistics()
+	q1x := da.X(p.X.Norm(q1))
+	q3x := da.X(p.X.Norm(q3))
+	medx := da.X(p.X.Norm(med))
+	box := da.ClipLinesX([]Point{
+		{ q1x, y - b.Width/2,  }, { q3x, y - b.Width/2 },
+		{ q3x, y + b.Width/2 }, { q1x, y + b.Width/2 },
+		{ q1x, y - b.Width/2 - b.BoxStyle.Width/2 } },
+		[]Point{ { medx, y - b.Width/2 }, { medx, y + b.Width/2 } })
+	da.StrokeLines(b.BoxStyle, box...)
+
+	min, max := q1, q3
+	if filtered := filteredIndices(b.Yer, points); len(filtered) > 0 {
+		min = b.Y(filtered[0])
+		max = b.Y(filtered[len(filtered)-1])
+	}
+	minx := da.X(p.X.Norm(min))
+	maxx := da.X(p.X.Norm(max))
+	whisk := da.ClipLinesX([]Point{{q3x, y}, {maxx, y} },
+		[]Point{ {maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2} },
+		[]Point{ {q1x, y}, {minx, y} },
+		[]Point{ {minx, y - b.CapWidth/2}, {minx, y + b.CapWidth/2} })
+	da.StrokeLines(b.WhiskerStyle, whisk...)
+
+	for _, i := range points {
+		da.DrawGlyph(b.GlyphStyle,  Point{da.X(p.X.Norm(b.Y(i))), y})
+	}
+}
+
+// Extents implements the Extents function of the Data
+// interface.
+func (b HorizBox) Extents() (xmin, ymin, xmax, ymax float64) {
+	ymin = b.X
+	xmin = math.Inf(1)
+	ymax = b.X
+	xmax = math.Inf(-1)
+	for i := 0; i < b.Len(); i++ {
+		x := b.Y(i)
+		xmin = math.Min(xmin, x)
+		xmax = math.Max(xmax, x)
+	}
+	return
+}
+
+// GlyphBoxes returns a slice of GlyphBoxes for the
+// points and for the median line of the boxplot.
+func (b HorizBox) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	_, med, _, pts := b.Statistics()
+	boxes = append(boxes, GlyphBox {
+		X: p.X.Norm(med),
+		Y: p.Y.Norm(b.X),
+		Rect: Rect{
+			Min: Point{ Y: -(b.Width/2 + b.BoxStyle.Width/2)},
+			Size: Point{ Y: b.Width + b.BoxStyle.Width },
+		},
+	})
+
+	r := b.GlyphStyle.Radius
+	rect := Rect{ Point{-r, -r}, Point{r*2, r*2} }
+	for _, i := range pts {
+		boxes = append(boxes, GlyphBox{
+			X:    p.X.Norm(b.Y(i)),
+			Y:    p.Y.Norm(b.X),
+			Rect: rect,
+		})
+	}
+	return
+}
 
 // ySorted implements sort.Interface, sorting a slice
 // of indices for the given Yer.
@@ -383,35 +471,35 @@ func (y ySorter) Swap(i, j int) {
 	y.inds[i], y.inds[j] = y.inds[j], y.inds[i]
 }
 
-// Points is a slice of X, Y pairs, implementing the
+// XYs is a slice of X, Y pairs, implementing the
 // XYer interface.
-type Points []struct{ X, Y float64 }
+type XYs []struct{ X, Y float64 }
 
 // Len returns the number of points.
-func (p Points) Len() int {
+func (p XYs) Len() int {
 	return len(p)
 }
 
 // X returns the ith X value.
-func (p Points) X(i int) float64 {
+func (p XYs) X(i int) float64 {
 	return p[i].X
 }
 
 // Y returns the ith Y value.
-func (p Points) Y(i int) float64 {
+func (p XYs) Y(i int) float64 {
 	return p[i].Y
 }
 
-// Values is a slice of values, implementing the Yer
+// Ys is a slice of values, implementing the Yer
 // interface.
-type Values []float64
+type Ys []float64
 
 // Len returns the number of values.
-func (v Values) Len() int {
+func (v Ys) Len() int {
 	return len(v)
 }
 
 // Y returns the ith Y value.
-func (v Values) Y(i int) float64 {
+func (v Ys) Y(i int) float64 {
 	return v[i]
 }

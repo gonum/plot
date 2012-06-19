@@ -39,9 +39,9 @@ func TestDrawEps(t *testing.T) {
 func draw(da *DrawArea) {
 	rand.Seed(seed)
 	n := 10
-	uniform := make(Values, n)
-	normal := make(Values, n)
-	expon := make(Values, n)
+	uniform := make(Ys, n)
+	normal := make(Ys, n)
+	expon := make(Ys, n)
 	for i := 0; i < n; i++ {
 		uniform[i] = rand.Float64()
 		normal[i] = rand.NormFloat64()
@@ -52,26 +52,23 @@ func draw(da *DrawArea) {
 		panic(err)
 	}
 	p.Title.Text = "Plot Title"
-	p.Y.Label.Text = "Y Values"
+	p.X.Label.Text = "Values"
 
-	b0 := NewBox(vg.Points(20), 0, uniform)
-	b1 := NewBox(vg.Points(20), 1, normal)
-	b2 := NewBox(vg.Points(20), 2, expon)
+	b0 := MakeHorizBox(vg.Points(20), 0, uniform)
+	b1 := MakeHorizBox(vg.Points(20), 1, normal)
+	b2 := MakeHorizBox(vg.Points(20), 2, expon)
 	p.AddData(b0, b1, b2)
 	p.Legend.AddEntry("outliers", b0.GlyphStyle)
-	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
+	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
 
 	_, med0, _, _ := b0.Statistics()
 	_, med1, _, _ := b1.Statistics()
 	_, med2, _, _ := b2.Statistics()
-	meds :=  Points{ { b0.X, med0 }, { b1.X, med1 }, { b2.X, med2 } }
+	meds :=  XYs{ { med0, b0.X }, { med1, b1.X }, { med2, b2.X } }
 	l := Line{ meds, DefaultLineStyle }
 	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
 	p.AddData(l, s)
 	p.Legend.AddEntry("median", l, s)
-
-	p.Legend.Top = true
-	p.Legend.Left = true
 	p.Draw(da)
 }

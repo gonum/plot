@@ -268,3 +268,20 @@ func (p *Plot) NominalX(names ...string) {
 	}
 	p.X.Tick.Marker = ConstantTicks(ticks)
 }
+
+// NominalY configures the plot to have a nominal Y
+// axis—an Y axis with names instead of numbers.  The
+// Y location corresponding to each name are the integers,
+// e.g., the y value 0 is centered above the first name and
+// 1 is above the second name, etc.
+func (p *Plot) NominalY(names ...string) {
+	p.Y.Tick.Width = 0
+	p.Y.Tick.Length = 0
+	p.Y.Width = 0
+	p.X.Padding = p.Y.Tick.Label.Width(names[0])/2
+	ticks := make([]Tick, len(names))
+	for i, name := range names {
+		ticks[i] = Tick{ float64(i), name }
+	}
+	p.Y.Tick.Marker = ConstantTicks(ticks)
+}
