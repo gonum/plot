@@ -45,21 +45,29 @@ type Data interface {
 }
 
 // New returns a new plot.
-func New() *Plot {
+func New() (*Plot, error) {
 	titleFont, err := vg.MakeFont(defaultFont, 12)
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-	p := &Plot{
-		X: makeAxis(),
-		Y: makeAxis(),
-		Legend: makeLegend(),
+	x, err := makeAxis()
+	if err != nil {
+		return nil, err
 	}
+	y, err := makeAxis()
+	if err != nil {
+		return nil, err
+	}
+	legend, err := makeLegend()
+	if err != nil {
+		return nil, err
+	}
+	p := &Plot{ X: x, Y: y, Legend: legend }
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
 	}
-	return p
+	return p, nil
 }
 
 // AddData adds Data to the plot and changes the minimum

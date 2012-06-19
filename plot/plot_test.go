@@ -37,7 +37,10 @@ func TestDrawEps(t *testing.T) {
 
 // draw draws a simple test plot
 func draw(da *DrawArea) {
-	p := New()
+	p, err := New()
+	if err != nil {
+		panic(err)
+	}
 	p.Title.Text = "Title"
 	p.Y.Label.Text = "Y Label"
 	rand.Seed(seed)

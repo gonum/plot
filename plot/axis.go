@@ -49,11 +49,17 @@ type Axis struct {
 //
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
-func makeAxis() Axis {
+func makeAxis() (Axis, error) {
 	labelFont, err := vg.MakeFont(defaultFont, vg.Points(12))
 	if err != nil {
-		panic(err)
+		return Axis{}, err
 	}
+
+	tickFont, err := vg.MakeFont(defaultFont, vg.Points(10))
+	if err != nil {
+		return Axis{}, err
+	}
+
 	a := Axis{
 		Min: math.Inf(1),
 		Max: math.Inf(-1),
@@ -63,15 +69,9 @@ func makeAxis() Axis {
 		},
 		Padding: vg.Points(5),
 	}
-
 	a.Label.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  labelFont,
-	}
-
-	tickFont, err := vg.MakeFont(defaultFont, vg.Points(10))
-	if err != nil {
-		panic(err)
 	}
 	a.Tick.Label = TextStyle{
 		Color: color.Black,
@@ -84,7 +84,7 @@ func makeAxis() Axis {
 	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks
 
-	return a
+	return a, nil
 }
 
 // Norm return the value of x, given in the data coordinate

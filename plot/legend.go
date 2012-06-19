@@ -54,15 +54,15 @@ type thumbnailer interface {
 
 // makeLegend returns a legend with the default
 // parameter settings.
-func makeLegend() Legend {
+func makeLegend() (Legend, error) {
 	font, err := vg.MakeFont(defaultFont, vg.Points(12))
 	if err != nil {
-		panic(err)
+		return Legend{}, err
 	}
 	return Legend {
 		IconWidth: vg.Points(20),
 		TextStyle: TextStyle{ Font:  font },
-	}
+	}, nil
 }
 
 // draw draws the legend to the given DrawArea.
