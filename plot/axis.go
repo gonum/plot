@@ -265,23 +265,23 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 		majorMult = 8
 	}
 	majorDelta := float64(majorMult) * tens
-	val := math.Floor(min / majorDelta) * majorDelta
+	val := math.Floor(min/majorDelta) * majorDelta
 	for val <= max {
 		if val >= min && val <= max {
-			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", float32(val)) })
+			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", float32(val))})
 		}
 		val += majorDelta
 	}
 
-	minorDelta := majorDelta/2
+	minorDelta := majorDelta / 2
 	switch majorMult {
 	case 3, 6:
-		minorDelta = majorDelta/3
+		minorDelta = majorDelta / 3
 	case 5:
-		minorDelta = majorDelta/5
+		minorDelta = majorDelta / 5
 	}
 
-	val = math.Floor(min / minorDelta) * minorDelta
+	val = math.Floor(min/minorDelta) * minorDelta
 	for val <= max {
 		found := false
 		for _, t := range ticks {

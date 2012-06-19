@@ -5,7 +5,7 @@ import (
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
 	"math/rand"
-//	"time"
+	//	"time"
 	"testing"
 )
 
@@ -65,9 +65,9 @@ func draw(da *DrawArea) {
 	_, med0, _, _ := b0.Statistics()
 	_, med1, _, _ := b1.Statistics()
 	_, med2, _, _ := b2.Statistics()
-	meds :=  XYs{ { med0, b0.X }, { med1, b1.X }, { med2, b2.X } }
-	l := Line{ meds, DefaultLineStyle }
-	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
+	meds := XYs{{med0, b0.X}, {med1, b1.X}, {med2, b2.X}}
+	l := Line{meds, DefaultLineStyle}
+	s := Scatter{meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)}}
 	p.AddData(l, s)
 	p.Legend.AddEntry("median", l, s)
 	p.Draw(da)

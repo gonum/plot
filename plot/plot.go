@@ -62,7 +62,7 @@ func New() (*Plot, error) {
 	if err != nil {
 		return nil, err
 	}
-	p := &Plot{ X: x, Y: y, Legend: legend }
+	p := &Plot{X: x, Y: y, Legend: legend}
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
@@ -261,10 +261,10 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
 	p.X.Width = 0
-	p.Y.Padding = p.X.Tick.Label.Width(names[0])/2
+	p.Y.Padding = p.X.Tick.Label.Width(names[0]) / 2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
-		ticks[i] = Tick{ float64(i), name }
+		ticks[i] = Tick{float64(i), name}
 	}
 	p.X.Tick.Marker = ConstantTicks(ticks)
 }
@@ -278,10 +278,10 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Width = 0
 	p.Y.Tick.Length = 0
 	p.Y.Width = 0
-	p.X.Padding = p.Y.Tick.Label.Height(names[0])/2
+	p.X.Padding = p.Y.Tick.Label.Height(names[0]) / 2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
-		ticks[i] = Tick{ float64(i), name }
+		ticks[i] = Tick{float64(i), name}
 	}
 	p.Y.Tick.Marker = ConstantTicks(ticks)
 }

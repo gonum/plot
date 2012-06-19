@@ -59,9 +59,9 @@ func makeLegend() (Legend, error) {
 	if err != nil {
 		return Legend{}, err
 	}
-	return Legend {
+	return Legend{
 		IconWidth: vg.Points(20),
-		TextStyle: TextStyle{ Font:  font },
+		TextStyle: TextStyle{Font: font},
 	}, nil
 }
 
@@ -81,20 +81,20 @@ func (l *Legend) draw(da *DrawArea) {
 	enth := l.entryHeight()
 	y := da.Max().Y - enth
 	if !l.Top {
-		y = da.Min.Y + enth*(vg.Length(len(l.entries)) - 1)
+		y = da.Min.Y + enth*(vg.Length(len(l.entries))-1)
 	}
 	y += l.YOffs
 
 	icon := &DrawArea{
 		Canvas: da.Canvas,
-		Rect: Rect{ Min: Point{ iconx, y }, Size: Point{ l.IconWidth, enth } },
+		Rect:   Rect{Min: Point{iconx, y}, Size: Point{l.IconWidth, enth}},
 	}
 	for _, e := range l.entries {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
 		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
-		da.FillText(l.TextStyle, textx, icon.Min.Y + yoffs, xalign, 0, e.text)
+		da.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
 		icon.Min.Y -= enth
 	}
 }
@@ -109,9 +109,10 @@ func (l *Legend) entryHeight() (height vg.Length) {
 	}
 	return
 }
+
 // AddEntry adds an entry to the legend with the given name.
 // The entry's thumbnail is drawn as the composite of all of the
 // thumbnails.
 func (l *Legend) AddEntry(name string, thumbs ...thumbnailer) {
-	l.entries = append(l.entries, legendEntry{ text: name, thumbs: thumbs })
+	l.entries = append(l.entries, legendEntry{text: name, thumbs: thumbs})
 }

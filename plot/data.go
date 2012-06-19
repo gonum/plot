@@ -181,13 +181,13 @@ type Box struct {
 // not drawn as separate points.
 func NewBox(width vg.Length, x float64, ys Yer) *Box {
 	return &Box{
-		Yer: ys,
-		X: x,
-		Width: width,
-		BoxStyle: DefaultLineStyle,
+		Yer:          ys,
+		X:            x,
+		Width:        width,
+		BoxStyle:     DefaultLineStyle,
 		WhiskerStyle: DefaultLineStyle,
-		CapWidth: width / 2,
-		GlyphStyle: DefaultGlyphStyle,
+		CapWidth:     width / 2,
+		GlyphStyle:   DefaultGlyphStyle,
 	}
 }
 
@@ -200,10 +200,10 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	q3y := da.Y(p.Y.Norm(q3))
 	medy := da.Y(p.Y.Norm(med))
 	box := da.ClipLinesY([]Point{
-		{ x - b.Width/2, q1y }, { x - b.Width/2, q3y },
-		{ x + b.Width/2, q3y }, { x + b.Width/2, q1y },
-		{ x - b.Width/2 - b.BoxStyle.Width/2, q1y } },
-		[]Point{ { x - b.Width/2, medy }, { x + b.Width/2, medy } })
+		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
+		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
+		{x - b.Width/2 - b.BoxStyle.Width/2, q1y}},
+		[]Point{{x - b.Width/2, medy}, {x + b.Width/2, medy}})
 	da.StrokeLines(b.BoxStyle, box...)
 
 	min, max := q1, q3
@@ -213,14 +213,14 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	}
 	miny := da.Y(p.Y.Norm(min))
 	maxy := da.Y(p.Y.Norm(max))
-	whisk := da.ClipLinesY([]Point{{x, q3y}, {x, maxy} },
-		[]Point{ {x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy} },
-		[]Point{ {x, q1y}, {x, miny} },
-		[]Point{ {x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny} })
+	whisk := da.ClipLinesY([]Point{{x, q3y}, {x, maxy}},
+		[]Point{{x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy}},
+		[]Point{{x, q1y}, {x, miny}},
+		[]Point{{x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny}})
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle,  Point{x, da.Y(p.Y.Norm(b.Y(i)))})
+		da.DrawGlyph(b.GlyphStyle, Point{x, da.Y(p.Y.Norm(b.Y(i)))})
 	}
 }
 
@@ -243,17 +243,17 @@ func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 // points and for the median line of the boxplot.
 func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	_, med, _, pts := b.Statistics()
-	boxes = append(boxes, GlyphBox {
+	boxes = append(boxes, GlyphBox{
 		X: p.X.Norm(b.X),
 		Y: p.Y.Norm(med),
 		Rect: Rect{
-			Min: Point{ X: -(b.Width/2 + b.BoxStyle.Width/2)},
-			Size: Point{ X: b.Width + b.BoxStyle.Width },
+			Min:  Point{X: -(b.Width/2 + b.BoxStyle.Width/2)},
+			Size: Point{X: b.Width + b.BoxStyle.Width},
 		},
 	})
 
 	r := b.GlyphStyle.Radius
-	rect := Rect{ Point{-r, -r}, Point{r*2, r*2} }
+	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
 		boxes = append(boxes, GlyphBox{
 			X:    p.X.Norm(b.X),
@@ -277,7 +277,7 @@ func (b *Box) Statistics() (q1, med, q3 float64, points []int) {
 	sorted := sortedIndices(b)
 	q1 = percentile(b, sorted, 0.25)
 	med = median(b, sorted)
-	q3 =percentile(b, sorted, 0.75)
+	q3 = percentile(b, sorted, 0.75)
 	points = tukeyPoints(b, sorted)
 	return
 }
@@ -286,8 +286,8 @@ func (b *Box) Statistics() (q1, med, q3 float64, points []int) {
 // slice of indices.
 func median(ys Yer, sorted []int) float64 {
 	med := ys.Y(sorted[len(sorted)/2])
-	if len(sorted) % 2 == 0 {
-		med += ys.Y(sorted[len(sorted)/2 - 1])
+	if len(sorted)%2 == 0 {
+		med += ys.Y(sorted[len(sorted)/2-1])
 		med /= 2
 	}
 	return med
@@ -310,7 +310,7 @@ func percentile(ys Yer, sorted []int, p float64) float64 {
 	}
 	yk := ys.Y(sorted[int(k)])
 	yk1 := ys.Y(sorted[int(k)-1])
-	return yk1 + d * (yk - yk1)
+	return yk1 + d*(yk-yk1)
 }
 
 // sortedIndices returns a slice of the indices sorted in
@@ -332,8 +332,8 @@ func sortedIndices(ys Yer) []int {
 func tukeyPoints(ys Yer, sorted []int) (pts []int) {
 	q1 := percentile(ys, sorted, 0.25)
 	q3 := percentile(ys, sorted, 0.75)
-	min := q1 - 1.5*(q3 - q1)
-	max := q3 + 1.5*(q3 - q1)
+	min := q1 - 1.5*(q3-q1)
+	max := q3 + 1.5*(q3-q1)
 	for _, i := range sorted {
 		if y := ys.Y(i); y > max || y < min {
 			pts = append(pts, i)
@@ -372,7 +372,7 @@ type HorizBox struct {
 // same as NewBox except that the box draws
 // horizontally instead of vertically.
 func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
-	return HorizBox{ NewBox(width, y, vals) }
+	return HorizBox{NewBox(width, y, vals)}
 }
 
 // Plot implements the Plot function of the Data interface,
@@ -384,10 +384,10 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	q3x := da.X(p.X.Norm(q3))
 	medx := da.X(p.X.Norm(med))
 	box := da.ClipLinesX([]Point{
-		{ q1x, y - b.Width/2,  }, { q3x, y - b.Width/2 },
-		{ q3x, y + b.Width/2 }, { q1x, y + b.Width/2 },
-		{ q1x, y - b.Width/2 - b.BoxStyle.Width/2 } },
-		[]Point{ { medx, y - b.Width/2 }, { medx, y + b.Width/2 } })
+		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
+		{q3x, y + b.Width/2}, {q1x, y + b.Width/2},
+		{q1x, y - b.Width/2 - b.BoxStyle.Width/2}},
+		[]Point{{medx, y - b.Width/2}, {medx, y + b.Width/2}})
 	da.StrokeLines(b.BoxStyle, box...)
 
 	min, max := q1, q3
@@ -397,14 +397,14 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	}
 	minx := da.X(p.X.Norm(min))
 	maxx := da.X(p.X.Norm(max))
-	whisk := da.ClipLinesX([]Point{{q3x, y}, {maxx, y} },
-		[]Point{ {maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2} },
-		[]Point{ {q1x, y}, {minx, y} },
-		[]Point{ {minx, y - b.CapWidth/2}, {minx, y + b.CapWidth/2} })
+	whisk := da.ClipLinesX([]Point{{q3x, y}, {maxx, y}},
+		[]Point{{maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2}},
+		[]Point{{q1x, y}, {minx, y}},
+		[]Point{{minx, y - b.CapWidth/2}, {minx, y + b.CapWidth/2}})
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle,  Point{da.X(p.X.Norm(b.Y(i))), y})
+		da.DrawGlyph(b.GlyphStyle, Point{da.X(p.X.Norm(b.Y(i))), y})
 	}
 }
 
@@ -427,17 +427,17 @@ func (b HorizBox) Extents() (xmin, ymin, xmax, ymax float64) {
 // points and for the median line of the boxplot.
 func (b HorizBox) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	_, med, _, pts := b.Statistics()
-	boxes = append(boxes, GlyphBox {
+	boxes = append(boxes, GlyphBox{
 		X: p.X.Norm(med),
 		Y: p.Y.Norm(b.X),
 		Rect: Rect{
-			Min: Point{ Y: -(b.Width/2 + b.BoxStyle.Width/2)},
-			Size: Point{ Y: b.Width + b.BoxStyle.Width },
+			Min:  Point{Y: -(b.Width/2 + b.BoxStyle.Width/2)},
+			Size: Point{Y: b.Width + b.BoxStyle.Width},
 		},
 	})
 
 	r := b.GlyphStyle.Radius
-	rect := Rect{ Point{-r, -r}, Point{r*2, r*2} }
+	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
 		boxes = append(boxes, GlyphBox{
 			X:    p.X.Norm(b.Y(i)),

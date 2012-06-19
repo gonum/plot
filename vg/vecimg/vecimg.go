@@ -49,7 +49,7 @@ func New(width, height vg.Length) (*Canvas, error) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	c := &Canvas{ gc: gc, img: img }
+	c := &Canvas{gc: gc, img: img}
 	vg.Initialize(c)
 	return c, nil
 }
