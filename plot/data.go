@@ -23,30 +23,6 @@ var (
 	}
 )
 
-// An XYer wraps methods for getting a set of
-// X and Y data values.
-type XYer interface {
-	// Len returns the number of X and Y values
-	// that are available.
-	Len() int
-
-	// X returns an X value
-	X(int) float64
-
-	// Y returns a Y value
-	Y(int) float64
-}
-
-// A Yer wraps methods for getting a set of Y data values.
-type Yer interface {
-	// Len returns the number of X and Y values
-	// that are available.
-	Len() int
-
-	// Y returns a Y value
-	Y(int) float64
-}
-
 // Line implements the Data interface, drawing a line
 // for the Plot method.
 type Line struct {
@@ -471,6 +447,20 @@ func (y ySorter) Swap(i, j int) {
 	y.inds[i], y.inds[j] = y.inds[j], y.inds[i]
 }
 
+// An XYer wraps methods for getting a set of
+// X and Y data values.
+type XYer interface {
+	// Len returns the number of X and Y values
+	// that are available.
+	Len() int
+
+	// X returns an X value
+	X(int) float64
+
+	// Y returns a Y value
+	Y(int) float64
+}
+
 // XYs is a slice of X, Y pairs, implementing the
 // XYer interface.
 type XYs []struct{ X, Y float64 }
@@ -488,6 +478,16 @@ func (p XYs) X(i int) float64 {
 // Y returns the ith Y value.
 func (p XYs) Y(i int) float64 {
 	return p[i].Y
+}
+
+// A Yer wraps methods for getting a set of Y data values.
+type Yer interface {
+	// Len returns the number of X and Y values
+	// that are available.
+	Len() int
+
+	// Y returns a Y value
+	Y(int) float64
 }
 
 // Ys is a slice of values, implementing the Yer
