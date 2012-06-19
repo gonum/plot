@@ -48,12 +48,14 @@ func New() *Plot {
 		panic(err)
 	}
 	p := &Plot{
-		X: makeAxis(),
-		Y: makeAxis(),
+		X: makeXAxis(),
+		Y: makeYAxis(),
 	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
+		XAlign: -0.5,
+		YAlign: -1,
 	}
 	return p
 }
@@ -78,7 +80,7 @@ func (p *Plot) Draw(da *DrawArea) {
 	da.Fill(rectPath(da.Rect))
 
 	if p.Title.Text != "" {
-		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
+		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, p.Title.Text)
 		da.Size.Y -= p.Title.Height(p.Title.Text)
 	}
 

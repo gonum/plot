@@ -67,6 +67,7 @@ func makeAxis() Axis {
 	a.Label.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  labelFont,
+		XAlign: -0.5,
 	}
 
 	tickFont, err := vg.MakeFont(defaultFont, vg.Points(10))
@@ -84,6 +85,23 @@ func makeAxis() Axis {
 	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks
 
+	return a
+}
+
+// makeXAxis returns an Axis with defaults set to values
+// for drawing a horizontalAxis.
+func makeXAxis() Axis {
+	a := makeAxis()
+	a.Tick.Label.XAlign = -0.5
+	return a
+}
+
+// makeYAxis returns an Axis with defaults set to values
+// for drawing a verticalAxis.
+func makeYAxis() Axis {
+	a := makeAxis()
+	a.Tick.Label.XAlign = -1
+	a.Tick.Label.YAlign = -0.5
 	return a
 }
 
@@ -121,7 +139,7 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		da.FillText(a.Label.TextStyle, da.Center().X, y, -0.5, 0, a.Label.Text)
+		da.FillText(a.Label.TextStyle, da.Center().X, y, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
 	marks := a.Tick.Marker(a.Min, a.Max)
@@ -130,7 +148,7 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 			if t.minor() {
 				continue
 			}
-			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, -0.5, 0, t.Label)
+			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, t.Label)
 		}
 		y += tickLabelHeight(a.Tick.Label, marks)
 
@@ -191,7 +209,7 @@ func (a *verticalAxis) draw(da *DrawArea) {
 		x += a.Label.Height(a.Label.Text)
 		da.Push()
 		da.Rotate(math.Pi / 2)
-		da.FillText(a.Label.TextStyle, da.Center().Y, -x, -0.5, 0, a.Label.Text)
+		da.FillText(a.Label.TextStyle, da.Center().Y, -x, a.Label.Text)
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
@@ -205,7 +223,7 @@ func (a *verticalAxis) draw(da *DrawArea) {
 			if t.minor() {
 				continue
 			}
-			da.FillText(a.Tick.Label, x, da.Y(a.Norm(t.Value)), -1, -0.5, t.Label)
+			da.FillText(a.Tick.Label, x, da.Y(a.Norm(t.Value)), t.Label)
 			major = true
 		}
 		if major {
