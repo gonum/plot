@@ -27,6 +27,9 @@ type Plot struct {
 
 	// data is a slice of all data elements on the plot.
 	data []Data
+
+	// legends is a slice of all of the plots legends.
+	legends []*Legend
 }
 
 // Data is an interface that wraps all of the methods required
@@ -72,6 +75,11 @@ func (p *Plot) AddData(data ...Data) {
 	p.data = append(p.data, data...)
 }
 
+// AddLegend adds a legend to the plot.
+func (p *Plot) AddLegend(l *Legend) {
+	p.legends = append(p.legends, l)
+}
+
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(color.White)
@@ -103,6 +111,10 @@ func (p *Plot) Draw(da *DrawArea) {
 	da = padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
 	for _, data := range p.data {
 		data.Plot(*da, p)
+	}
+
+	for _, l := range p.legends {
+		l.draw(da)
 	}
 }
 

@@ -67,10 +67,16 @@ func (l Line) Plot(da DrawArea, p *Plot) {
 
 // Extents implemnets the Extents function of the
 // Data interface.
-func (s Line) Extents() (xmin, ymin, xmax, ymax float64) {
-	return xyExtents(s.XYer)
+func (l Line) Extents() (xmin, ymin, xmax, ymax float64) {
+	return xyExtents(l.XYer)
 }
 
+// Thumbnail draws a line in the given style down the
+// center of a DrawArea as a thumbnail representation
+// of the style of the given line.
+func (l Line) Thumbnail(da *DrawArea) {
+	da.StrokeLine2(l.LineStyle, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
+}
 
 // Scatter implements the Data interface, drawing
 // glyphs at each of the given points.
@@ -110,6 +116,12 @@ func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 // Data interface.
 func (s Scatter) Extents() (xmin, ymin, xmax, ymax float64) {
 	return xyExtents(s.XYer)
+}
+
+// Thumbnail draws a glyph in the center of a DrawArea
+// as a thumbnail image representing this Scatter style.
+func (s Scatter) Thumbnail(da *DrawArea) {
+	da.DrawGlyph(s.GlyphStyle, da.Center())
 }
 
 // xyData wraps an XYer with an Extents method.
