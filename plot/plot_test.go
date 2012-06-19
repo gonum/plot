@@ -37,12 +37,6 @@ func TestDrawEps(t *testing.T) {
 
 // draw draws a simple test plot
 func draw(da *DrawArea) {
-	p, err := New()
-	if err != nil {
-		panic(err)
-	}
-	p.Title.Text = "Title"
-	p.Y.Label.Text = "Y Label"
 	rand.Seed(seed)
 	vs0 := make(Values, 10)
 	for i := range vs0 {
@@ -70,13 +64,17 @@ func draw(da *DrawArea) {
 	l := Line{ meds, DefaultLineStyle }
 	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
 
+	p, err := New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Title"
+	p.Y.Label.Text = "Y Label"
 	p.AddData(b0, b1, b2, l, s)
 	p.Legend.AddEntry("outliers", b0.GlyphStyle)
 	p.Legend.AddEntry("median", l, s)
-
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
-
 	p.Y.Min = 0
 	p.Y.Max = 1000
 	p.Legend.Top = true
