@@ -73,9 +73,9 @@ func (l Line) Extents() (xmin, ymin, xmax, ymax float64) {
 
 // Thumbnail draws a line in the given style down the
 // center of a DrawArea as a thumbnail representation
-// of the style of the given line.
-func (l Line) Thumbnail(da *DrawArea) {
-	da.StrokeLine2(l.LineStyle, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
+// of the LineStyle.
+func (l LineStyle) Thumbnail(da *DrawArea) {
+	da.StrokeLine2(l, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
 }
 
 // Scatter implements the Data interface, drawing
@@ -119,9 +119,9 @@ func (s Scatter) Extents() (xmin, ymin, xmax, ymax float64) {
 }
 
 // Thumbnail draws a glyph in the center of a DrawArea
-// as a thumbnail image representing this Scatter style.
-func (s Scatter) Thumbnail(da *DrawArea) {
-	da.DrawGlyph(s.GlyphStyle, da.Center())
+// as a thumbnail image representing this GlyhpStyle.
+func (g GlyphStyle) Thumbnail(da *DrawArea) {
+	da.DrawGlyph(g, da.Center())
 }
 
 // xyData wraps an XYer with an Extents method.

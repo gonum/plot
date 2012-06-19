@@ -25,11 +25,11 @@ type Plot struct {
 	// of the plot respectively.
 	X, Y Axis
 
+	// Legend is the plot's legend.
+	Legend Legend
+
 	// data is a slice of all data elements on the plot.
 	data []Data
-
-	// legends is a slice of all of the plots legends.
-	legends []*Legend
 }
 
 // Data is an interface that wraps all of the methods required
@@ -53,6 +53,7 @@ func New() *Plot {
 	p := &Plot{
 		X: makeAxis(),
 		Y: makeAxis(),
+		Legend: makeLegend(),
 	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
@@ -72,12 +73,16 @@ func (p *Plot) AddData(data ...Data) {
 		p.Y.Min = math.Min(p.Y.Min, ymin)
 		p.Y.Max = math.Max(p.Y.Max, ymax)
 	}
+
 	p.data = append(p.data, data...)
 }
 
-// AddLegend adds a legend to the plot.
-func (p *Plot) AddLegend(l *Legend) {
-	p.legends = append(p.legends, l)
+// AddLegendEntry adds an entry to the legend of the plot
+// with the given name.  The entry's thumbnail is drawn as the
+// composite of all of the thumbnails.
+func (p *Plot) AddLegendEntry(name string, thumbs ...Thumbnailer) {
+	entry := legendEntry{ text: name, thumbs: thumbs }
+	p.Legend.entries = append(p.Legend.entries, entry)
 }
 
 // Draw draws a plot to a DrawArea.
@@ -113,9 +118,7 @@ func (p *Plot) Draw(da *DrawArea) {
 		data.Plot(*da, p)
 	}
 
-	for _, l := range p.legends {
-		l.draw(da)
-	}
+	p.Legend.draw(da)
 }
 
 // padX returns a new DrawArea that is padded horizontally

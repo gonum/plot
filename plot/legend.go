@@ -7,10 +7,6 @@ import (
 // A Legend gives a description of the meaning of different
 // data elements of the plot.
 type Legend struct {
-	// Entries are all of the legendEntries described
-	// by this legend.
-	Entries []legendEntry
-
 	// TextStyle is the style given to the legend
 	// entry texts.
 	TextStyle
@@ -31,6 +27,10 @@ type Legend struct {
 
 	// IconWidth is the width of legend icons.
 	IconWidth vg.Length
+
+	// entries are all of the legendEntries described
+	// by this legend.
+	entries []legendEntry
 }
 
 // A legendEntry represents a single line of a legend, it
@@ -40,21 +40,11 @@ type legendEntry struct {
 	text string
 
 	// thumbs is a slice of all of the icon styles
-	thumbs []thumbnailer
+	thumbs []Thumbnailer
 }
 
-// MakeLegendEntry returns a legend entry with the given
-// text which draws as the thumbnail the composition
-// of all of the given thumbnailers.
-func MakeLegendEntry(text string, thumbs ...thumbnailer) legendEntry {
-	return legendEntry{
-		text: text,
-		thumbs: thumbs,
-	}
-}
-
-// thumbnailer wraps the DrawIcon method
-type thumbnailer interface {
+// Thumbnailer wraps the DrawIcon method
+type Thumbnailer interface {
 	// Thumbnail draws an thumbnail representing
 	// a legend entry.  The thumbnail will usually show
 	// a smaller representation of the style used
@@ -62,15 +52,14 @@ type thumbnailer interface {
 	Thumbnail(da *DrawArea)
 }
 
-// NewLegend returns a new legend containing the given
-// entries.
-func NewLegend(entries ...legendEntry) *Legend {
+// makeLegend returns a legend with the default
+// parameter settings.
+func makeLegend() Legend {
 	font, err := vg.MakeFont(defaultFont, vg.Points(12))
 	if err != nil {
 		panic(err)
 	}
-	return &Legend {
-		Entries: entries,
+	return Legend {
 		IconWidth: vg.Points(20),
 		TextStyle: TextStyle{ Font:  font },
 	}
@@ -78,58 +67,42 @@ func NewLegend(entries ...legendEntry) *Legend {
 
 // draw draws the legend to the given DrawArea.
 func (l *Legend) draw(da *DrawArea) {
-	_, enth := l.textSize()
-	iconx, txtx, xalign := l.xlocs(da)
-	y := l.yloc(da)
-
-	iconSz := Point{ l.IconWidth, enth }
-	for _, e := range l.Entries {
-		ico := &DrawArea{
-			Canvas: da.Canvas,
-			Rect: Rect{ Min: Point{ iconx, y }, Size: iconSz },
-		}
-		for _, t := range e.thumbs {
-			t.Thumbnail(ico)
-		}
-		da.FillText(l.TextStyle, txtx, y, xalign, 0, e.text)
-		y -= enth
-	}
-}
-
-// xlocs returns the x location of the legend icons, text,
-// and the text alignment.
-func (l *Legend) xlocs(da *DrawArea) (iconx, txtx vg.Length, xalign float64){
-	if l.Left {
-		iconx = da.Min.X
-		txtx = iconx + l.IconWidth + l.TextStyle.Width(" ")
-	} else {
-		txtw, _ := l.textSize()
+	iconx := da.Min.X
+	textx := iconx + l.IconWidth + l.TextStyle.Width(" ")
+	xalign := 0.0
+	if !l.Left {
 		iconx = da.Max().X - l.IconWidth
-		txtx = iconx - txtw - l.TextStyle.Width(" ")
+		textx = iconx - l.TextStyle.Width(" ")
+		xalign = -1
 	}
-	txtx += l.XOffs
+	textx += l.XOffs
 	iconx += l.XOffs
-	return
-}
 
-// yloc returns the y location of the start of the legend.
-func (l *Legend) yloc(da *DrawArea) vg.Length {
-	_, enth := l.textSize()
+	enth := l.entryHeight()
 	y := da.Max().Y - enth
 	if !l.Top {
-		y = da.Min.Y + enth*(vg.Length(len(l.Entries)) - 1)
+		y = da.Min.Y + enth*(vg.Length(len(l.entries)) - 1)
 	}
 	y += l.YOffs
-	return y
+
+	icon := &DrawArea{
+		Canvas: da.Canvas,
+		Rect: Rect{ Min: Point{ iconx, y }, Size: Point{ l.IconWidth, enth } },
+	}
+	for _, e := range l.entries {
+		for _, t := range e.thumbs {
+			t.Thumbnail(icon)
+		}
+		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
+		da.FillText(l.TextStyle, textx, icon.Min.Y + yoffs, xalign, 0, e.text)
+		icon.Min.Y -= enth
+	}
 }
 
-// textSize returns the width and height of the text fields
-// of a legend.
-func (l *Legend) textSize() (width, height vg.Length) {
-	for _, e := range l.Entries {
-		if w := l.TextStyle.Width(e.text); w > width {
-			width = w
-		}
+// entryHeight returns the height of the tallest legend
+// entry text.
+func (l *Legend) entryHeight() (height vg.Length) {
+	for _, e := range l.entries {
 		if h := l.TextStyle.Height(e.text); h > height {
 			height = h
 		}
