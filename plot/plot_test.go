@@ -67,7 +67,7 @@ func draw(da *DrawArea) {
 	l := Line{ meds, DefaultLineStyle }
 	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
 
-	p.AddData(b0, b1, b2)
+	p.AddData(b0, b1, b2, l, s)
 	p.Legend.AddEntry("outliers", b0.GlyphStyle)
 	p.Legend.AddEntry("median", l, s)
 
