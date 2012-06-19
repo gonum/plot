@@ -5,11 +5,11 @@ import (
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
 	"math/rand"
-	"time"
+//	"time"
 	"testing"
 )
 
-var seed = time.Now().UnixNano()
+var seed = int64(0) // time.Now().UnixNano()
 
 func TestDrawImage(t *testing.T) {
 	w, h := vg.Inches(4), vg.Inches(4)
@@ -43,9 +43,9 @@ func draw(da *DrawArea) {
 	normal := make(Values, n)
 	expon := make(Values, n)
 	for i := 0; i < n; i++ {
-		uniform[i] = rand.Float64()*1000
-		normal[i] = rand.NormFloat64()*200 + 500
-		expon[i] = rand.ExpFloat64()*300
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
 	}
 	p, err := New()
 	if err != nil {
@@ -71,8 +71,7 @@ func draw(da *DrawArea) {
 	p.AddData(l, s)
 	p.Legend.AddEntry("median", l, s)
 
-	p.Y.Min = 0
-	p.Y.Max = 1000
 	p.Legend.Top = true
+	p.Legend.Left = true
 	p.Draw(da)
 }

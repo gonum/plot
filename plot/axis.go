@@ -248,14 +248,53 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 
 // DefaultTicks is suitable for the Marker field of an Axis, it returns
 // the default set of tick marks.
-func DefaultTicks(min, max float64) []Tick {
-	return []Tick{
-		{Value: min, Label: fmt.Sprintf("%g", min)},
-		{Value: min + (max-min)/4},
-		{Value: min + (max-min)/2, Label: fmt.Sprintf("%g", min+(max-min)/2)},
-		{Value: min + 3*(max-min)/4},
-		{Value: max, Label: fmt.Sprintf("%g", max)},
+func DefaultTicks(min, max float64) (ticks []Tick) {
+	const SuggestedTicks = 3
+	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
+	n := (max - min) / tens
+	for n < SuggestedTicks {
+		tens /= 10
+		n = (max - min) / tens
 	}
+
+	majorMult := int(n / SuggestedTicks)
+	switch majorMult {
+	case 7:
+		majorMult = 6
+	case 9:
+		majorMult = 8
+	}
+	majorDelta := float64(majorMult) * tens
+	val := math.Floor(min / majorDelta) * majorDelta
+	for val <= max {
+		if val >= min && val <= max {
+			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", float32(val)) })
+		}
+		val += majorDelta
+	}
+
+	minorDelta := majorDelta/2
+	switch majorMult {
+	case 3, 6:
+		minorDelta = majorDelta/3
+	case 5:
+		minorDelta = majorDelta/5
+	}
+
+	val = math.Floor(min / minorDelta) * minorDelta
+	for val <= max {
+		found := false
+		for _, t := range ticks {
+			if t.Value == val {
+				found = true
+			}
+		}
+		if val >= min && val <= max && !found {
+			ticks = append(ticks, Tick{Value: val})
+		}
+		val += minorDelta
+	}
+	return
 }
 
 // ConstantTicks returns a function suitable for the Marker field

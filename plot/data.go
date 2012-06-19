@@ -228,9 +228,9 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 // interface.
 func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
 	xmin = b.X
-	ymin = xmin
+	ymin = math.Inf(1)
 	xmax = b.X
-	ymax = xmax
+	ymax = math.Inf(-1)
 	for i := 0; i < b.Len(); i++ {
 		y := b.Y(i)
 		ymin = math.Min(ymin, y)
