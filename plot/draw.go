@@ -23,12 +23,6 @@ type TextStyle struct {
 
 	// Font is the font description.
 	Font vg.Font
-
-	// XAlign and YAlign are multiplied by the text
-	// width and height respectively and then
-	// added to the final position of the text before
-	// it is drawn.
-	XAlign, YAlign float64
 }
 
 // LineStyle describes what a line will look like.
@@ -314,7 +308,7 @@ func isect(p0, p1, clip, norm Point) Point {
 // The text is offset by its width times xalign and
 // its height times yalign.  x and y give the bottom
 // left corner of the text befor e it is offset.
-func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, txt string) {
+func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
@@ -323,10 +317,10 @@ func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, txt string) {
 	da.SetColor(sty.Color)
 
 	ht := sty.Height(txt)
-	y += ht*vg.Length(sty.YAlign) - sty.Font.Extents().Ascent
+	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
 	nl := textNLines(txt)
 	for i, line := range strings.Split(txt, "\n") {
-		xoffs := vg.Length(sty.XAlign) * sty.Font.Width(line)
+		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
 		da.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
 	}
