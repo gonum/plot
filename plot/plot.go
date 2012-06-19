@@ -278,7 +278,7 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Width = 0
 	p.Y.Tick.Length = 0
 	p.Y.Width = 0
-	p.X.Padding = p.Y.Tick.Label.Width(names[0])/2
+	p.X.Padding = p.Y.Tick.Label.Height(names[0])/2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
 		ticks[i] = Tick{ float64(i), name }

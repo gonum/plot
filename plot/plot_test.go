@@ -26,7 +26,7 @@ func TestDrawImage(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	w, h := vg.Inches(4), vg.Inches(4)
+	w, h := vg.Inches(4), vg.Inches(2)
 	da := NewDrawArea(veceps.New(w, h, "test"), w, h)
 	draw(da)
 	err := da.Canvas.(*veceps.Canvas).Save("test.eps")
