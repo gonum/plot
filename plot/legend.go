@@ -109,3 +109,9 @@ func (l *Legend) entryHeight() (height vg.Length) {
 	}
 	return
 }
+// AddEntry adds an entry to the legend with the given name.
+// The entry's thumbnail is drawn as the composite of all of the
+// thumbnails.
+func (l *Legend) AddEntry(name string, thumbs ...Thumbnailer) {
+	l.entries = append(l.entries, legendEntry{ text: name, thumbs: thumbs })
+}

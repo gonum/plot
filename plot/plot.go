@@ -77,14 +77,6 @@ func (p *Plot) AddData(data ...Data) {
 	p.data = append(p.data, data...)
 }
 
-// AddLegendEntry adds an entry to the legend of the plot
-// with the given name.  The entry's thumbnail is drawn as the
-// composite of all of the thumbnails.
-func (p *Plot) AddLegendEntry(name string, thumbs ...Thumbnailer) {
-	entry := legendEntry{ text: name, thumbs: thumbs }
-	p.Legend.entries = append(p.Legend.entries, entry)
-}
-
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
 	da.SetColor(color.White)

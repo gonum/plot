@@ -68,8 +68,8 @@ func draw(da *DrawArea) {
 	s := Scatter{ meds, GlyphStyle{Shape: CircleGlyph, Radius: vg.Points(2)} }
 
 	p.AddData(b0, b1, b2)
-	p.AddLegendEntry("outliers", b0.GlyphStyle)
-	p.AddLegendEntry("median", l, s)
+	p.Legend.AddEntry("outliers", b0.GlyphStyle)
+	p.Legend.AddEntry("median", l, s)
 
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
