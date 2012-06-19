@@ -394,7 +394,11 @@ func (r Rect) Max() Point {
 	}
 }
 
-// A point is a location in 2d space.
+// A Point is a location in 2d space.
+//
+// Points are used for drawing, not for data.  For
+// data, see the XYer interface and its Points
+// implementation.
 type Point struct {
 	X, Y vg.Length
 }

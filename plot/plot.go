@@ -238,3 +238,20 @@ func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	}
 	return
 }
+
+// NominalX configures the plot to have a nominal X
+// axis—an X axis with names instead of numbers.  The
+// X location corresponding to each name are the integers,
+// e.g., the x value 0 is centered above the first name and
+// 1 is above the second name, etc.
+func (p *Plot) NominalX(names ...string) {
+	p.X.Tick.Width = 0
+	p.X.Tick.Length = 0
+	p.X.Width = 0
+	p.Y.Padding = p.X.Tick.Label.Width(names[0])/2
+	ticks := make([]Tick, len(names))
+	for i, name := range names {
+		ticks[i] = Tick{ float64(i), name }
+	}
+	p.X.Tick.Marker = ConstantTicks(ticks)
+}
