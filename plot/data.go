@@ -41,10 +41,10 @@ func (l Line) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
 
-// Range returns the minimum and maximum X and Y values
-func (l Line) Range() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xRange(l.XYer)
-	ymin, ymax = yRange(l.XYer)
+// DataRange returns the minimum and maximum X and Y values
+func (l Line) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = xDataRange(l.XYer)
+	ymin, ymax = yDataRange(l.XYer)
 	return
 }
 
@@ -89,10 +89,10 @@ func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	return
 }
 
-// Range returns the minimum and maximum X and Y values
-func (s Scatter) Range() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xRange(s.XYer)
-	ymin, ymax = yRange(s.XYer)
+// DataRange returns the minimum and maximum X and Y values
+func (s Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = xDataRange(s.XYer)
+	ymin, ymax = yDataRange(s.XYer)
 	return
 }
 
@@ -180,10 +180,10 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	}
 }
 
-// Range returns the minimum and maximum X and Y values
-func (b HorizBox) Range() (xmin, xmax, ymin, ymax float64) {
+// DataRange returns the minimum and maximum X and Y values
+func (b HorizBox) DataRange() (xmin, xmax, ymin, ymax float64) {
 	ymin, ymax = b.X, b.X
-	xmin, xmax = yRange(b)
+	xmin, xmax = yDataRange(b)
 	return
 }
 
@@ -356,10 +356,10 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	}
 }
 
-// Range returns the minimum and maximum X and Y values
-func (b *Box) Range() (xmin, xmax, ymin, ymax float64) {
+// DataRange returns the minimum and maximum X and Y values
+func (b *Box) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmin, xmax = b.X, b.X
-	ymin, ymax = yRange(b)
+	ymin, ymax = yDataRange(b)
 	return
 }
 
@@ -411,9 +411,9 @@ func (y ySorter) Swap(i, j int) {
 	y.inds[i], y.inds[j] = y.inds[j], y.inds[i]
 }
 
-// xRange returns the minimum and maximum x
+// xDataRange returns the minimum and maximum x
 // values of all points from the XYer.
-func xRange(xys XYer) (xmin, xmax float64) {
+func xDataRange(xys XYer) (xmin, xmax float64) {
 	xmin = math.Inf(1)
 	xmax = math.Inf(-1)
 	for i := 0; i < xys.Len(); i++ {
@@ -424,9 +424,9 @@ func xRange(xys XYer) (xmin, xmax float64) {
 	return
 }
 
-// yRange returns the minimum and maximum x
+// yDataRange returns the minimum and maximum x
 // values of all points from the XYer.
-func yRange(ys Yer) (ymin, ymax float64) {
+func yDataRange(ys Yer) (ymin, ymax float64) {
 	ymin = math.Inf(1)
 	ymax = math.Inf(-1)
 	for i := 0; i < ys.Len(); i++ {

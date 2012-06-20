@@ -40,10 +40,10 @@ type Plotter interface {
 	Plot(DrawArea, *Plot)
 }
 
-// Ranger wraps the Range method.
-type Ranger interface {
-	// Range returns the range of X and Y values.
-	Range() (xmin, xmax, ymin, ymax float64)
+// DataRanger wraps the DataRange method.
+type DataRanger interface {
+	// DataRange returns the range of X and Y values.
+	DataRange() (xmin, xmax, ymin, ymax float64)
 }
 
 // New returns a new plot.
@@ -73,14 +73,14 @@ func New() (*Plot, error) {
 }
 
 // Add adds a Plotters to the plot.  If the plotters
-// implements Ranger then the minimum
+// implements DataRanger then the minimum
 // and maximum values of the X and Y axes are
 // changed if necessary to fit the range of
 // the data.
 func (p *Plot) Add(ps ...Plotter) {
 	for _, d := range ps {
-		if x, ok := d.(Ranger); ok {
-			xmin, xmax, ymin, ymax := x.Range()
+		if x, ok := d.(DataRanger); ok {
+			xmin, xmax, ymin, ymax := x.DataRange()
 			p.X.Min = math.Min(p.X.Min, xmin)
 			p.X.Max = math.Max(p.X.Max, xmax)
 			p.Y.Min = math.Min(p.Y.Min, ymin)
