@@ -33,8 +33,8 @@ func Example() {
 	p.Y.Label.Text = "Y Values"
 	line := Line{pts, DefaultLineStyle}
 	scatter := Scatter{pts, DefaultGlyphStyle}
-	p.AddData(line, scatter)
-	p.Legend.AddEntry("line", line, scatter)
+	p.Add(line, scatter)
+	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
 	p.Draw(da)
 
@@ -67,7 +67,7 @@ func Example_boxPlot(da *DrawArea) {
 	p.Y.Label.Text = "Values"
 
 	// Make boxes for our data and add them to the plot.
-	p.AddData(NewBox(vg.Points(20), 0, uniform),
+	p.Add(NewBox(vg.Points(20), 0, uniform),
 		NewBox(vg.Points(20), 1, normal),
 		NewBox(vg.Points(20), 2, expon))
 
@@ -102,7 +102,7 @@ func Example_horizontalBoxes(da *DrawArea) {
 
 	// Make horizontal boxes for our data and add
 	// them to the plot.
-	p.AddData(MakeHorizBox(vg.Points(20), 0, uniform),
+	p.Add(MakeHorizBox(vg.Points(20), 0, uniform),
 		MakeHorizBox(vg.Points(20), 1, normal),
 		MakeHorizBox(vg.Points(20), 2, expon))
 

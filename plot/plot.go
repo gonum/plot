@@ -28,20 +28,22 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
-	// data is a slice of all data elements on the plot.
-	data []Data
+	// plotters are drawn by calling their Plot method
+	// after the axes are drawn.
+	plotters []Plotter
 }
 
-// Data is an interface that wraps all of the methods required
-// to add data elements to a plot.
-type Data interface {
+// Plotter is an interface that wraps the Plot method.
+type Plotter interface {
 	// Plot draws the data to the given DrawArea using
 	// the axes from the given Plot.
 	Plot(DrawArea, *Plot)
+}
 
-	// Extents returns the minimum and maximum
-	// values of the data.
-	Extents() (xmin, ymin, xmax, ymax float64)
+// Ranger wraps the Range method.
+type Ranger interface {
+	// Range returns the range of X and Y values.
+	Range() (xmin, xmax, ymin, ymax float64)
 }
 
 // New returns a new plot.
@@ -70,19 +72,23 @@ func New() (*Plot, error) {
 	return p, nil
 }
 
-// AddData adds Data to the plot and changes the minimum
-// and maximum values of the X and Y axes to fit the
-// newly added data.
-func (p *Plot) AddData(data ...Data) {
-	for _, d := range data {
-		xmin, ymin, xmax, ymax := d.Extents()
-		p.X.Min = math.Min(p.X.Min, xmin)
-		p.X.Max = math.Max(p.X.Max, xmax)
-		p.Y.Min = math.Min(p.Y.Min, ymin)
-		p.Y.Max = math.Max(p.Y.Max, ymax)
+// Add adds a Plotters to the plot.  If the plotters
+// implements Ranger then the minimum
+// and maximum values of the X and Y axes are
+// changed if necessary to fit the range of
+// the data.
+func (p *Plot) Add(ps ...Plotter) {
+	for _, d := range ps {
+		if x, ok := d.(Ranger); ok {
+			xmin, xmax, ymin, ymax := x.Range()
+			p.X.Min = math.Min(p.X.Min, xmin)
+			p.X.Max = math.Max(p.X.Max, xmax)
+			p.Y.Min = math.Min(p.Y.Min, ymin)
+			p.Y.Max = math.Max(p.Y.Max, ymax)
+		}
 	}
 
-	p.data = append(p.data, data...)
+	p.plotters = append(p.plotters, ps...)
 }
 
 // Draw draws a plot to a DrawArea.
@@ -114,7 +120,7 @@ func (p *Plot) Draw(da *DrawArea) {
 	y.draw(padY(p, da.crop(0, xheight, 0, 0)))
 
 	da = padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
-	for _, data := range p.data {
+	for _, data := range p.plotters {
 		data.Plot(*da, p)
 	}
 
@@ -221,12 +227,12 @@ func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	return l
 }
 
-// glyphBoxer wraps the GlyphBoxes method.
+// GlyphBoxer wraps the GlyphBoxes method.
 // It should be implemented by things that meet
-// the Data interface that draw glyphs so that
+// the Plotter interface that draw glyphs so that
 // their glyphs are not clipped if drawn near the
 // edge of the DrawArea.
-type glyphBoxer interface {
+type GlyphBoxer interface {
 	GlyphBoxes(*Plot) []GlyphBox
 }
 
@@ -242,10 +248,10 @@ type GlyphBox struct {
 }
 
 // GlyphBoxes returns the GlyphBoxes for all plot
-// data that meet the glyphBoxer interface.
+// data that meet the GlyphBoxer interface.
 func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, d := range p.data {
-		if gb, ok := d.(glyphBoxer); ok {
+	for _, d := range p.plotters {
+		if gb, ok := d.(GlyphBoxer); ok {
 			boxes = append(boxes, gb.GlyphBoxes(p)...)
 		}
 	}

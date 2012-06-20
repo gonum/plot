@@ -23,15 +23,15 @@ var (
 	}
 )
 
-// Line implements the Data interface, drawing a line
+// Line implements the Plotter interface, drawing a line
 // for the Plot method.
 type Line struct {
 	XYer
 	LineStyle
 }
 
-// Plot implements the Plot method of the Data interface,
-// drawing a line that connects each point in the Line.
+// Plot implements the Plotter interface, drawing a line
+// that connects each point in the Line.
 func (l Line) Plot(da DrawArea, p *Plot) {
 	line := make([]Point, l.Len())
 	for i := range line {
@@ -41,10 +41,11 @@ func (l Line) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
 
-// Extents implemnets the Extents function of the
-// Data interface.
-func (l Line) Extents() (xmin, ymin, xmax, ymax float64) {
-	return xyExtents(l.XYer)
+// Range returns the minimum and maximum X and Y values
+func (l Line) Range() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = xRange(l.XYer)
+	ymin, ymax = yRange(l.XYer)
+	return
 }
 
 // Thumbnail draws a line in the given style down the
@@ -54,14 +55,14 @@ func (l LineStyle) Thumbnail(da *DrawArea) {
 	da.StrokeLine2(l, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
 }
 
-// Scatter implements the Data interface, drawing
+// Scatter implements the Plotter interface, drawing
 // glyphs at each of the given points.
 type Scatter struct {
 	XYer
 	GlyphStyle
 }
 
-// Plot implements the Plot method of the Data interface,
+// Plot implements the Plot method of the Plotter interface,
 // drawing a glyph for each point in the Scatter.
 func (s Scatter) Plot(da DrawArea, p *Plot) {
 	for i := 0; i < s.Len(); i++ {
@@ -88,10 +89,11 @@ func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	return
 }
 
-// Extents implemnets the Extents function of the
-// Data interface.
-func (s Scatter) Extents() (xmin, ymin, xmax, ymax float64) {
-	return xyExtents(s.XYer)
+// Range returns the minimum and maximum X and Y values
+func (s Scatter) Range() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = xRange(s.XYer)
+	ymin, ymax = yRange(s.XYer)
+	return
 }
 
 // Thumbnail draws a glyph in the center of a DrawArea
@@ -100,29 +102,7 @@ func (g GlyphStyle) Thumbnail(da *DrawArea) {
 	da.DrawGlyph(g, da.Center())
 }
 
-// xyData wraps an XYer with an Extents method.
-type xyData struct {
-	XYer
-}
-
-// xyExtents returns the minimum and maximum x
-// and y values of all points from the XYer.
-func xyExtents(xy XYer) (xmin, ymin, xmax, ymax float64) {
-	xmin = math.Inf(1)
-	ymin = xmin
-	xmax = math.Inf(-1)
-	ymax = xmax
-	for i := 0; i < xy.Len(); i++ {
-		x, y := xy.X(i), xy.Y(i)
-		xmin = math.Min(xmin, x)
-		xmax = math.Max(xmax, x)
-		ymin = math.Min(ymin, y)
-		ymax = math.Max(ymax, y)
-	}
-	return
-}
-
-// Box implements the Data interface, drawing a boxplot.
+// Box implements the Plotter interface, drawing a boxplot.
 type Box struct {
 	Yer
 
@@ -167,7 +147,7 @@ func NewBox(width vg.Length, x float64, ys Yer) *Box {
 	}
 }
 
-// Plot implements the Plot function of the Data interface,
+// Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b *Box) Plot(da DrawArea, p *Plot) {
 	x := da.X(p.X.Norm(b.X))
@@ -200,18 +180,10 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	}
 }
 
-// Extents implements the Extents function of the Data
-// interface.
-func (b *Box) Extents() (xmin, ymin, xmax, ymax float64) {
-	xmin = b.X
-	ymin = math.Inf(1)
-	xmax = b.X
-	ymax = math.Inf(-1)
-	for i := 0; i < b.Len(); i++ {
-		y := b.Y(i)
-		ymin = math.Min(ymin, y)
-		ymax = math.Max(ymax, y)
-	}
+// Range returns the minimum and maximum X and Y values
+func (b HorizBox) Range() (xmin, xmax, ymin, ymax float64) {
+	ymin, ymax = b.X, b.X
+	xmin, xmax = yRange(b)
 	return
 }
 
@@ -351,7 +323,7 @@ func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
 	return HorizBox{NewBox(width, y, vals)}
 }
 
-// Plot implements the Plot function of the Data interface,
+// Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	y := da.Y(p.Y.Norm(b.X))
@@ -384,18 +356,10 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	}
 }
 
-// Extents implements the Extents function of the Data
-// interface.
-func (b HorizBox) Extents() (xmin, ymin, xmax, ymax float64) {
-	ymin = b.X
-	xmin = math.Inf(1)
-	ymax = b.X
-	xmax = math.Inf(-1)
-	for i := 0; i < b.Len(); i++ {
-		x := b.Y(i)
-		xmin = math.Min(xmin, x)
-		xmax = math.Max(xmax, x)
-	}
+// Range returns the minimum and maximum X and Y values
+func (b *Box) Range() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = b.X, b.X
+	ymin, ymax = yRange(b)
 	return
 }
 
@@ -445,6 +409,32 @@ func (y ySorter) Less(i, j int) bool {
 // Swap swaps the ith and jth indices.
 func (y ySorter) Swap(i, j int) {
 	y.inds[i], y.inds[j] = y.inds[j], y.inds[i]
+}
+
+// xRange returns the minimum and maximum x
+// values of all points from the XYer.
+func xRange(xys XYer) (xmin, xmax float64) {
+	xmin = math.Inf(1)
+	xmax = math.Inf(-1)
+	for i := 0; i < xys.Len(); i++ {
+		x := xys.X(i)
+		xmin = math.Min(xmin, x)
+		xmax = math.Max(xmax, x)
+	}
+	return
+}
+
+// yRange returns the minimum and maximum x
+// values of all points from the XYer.
+func yRange(ys Yer) (ymin, ymax float64) {
+	ymin = math.Inf(1)
+	ymax = math.Inf(-1)
+	for i := 0; i < ys.Len(); i++ {
+		y := ys.Y(i)
+		ymin = math.Min(ymin, y)
+		ymax = math.Max(ymax, y)
+	}
+	return
 }
 
 // An XYer wraps methods for getting a set of
