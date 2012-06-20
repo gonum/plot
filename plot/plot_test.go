@@ -5,9 +5,13 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	Example().Save(4, 4, "test.png")
+	if err := Example().Save(4, 4, "test.png"); err != nil {
+		t.Error(err)
+	}
 }
 
 func TestDrawEps(t *testing.T) {
-	Example().Save(4, 4, "test.eps")
+	if err := Example().Save(4, 4, "test.eps"); err != nil {
+		t.Error(err)
+	}
 }
