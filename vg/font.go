@@ -1,3 +1,7 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
 // Some of this code (namely the code for computing the
 // width of a string in a given font) was copied from
 // code.google.com/p/freetype-go/freetype/ which includes

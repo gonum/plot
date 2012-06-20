@@ -1,3 +1,7 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
 // plot provides an API for building and drawing plots in Go.
 package plot
 

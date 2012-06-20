@@ -1,3 +1,7 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
 // The veceps implemens the vg.Canvas interface using
 // encapsulated postscript.
 package veceps

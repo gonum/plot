@@ -1,3 +1,7 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
 // vg defines an interface for drawing 2D vector graphics.
 // This package is designed with the hope that many different
 // vector graphics back-ends can conform to the interface.
