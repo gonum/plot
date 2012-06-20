@@ -43,7 +43,9 @@ type legendEntry struct {
 	thumbs []Thumbnailer
 }
 
-// Thumbnailer wraps the DrawIcon method
+// Thumbnailer wraps the Thumbnail method, which
+// draws the small image in a legend representing the
+// style of data.
 type Thumbnailer interface {
 	// Thumbnail draws an thumbnail representing
 	// a legend entry.  The thumbnail will usually show
