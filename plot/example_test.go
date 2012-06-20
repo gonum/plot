@@ -2,12 +2,11 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"code.google.com/p/plotinum/vg/veceps"
 	"math/rand"
 )
 
 // An example of making and saving a plot.
-func Example() {
+func Example() *Plot {
 	// Get some data to plot.
 	pts := make(XYs, 10)
 	for i := range pts {
@@ -18,10 +17,6 @@ func Example() {
 		}
 		pts[i].Y = rand.Float64()
 	}
-
-	// Make an encapsulated postscript DrawArea
-	w, h := vg.Inches(3), vg.Inches(2)
-	da := NewDrawArea(veceps.New(w, h, "test"), w, h)
 
 	// Make our plot and set some labels.
 	p, err := New()
@@ -36,17 +31,11 @@ func Example() {
 	p.Add(line, scatter)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
-	p.Draw(da)
-
-	// Save to test.eps
-	err = da.Canvas.(*veceps.Canvas).Save("test.eps")
-	if err != nil {
-		panic(err)
-	}
+	return p
 }
 
 // An example of making a box plot.
-func Example_boxPlot(da *DrawArea) {
+func Example_boxPlot() *Plot {
 	// Get some data to plot.
 	n := 10
 	uniform := make(Ys, n)
@@ -75,12 +64,11 @@ func Example_boxPlot(da *DrawArea) {
 	// the given names for x=0, x=1 and x=2.
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
-
-	p.Draw(da)
+	return p
 }
 
 // An example of making a horizontal box plot.
-func Example_horizontalBoxes(da *DrawArea) {
+func Example_horizontalBoxes() *Plot {
 	// Get some data to plot.
 	n := 10
 	uniform := make(Ys, n)
@@ -110,6 +98,5 @@ func Example_horizontalBoxes(da *DrawArea) {
 	// the given names for y=0, y=1 and y=2.
 	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
-
-	p.Draw(da)
+	return p
 }

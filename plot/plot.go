@@ -3,8 +3,13 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/vg/veceps"
+	"code.google.com/p/plotinum/vg/vecimg"
 	"image/color"
+	"fmt"
 	"math"
+	"path/filepath"
+	"strings"
 )
 
 const (
@@ -290,4 +295,28 @@ func (p *Plot) NominalY(names ...string) {
 		ticks[i] = Tick{float64(i), name}
 	}
 	p.Y.Tick.Marker = ConstantTicks(ticks)
+}
+
+// Save saves the plot to an image file.  Width and height
+// are specified in inches, and the file format is determined
+// by the extension. Currently supproted extensions are
+// .png and .eps.
+func (p *Plot) Save(width, height float64, file string) (err error) {
+	w, h := vg.Inches(width), vg.Inches(height)
+	var c vg.Canvas
+	switch ext := strings.ToLower(filepath.Ext(file)); ext {
+	case ".eps":
+		c = veceps.New(w, h, file)
+		defer c.(*veceps.Canvas).Save(file)
+	case ".png":
+		c, err = vecimg.New(w, h)
+		if err != nil {
+			return
+		}
+		defer func(){ err = c.(*vecimg.Canvas).SavePNG(file) }()
+	default:
+		return fmt.Errorf("Unsupported file extension: %s", ext)
+	}
+	p.Draw(NewDrawArea(c, w, h))
+	return
 }
