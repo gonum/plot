@@ -39,7 +39,6 @@ func Example() *Plot {
 
 // Draw the plotinum logo.
 func Example_logo() *Plot {
-	// Make our plot and set some labels.
 	p, err := New()
 	if err != nil {
 		panic(err)
