@@ -30,6 +30,11 @@ type Plot struct {
 		TextStyle
 	}
 
+	// BackgroundColor is the background color of the plot.
+	// If BackgroundColor is nil, then no background color
+	// is explicitly drawn.
+	BackgroundColor color.Color
+
 	// X and Y are the horizontal and vertical axes
 	// of the plot respectively.
 	X, Y Axis
@@ -55,7 +60,8 @@ type DataRanger interface {
 	DataRange() (xmin, xmax, ymin, ymax float64)
 }
 
-// New returns a new plot.
+// New returns a new plot with some reasonable
+// default settings.
 func New() (*Plot, error) {
 	titleFont, err := vg.MakeFont(defaultFont, 12)
 	if err != nil {
@@ -73,7 +79,12 @@ func New() (*Plot, error) {
 	if err != nil {
 		return nil, err
 	}
-	p := &Plot{X: x, Y: y, Legend: legend}
+	p := &Plot{
+		BackgroundColor: color.White,
+		X: x,
+		Y: y,
+		Legend: legend,
+	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
@@ -102,9 +113,10 @@ func (p *Plot) Add(ps ...Plotter) {
 
 // Draw draws a plot to a DrawArea.
 func (p *Plot) Draw(da *DrawArea) {
-	da.SetColor(color.White)
-	da.Fill(rectPath(da.Rect))
-
+	if p.BackgroundColor != nil {
+		da.SetColor(p.BackgroundColor)
+		da.Fill(rectPath(da.Rect))
+	}
 	if p.Title.Text != "" {
 		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
 		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
