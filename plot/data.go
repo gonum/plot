@@ -126,7 +126,7 @@ func MakeLabels(ls XYLabeler) (Labels, error) {
 	}
 	return Labels{
 		XYLabeler: ls,
-		TextStyle: TextStyle{ Font: labelFont },
+		TextStyle: TextStyle{Font: labelFont},
 	}, nil
 }
 
@@ -153,11 +153,11 @@ func (l Labels) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	for i := 0; i < l.Len(); i++ {
 		w := l.TextStyle.Width(l.Label(i))
 		h := l.TextStyle.Height(l.Label(i))
-		rect := Rect {
+		rect := Rect{
 			Min: Point{
 				w*vg.Length(l.XAlign) + l.XOffs,
-				h*vg.Length(l.YAlign) + l.YOffs },
-			Size: Point{ w, h },
+				h*vg.Length(l.YAlign) + l.YOffs},
+			Size: Point{w, h},
 		}
 		box := GlyphBox{
 			X:    p.X.Norm(l.X(i)),
@@ -520,7 +520,7 @@ type XYer interface {
 
 // XYs is a slice of X, Y pairs, implementing the
 // XYer interface.
-type XYs []struct{
+type XYs []struct {
 	X, Y float64
 }
 
@@ -541,7 +541,7 @@ func (p XYs) Y(i int) float64 {
 
 // XYLabels implements the XYLabeler interface.
 type XYLabels []struct {
-	X, Y float64
+	X, Y  float64
 	Label string
 }
 

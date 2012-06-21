@@ -9,8 +9,8 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
-	"image/color"
 	"fmt"
+	"image/color"
 	"math"
 	"path/filepath"
 	"strings"
@@ -81,9 +81,9 @@ func New() (*Plot, error) {
 	}
 	p := &Plot{
 		BackgroundColor: color.White,
-		X: x,
-		Y: y,
-		Legend: legend,
+		X:               x,
+		Y:               y,
+		Legend:          legend,
 	}
 	p.Title.TextStyle = TextStyle{
 		Color: color.Black,
@@ -329,7 +329,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 		if err != nil {
 			return
 		}
-		defer func(){ err = c.(*vecimg.Canvas).SavePNG(file) }()
+		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
