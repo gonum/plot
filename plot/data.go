@@ -539,6 +539,14 @@ func (p XYs) Y(i int) float64 {
 	return p[i].Y
 }
 
+// An XYLabeler wraps the XYer methods along with
+// a Label method that returns a label for the
+// corresponding X,Y point.
+type XYLabeler interface {
+	XYer
+	Label(int) string
+}
+
 // XYLabels implements the XYLabeler interface.
 type XYLabels []struct {
 	X, Y  float64
@@ -587,12 +595,4 @@ func (v Ys) Len() int {
 // Y returns the ith Y value.
 func (v Ys) Y(i int) float64 {
 	return v[i]
-}
-
-// An XYLabeler wraps the XYer methods along with
-// a Label method that returns a label for the
-// corresponding X,Y point.
-type XYLabeler interface {
-	XYer
-	Label(int) string
 }
