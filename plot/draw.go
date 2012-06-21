@@ -41,6 +41,13 @@ type LineStyle struct {
 	DashOffs vg.Length
 }
 
+// Thumbnail draws a line in the given style down the
+// center of a DrawArea as a thumbnail representation
+// of the LineStyle.
+func (l LineStyle) Thumbnail(da *DrawArea) {
+	da.StrokeLine2(l, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
+}
+
 // A GlyphShape is a lable representing a shape for drawing
 // a glyph that represents a point.
 //
@@ -70,6 +77,12 @@ type GlyphStyle struct {
 
 	// Radius specifies the size of the glyph's radius.
 	Radius vg.Length
+}
+
+// Thumbnail draws a glyph in the center of a DrawArea
+// as a thumbnail image representing this GlyhpStyle.
+func (g GlyphStyle) Thumbnail(da *DrawArea) {
+	da.DrawGlyph(g, da.Center())
 }
 
 // NewDrawArea returns a new DrawArea of a specified

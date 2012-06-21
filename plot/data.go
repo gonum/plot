@@ -47,16 +47,9 @@ func (l Line) Plot(da DrawArea, p *Plot) {
 
 // DataRange returns the minimum and maximum X and Y values
 func (l Line) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xDataRange(l.XYer)
-	ymin, ymax = yDataRange(l.XYer)
+	xmin, xmax = xDataRange(l)
+	ymin, ymax = yDataRange(l)
 	return
-}
-
-// Thumbnail draws a line in the given style down the
-// center of a DrawArea as a thumbnail representation
-// of the LineStyle.
-func (l LineStyle) Thumbnail(da *DrawArea) {
-	da.StrokeLine2(l, da.Min.X, da.Center().Y, da.Max().X, da.Center().Y)
 }
 
 // Scatter implements the Plotter interface, drawing
@@ -95,15 +88,85 @@ func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 
 // DataRange returns the minimum and maximum X and Y values
 func (s Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xDataRange(s.XYer)
-	ymin, ymax = yDataRange(s.XYer)
+	xmin, xmax = xDataRange(s)
+	ymin, ymax = yDataRange(s)
 	return
 }
 
-// Thumbnail draws a glyph in the center of a DrawArea
-// as a thumbnail image representing this GlyhpStyle.
-func (g GlyphStyle) Thumbnail(da *DrawArea) {
-	da.DrawGlyph(g, da.Center())
+// Labels implements the Plotter interface, drawing
+// a set of labels on the plot.
+type Labels struct {
+	// XYLabeler has a set of labels located in data coordinates.
+	XYLabeler
+
+	// TextStyle gives the style of the labels.
+	TextStyle
+
+	// XAlign and YAlign are multiplied by the width
+	// and height of each label respectively and the
+	// added to the final location.  E.g., XAlign=-0.5
+	// and YAlign=-0.5 centers the label at the given
+	// X, Y location, and XAlign=0, YAlign=0 aligns
+	// the text to the left of the point, and XAlign=-1,
+	// YAlign=0 aligns the text to the right of the point.
+	XAlign, YAlign float64
+
+	// XOffs and YOffs are added directly to the final
+	// label X and Y location respectively.
+	XOffs, YOffs vg.Length
+}
+
+// MakeLabels returns a Labels using the default TextStyle,
+// with the labels left-aligned above the corresponding
+// X, Y point.
+func MakeLabels(ls XYLabeler) (Labels, error) {
+	labelFont, err := vg.MakeFont(defaultFont, vg.Points(10))
+	if err != nil {
+		return Labels{}, err
+	}
+	return Labels{
+		XYLabeler: ls,
+		TextStyle: TextStyle{ Font: labelFont },
+	}, nil
+}
+
+// Plot implements the Plotter interface for Labels.
+func (l Labels) Plot(da DrawArea, p *Plot) {
+	for i := 0; i < l.Len(); i++ {
+		x, y := da.X(p.X.Norm(l.X(i))), da.Y(p.Y.Norm(l.Y(i)))
+		if da.Contains(Point{x, y}) {
+			da.FillText(l.TextStyle, x+l.XOffs, y+l.YOffs, l.XAlign, l.YAlign, l.Label(i))
+		}
+	}
+}
+
+// DataRange returns the minimum and maximum X and Y values
+func (l Labels) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = xDataRange(l)
+	ymin, ymax = yDataRange(l)
+	return
+}
+
+// GlyphBoxes returns a slice of GlyphBoxes, one for
+// each of the labels.
+func (l Labels) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	for i := 0; i < l.Len(); i++ {
+		w := l.TextStyle.Width(l.Label(i))
+		h := l.TextStyle.Height(l.Label(i))
+		rect := Rect {
+			Min: Point{
+				w*vg.Length(l.XAlign) + l.XOffs,
+				h*vg.Length(l.YAlign) + l.YOffs },
+			Size: Point{ w, h },
+		}
+		box := GlyphBox{
+			X:    p.X.Norm(l.X(i)),
+			Y:    p.Y.Norm(l.Y(i)),
+			Rect: rect,
+		}
+		boxes = append(boxes, box)
+	}
+	return
 }
 
 // Box implements the Plotter interface, drawing a boxplot.
@@ -457,7 +520,9 @@ type XYer interface {
 
 // XYs is a slice of X, Y pairs, implementing the
 // XYer interface.
-type XYs []struct{ X, Y float64 }
+type XYs []struct{
+	X, Y float64
+}
 
 // Len returns the number of points.
 func (p XYs) Len() int {
@@ -472,6 +537,32 @@ func (p XYs) X(i int) float64 {
 // Y returns the ith Y value.
 func (p XYs) Y(i int) float64 {
 	return p[i].Y
+}
+
+// XYLabels implements the XYLabeler interface.
+type XYLabels []struct {
+	X, Y float64
+	Label string
+}
+
+// Len returns the number of points.
+func (p XYLabels) Len() int {
+	return len(p)
+}
+
+// X returns the ith X value.
+func (p XYLabels) X(i int) float64 {
+	return p[i].X
+}
+
+// Y returns the ith Y value.
+func (p XYLabels) Y(i int) float64 {
+	return p[i].Y
+}
+
+// Label returns the ith Label value.
+func (p XYLabels) Label(i int) string {
+	return p[i].Label
 }
 
 // A Yer wraps methods for getting a set of Y data values.
@@ -496,4 +587,12 @@ func (v Ys) Len() int {
 // Y returns the ith Y value.
 func (v Ys) Y(i int) float64 {
 	return v[i]
+}
+
+// An XYLabeler wraps the XYer methods along with
+// a Label method that returns a label for the
+// corresponding X,Y point.
+type XYLabeler interface {
+	XYer
+	Label(int) string
 }

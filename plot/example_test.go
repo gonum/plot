@@ -7,11 +7,13 @@ package plot
 import (
 	"code.google.com/p/plotinum/vg"
 	"math/rand"
+	"fmt"
 )
+
 // An example of making and saving a plot.
 func Example() *Plot {
 	// Get some data to plot.
-	pts := make(XYs, 10)
+	pts := make(XYLabels, 10)
 	for i := range pts {
 		if i == 0 {
 			pts[i].X = rand.Float64()
@@ -19,6 +21,7 @@ func Example() *Plot {
 			pts[i].X = pts[i-1].X + rand.Float64()
 		}
 		pts[i].Y = rand.Float64()
+		pts[i].Label = fmt.Sprintf("%05d", i)
 	}
 
 	// Make our plot and set some labels.
@@ -31,7 +34,13 @@ func Example() *Plot {
 	p.Y.Label.Text = "Y Values"
 	line := Line{pts, DefaultLineStyle}
 	scatter := Scatter{pts, DefaultGlyphStyle}
-	p.Add(line, scatter)
+	labels, err := MakeLabels(pts)
+	if err != nil {
+		panic(err)
+	}
+	labels.XOffs = scatter.Radius
+	labels.YOffs = scatter.Radius
+	p.Add(line, scatter, labels)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
 	return p
