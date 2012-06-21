@@ -4,7 +4,6 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"math/rand"
 )
-
 // An example of making and saving a plot.
 func Example() *Plot {
 	// Get some data to plot.
@@ -31,6 +30,38 @@ func Example() *Plot {
 	p.Add(line, scatter)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
+	return p
+}
+
+// Draw the plotinum logo.
+func Example_logo() *Plot {
+	// Make our plot and set some labels.
+	p, err := New()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultLineStyle.Width = vg.Points(1)
+	DefaultGlyphStyle.Radius = vg.Points(3)
+
+	p.Y.Tick.Marker = ConstantTicks([]Tick{{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"}})
+	p.X.Tick.Marker = ConstantTicks([]Tick{{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"}})
+
+	pts := XYs{{0,0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
+	line := Line{pts, DefaultLineStyle}
+	scatter := Scatter{pts, DefaultGlyphStyle}
+	p.Add(line, scatter)
+
+	pts = XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
+	line = Line{pts, DefaultLineStyle}
+	scatter = Scatter{pts, DefaultGlyphStyle}
+	p.Add(line, scatter)
+
+	pts = XYs{{0.5, 0.5}, {1, 0.5}}
+	line = Line{pts, DefaultLineStyle}
+	scatter = Scatter{pts, DefaultGlyphStyle}
+	p.Add(line, scatter)
+
 	return p
 }
 
