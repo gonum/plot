@@ -15,27 +15,30 @@ import (
 // axis of a plot.
 type Axis struct {
 	// Min and Max are the minimum and maximum data
-	// coordinates on this axis.
+	// values represented by the axis.
 	Min, Max float64
 
 	Label struct {
-		// Text is the label string.
+		// Text is the axis label string.
 		Text string
-		// TextStyle is the style of the label text.
+
+		// TextStyle is the style of the axis label text.
 		TextStyle
 	}
 
 	// LineStyle is the style of the axis line.
 	LineStyle
 
-	// Padding between the axis line and the data.
+	// Padding between the axis line and the data.  Having
+	// non-zero padding ensures that the data is never drawn
+	// on the axis, thus making it easier to see.
 	Padding vg.Length
 
 	Tick struct {
 		// Label is the TextStyle on the tick labels.
 		Label TextStyle
 
-		// LineStyle is the LineStyle of the tick mark lines.
+		// LineStyle is the LineStyle of the tick lines.
 		LineStyle
 
 		// Length is the length of a major tick mark.
@@ -43,8 +46,7 @@ type Axis struct {
 		// tick marks.
 		Length vg.Length
 
-		// Marker returns the tick marks given the minimum
-		// and maximum values of the axis.
+		// Marker returns the tick marks.
 		Marker func(min, max float64) []Tick
 	}
 }
@@ -104,7 +106,7 @@ func (a *Axis) drawTicks() bool {
 	return a.Tick.Width > 0 && a.Tick.Length > 0
 }
 
-// A HorizantalAxis draws horizontally across the bottom
+// A horizontalAxis draws horizontally across the bottom
 // of a plot.
 type horizontalAxis struct {
 	Axis
@@ -127,7 +129,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	return
 }
 
-// draw draws the axis along the lower edge of the given DrawArea.
+// draw draws the axis along the lower edge of a DrawArea.
 func (a *horizontalAxis) draw(da *DrawArea) {
 	y := da.Min.Y
 	if a.Label.Text != "" {
@@ -196,7 +198,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 	return
 }
 
-// draw draws the axis along the left side of the DrawArea.
+// draw draws the axis along the left side of a DrawArea.
 func (a *verticalAxis) draw(da *DrawArea) {
 	x := da.Min.X
 	if a.Label.Text != "" {
@@ -250,8 +252,8 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	return
 }
 
-// DefaultTicks is suitable for the Marker field of an Axis, it returns
-// the default set of tick marks.
+// DefaultTicks is suitable for the Tick.Marker field of an Axis,
+// it returns a resonable default set of tick marks.
 func DefaultTicks(min, max float64) (ticks []Tick) {
 	const SuggestedTicks = 3
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
@@ -301,8 +303,8 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 	return
 }
 
-// ConstantTicks returns a function suitable for the Marker field
-// of an Axis.  This function returns the given set of ticks.
+// ConstantTicks returns a function suitable for the Tick.Marker
+// field of an Axis.  This function returns the given set of ticks.
 func ConstantTicks(ts []Tick) func(float64, float64) []Tick {
 	return func(float64, float64) []Tick {
 		return ts
@@ -311,8 +313,9 @@ func ConstantTicks(ts []Tick) func(float64, float64) []Tick {
 
 // A Tick is a single tick mark on an axis.
 type Tick struct {
-	// Value is the value denoted by the tick.
+	// Value is the data value marked by this Tick.
 	Value float64
+
 	// Label is the text to display at the tick mark.
 	// If Label is an empty string then this is a minor
 	// tick mark.
