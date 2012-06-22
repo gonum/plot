@@ -38,10 +38,11 @@ type Line struct {
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
 func (l Line) Plot(da DrawArea, p *Plot) {
+	trX, trY := p.Transforms(&da)
 	line := make([]Point, l.Len())
 	for i := range line {
-		line[i].X = p.DrawX(&da, l.X(i))
-		line[i].Y = p.DrawY(&da, l.Y(i))
+		line[i].X = trX(l.X(i))
+		line[i].Y = trY(l.Y(i))
 	}
 	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
@@ -63,9 +64,9 @@ type Scatter struct {
 // Plot implements the Plot method of the Plotter interface,
 // drawing a glyph for each point in the Scatter.
 func (s Scatter) Plot(da DrawArea, p *Plot) {
+	trX, trY := p.Transforms(&da)
 	for i := 0; i < s.Len(); i++ {
-		x, y := p.DrawX(&da, s.X(i)), p.DrawY(&da, s.Y(i))
-		da.DrawGlyph(s.GlyphStyle, Point{x, y})
+		da.DrawGlyph(s.GlyphStyle, Point{trX(s.X(i)), trY(s.Y(i))})
 	}
 }
 
@@ -126,10 +127,11 @@ func MakeLabels(ls XYLabeler) (Labels, error) {
 
 // Plot implements the Plotter interface for Labels.
 func (l Labels) Plot(da DrawArea, p *Plot) {
+	trX, trY := p.Transforms(&da)
 	for i := 0; i < l.Len(); i++ {
-		x, y := p.DrawX(&da, l.X(i)), p.DrawY(&da, l.Y(i))
+		x, y := trX(l.X(i)) + l.XOffs, trY(l.Y(i)) + l.YOffs
 		if da.Contains(Point{x, y}) {
-			da.FillText(l.TextStyle, x+l.XOffs, y+l.YOffs, l.XAlign, l.YAlign, l.Label(i))
+			da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, l.Label(i))
 		}
 	}
 }
@@ -205,14 +207,15 @@ func (e ErrorBars) Plot(da DrawArea, p *Plot) {
 		return
 	}
 
+	trX, trY := p.Transforms(&da)
 	capSz := e.CapWidth / 2
 	sty := e.LineStyle
 	for i := 0; i < e.Len(); i++ {
 		x, y := e.X(i), e.Y(i)
-		xd, yd := p.DrawX(&da, x), p.DrawY(&da, y)
+		xd, yd := trX(x), trY(y)
 		if isXerr {
 			errlow, errhigh := xerr.XError(i)
-			min, max := p.DrawX(&da, x+errlow), p.DrawX(&da, x+errhigh)
+			min, max := trX(x+errlow), trX(x+errhigh)
 			da.StrokeLines(sty, da.ClipLinesXY([]Point{{min, yd}, {max, yd}})...)
 			if da.Contains(Point{min, yd}) {
 				da.StrokeLine2(sty, min, yd-capSz, min, yd+capSz)
@@ -223,7 +226,7 @@ func (e ErrorBars) Plot(da DrawArea, p *Plot) {
 		}
 		if isYerr {
 			errlow, errhigh := yerr.YError(i)
-			min, max := p.DrawY(&da, y+errlow), p.DrawY(&da, y+errhigh)
+			min, max := trY(y+errlow), trY(y+errhigh)
 			da.StrokeLines(sty, da.ClipLinesXY([]Point{{xd, min}, {xd, max}})...)
 			if da.Contains(Point{xd, min}) {
 				da.StrokeLine2(sty, xd-capSz, min, xd+capSz, min)
@@ -350,11 +353,10 @@ func NewBox(width vg.Length, x float64, ys Yer) *Box {
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b *Box) Plot(da DrawArea, p *Plot) {
-	x := p.DrawX(&da, b.X)
+	trX, trY := p.Transforms(&da)
+	x := trX(b.X)
 	q1, med, q3, points := b.Statistics()
-	q1y := p.DrawY(&da, q1)
-	q3y := p.DrawY(&da, q3)
-	medy := p.DrawY(&da, med)
+	q1y, medy, q3y := trY(q1), trY(med), trY(q3)
 	box := da.ClipLinesY([]Point{
 		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
 		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
@@ -367,8 +369,7 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 		min = b.Y(filtered[0])
 		max = b.Y(filtered[len(filtered)-1])
 	}
-	miny := p.DrawY(&da, min)
-	maxy := p.DrawY(&da, max)
+	miny, maxy := trY(min), trY(max)
 	whisk := da.ClipLinesY([]Point{{x, q3y}, {x, maxy}},
 		[]Point{{x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy}},
 		[]Point{{x, q1y}, {x, miny}},
@@ -376,7 +377,7 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle, Point{x, p.DrawY(&da, b.Y(i))})
+		da.DrawGlyph(b.GlyphStyle, Point{x, trY(b.Y(i))})
 	}
 }
 
@@ -523,11 +524,10 @@ func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b HorizBox) Plot(da DrawArea, p *Plot) {
-	y := p.DrawY(&da, b.X)
+	trX, trY := p.Transforms(&da)
+	y := trY(b.X)
 	q1, med, q3, points := b.Statistics()
-	q1x := p.DrawX(&da, q1)
-	q3x := p.DrawX(&da, q3)
-	medx := p.DrawX(&da, med)
+	q1x, medx, q3x := trX(q1), trX(med), trX(q3)
 	box := da.ClipLinesX([]Point{
 		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
 		{q3x, y + b.Width/2}, {q1x, y + b.Width/2},
@@ -540,8 +540,7 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 		min = b.Y(filtered[0])
 		max = b.Y(filtered[len(filtered)-1])
 	}
-	minx := p.DrawX(&da, min)
-	maxx := p.DrawX(&da, max)
+	minx, maxx := trX(min), trX(max)
 	whisk := da.ClipLinesX([]Point{{q3x, y}, {maxx, y}},
 		[]Point{{maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2}},
 		[]Point{{q1x, y}, {minx, y}},
@@ -549,7 +548,7 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle, Point{p.DrawX(&da, b.Y(i)), y})
+		da.DrawGlyph(b.GlyphStyle, Point{trY(b.Y(i)), y})
 	}
 }
 
