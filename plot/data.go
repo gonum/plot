@@ -91,8 +91,8 @@ func (s Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
 // Labels implements the Plotter interface, drawing
 // a set of labels on the plot.
 type Labels struct {
-	// XYLabeler has a set of labels located in data coordinates.
-	XYLabeler
+	// XYLabeller has a set of labels located in data coordinates.
+	XYLabeller
 
 	// TextStyle gives the style of the labels.
 	TextStyle
@@ -114,12 +114,12 @@ type Labels struct {
 // Labels returns a Labels using the default TextStyle,
 // with the labels left-aligned above the corresponding
 // X, Y point.
-func MakeLabels(ls XYLabeler) (Labels, error) {
+func MakeLabels(ls XYLabeller) (Labels, error) {
 	labelFont, err := vg.MakeFont(defaultFont, vg.Points(10))
 	if err != nil {
 		return Labels{}, err
 	}
-	return Labels{ XYLabeler: ls, TextStyle: TextStyle{Font: labelFont} }, nil
+	return Labels{ XYLabeller: ls, TextStyle: TextStyle{Font: labelFont} }, nil
 }
 
 // Plot implements the Plotter interface for Labels.
@@ -753,21 +753,17 @@ func (p XYs) Y(i int) float64 {
 	return p[i].Y
 }
 
-// An XYLabeler wraps the XYer methods along with
-// a Label method that returns a label for the
-// corresponding X,Y point.
-type XYLabeler interface {
+// XYLabeller wraps both XYer and Labeller.
+type XYLabeller interface {
+	// XYer returns the XY point that is being labelled.
 	XYer
+
+	// Label returns the ith label text.
 	Label(int) string
 }
 
-// XErrorer is an XYer with an XError method.
+// XErrorer wraps the XError method.
 type XErrorer interface {
-	// XYer returns the X and Y values of the
-	// center point to which error values
-	// may be added.
-	XYer
-
 	// XError returns the low and high X errors.
 	// Both values are added to the corresponding
 	// X value to compute the range of error
@@ -776,13 +772,8 @@ type XErrorer interface {
 	XError(int) (float64, float64)
 }
 
-// YErrorer is an XYer with an YError method.
+// YErrorer wraps the YError method.
 type YErrorer interface {
-	// XYer returns the X and Y values of the
-	// center point to which error values
-	// may be added.
-	XYer
-
 	// YError is the same as the XError method
 	// of the XErrorer interface, however it
 	// applies to the Y values of points instead
