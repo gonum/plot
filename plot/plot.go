@@ -49,8 +49,7 @@ type Plot struct {
 
 // Plotter is an interface that wraps the Plot method.
 type Plotter interface {
-	// Plot draws the data to the given DrawArea using
-	// the axes from the given Plot.
+	// Plot draws the data to a DrawArea.
 	Plot(DrawArea, *Plot)
 }
 
