@@ -6,10 +6,10 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"fmt"
 	"image/color"
 	"math"
 	"sort"
-	"fmt"
 )
 
 var (
@@ -40,8 +40,8 @@ type Line struct {
 func (l Line) Plot(da DrawArea, p *Plot) {
 	line := make([]Point, l.Len())
 	for i := range line {
-		line[i].X = da.X(p.X.Norm(l.X(i)))
-		line[i].Y = da.Y(p.Y.Norm(l.Y(i)))
+		line[i].X = p.DrawX(&da, l.X(i))
+		line[i].Y = p.DrawY(&da, l.Y(i))
 	}
 	da.StrokeLines(l.LineStyle, da.ClipLinesXY(line)...)
 }
@@ -64,7 +64,7 @@ type Scatter struct {
 // drawing a glyph for each point in the Scatter.
 func (s Scatter) Plot(da DrawArea, p *Plot) {
 	for i := 0; i < s.Len(); i++ {
-		x, y := da.X(p.X.Norm(s.X(i))), da.Y(p.Y.Norm(s.Y(i)))
+		x, y := p.DrawX(&da, s.X(i)), p.DrawY(&da, s.Y(i))
 		da.DrawGlyph(s.GlyphStyle, Point{x, y})
 	}
 }
@@ -72,16 +72,9 @@ func (s Scatter) Plot(da DrawArea, p *Plot) {
 // GlyphBoxes returns a slice of GlyphBoxes, one for
 // each of the glyphs in the Scatter.
 func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
-	r := Rect{
-		Point{-s.Radius, -s.Radius},
-		Point{s.Radius * 2, s.Radius * 2},
-	}
+	r := Rect{Point{-s.Radius, -s.Radius}, Point{s.Radius * 2, s.Radius * 2}}
 	for i := 0; i < s.Len(); i++ {
-		box := GlyphBox{
-			X:    p.X.Norm(s.X(i)),
-			Y:    p.Y.Norm(s.Y(i)),
-			Rect: r,
-		}
+		box := GlyphBox{X: p.X.Norm(s.X(i)), Y: p.Y.Norm(s.Y(i)), Rect: r}
 		boxes = append(boxes, box)
 	}
 	return
@@ -134,7 +127,7 @@ func MakeLabels(ls XYLabeler) (Labels, error) {
 // Plot implements the Plotter interface for Labels.
 func (l Labels) Plot(da DrawArea, p *Plot) {
 	for i := 0; i < l.Len(); i++ {
-		x, y := da.X(p.X.Norm(l.X(i))), da.Y(p.Y.Norm(l.Y(i)))
+		x, y := p.DrawX(&da, l.X(i)), p.DrawY(&da, l.Y(i))
 		if da.Contains(Point{x, y}) {
 			da.FillText(l.TextStyle, x+l.XOffs, y+l.YOffs, l.XAlign, l.YAlign, l.Label(i))
 		}
@@ -160,11 +153,7 @@ func (l Labels) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 				h*vg.Length(l.YAlign) + l.YOffs},
 			Size: Point{w, h},
 		}
-		box := GlyphBox{
-			X:    p.X.Norm(l.X(i)),
-			Y:    p.Y.Norm(l.Y(i)),
-			Rect: rect,
-		}
+		box := GlyphBox{X: p.X.Norm(l.X(i)), Y: p.Y.Norm(l.Y(i)), Rect: rect}
 		boxes = append(boxes, box)
 	}
 	return
@@ -216,35 +205,33 @@ func (e ErrorBars) Plot(da DrawArea, p *Plot) {
 		return
 	}
 
-	capSz := e.CapWidth/2
+	capSz := e.CapWidth / 2
 	sty := e.LineStyle
 	for i := 0; i < e.Len(); i++ {
 		x, y := e.X(i), e.Y(i)
-		drawx, drawy := da.X(p.X.Norm(x)), da.Y(p.Y.Norm(y))
-		var lines [][]Point
+		xd, yd := p.DrawX(&da, x), p.DrawY(&da, y)
 		if isXerr {
 			errlow, errhigh := xerr.XError(i)
-			min, max := da.X(p.X.Norm(x + errlow)), da.X(p.X.Norm(x + errhigh))
-			da.StrokeLines(sty, da.ClipLinesXY([]Point{ { min, drawy }, { max, drawy }})...)
-			if da.Contains(Point{min, drawy}) {
-				da.StrokeLine2(sty, min, drawy - capSz, min, drawy + capSz)
+			min, max := p.DrawX(&da, x+errlow), p.DrawX(&da, x+errhigh)
+			da.StrokeLines(sty, da.ClipLinesXY([]Point{{min, yd}, {max, yd}})...)
+			if da.Contains(Point{min, yd}) {
+				da.StrokeLine2(sty, min, yd-capSz, min, yd+capSz)
 			}
-			if da.Contains(Point{max, drawy}) {
-				da.StrokeLine2(sty, max, drawy - capSz, max, drawy + capSz)
+			if da.Contains(Point{max, yd}) {
+				da.StrokeLine2(sty, max, yd-capSz, max, yd+capSz)
 			}
 		}
 		if isYerr {
 			errlow, errhigh := yerr.YError(i)
-			min, max := da.Y(p.Y.Norm(y + errlow)), da.Y(p.Y.Norm(y + errhigh))
-			da.StrokeLines(sty, da.ClipLinesXY([]Point{ { drawx, min }, { drawx, max } })...)
-			if da.Contains(Point{drawx, min}) {
-				da.StrokeLine2(sty, drawx - capSz, min, drawx + capSz, min)
+			min, max := p.DrawY(&da, y+errlow), p.DrawY(&da, y+errhigh)
+			da.StrokeLines(sty, da.ClipLinesXY([]Point{{xd, min}, {xd, max}})...)
+			if da.Contains(Point{xd, min}) {
+				da.StrokeLine2(sty, xd-capSz, min, xd+capSz, min)
 			}
-			if da.Contains(Point{drawx, max}) {
-				da.StrokeLine2(sty, drawx - capSz, max, drawx + capSz, max)
+			if da.Contains(Point{xd, max}) {
+				da.StrokeLine2(sty, xd-capSz, max, xd+capSz, max)
 			}
 		}
-		da.StrokeLines(e.LineStyle, lines...)
 	}
 }
 
@@ -258,24 +245,23 @@ func (e ErrorBars) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 		return
 	}
 
-	horzRect := Rect{ Min: Point{ Y: -e.CapWidth/2 }, Size: Point{ Y: e.CapWidth } }
-	vertRect := Rect{ Min: Point{ X: -e.CapWidth/2 }, Size: Point{ X: e.CapWidth } }
+	horzRect := Rect{Min: Point{Y: -e.CapWidth / 2}, Size: Point{Y: e.CapWidth}}
+	vertRect := Rect{Min: Point{X: -e.CapWidth / 2}, Size: Point{X: e.CapWidth}}
 	for i := 0; i < e.Len(); i++ {
 		x, y := e.X(i), e.Y(i)
-		xnorm, ynorm := p.X.Norm(x), p.Y.Norm(y)
 		if isXerr {
 			errlow, errhigh := xerr.XError(i)
-			min, max := p.X.Norm(x + errlow), p.X.Norm(x + errhigh)
+			min, max := p.X.Norm(x+errlow), p.X.Norm(x+errhigh)
 			boxes = append(boxes,
-				GlyphBox{ X: min, Y: ynorm, Rect: horzRect },
-				GlyphBox{ X: max, Y: ynorm, Rect: horzRect  })
+				GlyphBox{X: min, Y: p.Y.Norm(y), Rect: horzRect},
+				GlyphBox{X: max, Y: p.Y.Norm(y), Rect: horzRect})
 		}
 		if isYerr {
 			errlow, errhigh := yerr.YError(i)
-			min, max := p.Y.Norm(y + errlow), p.Y.Norm(y + errhigh)
+			min, max := p.Y.Norm(y+errlow), p.Y.Norm(y+errhigh)
 			boxes = append(boxes,
-				GlyphBox{ X: xnorm, Y: min, Rect: vertRect },
-				GlyphBox{ X: xnorm, Y: max, Rect: vertRect  })
+				GlyphBox{X: p.X.Norm(x), Y: min, Rect: vertRect},
+				GlyphBox{X: p.X.Norm(x), Y: max, Rect: vertRect})
 		}
 	}
 	return
@@ -300,17 +286,17 @@ func (e ErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 		x, y := e.X(i), e.Y(i)
 		if isXerr {
 			errlow, errhigh := xerr.XError(i)
-			xmin = math.Min(xmin, x + errlow)
-			xmax = math.Max(xmax, x + errlow)
-			xmin = math.Min(xmin, x + errhigh)
-			xmax = math.Max(xmax, x + errhigh)
+			xmin = math.Min(xmin, x+errlow)
+			xmax = math.Max(xmax, x+errlow)
+			xmin = math.Min(xmin, x+errhigh)
+			xmax = math.Max(xmax, x+errhigh)
 		}
 		if isYerr {
 			errlow, errhigh := yerr.YError(i)
-			ymin = math.Min(ymin, y + errlow)
-			ymax = math.Max(ymax, y + errlow)
-			ymin = math.Min(ymin, y + errhigh)
-			ymax = math.Max(ymax, y + errhigh)
+			ymin = math.Min(ymin, y+errlow)
+			ymax = math.Max(ymax, y+errlow)
+			ymin = math.Min(ymin, y+errhigh)
+			ymax = math.Max(ymax, y+errhigh)
 		}
 	}
 	return
@@ -364,11 +350,11 @@ func NewBox(width vg.Length, x float64, ys Yer) *Box {
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b *Box) Plot(da DrawArea, p *Plot) {
-	x := da.X(p.X.Norm(b.X))
+	x := p.DrawX(&da, b.X)
 	q1, med, q3, points := b.Statistics()
-	q1y := da.Y(p.Y.Norm(q1))
-	q3y := da.Y(p.Y.Norm(q3))
-	medy := da.Y(p.Y.Norm(med))
+	q1y := p.DrawY(&da, q1)
+	q3y := p.DrawY(&da, q3)
+	medy := p.DrawY(&da, med)
 	box := da.ClipLinesY([]Point{
 		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
 		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
@@ -381,8 +367,8 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 		min = b.Y(filtered[0])
 		max = b.Y(filtered[len(filtered)-1])
 	}
-	miny := da.Y(p.Y.Norm(min))
-	maxy := da.Y(p.Y.Norm(max))
+	miny := p.DrawY(&da, min)
+	maxy := p.DrawY(&da, max)
 	whisk := da.ClipLinesY([]Point{{x, q3y}, {x, maxy}},
 		[]Point{{x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy}},
 		[]Point{{x, q1y}, {x, miny}},
@@ -390,7 +376,7 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle, Point{x, da.Y(p.Y.Norm(b.Y(i)))})
+		da.DrawGlyph(b.GlyphStyle, Point{x, p.DrawY(&da, b.Y(i))})
 	}
 }
 
@@ -417,11 +403,8 @@ func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	r := b.GlyphStyle.Radius
 	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
-		boxes = append(boxes, GlyphBox{
-			X:    p.X.Norm(b.X),
-			Y:    p.Y.Norm(b.Y(i)),
-			Rect: rect,
-		})
+		box := GlyphBox{X: p.X.Norm(b.X), Y: p.Y.Norm(b.Y(i)), Rect: rect}
+		boxes = append(boxes, box)
 	}
 	return
 }
@@ -540,11 +523,11 @@ func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
 func (b HorizBox) Plot(da DrawArea, p *Plot) {
-	y := da.Y(p.Y.Norm(b.X))
+	y := p.DrawY(&da, b.X)
 	q1, med, q3, points := b.Statistics()
-	q1x := da.X(p.X.Norm(q1))
-	q3x := da.X(p.X.Norm(q3))
-	medx := da.X(p.X.Norm(med))
+	q1x := p.DrawX(&da, q1)
+	q3x := p.DrawX(&da, q3)
+	medx := p.DrawX(&da, med)
 	box := da.ClipLinesX([]Point{
 		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
 		{q3x, y + b.Width/2}, {q1x, y + b.Width/2},
@@ -557,8 +540,8 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 		min = b.Y(filtered[0])
 		max = b.Y(filtered[len(filtered)-1])
 	}
-	minx := da.X(p.X.Norm(min))
-	maxx := da.X(p.X.Norm(max))
+	minx := p.DrawX(&da, min)
+	maxx := p.DrawX(&da, max)
 	whisk := da.ClipLinesX([]Point{{q3x, y}, {maxx, y}},
 		[]Point{{maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2}},
 		[]Point{{q1x, y}, {minx, y}},
@@ -566,7 +549,7 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle, Point{da.X(p.X.Norm(b.Y(i))), y})
+		da.DrawGlyph(b.GlyphStyle, Point{p.DrawX(&da, b.Y(i)), y})
 	}
 }
 
@@ -593,11 +576,8 @@ func (b HorizBox) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	r := b.GlyphStyle.Radius
 	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
-		boxes = append(boxes, GlyphBox{
-			X:    p.X.Norm(b.Y(i)),
-			Y:    p.Y.Norm(b.X),
-			Rect: rect,
-		})
+		box := GlyphBox{X: p.X.Norm(b.Y(i)), Y: p.Y.Norm(b.X), Rect: rect}
+		boxes = append(boxes, box)
 	}
 	return
 }
@@ -750,7 +730,7 @@ type XErrorer interface {
 	// center point to which error values
 	// may be added.
 	XYer
- 
+
 	// XError returns the low and high X errors.
 	// Both values are added to the corresponding
 	// X value to compute the range of error
@@ -760,9 +740,9 @@ type XErrorer interface {
 }
 
 // XErrors implements the XErrorer interface.
-type XErrors []struct{
-	X, Y float64
-	Error struct { Low, High float64 }
+type XErrors []struct {
+	X, Y  float64
+	Error struct{ Low, High float64 }
 }
 
 // Len returns the number of points.
@@ -791,7 +771,7 @@ type YErrorer interface {
 	// center point to which error values
 	// may be added.
 	XYer
- 
+
 	// YError is the same as the XError method
 	// of the XErrorer interface, however it
 	// applies to the Y values of points instead
@@ -800,9 +780,9 @@ type YErrorer interface {
 }
 
 // YErrors implements the YErrorer interface.
-type YErrors []struct{
-	X, Y float64
-	Error struct { Low, High float64 }
+type YErrors []struct {
+	X, Y  float64
+	Error struct{ Low, High float64 }
 }
 
 // Len returns the number of points.
@@ -827,10 +807,10 @@ func (p YErrors) YError(i int) (float64, float64) {
 
 // XYErrors implements the XErrorer and YErrorer
 // interfaces.
-type XYErrors []struct{
-	X, Y float64
+type XYErrors []struct {
+	X, Y  float64
 	Error struct {
-		X, Y struct { Low, High float64 }
+		X, Y struct{ Low, High float64 }
 	}
 }
 

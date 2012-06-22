@@ -248,6 +248,18 @@ func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	return l
 }
 
+// DrawX returns the draw location in the given DrawArea
+// of the given x data value.
+func (p *Plot) DrawX(da *DrawArea, x float64) vg.Length {
+	return da.X(p.X.Norm(x))
+}
+
+// DrawY returns the draw location in the given DrawArea
+// of the given y data value.
+func (p *Plot) DrawY(da *DrawArea, y float64) vg.Length {
+	return da.Y(p.Y.Norm(y))
+}
+
 // GlyphBoxer wraps the GlyphBoxes method.
 // It should be implemented by things that meet
 // the Plotter interface that draw glyphs so that

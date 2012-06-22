@@ -20,8 +20,8 @@ func Example() *Plot {
 			pts[i].X = pts[i-1].X + rand.Float64()
 		}
 		pts[i].Y = rand.Float64()
-		pts[i].Error.Low = -rand.Float64()/2
-		pts[i].Error.High = rand.Float64()/2
+		pts[i].Error.Low = -rand.Float64() / 2
+		pts[i].Error.High = rand.Float64() / 2
 	}
 
 	// Make our plot and set some labels.
