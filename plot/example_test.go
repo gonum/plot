@@ -21,7 +21,7 @@ func Example() *Plot {
 			pts.XYs[i].X = pts.XYs[i-1].X + rand.Float64()
 		}
 		pts.XYs[i].Y = rand.Float64()
-		pts.Labels[i] = fmt.Sprintf("%05d", i)
+		pts.Labels[i] = fmt.Sprintf("%d", i)
 		pts.XErrors[i].Low = -rand.Float64()/2
 		pts.XErrors[i].High = rand.Float64()/2
 		pts.YErrors[i].Low = -rand.Float64()/2
@@ -46,9 +46,11 @@ func Example() *Plot {
 	if err != nil {
 		panic(err)
 	}
+	labels.XOffs = scatter.Radius
+	labels.YOffs = scatter.Radius
 	p.Add(line, scatter, errbars, labels)
 	p.Legend.Add("line", line, scatter)
-	p.Legend.Top = true
+	p.Legend.Left = true
 	return p
 }
 
