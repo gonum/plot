@@ -110,7 +110,7 @@ type Labels struct {
 	XOffs, YOffs vg.Length
 }
 
-// MakeLabels returns a Labels using the default TextStyle,
+// Labels returns a Labels using the default TextStyle,
 // with the labels left-aligned above the corresponding
 // X, Y point.
 func MakeLabels(ls XYLabeler) (Labels, error) {
@@ -698,32 +698,6 @@ type XYLabeler interface {
 	Label(int) string
 }
 
-// XYLabels implements the XYLabeler interface.
-type XYLabels []struct {
-	X, Y  float64
-	Label string
-}
-
-// Len returns the number of points.
-func (p XYLabels) Len() int {
-	return len(p)
-}
-
-// X returns the ith X value.
-func (p XYLabels) X(i int) float64 {
-	return p[i].X
-}
-
-// Y returns the ith Y value.
-func (p XYLabels) Y(i int) float64 {
-	return p[i].Y
-}
-
-// Label returns the ith Label value.
-func (p XYLabels) Label(i int) string {
-	return p[i].Label
-}
-
 // XErrorer is an XYer with an XError method.
 type XErrorer interface {
 	// XYer returns the X and Y values of the
@@ -737,32 +711,6 @@ type XErrorer interface {
 	// of the X value of the point, so most likely
 	// the low value will be negative.
 	XError(int) (float64, float64)
-}
-
-// XErrors implements the XErrorer interface.
-type XErrors []struct {
-	X, Y  float64
-	Error struct{ Low, High float64 }
-}
-
-// Len returns the number of points.
-func (p XErrors) Len() int {
-	return len(p)
-}
-
-// X returns the ith X value.
-func (p XErrors) X(i int) float64 {
-	return p[i].X
-}
-
-// Y returns the ith Y value.
-func (p XErrors) Y(i int) float64 {
-	return p[i].Y
-}
-
-// XError implements the XErrorer interface.
-func (p XErrors) XError(i int) (float64, float64) {
-	return p[i].Error.Low, p[i].Error.High
 }
 
 // YErrorer is an XYer with an YError method.
@@ -779,62 +727,37 @@ type YErrorer interface {
 	YError(int) (float64, float64)
 }
 
-// YErrors implements the YErrorer interface.
-type YErrors []struct {
-	X, Y  float64
-	Error struct{ Low, High float64 }
+// XYLabelErrors implements the XYer, XYLabeller, XErrorer,
+// and YErrorer interfaces.
+type XYLabelErrors struct {
+	XYs
+	Labels []string
+	XErrors []struct{ Low, High float64 }
+	YErrors []struct{ Low, High float64 }
 }
 
-// Len returns the number of points.
-func (p YErrors) Len() int {
-	return len(p)
-}
-
-// X returns the ith X value.
-func (p YErrors) X(i int) float64 {
-	return p[i].X
-}
-
-// Y returns the ith Y value.
-func (p YErrors) Y(i int) float64 {
-	return p[i].Y
-}
-
-// YError implements the YErrorer interface.
-func (p YErrors) YError(i int) (float64, float64) {
-	return p[i].Error.Low, p[i].Error.High
-}
-
-// XYErrors implements the XErrorer and YErrorer
-// interfaces.
-type XYErrors []struct {
-	X, Y  float64
-	Error struct {
-		X, Y struct{ Low, High float64 }
+// MakeYXYLabelErrors returns a new XYLabelErrors
+// of the given length.
+func MakeXYLabelErrors(l int) XYLabelErrors {
+	return XYLabelErrors{
+		XYs: make(XYs, l),
+		Labels: make([]string, l),
+		XErrors: make([]struct{ Low, High float64 }, l),
+		YErrors: make([]struct{ Low, High float64 }, l),
 	}
 }
 
-// Len returns the number of points.
-func (p XYErrors) Len() int {
-	return len(p)
-}
-
-// X returns the ith X value.
-func (p XYErrors) X(i int) float64 {
-	return p[i].X
-}
-
-// Y returns the ith Y value.
-func (p XYErrors) Y(i int) float64 {
-	return p[i].Y
+// Label implements the Labeller interface.
+func (xy XYLabelErrors) Label(i int) string {
+	return xy.Labels[i]
 }
 
 // XError implements the XErrorer interface.
-func (p XYErrors) XError(i int) (float64, float64) {
-	return p[i].Error.X.Low, p[i].Error.X.High
+func (xy XYLabelErrors) XError(i int) (float64, float64) {
+	return xy.XErrors[i].Low, xy.XErrors[i].High
 }
 
 // YError implements the YErrorer interface.
-func (p XYErrors) YError(i int) (float64, float64) {
-	return p[i].Error.Y.Low, p[i].Error.Y.High
+func (xy XYLabelErrors) YError(i int) (float64, float64) {
+	return xy.YErrors[i].Low, xy.YErrors[i].High
 }

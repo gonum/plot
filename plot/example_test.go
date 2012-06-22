@@ -7,21 +7,25 @@ package plot
 import (
 	"code.google.com/p/plotinum/vg"
 	"math/rand"
+	"fmt"
 )
 
 // An example of making and saving a plot.
 func Example() *Plot {
 	// Get some data to plot.
-	pts := make(YErrors, 10)
-	for i := range pts {
+	pts := MakeXYLabelErrors(10)
+	for i := range pts.XYs {
 		if i == 0 {
-			pts[i].X = rand.Float64()
+			pts.XYs[i].X = rand.Float64()
 		} else {
-			pts[i].X = pts[i-1].X + rand.Float64()
+			pts.XYs[i].X = pts.XYs[i-1].X + rand.Float64()
 		}
-		pts[i].Y = rand.Float64()
-		pts[i].Error.Low = -rand.Float64() / 2
-		pts[i].Error.High = rand.Float64() / 2
+		pts.XYs[i].Y = rand.Float64()
+		pts.Labels[i] = fmt.Sprintf("%05d", i)
+		pts.XErrors[i].Low = -rand.Float64()/2
+		pts.XErrors[i].High = rand.Float64()/2
+		pts.YErrors[i].Low = -rand.Float64()/2
+		pts.YErrors[i].High = rand.Float64()/2
 	}
 
 	// Make our plot and set some labels.
@@ -38,7 +42,11 @@ func Example() *Plot {
 	if err != nil {
 		panic(err)
 	}
-	p.Add(line, scatter, errbars)
+	labels, err := MakeLabels(pts)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(line, scatter, errbars, labels)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
 	return p
