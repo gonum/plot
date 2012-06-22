@@ -9,6 +9,7 @@ import (
 	"image/color"
 	"math"
 	"sort"
+	"fmt"
 )
 
 var (
@@ -165,6 +166,152 @@ func (l Labels) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 			Rect: rect,
 		}
 		boxes = append(boxes, box)
+	}
+	return
+}
+
+// ErrorBars implement the Plotter interface, drawing
+// either vertical, horizontal, or both vertical and
+// horizontal error bars.
+type ErrorBars struct {
+	// XYer gives the center location of the error
+	// bar.  If the XYer also implements the XErrorer
+	// interface then a horizontal error bar is plotted.
+	// If the XYer also implements YErrorer then
+	// a vertical error bar is drawn.
+	XYer
+
+	// LineStyle is the style of the errorbar and cap
+	// lines.
+	LineStyle
+
+	// CapWidth is the width of the error bar caps.
+	CapWidth vg.Length
+}
+
+// MakeErrorBars returns ErrorBars using the default
+// line style and cap width.  If the XYer doesn't implement
+// either XErrorer or YErrorer then a non-nil error
+// is returned, and while the resulting ErrorBars can be
+// successfully added to a plot, they will not draw
+// anything.
+func MakeErrorBars(xy XYer) (bars ErrorBars, err error) {
+	_, xerr := xy.(XErrorer)
+	_, yerr := xy.(YErrorer)
+	if !xerr && !yerr {
+		err = fmt.Errorf("Type %T doesn't implement XErrorer or YErrorer")
+	}
+	bars.XYer = xy
+	bars.CapWidth = vg.Points(6)
+	bars.LineStyle = DefaultLineStyle
+	return
+}
+
+// Plot implements the Plotter interface, drawing
+// error bars in either the X or Y directions or both.
+func (e ErrorBars) Plot(da DrawArea, p *Plot) {
+	xerr, isXerr := e.XYer.(XErrorer)
+	yerr, isYerr := e.XYer.(YErrorer)
+	if !isXerr && !isYerr {
+		return
+	}
+
+	capSz := e.CapWidth/2
+	sty := e.LineStyle
+	for i := 0; i < e.Len(); i++ {
+		x, y := e.X(i), e.Y(i)
+		drawx, drawy := da.X(p.X.Norm(x)), da.Y(p.Y.Norm(y))
+		var lines [][]Point
+		if isXerr {
+			errlow, errhigh := xerr.XError(i)
+			min, max := da.X(p.X.Norm(x + errlow)), da.X(p.X.Norm(x + errhigh))
+			da.StrokeLines(sty, da.ClipLinesXY([]Point{ { min, drawy }, { max, drawy }})...)
+			if da.Contains(Point{min, drawy}) {
+				da.StrokeLine2(sty, min, drawy - capSz, min, drawy + capSz)
+			}
+			if da.Contains(Point{max, drawy}) {
+				da.StrokeLine2(sty, max, drawy - capSz, max, drawy + capSz)
+			}
+		}
+		if isYerr {
+			errlow, errhigh := yerr.YError(i)
+			min, max := da.Y(p.Y.Norm(y + errlow)), da.Y(p.Y.Norm(y + errhigh))
+			da.StrokeLines(sty, da.ClipLinesXY([]Point{ { drawx, min }, { drawx, max } })...)
+			if da.Contains(Point{drawx, min}) {
+				da.StrokeLine2(sty, drawx - capSz, min, drawx + capSz, min)
+			}
+			if da.Contains(Point{drawx, max}) {
+				da.StrokeLine2(sty, drawx - capSz, max, drawx + capSz, max)
+			}
+		}
+		da.StrokeLines(e.LineStyle, lines...)
+	}
+}
+
+// GlyphBoxes implements the GlyphBoxer interface,
+// ensuring that the caps of the error bars are not
+// clipped by the edge of the plot.
+func (e ErrorBars) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	xerr, isXerr := e.XYer.(XErrorer)
+	yerr, isYerr := e.XYer.(YErrorer)
+	if !isXerr && !isYerr {
+		return
+	}
+
+	horzRect := Rect{ Min: Point{ Y: -e.CapWidth/2 }, Size: Point{ Y: e.CapWidth } }
+	vertRect := Rect{ Min: Point{ X: -e.CapWidth/2 }, Size: Point{ X: e.CapWidth } }
+	for i := 0; i < e.Len(); i++ {
+		x, y := e.X(i), e.Y(i)
+		xnorm, ynorm := p.X.Norm(x), p.Y.Norm(y)
+		if isXerr {
+			errlow, errhigh := xerr.XError(i)
+			min, max := p.X.Norm(x + errlow), p.X.Norm(x + errhigh)
+			boxes = append(boxes,
+				GlyphBox{ X: min, Y: ynorm, Rect: horzRect },
+				GlyphBox{ X: max, Y: ynorm, Rect: horzRect  })
+		}
+		if isYerr {
+			errlow, errhigh := yerr.YError(i)
+			min, max := p.Y.Norm(y + errlow), p.Y.Norm(y + errhigh)
+			boxes = append(boxes,
+				GlyphBox{ X: xnorm, Y: min, Rect: vertRect },
+				GlyphBox{ X: xnorm, Y: max, Rect: vertRect  })
+		}
+	}
+	return
+}
+
+// DataRange implements the DataRanger interface,
+// returning the minimum and maximum X and Y
+// values of the error bars.
+func (e ErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin = math.Inf(1)
+	xmax = math.Inf(-1)
+	ymin = math.Inf(1)
+	ymax = math.Inf(-1)
+
+	xerr, isXerr := e.XYer.(XErrorer)
+	yerr, isYerr := e.XYer.(YErrorer)
+	if !isXerr && !isYerr {
+		return
+	}
+
+	for i := 0; i < e.Len(); i++ {
+		x, y := e.X(i), e.Y(i)
+		if isXerr {
+			errlow, errhigh := xerr.XError(i)
+			xmin = math.Min(xmin, x + errlow)
+			xmax = math.Max(xmax, x + errlow)
+			xmin = math.Min(xmin, x + errhigh)
+			xmax = math.Max(xmax, x + errhigh)
+		}
+		if isYerr {
+			errlow, errhigh := yerr.YError(i)
+			ymin = math.Min(ymin, y + errlow)
+			ymax = math.Max(ymax, y + errlow)
+			ymin = math.Min(ymin, y + errhigh)
+			ymax = math.Max(ymax, y + errhigh)
+		}
 	}
 	return
 }
@@ -504,6 +651,30 @@ func yDataRange(ys Yer) (ymin, ymax float64) {
 	return
 }
 
+// A Yer wraps methods for getting a set of Y data values.
+type Yer interface {
+	// Len returns the number of X and Y values
+	// that are available.
+	Len() int
+
+	// Y returns a Y value
+	Y(int) float64
+}
+
+// Ys is a slice of values, implementing the Yer
+// interface.
+type Ys []float64
+
+// Len returns the number of values.
+func (v Ys) Len() int {
+	return len(v)
+}
+
+// Y returns the ith Y value.
+func (v Ys) Y(i int) float64 {
+	return v[i]
+}
+
 // An XYer wraps methods for getting a set of
 // X and Y data values.
 type XYer interface {
@@ -573,26 +744,117 @@ func (p XYLabels) Label(i int) string {
 	return p[i].Label
 }
 
-// A Yer wraps methods for getting a set of Y data values.
-type Yer interface {
-	// Len returns the number of X and Y values
-	// that are available.
-	Len() int
-
-	// Y returns a Y value
-	Y(int) float64
+// XErrorer is an XYer with an XError method.
+type XErrorer interface {
+	// XYer returns the X and Y values of the
+	// center point to which error values
+	// may be added.
+	XYer
+ 
+	// XError returns the low and high X errors.
+	// Both values are added to the corresponding
+	// X value to compute the range of error
+	// of the X value of the point, so most likely
+	// the low value will be negative.
+	XError(int) (float64, float64)
 }
 
-// Ys is a slice of values, implementing the Yer
-// interface.
-type Ys []float64
+// XErrors implements the XErrorer interface.
+type XErrors []struct{
+	X, Y float64
+	Error struct { Low, High float64 }
+}
 
-// Len returns the number of values.
-func (v Ys) Len() int {
-	return len(v)
+// Len returns the number of points.
+func (p XErrors) Len() int {
+	return len(p)
+}
+
+// X returns the ith X value.
+func (p XErrors) X(i int) float64 {
+	return p[i].X
 }
 
 // Y returns the ith Y value.
-func (v Ys) Y(i int) float64 {
-	return v[i]
+func (p XErrors) Y(i int) float64 {
+	return p[i].Y
+}
+
+// XError implements the XErrorer interface.
+func (p XErrors) XError(i int) (float64, float64) {
+	return p[i].Error.Low, p[i].Error.High
+}
+
+// YErrorer is an XYer with an YError method.
+type YErrorer interface {
+	// XYer returns the X and Y values of the
+	// center point to which error values
+	// may be added.
+	XYer
+ 
+	// YError is the same as the XError method
+	// of the XErrorer interface, however it
+	// applies to the Y values of points instead
+	// of the X values.
+	YError(int) (float64, float64)
+}
+
+// YErrors implements the YErrorer interface.
+type YErrors []struct{
+	X, Y float64
+	Error struct { Low, High float64 }
+}
+
+// Len returns the number of points.
+func (p YErrors) Len() int {
+	return len(p)
+}
+
+// X returns the ith X value.
+func (p YErrors) X(i int) float64 {
+	return p[i].X
+}
+
+// Y returns the ith Y value.
+func (p YErrors) Y(i int) float64 {
+	return p[i].Y
+}
+
+// YError implements the YErrorer interface.
+func (p YErrors) YError(i int) (float64, float64) {
+	return p[i].Error.Low, p[i].Error.High
+}
+
+// XYErrors implements the XErrorer and YErrorer
+// interfaces.
+type XYErrors []struct{
+	X, Y float64
+	Error struct {
+		X, Y struct { Low, High float64 }
+	}
+}
+
+// Len returns the number of points.
+func (p XYErrors) Len() int {
+	return len(p)
+}
+
+// X returns the ith X value.
+func (p XYErrors) X(i int) float64 {
+	return p[i].X
+}
+
+// Y returns the ith Y value.
+func (p XYErrors) Y(i int) float64 {
+	return p[i].Y
+}
+
+// XError implements the XErrorer interface.
+func (p XYErrors) XError(i int) (float64, float64) {
+	return p[i].Error.X.Low, p[i].Error.X.High
+}
+
+// YError implements the YErrorer interface.
+func (p XYErrors) YError(i int) (float64, float64) {
+	return p[i].Error.Y.Low, p[i].Error.Y.High
 }

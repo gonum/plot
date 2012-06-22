@@ -6,14 +6,13 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"fmt"
 	"math/rand"
 )
 
 // An example of making and saving a plot.
 func Example() *Plot {
 	// Get some data to plot.
-	pts := make(XYLabels, 10)
+	pts := make(YErrors, 10)
 	for i := range pts {
 		if i == 0 {
 			pts[i].X = rand.Float64()
@@ -21,7 +20,8 @@ func Example() *Plot {
 			pts[i].X = pts[i-1].X + rand.Float64()
 		}
 		pts[i].Y = rand.Float64()
-		pts[i].Label = fmt.Sprintf("%05d", i)
+		pts[i].Error.Low = -rand.Float64()/2
+		pts[i].Error.High = rand.Float64()/2
 	}
 
 	// Make our plot and set some labels.
@@ -34,13 +34,11 @@ func Example() *Plot {
 	p.Y.Label.Text = "Y Values"
 	line := Line{pts, DefaultLineStyle}
 	scatter := Scatter{pts, DefaultGlyphStyle}
-	labels, err := MakeLabels(pts)
+	errbars, err := MakeErrorBars(pts)
 	if err != nil {
 		panic(err)
 	}
-	labels.XOffs = scatter.Radius
-	labels.YOffs = scatter.Radius
-	p.Add(line, scatter, labels)
+	p.Add(line, scatter, errbars)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Top = true
 	return p
