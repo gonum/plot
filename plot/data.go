@@ -73,9 +73,9 @@ func (s Scatter) Plot(da DrawArea, p *Plot) {
 // GlyphBoxes returns a slice of GlyphBoxes, one for
 // each of the glyphs in the Scatter.
 func (s Scatter) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
-	r := Rect{Point{-s.Radius, -s.Radius}, Point{s.Radius * 2, s.Radius * 2}}
 	for i := 0; i < s.Len(); i++ {
-		box := GlyphBox{X: p.X.Norm(s.X(i)), Y: p.Y.Norm(s.Y(i)), Rect: r}
+		x, y := p.X.Norm(s.X(i)), p.Y.Norm(s.Y(i))
+		box := GlyphBox{X: x, Y: y, Rect: s.Rect()}
 		boxes = append(boxes, box)
 	}
 	return
@@ -119,10 +119,7 @@ func MakeLabels(ls XYLabeler) (Labels, error) {
 	if err != nil {
 		return Labels{}, err
 	}
-	return Labels{
-		XYLabeler: ls,
-		TextStyle: TextStyle{Font: labelFont},
-	}, nil
+	return Labels{ XYLabeler: ls, TextStyle: TextStyle{Font: labelFont} }, nil
 }
 
 // Plot implements the Plotter interface for Labels.
@@ -147,15 +144,12 @@ func (l Labels) DataRange() (xmin, xmax, ymin, ymax float64) {
 // each of the labels.
 func (l Labels) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	for i := 0; i < l.Len(); i++ {
-		w := l.TextStyle.Width(l.Label(i))
-		h := l.TextStyle.Height(l.Label(i))
-		rect := Rect{
-			Min: Point{
-				w*vg.Length(l.XAlign) + l.XOffs,
-				h*vg.Length(l.YAlign) + l.YOffs},
-			Size: Point{w, h},
-		}
-		box := GlyphBox{X: p.X.Norm(l.X(i)), Y: p.Y.Norm(l.Y(i)), Rect: rect}
+		x, y := p.X.Norm(l.X(i)), p.Y.Norm(l.Y(i))
+		txt := l.Label(i)
+		rect := l.Rect(txt)
+		rect.Min.X += l.Width(txt)*vg.Length(l.XAlign) + l.XOffs
+		rect.Min.Y += l.Height(txt)*vg.Length(l.YAlign) + l.YOffs
+		box := GlyphBox{X: x, Y: y, Rect: rect}
 		boxes = append(boxes, box)
 	}
 	return
@@ -201,40 +195,63 @@ func MakeErrorBars(xy XYer) (bars ErrorBars, err error) {
 // Plot implements the Plotter interface, drawing
 // error bars in either the X or Y directions or both.
 func (e ErrorBars) Plot(da DrawArea, p *Plot) {
-	xerr, isXerr := e.XYer.(XErrorer)
-	yerr, isYerr := e.XYer.(YErrorer)
-	if !isXerr && !isYerr {
+	e.plotVerticalBars(&da, p)
+	e.plotHorizontalBars(&da, p)
+}
+
+// plotVerticalBars plots the vertical error bars
+// if this ErrorBars implements the YErrorer interface.
+func (e ErrorBars) plotVerticalBars(da *DrawArea, p *Plot) {
+	yerr, ok := e.XYer.(YErrorer)
+	if !ok {
 		return
 	}
-
-	trX, trY := p.Transforms(&da)
-	capSz := e.CapWidth / 2
-	sty := e.LineStyle
+	trX, trY := p.Transforms(da)
 	for i := 0; i < e.Len(); i++ {
-		x, y := e.X(i), e.Y(i)
-		xd, yd := trX(x), trY(y)
-		if isXerr {
-			errlow, errhigh := xerr.XError(i)
-			min, max := trX(x+errlow), trX(x+errhigh)
-			da.StrokeLines(sty, da.ClipLinesXY([]Point{{min, yd}, {max, yd}})...)
-			if da.Contains(Point{min, yd}) {
-				da.StrokeLine2(sty, min, yd-capSz, min, yd+capSz)
-			}
-			if da.Contains(Point{max, yd}) {
-				da.StrokeLine2(sty, max, yd-capSz, max, yd+capSz)
-			}
-		}
-		if isYerr {
-			errlow, errhigh := yerr.YError(i)
-			min, max := trY(y+errlow), trY(y+errhigh)
-			da.StrokeLines(sty, da.ClipLinesXY([]Point{{xd, min}, {xd, max}})...)
-			if da.Contains(Point{xd, min}) {
-				da.StrokeLine2(sty, xd-capSz, min, xd+capSz, min)
-			}
-			if da.Contains(Point{xd, max}) {
-				da.StrokeLine2(sty, xd-capSz, max, xd+capSz, max)
-			}
-		}
+		errlow, errhigh := yerr.YError(i)
+		y := e.Y(i)
+		min, max := trY(y+errlow), trY(y+errhigh)
+		x := trX(e.X(i))
+		da.StrokeLines(e.LineStyle, da.ClipLinesXY([]Point{{x, min}, {x, max}})...)
+		e.plotVerticalCap(da, Point{x, min})
+		e.plotVerticalCap(da, Point{x, max})
+	}
+}
+
+// plotVerticalCap plots a horizontal line, centered
+// at the given point, capping a vertical errorbar.
+func (e ErrorBars) plotVerticalCap(da *DrawArea, pt Point) {
+	w := e.CapWidth/2
+	if da.Contains(pt) {
+		da.StrokeLine2(e.LineStyle, pt.X-w, pt.Y, pt.X+w, pt.Y)
+	}
+}
+
+// plotHorizontalBars plots the horizontal error bars
+// if this ErrorBars implements the XErrorer interface.
+func (e ErrorBars) plotHorizontalBars(da *DrawArea, p *Plot) {
+	xerr, ok := e.XYer.(XErrorer)
+	if !ok {
+		return
+	}
+	trX, trY := p.Transforms(da)
+	for i := 0; i < e.Len(); i++ {
+		errlow, errhigh := xerr.XError(i)
+		x := e.X(i)
+		min, max := trX(x+errlow), trX(x+errhigh)
+		y := trY(e.Y(i))
+		da.StrokeLines(e.LineStyle, da.ClipLinesXY([]Point{{min, y}, {max, y}})...)
+		e.plotHorizontalCap(da, Point{min, y})
+		e.plotHorizontalCap(da, Point{max, y})
+	}
+}
+
+// plotHorizontalCap plots a vertical line, centered
+// at the given point, capping a horizontal errorbar.
+func (e ErrorBars) plotHorizontalCap(da *DrawArea, pt Point) {
+	w := e.CapWidth/2
+	if da.Contains(pt) {
+		da.StrokeLine2(e.LineStyle, pt.X, pt.Y-w, pt.X, pt.Y+w)
 	}
 }
 
@@ -242,71 +259,99 @@ func (e ErrorBars) Plot(da DrawArea, p *Plot) {
 // ensuring that the caps of the error bars are not
 // clipped by the edge of the plot.
 func (e ErrorBars) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
-	xerr, isXerr := e.XYer.(XErrorer)
-	yerr, isYerr := e.XYer.(YErrorer)
-	if !isXerr && !isYerr {
+	boxes = append(boxes, e.verticalGlyphBoxes(p)...)
+	boxes = append(boxes, e.horizontalGlyphBoxes(p)...)
+	return
+}
+
+// verticalGlyphBoxes returns the GlyphBoxes
+// for the vertical error bar caps.
+func (e ErrorBars) verticalGlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	yerr, ok := e.XYer.(YErrorer)
+	if !ok {
 		return
 	}
-
-	horzRect := Rect{Min: Point{Y: -e.CapWidth / 2}, Size: Point{Y: e.CapWidth}}
-	vertRect := Rect{Min: Point{X: -e.CapWidth / 2}, Size: Point{X: e.CapWidth}}
+	vertRect := Rect{Min: Point{X: -e.CapWidth/2}, Size: Point{X: e.CapWidth}}
 	for i := 0; i < e.Len(); i++ {
 		x, y := e.X(i), e.Y(i)
-		if isXerr {
-			errlow, errhigh := xerr.XError(i)
-			min, max := p.X.Norm(x+errlow), p.X.Norm(x+errhigh)
-			boxes = append(boxes,
-				GlyphBox{X: min, Y: p.Y.Norm(y), Rect: horzRect},
-				GlyphBox{X: max, Y: p.Y.Norm(y), Rect: horzRect})
-		}
-		if isYerr {
-			errlow, errhigh := yerr.YError(i)
-			min, max := p.Y.Norm(y+errlow), p.Y.Norm(y+errhigh)
-			boxes = append(boxes,
-				GlyphBox{X: p.X.Norm(x), Y: min, Rect: vertRect},
-				GlyphBox{X: p.X.Norm(x), Y: max, Rect: vertRect})
-		}
+		errlow, errhigh := yerr.YError(i)
+		min, max := p.Y.Norm(y+errlow), p.Y.Norm(y+errhigh)
+		boxes = append(boxes,
+			GlyphBox{X: p.X.Norm(x), Y: min, Rect: vertRect},
+			GlyphBox{X: p.X.Norm(x), Y: max, Rect: vertRect})
 	}
 	return
+}
+
+// horizontalGlyphBoxes returns the GlyphBoxes
+// for the horizontal error bar caps.
+func (e ErrorBars) horizontalGlyphBoxes(p *Plot) (boxes []GlyphBox) {
+	xerr, ok := e.XYer.(XErrorer)
+	if !ok {
+		return
+	}
+	horzRect := Rect{Min: Point{Y: -e.CapWidth / 2}, Size: Point{Y: e.CapWidth}}
+	for i := 0; i < e.Len(); i++ {
+		x, y := e.X(i), e.Y(i)
+		errlow, errhigh := xerr.XError(i)
+		min, max := p.X.Norm(x+errlow), p.X.Norm(x+errhigh)
+		boxes = append(boxes,
+			GlyphBox{X: min, Y: p.Y.Norm(y), Rect: horzRect},
+			GlyphBox{X: max, Y: p.Y.Norm(y), Rect: horzRect})
+	}
+	return
+
 }
 
 // DataRange implements the DataRanger interface,
 // returning the minimum and maximum X and Y
 // values of the error bars.
 func (e ErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin = math.Inf(1)
-	xmax = math.Inf(-1)
-	ymin = math.Inf(1)
-	ymax = math.Inf(-1)
+	xmin, xmax = e.xDataRange()
+	ymin, ymax = e.yDataRange()
+	return
+}
 
-	xerr, isXerr := e.XYer.(XErrorer)
-	yerr, isYerr := e.XYer.(YErrorer)
-	if !isXerr && !isYerr {
+// xDataRange returns the range of x values
+// for the error bars.
+func (e ErrorBars) xDataRange() (xmin, xmax float64) {
+	xmin, xmax = xDataRange(e)
+	xerr, ok := e.XYer.(XErrorer)
+	if !ok {
 		return
 	}
-
 	for i := 0; i < e.Len(); i++ {
-		x, y := e.X(i), e.Y(i)
-		if isXerr {
-			errlow, errhigh := xerr.XError(i)
-			xmin = math.Min(xmin, x+errlow)
-			xmax = math.Max(xmax, x+errlow)
-			xmin = math.Min(xmin, x+errhigh)
-			xmax = math.Max(xmax, x+errhigh)
-		}
-		if isYerr {
-			errlow, errhigh := yerr.YError(i)
-			ymin = math.Min(ymin, y+errlow)
-			ymax = math.Max(ymax, y+errlow)
-			ymin = math.Min(ymin, y+errhigh)
-			ymax = math.Max(ymax, y+errhigh)
-		}
+		x := e.X(i)
+		errlow, errhigh := xerr.XError(i)
+		xmin = math.Min(xmin, x+errlow)
+		xmax = math.Max(xmax, x+errlow)
+		xmin = math.Min(xmin, x+errhigh)
+		xmax = math.Max(xmax, x+errhigh)
 	}
 	return
 }
 
-// Box implements the Plotter interface, drawing a boxplot.
-type Box struct {
+// yDataRange returns the range of y values
+// for the error bars.
+func (e ErrorBars) yDataRange() (ymin, ymax float64) {
+	ymin, ymax = yDataRange(e)
+	yerr, ok := e.XYer.(YErrorer)
+	if !ok {
+		return
+	}
+	for i := 0; i < e.Len(); i++ {
+		y := e.Y(i)
+		errlow, errhigh := yerr.YError(i)
+		ymin = math.Min(ymin, y+errlow)
+		ymax = math.Max(ymax, y+errlow)
+		ymin = math.Min(ymin, y+errhigh)
+		ymax = math.Max(ymax, y+errhigh)
+	}
+	return
+}
+
+// BoxPlot implements the Plotter interface, drawing a box plot.
+type BoxPlot struct {
 	Yer
 
 	// X is the X or Y value, in data coordinates, around
@@ -331,15 +376,15 @@ type Box struct {
 	GlyphStyle GlyphStyle
 }
 
-// NewBox returns new Box representing a distribution
+// NewBoxPlot returns new Box representing a distribution
 // of values.   The width parameter is the width of the
 // box. The box surrounds the center of the range of
 // data values, the middle line is the median, the points
 // are as described in the Statistics method, and the
 // whiskers extend to the extremes of all data that are
 // not drawn as separate points.
-func NewBox(width vg.Length, x float64, ys Yer) *Box {
-	return &Box{
+func NewBoxPlot(width vg.Length, x float64, ys Yer) *BoxPlot {
+	return &BoxPlot{
 		Yer:          ys,
 		X:            x,
 		Width:        width,
@@ -352,7 +397,7 @@ func NewBox(width vg.Length, x float64, ys Yer) *Box {
 
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
-func (b *Box) Plot(da DrawArea, p *Plot) {
+func (b *BoxPlot) Plot(da DrawArea, p *Plot) {
 	trX, trY := p.Transforms(&da)
 	x := trX(b.X)
 	q1, med, q3, points := b.Statistics()
@@ -382,15 +427,15 @@ func (b *Box) Plot(da DrawArea, p *Plot) {
 }
 
 // DataRange returns the minimum and maximum X and Y values
-func (b HorizBox) DataRange() (xmin, xmax, ymin, ymax float64) {
-	ymin, ymax = b.X, b.X
-	xmin, xmax = yDataRange(b)
+func (b *BoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin, xmax = b.X, b.X
+	ymin, ymax = yDataRange(b)
 	return
 }
 
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
-func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+func (b *BoxPlot) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	_, med, _, pts := b.Statistics()
 	boxes = append(boxes, GlyphBox{
 		X: p.X.Norm(b.X),
@@ -400,11 +445,9 @@ func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 			Size: Point{X: b.Width + b.BoxStyle.Width},
 		},
 	})
-
-	r := b.GlyphStyle.Radius
-	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
-		box := GlyphBox{X: p.X.Norm(b.X), Y: p.Y.Norm(b.Y(i)), Rect: rect}
+		x, y := p.X.Norm(b.X), p.Y.Norm(b.Y(i))
+		box := GlyphBox{X: x, Y: y, Rect: b.GlyphStyle.Rect()}
 		boxes = append(boxes, box)
 	}
 	return
@@ -419,7 +462,7 @@ func (b *Box) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 // the inter-quartile range before the first quartile
 // and 1.5x the inter-quartile range after the third
 // quartile.
-func (b *Box) Statistics() (q1, med, q3 float64, points []int) {
+func (b *BoxPlot) Statistics() (q1, med, q3 float64, points []int) {
 	sorted := sortedIndices(b)
 	q1 = percentile(b, sorted, 0.25)
 	med = median(b, sorted)
@@ -468,13 +511,12 @@ func sortedIndices(ys Yer) []int {
 	}
 	sort.Sort(ySorter{ys, data})
 	return data
-
 }
 
-// tukeyPoints returns values that are more than 1½ of the
-// inter-quartile range beyond the 1st and 3rd quartile.
-// According to John Tukey, these values are reasonable
-// to draw separately as points.
+// tukeyPoints returns indices of values that are more than
+// 1½ of the inter-quartile range beyond the 1st and 3rd
+// quartile. According to John Tukey (Exploratory Data Analysis),
+// these values are reasonable to draw separately as points.
 func tukeyPoints(ys Yer, sorted []int) (pts []int) {
 	q1 := percentile(ys, sorted, 0.25)
 	q3 := percentile(ys, sorted, 0.75)
@@ -510,20 +552,20 @@ func filteredIndices(ys Yer, outList []int) (data []int) {
 // are shown along the X axis.  The box is centered
 // around the Y value that corresponds to the X
 // value of the box.
-type HorizBox struct {
-	*Box
+type HorizBoxPlot struct {
+	*BoxPlot
 }
 
-// NewHorizBox returns a HorizBox.  This is the
-// same as NewBox except that the box draws
+// NewHorizBoxPlot returns a HorizBox.  This is the
+// same as NewBoxPlot except that the box draws
 // horizontally instead of vertically.
-func MakeHorizBox(width vg.Length, y float64, vals Yer) HorizBox {
-	return HorizBox{NewBox(width, y, vals)}
+func MakeHorizBoxPlot(width vg.Length, y float64, vals Yer) HorizBoxPlot {
+	return HorizBoxPlot{NewBoxPlot(width, y, vals)}
 }
 
 // Plot implements the Plot function of the Plotter interface,
 // drawing a boxplot.
-func (b HorizBox) Plot(da DrawArea, p *Plot) {
+func (b HorizBoxPlot) Plot(da DrawArea, p *Plot) {
 	trX, trY := p.Transforms(&da)
 	y := trY(b.X)
 	q1, med, q3, points := b.Statistics()
@@ -548,20 +590,20 @@ func (b HorizBox) Plot(da DrawArea, p *Plot) {
 	da.StrokeLines(b.WhiskerStyle, whisk...)
 
 	for _, i := range points {
-		da.DrawGlyph(b.GlyphStyle, Point{trY(b.Y(i)), y})
+		da.DrawGlyph(b.GlyphStyle, Point{trX(b.Y(i)), y})
 	}
 }
 
 // DataRange returns the minimum and maximum X and Y values
-func (b *Box) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = b.X, b.X
-	ymin, ymax = yDataRange(b)
+func (b HorizBoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
+	ymin, ymax = b.X, b.X
+	xmin, xmax = yDataRange(b)
 	return
 }
 
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
-func (b HorizBox) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
+func (b HorizBoxPlot) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	_, med, _, pts := b.Statistics()
 	boxes = append(boxes, GlyphBox{
 		X: p.X.Norm(med),
@@ -571,11 +613,9 @@ func (b HorizBox) GlyphBoxes(p *Plot) (boxes []GlyphBox) {
 			Size: Point{Y: b.Width + b.BoxStyle.Width},
 		},
 	})
-
-	r := b.GlyphStyle.Radius
-	rect := Rect{Point{-r, -r}, Point{r * 2, r * 2}}
 	for _, i := range pts {
-		box := GlyphBox{X: p.X.Norm(b.Y(i)), Y: p.Y.Norm(b.X), Rect: rect}
+		x, y := p.X.Norm(b.Y(i)), p.Y.Norm(b.X)
+		box := GlyphBox{X: x, Y: y, Rect: b.GlyphStyle.Rect()}
 		boxes = append(boxes, box)
 	}
 	return
@@ -645,13 +685,24 @@ type Yer interface {
 type Ys []float64
 
 // Len returns the number of values.
-func (v Ys) Len() int {
-	return len(v)
+func (ys Ys) Len() int {
+	return len(ys)
+}
+
+// Less returns true if the ith Y value is less than
+// the jth Y value.
+func (ys Ys) Less(i, j int) bool {
+	return ys[i] < ys[j]
+}
+
+// Swap swaps the ith and jth values.
+func (ys Ys) Swap(i, j int) {
+	ys[i], ys[j] = ys[j], ys[i]
 }
 
 // Y returns the ith Y value.
-func (v Ys) Y(i int) float64 {
-	return v[i]
+func (ys Ys) Y(i int) float64 {
+	return ys[i]
 }
 
 // An XYer wraps methods for getting a set of
@@ -677,6 +728,19 @@ type XYs []struct {
 // Len returns the number of points.
 func (p XYs) Len() int {
 	return len(p)
+}
+
+// Less returns true if the ith X value is less than
+// the jth X value.  This implements the Less
+// method of sort.Interface, for sorting points by
+// increasing X.
+func (p XYs) Less(i, j int) bool {
+	return p[i].X < p[j].X
+}
+
+// Swap swaps the ith and jth points.
+func (p XYs) Swap(i, j int) {
+	p[i], p[j] = p[j], p[i]
 }
 
 // X returns the ith X value.

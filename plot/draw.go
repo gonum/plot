@@ -85,6 +85,12 @@ func (g GlyphStyle) Thumbnail(da *DrawArea) {
 	da.DrawGlyph(g, da.Center())
 }
 
+// Rect returns the rectangle surrounding this glyph,
+// assuming that it is drawn centered at 0,0
+func (g GlyphStyle) Rect() Rect {
+	return Rect{Point{-g.Radius, -g.Radius}, Point{g.Radius * 2, g.Radius * 2}}
+}
+
 // NewDrawArea returns a new DrawArea of a specified
 // size using the given canvas.
 func NewDrawArea(c vg.Canvas, w, h vg.Length) *DrawArea {
@@ -364,6 +370,12 @@ func (sty TextStyle) Height(txt string) vg.Length {
 	}
 	e := sty.Font.Extents()
 	return e.Height*vg.Length(nl-1) + e.Ascent
+}
+
+// Rect returns a rectangle giving the bounds of
+// this text assuming that it is drawn at 0, 0
+func (sty TextStyle) Rect(txt string) Rect {
+	return Rect{Size: Point{sty.Width(txt), sty.Height(txt)}}
 }
 
 // textNLines returns the number of lines in the text.

@@ -107,9 +107,9 @@ func Example_boxPlot() *Plot {
 	p.Y.Label.Text = "Values"
 
 	// Make boxes for our data and add them to the plot.
-	p.Add(NewBox(vg.Points(20), 0, uniform),
-		NewBox(vg.Points(20), 1, normal),
-		NewBox(vg.Points(20), 2, expon))
+	p.Add(NewBoxPlot(vg.Points(20), 0, uniform),
+		NewBoxPlot(vg.Points(20), 1, normal),
+		NewBoxPlot(vg.Points(20), 2, expon))
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -141,9 +141,9 @@ func Example_horizontalBoxes() *Plot {
 
 	// Make horizontal boxes for our data and add
 	// them to the plot.
-	p.Add(MakeHorizBox(vg.Points(20), 0, uniform),
-		MakeHorizBox(vg.Points(20), 1, normal),
-		MakeHorizBox(vg.Points(20), 2, expon))
+	p.Add(MakeHorizBoxPlot(vg.Points(20), 0, uniform),
+		MakeHorizBoxPlot(vg.Points(20), 1, normal),
+		MakeHorizBoxPlot(vg.Points(20), 2, expon))
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.

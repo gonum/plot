@@ -136,7 +136,6 @@ func (p *Plot) Draw(da *DrawArea) {
 
 	ywidth := y.size()
 	x.draw(padX(p, da.crop(ywidth, 0, 0, 0)))
-
 	xheight := x.size()
 	y.draw(padY(p, da.crop(0, xheight, 0, 0)))
 
@@ -144,8 +143,18 @@ func (p *Plot) Draw(da *DrawArea) {
 	for _, data := range p.plotters {
 		data.Plot(*da, p)
 	}
-
 	p.Legend.draw(da)
+}
+
+// DrawGlyphBoxes draws red outlines around the plot's
+// GlyphBoxes.  This is intended for debugging.
+func (p *Plot) DrawGlyphBoxes(da *DrawArea) {
+	da.SetColor(color.RGBA{R:255, A:255})
+	for _, b := range p.GlyphBoxes(p) {
+		b.Rect.Min.X += da.X(b.X)
+		b.Rect.Min.Y += da.Y(b.Y)
+		da.Stroke(rectPath(b.Rect))
+	}
 }
 
 // padX returns a new DrawArea that is padded horizontally
