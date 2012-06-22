@@ -801,7 +801,7 @@ func MakeXYLabelErrors(l int) XYLabelErrors {
 	}
 }
 
-// Label implements the Labeller interface.
+// Label implements the XYLabeller interface.
 func (xy XYLabelErrors) Label(i int) string {
 	return xy.Labels[i]
 }
