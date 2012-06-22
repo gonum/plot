@@ -157,8 +157,8 @@ func padX(p *Plot, da *DrawArea) *DrawArea {
 	glyphs = append(glyphs, xAxis.GlyphBoxes(p)...)
 	r := rightMost(da, glyphs)
 
-	minx := da.Min.X + (da.Min.X - (da.X(l.X) + l.Min.X))
-	maxx := da.Max().X - ((da.X(r.X) + r.Min.X + r.Size.X) - da.Max().X)
+	minx := da.Min.X - l.Min.X
+	maxx := da.Max().X - (r.Min.X + r.Size.X)
 	lx := vg.Length(l.X)
 	rx := vg.Length(r.X)
 	n := (lx*maxx - rx*minx) / (lx - rx)
@@ -207,8 +207,8 @@ func padY(p *Plot, da *DrawArea) *DrawArea {
 	glyphs = append(glyphs, yAxis.GlyphBoxes(p)...)
 	t := topMost(da, glyphs)
 
-	miny := da.Min.Y + (da.Min.Y - (da.Y(b.Y) + b.Min.Y))
-	maxy := da.Max().Y - ((da.Y(t.Y) + t.Min.Y + t.Size.Y) - da.Max().Y)
+	miny := da.Min.Y - b.Min.Y
+	maxy := da.Max().Y - (t.Min.Y + t.Size.Y)
 	by := vg.Length(b.Y)
 	ty := vg.Length(t.Y)
 	n := (by*maxy - ty*miny) / (by - ty)
