@@ -8,7 +8,7 @@ package plot
 import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
-	"code.google.com/p/plotinum/vg/vecimg"
+//	"code.google.com/p/plotinum/vg/vecimg"
 	"fmt"
 	"image/color"
 	"math"
@@ -343,12 +343,12 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	case ".eps":
 		c = veceps.New(w, h, file)
 		defer c.(*veceps.Canvas).Save(file)
-	case ".png":
-		c, err = vecimg.New(w, h)
-		if err != nil {
-			return
-		}
-		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
+//	case ".png":
+//		c, err = vecimg.New(w, h)
+//		if err != nil {
+//			return
+//		}
+//		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}

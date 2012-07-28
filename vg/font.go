@@ -175,8 +175,8 @@ type FontExtents struct {
 // Extents returns the FontExtents structure for the
 // given font.
 func (f *Font) Extents() FontExtents {
-	bounds := f.font.Bounds()
-	scale := f.Size / Points(float64(f.Font().UnitsPerEm()))
+	bounds := f.font.Bounds(f.Font().FUnitsPerEm())
+	scale := f.Size / Points(float64(f.Font().FUnitsPerEm()))
 	return FontExtents{
 		Ascent:  Points(float64(bounds.YMax)) * scale,
 		Descent: Points(float64(bounds.YMin)) * scale,
@@ -188,16 +188,16 @@ func (f *Font) Extents() FontExtents {
 // using this font.
 func (f *Font) Width(s string) Length {
 	// scale converts truetype.FUnit to float64
-	scale := f.Size / Points(float64(f.font.UnitsPerEm()))
+	scale := f.Size / Points(float64(f.font.FUnitsPerEm()))
 
 	width := 0
 	prev, hasPrev := truetype.Index(0), false
 	for _, rune := range s {
 		index := f.font.Index(rune)
 		if hasPrev {
-			width += int(f.font.Kerning(prev, index))
+			width += int(f.font.Kerning(f.font.FUnitsPerEm(), prev, index))
 		}
-		width += int(f.font.HMetric(index).AdvanceWidth)
+		width += int(f.font.HMetric(f.font.FUnitsPerEm(), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return Points(float64(width)) * scale
