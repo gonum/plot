@@ -15,7 +15,13 @@ import (
 //}
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_boxPlot().Save(4, 4, "test.eps"); err != nil {
+	if err := Example().Save(4, 4, "test.eps"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDrawSvg(t *testing.T) {
+	if err := Example().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }

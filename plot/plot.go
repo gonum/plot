@@ -8,6 +8,7 @@ package plot
 import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
+	"code.google.com/p/plotinum/vg/vecsvg"
 //	"code.google.com/p/plotinum/vg/vecimg"
 	"fmt"
 	"image/color"
@@ -349,6 +350,9 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 //			return
 //		}
 //		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
+	case ".svg":
+		c = vecsvg.New(w, h)
+		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
