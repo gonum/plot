@@ -149,7 +149,7 @@ func (p *Plot) Draw(da *DrawArea) {
 // DrawGlyphBoxes draws red outlines around the plot's
 // GlyphBoxes.  This is intended for debugging.
 func (p *Plot) DrawGlyphBoxes(da *DrawArea) {
-	da.SetColor(color.RGBA{R:255, A:255})
+	da.SetColor(color.RGBA{R: 255, A: 255})
 	for _, b := range p.GlyphBoxes(p) {
 		b.Rect.Min.X += da.X(b.X)
 		b.Rect.Min.Y += da.Y(b.Y)
@@ -261,12 +261,11 @@ func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 // from the x and y data coordinate system to
 // the draw coordinate system of the given
 // draw area.
-func (p *Plot) Transforms(da *DrawArea) (x, y func(float64)vg.Length) {
-	x = func (x float64) vg.Length { return da.X(p.X.Norm(x)) }
-	y = func (y float64) vg.Length { return da.Y(p.Y.Norm(y)) }
+func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
+	x = func(x float64) vg.Length { return da.X(p.X.Norm(x)) }
+	y = func(y float64) vg.Length { return da.Y(p.Y.Norm(y)) }
 	return
 }
-
 
 // GlyphBoxer wraps the GlyphBoxes method.
 // It should be implemented by things that meet

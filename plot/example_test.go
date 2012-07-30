@@ -6,8 +6,8 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"math/rand"
 	"fmt"
+	"math/rand"
 )
 
 // An example of making and saving a plot.
@@ -22,10 +22,10 @@ func Example() *Plot {
 		}
 		pts.XYs[i].Y = rand.Float64()
 		pts.Labels[i] = fmt.Sprintf("%d", i)
-		pts.XErrors[i].Low = -rand.Float64()/2
-		pts.XErrors[i].High = rand.Float64()/2
-		pts.YErrors[i].Low = -rand.Float64()/2
-		pts.YErrors[i].High = rand.Float64()/2
+		pts.XErrors[i].Low = -rand.Float64() / 2
+		pts.XErrors[i].High = rand.Float64() / 2
+		pts.YErrors[i].Low = -rand.Float64() / 2
+		pts.YErrors[i].High = rand.Float64() / 2
 	}
 
 	p, err := New()

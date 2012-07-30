@@ -7,9 +7,9 @@ package vg
 import (
 	"fmt"
 	"image/color"
-	"testing"
-	"sort"
 	"math"
+	"sort"
+	"testing"
 )
 
 // DrawFontExtents draws some text and denotes the
@@ -36,7 +36,7 @@ func DrawFontExtents(t *testing.T, c Canvas) {
 	c.Stroke(path)
 
 	// descent
-	c.SetColor(color.RGBA{G:255, A:255})
+	c.SetColor(color.RGBA{G: 255, A: 255})
 	path = Path{}
 	path.Move(x, y+des)
 	path.Line(x+width, y+des)

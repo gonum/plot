@@ -119,14 +119,14 @@ func MakeLabels(ls XYLabeller) (Labels, error) {
 	if err != nil {
 		return Labels{}, err
 	}
-	return Labels{ XYLabeller: ls, TextStyle: TextStyle{Font: labelFont} }, nil
+	return Labels{XYLabeller: ls, TextStyle: TextStyle{Font: labelFont}}, nil
 }
 
 // Plot implements the Plotter interface for Labels.
 func (l Labels) Plot(da DrawArea, p *Plot) {
 	trX, trY := p.Transforms(&da)
 	for i := 0; i < l.Len(); i++ {
-		x, y := trX(l.X(i)) + l.XOffs, trY(l.Y(i)) + l.YOffs
+		x, y := trX(l.X(i))+l.XOffs, trY(l.Y(i))+l.YOffs
 		if da.Contains(Point{x, y}) {
 			da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, l.Label(i))
 		}
@@ -221,7 +221,7 @@ func (e ErrorBars) plotVerticalBars(da *DrawArea, p *Plot) {
 // plotVerticalCap plots a horizontal line, centered
 // at the given point, capping a vertical errorbar.
 func (e ErrorBars) plotVerticalCap(da *DrawArea, pt Point) {
-	w := e.CapWidth/2
+	w := e.CapWidth / 2
 	if da.Contains(pt) {
 		da.StrokeLine2(e.LineStyle, pt.X-w, pt.Y, pt.X+w, pt.Y)
 	}
@@ -249,7 +249,7 @@ func (e ErrorBars) plotHorizontalBars(da *DrawArea, p *Plot) {
 // plotHorizontalCap plots a vertical line, centered
 // at the given point, capping a horizontal errorbar.
 func (e ErrorBars) plotHorizontalCap(da *DrawArea, pt Point) {
-	w := e.CapWidth/2
+	w := e.CapWidth / 2
 	if da.Contains(pt) {
 		da.StrokeLine2(e.LineStyle, pt.X, pt.Y-w, pt.X, pt.Y+w)
 	}
@@ -271,7 +271,7 @@ func (e ErrorBars) verticalGlyphBoxes(p *Plot) (boxes []GlyphBox) {
 	if !ok {
 		return
 	}
-	vertRect := Rect{Min: Point{X: -e.CapWidth/2}, Size: Point{X: e.CapWidth}}
+	vertRect := Rect{Min: Point{X: -e.CapWidth / 2}, Size: Point{X: e.CapWidth}}
 	for i := 0; i < e.Len(); i++ {
 		x, y := e.X(i), e.Y(i)
 		errlow, errhigh := yerr.YError(i)
@@ -785,7 +785,7 @@ type YErrorer interface {
 // and YErrorer interfaces.
 type XYLabelErrors struct {
 	XYs
-	Labels []string
+	Labels  []string
 	XErrors []struct{ Low, High float64 }
 	YErrors []struct{ Low, High float64 }
 }
@@ -794,8 +794,8 @@ type XYLabelErrors struct {
 // of the given length.
 func MakeXYLabelErrors(l int) XYLabelErrors {
 	return XYLabelErrors{
-		XYs: make(XYs, l),
-		Labels: make([]string, l),
+		XYs:     make(XYs, l),
+		Labels:  make([]string, l),
 		XErrors: make([]struct{ Low, High float64 }, l),
 		YErrors: make([]struct{ Low, High float64 }, l),
 	}
