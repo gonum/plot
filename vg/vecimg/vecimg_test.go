@@ -32,3 +32,15 @@ func TestFonts(t *testing.T) {
 		t.Fatal(err)
 	}
 }
+
+func TestArcs(t *testing.T) {
+	img, err := New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		t.Fatal(err)
+	}
+	vg.DrawArcs(t, img)
+	err = img.SavePNG("arcs.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+}

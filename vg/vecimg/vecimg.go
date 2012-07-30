@@ -126,7 +126,7 @@ func (c *Canvas) outline(p vg.Path) {
 		case vg.ArcComp:
 			c.gc.ArcTo(comp.X.Dots(c), comp.Y.Dots(c),
 				comp.Radius.Dots(c), comp.Radius.Dots(c),
-				comp.Start, comp.Finish)
+				comp.Start, comp.Start - comp.Finish)
 
 		case vg.CloseComp:
 			c.gc.Close()

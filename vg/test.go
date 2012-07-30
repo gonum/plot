@@ -9,6 +9,7 @@ import (
 	"image/color"
 	"testing"
 	"sort"
+	"math"
 )
 
 // DrawFontExtents draws some text and denotes the
@@ -87,4 +88,18 @@ func DrawFonts(t *testing.T, c Canvas) {
 
 		y += h
 	}
+}
+
+// DrawArcs draws some arcs to the canvas.
+// The canvas is assumed to be 4 inches square.
+func DrawArcs(t *testing.T, c Canvas) {
+	var p0 Path
+	p0.Move(Inches(0), Inches(1))
+	p0.Arc(Inches(1), Inches(1), Inches(1), math.Pi, 0)
+	c.Stroke(p0)
+
+	var p1 Path
+	p1.Move(Inches(3), Inches(2))
+	p1.Arc(Inches(3), Inches(3), Inches(1), 3*math.Pi/2, math.Pi/2)
+	c.Stroke(p1)
 }
