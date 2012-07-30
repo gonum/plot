@@ -148,7 +148,7 @@ func (c *Canvas) pathData(path vg.Path) string {
 			}
 
 			sweep := 1
-			circle := isCircle(comp.Start, end)
+			circle := math.Abs(end - comp.Start) >= 2*math.Pi
 			if circle {
 				// The start point and end point in an SVG cannot
 				// be equal.  If we are drawing a circle then ensure
@@ -179,10 +179,6 @@ func (c *Canvas) pathData(path vg.Path) string {
 		}
 	}
 	return buf.String()
-}
-
-func isCircle(start, end float64) bool {
-	return math.Remainder(end, math.Pi*2) == math.Remainder(start, math.Pi*2)
 }
 
 func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
