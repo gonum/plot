@@ -147,28 +147,26 @@ func (c *Canvas) pathData(path vg.Path) string {
 				large = 0
 			}
 
-			sweep := 1
 			circle := math.Abs(end - comp.Start) >= 2*math.Pi
 			if circle {
 				// The start point and end point in an SVG cannot
-				// be equal.  If we are drawing a circle then ensure
-				// that the end point is beyond the start point.
-				end = comp.Start + 2*math.Pi + 0.01
-				sweep = 0
+				// be equal.  If we are drawing a circle then we
+				// instead draw a tiny bit less than a full circle and
+				// close it later with a line.
+				end = comp.Start + 2*math.Pi - 0.001
 			}
 
 			r := comp.Radius.Dots(c)
-			fmt.Fprintf(buf, "A%.*g,%.*g 0 %d %d %.*g,%.*g",
-				pr, r, pr, r, large, sweep,
+			fmt.Fprintf(buf, "A%.*g,%.*g 0 %d 1 %.*g,%.*g",
+				pr, r, pr, r, large,
 				pr, comp.X.Dots(c)+r*math.Cos(end),
 				pr, comp.Y.Dots(c)+r*math.Sin(end))
 
 			if circle && i < len(path)-1 {
 				// This is a circle, which required us to draw
-				// *beyond* the desired circle end point, thus
-				// we need to move back to the real end point
-				// which is the same as the starting point.
-				fmt.Fprintf(buf, "M%.*g,%.*g",
+				// slightly less than a full circle, thus we need
+				// to close it.
+				fmt.Fprintf(buf, "L%.*g,%.*g",
 					pr, comp.X.Dots(c)+r*math.Cos(comp.Start),
 					pr, comp.Y.Dots(c)+r*math.Sin(comp.Start))
 			}
