@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image/color"
 	"testing"
+	"sort"
 )
 
 // DrawFontExtents draws some text and denotes the
@@ -53,7 +54,12 @@ func DrawFontExtents(t *testing.T, c Canvas) {
 // sizes are computed correctly.
 func DrawFonts(t *testing.T, c Canvas) {
 	y := Points(0)
+	var fonts []string
 	for fname := range FontMap {
+		fonts = append(fonts, fname)
+	}
+	sort.Strings(fonts)
+	for _, fname := range fonts {
 		font, err := MakeFont(fname, 12)
 		if err != nil {
 			t.Fatal(err)
