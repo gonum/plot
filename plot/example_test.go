@@ -12,7 +12,7 @@ import (
 
 // An example of making and saving a plot.
 func Example() *Plot {
-	// Get some data to plot.
+	rand.Seed(int64(0))
 	pts := MakeXYLabelErrors(10)
 	for i := range pts.XYs {
 		if i == 0 {
@@ -28,7 +28,6 @@ func Example() *Plot {
 		pts.YErrors[i].High = rand.Float64()/2
 	}
 
-	// Make our plot and set some labels.
 	p, err := New()
 	if err != nil {
 		panic(err)
@@ -87,7 +86,7 @@ func Example_logo() *Plot {
 
 // An example of making a box plot.
 func Example_boxPlot() *Plot {
-	// Get some data to plot.
+	rand.Seed(int64(0))
 	n := 10
 	uniform := make(Ys, n)
 	normal := make(Ys, n)
@@ -98,7 +97,6 @@ func Example_boxPlot() *Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	// Make our plot and set some labels.
 	p, err := New()
 	if err != nil {
 		panic(err)
@@ -120,7 +118,7 @@ func Example_boxPlot() *Plot {
 
 // An example of making a horizontal box plot.
 func Example_horizontalBoxes() *Plot {
-	// Get some data to plot.
+	rand.Seed(int64(0))
 	n := 10
 	uniform := make(Ys, n)
 	normal := make(Ys, n)
@@ -131,7 +129,6 @@ func Example_horizontalBoxes() *Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	// Make our plot and set some labels.
 	p, err := New()
 	if err != nil {
 		panic(err)

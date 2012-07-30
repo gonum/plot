@@ -131,14 +131,47 @@ func (c *Canvas) Fill(path vg.Path) {
 
 func (c *Canvas) pathData(path vg.Path) string {
 	buf := new(bytes.Buffer)
-	for _, comp := range path {
+	for i, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
-			fmt.Fprintf(buf, "M%.*g %.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
+			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
 		case vg.LineComp:
-			fmt.Fprintf(buf, "L%.*g %.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
+			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
 		case vg.ArcComp:
-			fmt.Fprintln(os.Stderr, "skipping an arc")
+			end := comp.Finish
+			if end < comp.Start {
+				end += 2*math.Pi
+			}
+			large := 1
+			if end - comp.Start < math.Pi {
+				large = 0
+			}
+
+			sweep := 1
+			circle := isCircle(comp.Start, end)
+			if circle {
+				// The start point and end point in an SVG cannot
+				// be equal.  If we are drawing a circle then ensure
+				// that the end point is beyond the start point.
+				end = comp.Start + 2*math.Pi + 0.01
+				sweep = 0
+			}
+
+			r := comp.Radius.Dots(c)
+			fmt.Fprintf(buf, "A%.*g,%.*g 0 %d %d %.*g,%.*g",
+					pr, r, pr, r, large, sweep,
+					pr, comp.X.Dots(c) + r*math.Cos(end),
+					pr, comp.Y.Dots(c) + r*math.Sin(end))
+
+			if circle && i < len(path) - 1 {
+				// This is a circle, which required us to draw
+				// *beyond* the desired circle end point, thus
+				// we need to move back to the real end point
+				// which is the same as the starting point.
+				fmt.Fprintf(buf, "M%.*g,%.*g",
+					pr, comp.X.Dots(c) + r*math.Cos(comp.Start),
+					pr, comp.Y.Dots(c) + r*math.Sin(comp.Start))
+			}
 		case vg.CloseComp:
 			buf.WriteString("Z")
 		default:
@@ -146,6 +179,10 @@ func (c *Canvas) pathData(path vg.Path) string {
 		}
 	}
 	return buf.String()
+}
+
+func isCircle(start, end float64) bool {
+	return math.Remainder(end, math.Pi*2) == math.Remainder(start, math.Pi*2)
 }
 
 func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
