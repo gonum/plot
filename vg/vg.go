@@ -109,7 +109,7 @@ func (p *Path) Arc(x, y, rad Length, s, a float64) {
 		Y:      y,
 		Radius: rad,
 		Start:  s,
-		Angle: a,
+		Angle:  a,
 	})
 }
 

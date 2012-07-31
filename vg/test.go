@@ -98,7 +98,7 @@ func DrawArcs(t *testing.T, c Canvas) {
 	var p Path
 	p.Move(Inches(3), Inches(2))
 	p.Arc(Inches(2), Inches(2), Inches(1), 0, 2*math.Pi)
-	c.SetColor(color.RGBA{B:255, A:255})
+	c.SetColor(color.RGBA{B: 255, A: 255})
 	c.Fill(p)
 
 	p = Path{}
@@ -106,7 +106,7 @@ func DrawArcs(t *testing.T, c Canvas) {
 	p.Line(Inches(3), Inches(2))
 	p.Arc(Inches(2), Inches(2), Inches(1), 0, 5*math.Pi/2)
 	p.Line(Inches(2), Inches(4))
-	c.SetColor(color.RGBA{R:255, A:255})
+	c.SetColor(color.RGBA{R: 255, A: 255})
 	c.SetLineWidth(Points(3))
 	c.Stroke(p)
 

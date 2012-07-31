@@ -12,8 +12,8 @@ import (
 	"fmt"
 	svgo "github.com/ajstarks/svgo"
 	"image/color"
-	"math"
 	"io"
+	"math"
 	"os"
 )
 
@@ -145,8 +145,8 @@ func (c *Canvas) pathData(path vg.Path) string {
 			y = comp.Y.Dots(c)
 		case vg.ArcComp:
 			r := comp.Radius.Dots(c)
-			x0 := comp.X.Dots(c)+r*math.Cos(comp.Start)
-			y0 := comp.Y.Dots(c)+r*math.Sin(comp.Start)
+			x0 := comp.X.Dots(c) + r*math.Cos(comp.Start)
+			y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start)
 			if x0 != x || y0 != y {
 				fmt.Fprintf(buf, "L%.*g,%.*g", pr, x0, pr, y0)
 			}
@@ -169,9 +169,9 @@ func (c *Canvas) pathData(path vg.Path) string {
 // SVG disallows the start and end point of an arc
 // from being at the same location.
 func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
-	angle := 2*math.Pi
+	angle := 2 * math.Pi
 	if comp.Angle < 0 {
-		angle = -2*math.Pi
+		angle = -2 * math.Pi
 	}
 	angle += remainder(comp.Angle, 2*math.Pi)
 	if angle >= 4*math.Pi {
@@ -179,13 +179,13 @@ func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 	}
 
 	r := comp.Radius.Dots(c)
-	x0 := comp.X.Dots(c)+r*math.Cos(comp.Start + angle/2)
-	y0 := comp.Y.Dots(c)+r*math.Sin(comp.Start + angle/2)
-	x = comp.X.Dots(c)+r*math.Cos(comp.Start + angle)
-	y = comp.Y.Dots(c)+r*math.Sin(comp.Start + angle)
+	x0 := comp.X.Dots(c) + r*math.Cos(comp.Start+angle/2)
+	y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start+angle/2)
+	x = comp.X.Dots(c) + r*math.Cos(comp.Start+angle)
+	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+angle)
 
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
-		large(angle/2), sweep(angle/2), pr, x0, pr, y0)//
+		large(angle/2), sweep(angle/2), pr, x0, pr, y0) //
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(angle/2), sweep(angle/2), pr, x, pr, y)
 	return
@@ -196,7 +196,7 @@ func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 // seems to return incorrect values due to how
 // IEEE defines the remainder operation…
 func remainder(x, y float64) float64 {
-	return (x/y - math.Trunc(x / y))*y
+	return (x/y - math.Trunc(x/y)) * y
 }
 
 // arc adds arc path data to the given writer.
@@ -205,8 +205,8 @@ func remainder(x, y float64) float64 {
 // circle should be used instead.
 func arc(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 	r := comp.Radius.Dots(c)
-	x = comp.X.Dots(c)+r*math.Cos(comp.Start + comp.Angle)
-	y = comp.Y.Dots(c)+r*math.Sin(comp.Start + comp.Angle)
+	x = comp.X.Dots(c) + r*math.Cos(comp.Start+comp.Angle)
+	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+comp.Angle)
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(comp.Angle), sweep(comp.Angle), pr, x, pr, y)
 	return
