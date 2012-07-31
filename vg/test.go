@@ -95,36 +95,55 @@ func DrawFonts(t *testing.T, c Canvas) {
 func DrawArcs(t *testing.T, c Canvas) {
 	green := color.RGBA{G: 255, A: 255}
 
-	var p0 Path
-	p0.Move(Inches(0), Inches(1))
-	p0.Arc(Inches(1), Inches(1), Inches(1), math.Pi, 3*math.Pi/2)
+	var p Path
+	p.Move(Inches(3), Inches(2))
+	p.Arc(Inches(2), Inches(2), Inches(1), 0, 2*math.Pi)
+	c.SetColor(color.RGBA{B:255, A:255})
+	c.Fill(p)
+
+	p = Path{}
+	p.Move(Inches(4), Inches(2))
+	p.Line(Inches(3), Inches(2))
+	p.Arc(Inches(2), Inches(2), Inches(1), 0, 5*math.Pi/2)
+	p.Line(Inches(2), Inches(4))
+	c.SetColor(color.RGBA{R:255, A:255})
+	c.SetLineWidth(Points(3))
+	c.Stroke(p)
+
+	p = Path{}
+	p.Move(Inches(0), Inches(2))
+	p.Line(Inches(1), Inches(2))
+	p.Arc(Inches(2), Inches(2), Inches(1), math.Pi, -7*math.Pi/2)
+	p.Line(Inches(2), Inches(0))
+	c.SetColor(color.Black)
+	c.SetLineWidth(Points(1))
+	c.Stroke(p)
+
+	p = Path{}
+	p.Move(Inches(0), Inches(1))
+	p.Arc(Inches(1), Inches(1), Inches(1), math.Pi, math.Pi/2)
 	c.SetLineWidth(Points(3))
 	c.SetColor(green)
-	c.Stroke(p0)
+	c.Stroke(p)
 
-	var p05 Path
-	p05.Move(Inches(1), Inches(0))
-	p05.Arc(Inches(1), Inches(1), Inches(1), 3*math.Pi/2, math.Pi)
+	p = Path{}
+	p.Move(Inches(1), Inches(0))
+	p.Arc(Inches(1), Inches(1), Inches(1), 3*math.Pi/2, -math.Pi/2)
 	c.SetLineWidth(Points(1))
 	c.SetColor(color.Black)
-	c.Stroke(p0)
+	c.Stroke(p)
 
-	var p1 Path
-	p1.Move(Inches(3), Inches(2))
-	p1.Arc(Inches(3), Inches(3), Inches(1), 3*math.Pi/2, math.Pi)
+	p = Path{}
+	p.Move(Inches(3), Inches(2))
+	p.Arc(Inches(3), Inches(3), Inches(1), 3*math.Pi/2, 3*math.Pi/2)
 	c.SetLineWidth(Points(3))
 	c.SetColor(green)
-	c.Stroke(p1)
+	c.Stroke(p)
 
-	var p15 Path
-	p15.Move(Inches(2), Inches(3))
-	p15.Arc(Inches(3), Inches(3), Inches(1), math.Pi, 3*math.Pi/2)
+	p = Path{}
+	p.Move(Inches(2), Inches(3))
+	p.Arc(Inches(3), Inches(3), Inches(1), math.Pi, -3*math.Pi/2)
 	c.SetLineWidth(Points(1))
 	c.SetColor(color.Black)
-	c.Stroke(p1)
-
-	var p2 Path
-	p2.Move(Inches(3), Inches(2))
-	p2.Arc(Inches(2), Inches(2), Inches(1), 0, 2*math.Pi)
-	c.Stroke(p2)
+	c.Stroke(p)
 }

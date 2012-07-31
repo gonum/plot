@@ -142,9 +142,14 @@ func (e *Canvas) trace(path vg.Path) {
 		case vg.LineComp:
 			fmt.Fprintf(e.buf, "%.*g %.*g lineto\n", pr, comp.X, pr, comp.Y)
 		case vg.ArcComp:
-			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g arc\n", pr, comp.X, pr, comp.Y,
+			end := comp.Start + comp.Angle
+			arcOp := "arc"
+			if comp.Angle < 0 {
+				arcOp = "arcn"
+			}
+			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %s\n", pr, comp.X, pr, comp.Y,
 				pr, comp.Radius, pr, comp.Start*180/math.Pi, pr,
-				comp.Finish*180/math.Pi)
+				end*180/math.Pi, arcOp)
 		case vg.CloseComp:
 			e.buf.WriteString("closepath\n")
 		default:
