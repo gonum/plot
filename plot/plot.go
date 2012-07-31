@@ -335,7 +335,7 @@ func (p *Plot) NominalY(names ...string) {
 // Save saves the plot to an image file.  Width and height
 // are specified in inches, and the file format is determined
 // by the extension. Currently supproted extensions are
-// .png and .eps.
+// .png, .eps, and .svg.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c vg.Canvas
