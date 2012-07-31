@@ -101,17 +101,15 @@ func (p *Path) Line(x, y Length) {
 
 // Arc adds an arc to the path defined by the center
 // point of the arc's circle, the radius of the circle
-// and the start and finish angles.  The arc is drawn
-// by sweeping from the start angle in a counter-
-// clockwise direction to the end angle.
-func (p *Path) Arc(x, y, rad Length, s, f float64) {
+// and the start and finish angles.
+func (p *Path) Arc(x, y, rad Length, s, a float64) {
 	*p = append(*p, PathComp{
 		Type:   ArcComp,
 		X:      x,
 		Y:      y,
 		Radius: rad,
 		Start:  s,
-		Finish: f,
+		Angle:  a,
 	})
 }
 
@@ -148,9 +146,9 @@ type PathComp struct {
 	// the radius of the circle defining the arc.
 	Radius Length
 
-	// Start and Finish are only used for ArcComps.
-	// They define the start and finish angles of
+	// Start and Angle are only used for ArcComps.
+	// They define the start angle and sweep angle of
 	// the arc around the circle.  The units of the
 	// angle are radians.
-	Start, Finish float64
+	Start, Angle float64
 }

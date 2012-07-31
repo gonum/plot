@@ -12,6 +12,7 @@ import (
 	"fmt"
 	svgo "github.com/ajstarks/svgo"
 	"image/color"
+	"io"
 	"math"
 	"os"
 )
@@ -131,44 +132,28 @@ func (c *Canvas) Fill(path vg.Path) {
 
 func (c *Canvas) pathData(path vg.Path) string {
 	buf := new(bytes.Buffer)
-	for i, comp := range path {
+	var x, y float64
+	for _, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
 			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
+			x = comp.X.Dots(c)
+			y = comp.Y.Dots(c)
 		case vg.LineComp:
 			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
+			x = comp.X.Dots(c)
+			y = comp.Y.Dots(c)
 		case vg.ArcComp:
-			end := comp.Finish
-			if end < comp.Start {
-				end += 2 * math.Pi
-			}
-			large := 1
-			if end-comp.Start < math.Pi {
-				large = 0
-			}
-
-			circle := math.Abs(end - comp.Start) >= 2*math.Pi
-			if circle {
-				// The start point and end point in an SVG cannot
-				// be equal.  If we are drawing a circle then we
-				// instead draw a tiny bit less than a full circle and
-				// close it later with a line.
-				end = comp.Start + 2*math.Pi - 0.001
-			}
-
 			r := comp.Radius.Dots(c)
-			fmt.Fprintf(buf, "A%.*g,%.*g 0 %d 1 %.*g,%.*g",
-				pr, r, pr, r, large,
-				pr, comp.X.Dots(c)+r*math.Cos(end),
-				pr, comp.Y.Dots(c)+r*math.Sin(end))
-
-			if circle && i < len(path)-1 {
-				// This is a circle, which required us to draw
-				// slightly less than a full circle, thus we need
-				// to close it.
-				fmt.Fprintf(buf, "L%.*g,%.*g",
-					pr, comp.X.Dots(c)+r*math.Cos(comp.Start),
-					pr, comp.Y.Dots(c)+r*math.Sin(comp.Start))
+			x0 := comp.X.Dots(c) + r*math.Cos(comp.Start)
+			y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start)
+			if x0 != x || y0 != y {
+				fmt.Fprintf(buf, "L%.*g,%.*g", pr, x0, pr, y0)
+			}
+			if math.Abs(comp.Angle) >= 2*math.Pi {
+				x, y = circle(buf, c, &comp)
+			} else {
+				x, y = arc(buf, c, &comp)
 			}
 		case vg.CloseComp:
 			buf.WriteString("Z")
@@ -177,6 +162,72 @@ func (c *Canvas) pathData(path vg.Path) string {
 		}
 	}
 	return buf.String()
+}
+
+// circle adds circle path data to the given writer.
+// Circles must be drawn using two arcs because
+// SVG disallows the start and end point of an arc
+// from being at the same location.
+func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
+	angle := 2 * math.Pi
+	if comp.Angle < 0 {
+		angle = -2 * math.Pi
+	}
+	angle += remainder(comp.Angle, 2*math.Pi)
+	if angle >= 4*math.Pi {
+		panic("Impossible angle")
+	}
+
+	r := comp.Radius.Dots(c)
+	x0 := comp.X.Dots(c) + r*math.Cos(comp.Start+angle/2)
+	y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start+angle/2)
+	x = comp.X.Dots(c) + r*math.Cos(comp.Start+angle)
+	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+angle)
+
+	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
+		large(angle/2), sweep(angle/2), pr, x0, pr, y0) //
+	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
+		large(angle/2), sweep(angle/2), pr, x, pr, y)
+	return
+}
+
+// remainder returns the remainder of x/y.
+// We don't use math.Remainder because it
+// seems to return incorrect values due to how
+// IEEE defines the remainder operation…
+func remainder(x, y float64) float64 {
+	return (x/y - math.Trunc(x/y)) * y
+}
+
+// arc adds arc path data to the given writer.
+// Arc can only be used if the arc's angle is
+// less than a full circle, if it is greater then
+// circle should be used instead.
+func arc(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
+	r := comp.Radius.Dots(c)
+	x = comp.X.Dots(c) + r*math.Cos(comp.Start+comp.Angle)
+	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+comp.Angle)
+	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
+		large(comp.Angle), sweep(comp.Angle), pr, x, pr, y)
+	return
+}
+
+// sweep returns the arc sweep flag value for
+// the given angle.
+func sweep(a float64) int {
+	if a < 0 {
+		return 0
+	}
+	return 1
+}
+
+// large returns the arc's large flag value for
+// the given angle.
+func large(a float64) int {
+	if math.Abs(a) >= math.Pi {
+		return 1
+	}
+	return 0
 }
 
 func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {

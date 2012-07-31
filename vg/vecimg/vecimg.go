@@ -16,7 +16,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"math"
 	"os"
 	"path/filepath"
 )
@@ -125,13 +124,9 @@ func (c *Canvas) outline(p vg.Path) {
 			c.gc.LineTo(comp.X.Dots(c), comp.Y.Dots(c))
 
 		case vg.ArcComp:
-			end := comp.Finish
-			if comp.Finish < comp.Start {
-				end += 2 * math.Pi
-			}
 			c.gc.ArcTo(comp.X.Dots(c), comp.Y.Dots(c),
 				comp.Radius.Dots(c), comp.Radius.Dots(c),
-				comp.Start, end-comp.Start)
+				comp.Start, comp.Angle)
 
 		case vg.CloseComp:
 			c.gc.Close()
