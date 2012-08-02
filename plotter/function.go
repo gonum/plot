@@ -11,17 +11,17 @@ import (
 // Function implements the Plotter interface, drawing a line
 // for the given function.
 type Function struct {
-	F func(float64) float64
+	F       func(float64) float64
 	Samples int
 	plot.LineStyle
 }
 
 // MakeFunction returns a Function that plots F using
 // the default line style with 50 samples.
-func MakeFunction(f func(float64)float64) Function {
-	return Function {
-		F: f,
-		Samples: 50,
+func MakeFunction(f func(float64) float64) Function {
+	return Function{
+		F:         f,
+		Samples:   50,
 		LineStyle: DefaultLineStyle,
 	}
 }
@@ -33,7 +33,7 @@ func (l Function) Plot(da plot.DrawArea, p *plot.Plot) {
 	line := make([]plot.Point, l.Samples)
 	d := (p.X.Max - p.X.Min) / float64(l.Samples-1)
 	for i := 0; i < l.Samples; i++ {
-		x := p.X.Min + float64(i) * d
+		x := p.X.Min + float64(i)*d
 		line[i].X = trX(x)
 		line[i].Y = trY(l.F(x))
 	}

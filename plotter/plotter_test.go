@@ -8,10 +8,10 @@ import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
-	"math/rand"
 	"image/color"
-	"testing"
 	"math"
+	"math/rand"
+	"testing"
 )
 
 func TestDrawImage(t *testing.T) {
@@ -85,18 +85,18 @@ func Example_functions() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	quad := MakeFunction(func(x float64)float64{ return x*x })
-	quad.Color = color.RGBA{B:255, A:255}
+	quad := MakeFunction(func(x float64) float64 { return x * x })
+	quad.Color = color.RGBA{B: 255, A: 255}
 
-	exp := MakeFunction(func(x float64)float64{ return math.Pow(2, x) })
+	exp := MakeFunction(func(x float64) float64 { return math.Pow(2, x) })
 	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
 	exp.Width = vg.Points(2)
-	exp.Color = color.RGBA{G:255, A:255}
+	exp.Color = color.RGBA{G: 255, A: 255}
 
-	sin := MakeFunction(func(x float64)float64{ return 10*math.Sin(x)+50 })
+	sin := MakeFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
 	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
 	sin.Width = vg.Points(4)
-	sin.Color = color.RGBA{R:255, A:255}
+	sin.Color = color.RGBA{R: 255, A: 255}
 
 	p.Add(quad, exp, sin)
 	p.Legend.Add("x^2", quad)
