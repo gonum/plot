@@ -2,7 +2,7 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// plot provides an API for building and drawing plots in Go.
+// plot provides an API for building and drawing plots.
 package plot
 
 import (
