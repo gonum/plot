@@ -9,7 +9,9 @@ import (
 )
 
 // A Legend gives a description of the meaning of different
-// data elements of the plot.
+// data elements of the plot.  Each legend entry has a name
+// and a thumbnail, where the thumbnail shows a small
+// sample of the display style of the corresponding data.
 type Legend struct {
 	// TextStyle is the style given to the legend
 	// entry texts.
@@ -29,7 +31,7 @@ type Legend struct {
 	// final position.
 	XOffs, YOffs vg.Length
 
-	// ThumbnailWidth is the width of legend icons.
+	// ThumbnailWidth is the width of legend thumbnails.
 	ThumbnailWidth vg.Length
 
 	// entries are all of the legendEntries described
