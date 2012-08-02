@@ -9,7 +9,9 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"math/rand"
+	"image/color"
 	"testing"
+	"math"
 )
 
 func TestDrawImage(t *testing.T) {
@@ -25,7 +27,7 @@ func TestDrawEps(t *testing.T) {
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_functions().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }
@@ -70,6 +72,41 @@ func Example() *plot.Plot {
 	p.Add(line, scatter, errbars, labels)
 	p.Legend.Add("line", line, scatter)
 	p.Legend.Left = true
+	return p
+}
+
+// An example of plotting a function.
+func Example_functions() *plot.Plot {
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Functions"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	quad := MakeFunction(func(x float64)float64{ return x*x })
+	quad.Color = color.RGBA{B:255, A:255}
+
+	exp := MakeFunction(func(x float64)float64{ return math.Pow(2, x) })
+	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
+	exp.Width = vg.Points(2)
+	exp.Color = color.RGBA{G:255, A:255}
+
+	sin := MakeFunction(func(x float64)float64{ return 10*math.Sin(x)+50 })
+	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
+	sin.Width = vg.Points(4)
+	sin.Color = color.RGBA{R:255, A:255}
+
+	p.Add(quad, exp, sin)
+	p.Legend.Add("x^2", quad)
+	p.Legend.Add("2^x", exp)
+	p.Legend.Add("10*sin(x)+50", sin)
+
+	p.X.Min = 0
+	p.X.Max = 10
+	p.Y.Min = 0
+	p.Y.Max = 100
 	return p
 }
 
