@@ -29,8 +29,8 @@ type Legend struct {
 	// final position.
 	XOffs, YOffs vg.Length
 
-	// IconWidth is the width of legend icons.
-	IconWidth vg.Length
+	// ThumbnailWidth is the width of legend icons.
+	ThumbnailWidth vg.Length
 
 	// entries are all of the legendEntries described
 	// by this legend.
@@ -66,7 +66,7 @@ func makeLegend() (Legend, error) {
 		return Legend{}, err
 	}
 	return Legend{
-		IconWidth: vg.Points(20),
+		ThumbnailWidth: vg.Points(20),
 		TextStyle: TextStyle{Font: font},
 	}, nil
 }
@@ -74,10 +74,10 @@ func makeLegend() (Legend, error) {
 // draw draws the legend to the given DrawArea.
 func (l *Legend) draw(da *DrawArea) {
 	iconx := da.Min.X
-	textx := iconx + l.IconWidth + l.TextStyle.Width(" ")
+	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
 	xalign := 0.0
 	if !l.Left {
-		iconx = da.Max().X - l.IconWidth
+		iconx = da.Max().X - l.ThumbnailWidth
 		textx = iconx - l.TextStyle.Width(" ")
 		xalign = -1
 	}
@@ -93,7 +93,7 @@ func (l *Legend) draw(da *DrawArea) {
 
 	icon := &DrawArea{
 		Canvas: da.Canvas,
-		Rect:   Rect{Min: Point{iconx, y}, Size: Point{l.IconWidth, enth}},
+		Rect:   Rect{Min: Point{iconx, y}, Size: Point{l.ThumbnailWidth, enth}},
 	}
 	for _, e := range l.entries {
 		for _, t := range e.thumbs {
