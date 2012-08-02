@@ -5,8 +5,8 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"math/rand"
 	"testing"

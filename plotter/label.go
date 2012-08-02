@@ -9,7 +9,6 @@ import (
 	"code.google.com/p/plotinum/vg"
 )
 
-
 // Labels implements the Plotter interface, drawing
 // a set of labels on the plot.
 type Labels struct {

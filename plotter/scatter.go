@@ -8,7 +8,6 @@ import (
 	"code.google.com/p/plotinum/plot"
 )
 
-
 // Scatter implements the Plotter interface, drawing
 // glyphs at each of the given points.
 type Scatter struct {

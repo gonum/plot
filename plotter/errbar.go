@@ -127,7 +127,7 @@ func (e ErrorBars) verticalGlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 		return
 	}
 	vertRect := plot.Rect{
-		Min: plot.Point{X: -e.CapWidth / 2},
+		Min:  plot.Point{X: -e.CapWidth / 2},
 		Size: plot.Point{X: e.CapWidth},
 	}
 	for i := 0; i < e.Len(); i++ {
@@ -149,7 +149,7 @@ func (e ErrorBars) horizontalGlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 		return
 	}
 	horzRect := plot.Rect{
-		Min: plot.Point{Y: -e.CapWidth / 2},
+		Min:  plot.Point{Y: -e.CapWidth / 2},
 		Size: plot.Point{Y: e.CapWidth},
 	}
 	for i := 0; i < e.Len(); i++ {
