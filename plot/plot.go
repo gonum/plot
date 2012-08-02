@@ -2,7 +2,17 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// plot provides an API for building and drawing plots.
+// plot provides an API for setting up plots, and primitives for
+// drawing on plots.
+//
+// Plot is the basic type for creating a plot, setting the title, axis
+// labels, legend, tick marks, etc.  Types implementing the Plotter
+// interface can draw to the data area of a plot using the primitives
+// made available by this package.  Some standard implementations
+// of the Plotter interface can be found in the
+// code.google.com/p/plotinum/plotter package
+// which is documented here: 
+// http://go.pkgdoc.org/code.google.com/p/plotinum/plotter
 package plot
 
 import (
@@ -49,6 +59,10 @@ type Plot struct {
 }
 
 // Plotter is an interface that wraps the Plot method.
+// Some standard implementations of Plotter can be
+// found in the code.google.com/p/plotinum/plotter
+// package, documented here:
+// http://go.pkgdoc.org/code.google.com/p/plotinum/plotter
 type Plotter interface {
 	// Plot draws the data to a DrawArea.
 	Plot(DrawArea, *Plot)
