@@ -1,0 +1,4 @@
+syntax: glob
+*.svg
+*.png
+*.eps

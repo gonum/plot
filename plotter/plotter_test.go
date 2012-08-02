@@ -2,16 +2,36 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-package plot
+package plotter
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/plot"
 	"fmt"
 	"math/rand"
+	"testing"
 )
 
+func TestDrawImage(t *testing.T) {
+	if err := Example().Save(4, 4, "test.png"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDrawEps(t *testing.T) {
+	if err := Example().Save(4, 4, "test.eps"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDrawSvg(t *testing.T) {
+	if err := Example().Save(4, 4, "test.svg"); err != nil {
+		t.Error(err)
+	}
+}
+
 // An example of making and saving a plot.
-func Example() *Plot {
+func Example() *plot.Plot {
 	rand.Seed(int64(0))
 	pts := MakeXYLabelErrors(10)
 	for i := range pts.XYs {
@@ -28,7 +48,7 @@ func Example() *Plot {
 		pts.YErrors[i].High = rand.Float64() / 2
 	}
 
-	p, err := New()
+	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
@@ -54,8 +74,8 @@ func Example() *Plot {
 }
 
 // Draw the plotinum logo.
-func Example_logo() *Plot {
-	p, err := New()
+func Example_logo() *plot.Plot {
+	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
@@ -63,8 +83,12 @@ func Example_logo() *Plot {
 	DefaultLineStyle.Width = vg.Points(1)
 	DefaultGlyphStyle.Radius = vg.Points(3)
 
-	p.Y.Tick.Marker = ConstantTicks([]Tick{{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"}})
-	p.X.Tick.Marker = ConstantTicks([]Tick{{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"}})
+	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
+		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	})
+	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
+		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	})
 
 	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
 	line := Line{pts, DefaultLineStyle}
@@ -85,7 +109,7 @@ func Example_logo() *Plot {
 }
 
 // An example of making a box plot.
-func Example_boxPlot() *Plot {
+func Example_boxPlot() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10
 	uniform := make(Ys, n)
@@ -97,7 +121,7 @@ func Example_boxPlot() *Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := New()
+	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
@@ -117,7 +141,7 @@ func Example_boxPlot() *Plot {
 }
 
 // An example of making a horizontal box plot.
-func Example_horizontalBoxes() *Plot {
+func Example_horizontalBoxes() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10
 	uniform := make(Ys, n)
@@ -129,7 +153,7 @@ func Example_horizontalBoxes() *Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := New()
+	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
