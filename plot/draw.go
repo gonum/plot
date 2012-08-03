@@ -186,7 +186,7 @@ func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
 	}
 }
 
-// StrokeLine draws a line connecting a set of points
+// StrokeLines draws a line connecting a set of points
 // in the given DrawArea.
 func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
 	if len(lines) == 0 {
@@ -201,7 +201,7 @@ func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
 		}
 		var p vg.Path
 		p.Move(l[0].X, l[0].Y)
-		for _, pt := range l {
+		for _, pt := range l[1:] {
 			p.Line(pt.X, pt.Y)
 		}
 		da.Stroke(p)
@@ -227,11 +227,11 @@ func (da *DrawArea) ClipLinesXY(lines ...[]Point) [][]Point {
 func (da *DrawArea) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 	var lines1 [][]Point
 	for _, line := range lines {
-		ls := clip(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, line)
+		ls := clipLine(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clip(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
+		ls := clipLine(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -243,19 +243,20 @@ func (da *DrawArea) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 func (da *DrawArea) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
 	var lines1 [][]Point
 	for _, line := range lines {
-		ls := clip(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
+		ls := clipLine(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clip(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
+		ls := clipLine(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
 }
 
-// clip performs clipping in a single clipping line specified
-// by the norm, clip point, and in function.
-func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
+// clipLine performs clipping of a line by a single
+// clipping line specified by the norm, clip point,
+// and in function.
+func clipLine(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
 	var l []Point
 	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
@@ -281,6 +282,74 @@ func clip(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]
 	}
 	if len(l) > 1 {
 		lines = append(lines, l)
+	}
+	return
+}
+
+// FillPolygon fills a polygon with the given color.
+func (da *DrawArea) FillPolygon(clr color.Color, pts []Point) {
+	if len(pts) == 0 {
+		return
+	}
+
+	da.SetColor(clr)
+	var p vg.Path
+	fmt.Println(len(pts), "verts")
+	p.Move(pts[0].X, pts[0].Y)
+	for _, pt := range pts[1:] {
+		p.Line(pt.X, pt.Y)
+	}
+	p.Close()
+	da.Fill(p)
+}
+
+// ClipPolygonXY returns a slice of lines that
+// represent the given polygon clipped in both
+// X and Y directions.
+func (da *DrawArea) ClipPolygonXY(pts []Point) []Point {
+	return da.ClipPolygonY(da.ClipPolygonX(pts))
+}
+
+// ClipPolygonX returns a slice of lines that
+// represent the given polygon clipped in the
+// X direction.
+func (da *DrawArea) ClipPolygonX(pts []Point) []Point {
+	return clipPoly(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0},
+		clipPoly(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, pts))
+}
+
+// ClipPolygonY returns a slice of lines that
+// represent the given polygon clipped in the
+// Y direction.
+func (da *DrawArea) ClipPolygonY(pts []Point) []Point {
+	return clipPoly(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1},
+		clipPoly(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, pts))
+}
+
+// clipPoly performs clipping of a polygon by a single
+// clipping line specified by the norm, clip point,
+// and in function.
+func clipPoly(in func(Point, Point) bool, clip, norm Point, pts []Point) (clipped []Point) {
+	for i := 0; i < len(pts); i++ {
+		j := i + 1
+		if i == len(pts)-1 {
+			j = 0
+		}
+		cur, next := pts[i], pts[j]
+		curIn, nextIn := in(cur, clip), in(next, clip)
+		switch {
+		case curIn && nextIn:
+			clipped = append(clipped, cur)
+
+		case curIn && !nextIn:
+			clipped = append(clipped, cur, isect(cur, next, clip, norm))
+
+		case !curIn && !nextIn:
+			// do nothing
+
+		default: // !curIn && nextIn
+			clipped = append(clipped, isect(cur, next, clip, norm))
+		}
 	}
 	return
 }
