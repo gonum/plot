@@ -228,3 +228,14 @@ func Example_histogram() *plot.Plot {
 	p.Add(NewHistogram(vals))
 	return p
 }
+
+func TestEmpty(t *testing.T) {
+	p, err := plot.New()
+	if err != nil {
+		t.Error(err)
+	}
+
+	if err := p.Save(4, 4, "empty.svg"); err != nil {
+		t.Error(err)
+	}
+}

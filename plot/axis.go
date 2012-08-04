@@ -93,6 +93,27 @@ func makeAxis() (Axis, error) {
 	return a, nil
 }
 
+// sanitizeRange ensures that the range of the
+// axis makes sense.
+func (a *Axis) sanitizeRange() {
+	if a.Min > a.Max {
+		a.Min = a.Max
+	}
+	if a.Max < a.Min {
+		a.Max = a.Min
+	}
+	if math.IsInf(a.Min, 0) {
+		a.Min = 0
+	}
+	if math.IsInf(a.Max, 0) {
+		a.Max = 0
+	}
+	if a.Min == a.Max {
+		a.Min -= 1
+		a.Max += 1
+	}
+}
+
 // Norm return the value of x, given in the data coordinate
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return

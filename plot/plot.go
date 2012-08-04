@@ -135,17 +135,10 @@ func (p *Plot) Draw(da *DrawArea) {
 		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
 		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 	}
-
-	if p.X.Min == p.X.Max {
-		p.X.Min -= 1
-		p.X.Max += 1
-	}
+	
+	p.X.sanitizeRange()
 	x := horizontalAxis{p.X}
-
-	if p.Y.Min == p.Y.Max {
-		p.Y.Min -= 1
-		p.Y.Max += 1
-	}
+	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
