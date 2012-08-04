@@ -15,6 +15,12 @@ type Scatter struct {
 	plot.GlyphStyle
 }
 
+// MakeScatter returns a scatter of the given poins
+// with the default glyph style.
+func MakeScatter(xy XYer) Scatter {
+	return Scatter{ xy, DefaultGlyphStyle }
+}
+
 // Plot implements the Plot method of the Plotter interface,
 // drawing a glyph for each point in the Scatter.
 func (s Scatter) Plot(da plot.DrawArea, p *plot.Plot) {

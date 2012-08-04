@@ -57,8 +57,8 @@ func Example() *plot.Plot {
 	p.Title.Text = "Example plot"
 	p.X.Label.Text = "X Values"
 	p.Y.Label.Text = "Y Values"
-	line := Line{pts, DefaultLineStyle}
-	scatter := Scatter{pts, DefaultGlyphStyle}
+	line := MakeLine(pts)
+	scatter := MakeScatter(pts)
 	errbars, err := MakeErrorBars(pts)
 	if err != nil {
 		panic(err)

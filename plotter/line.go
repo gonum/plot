@@ -15,6 +15,12 @@ type Line struct {
 	plot.LineStyle
 }
 
+// MakeLine returns a line of the given points with
+// the default line style.
+func MakeLine(xy XYer) Line {
+	return Line{ xy, DefaultLineStyle }
+}
+
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
 func (l Line) Plot(da plot.DrawArea, p *plot.Plot) {
