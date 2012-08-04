@@ -16,10 +16,19 @@ import (
 type Histogram struct {
 	XYer
 
-	// BinWidth is the width of each histogram
-	// bin.  If BinWidth is non-positive then a
-	// reasonable default is used.
-	BinWidth float64
+	// If Normalize is positive then the mass under
+	// the histogram is normalized to sum to the
+	// given value.
+	Normalize float64
+
+	// NumBins is the number of bins.
+	// If NumBins is non-positive then a reasonable
+	// default is used.
+	// 
+	// The default number of bins is is the square root of
+	// the number of samples.  According to Wikipedia,
+	// this is what MS Excel uses.
+	NumBins int
 
 	// FillColor is the color used to fill each
 	// bar of the histogram.  If the color is nil
@@ -83,11 +92,17 @@ func (l *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 // bins returns the histogram's bins.
 func (h *Histogram) bins() []histBin {
 	xmin, xmax := xDataRange(h.XYer)
-	w := h.UsedBinWidth()
-	xmin -= w/2
-	xmax += w/2
 
-	n := int(math.Ceil((xmax - xmin) / w))
+	n := h.NumBins
+	if h.NumBins <= 0 {	
+		m := 0.0
+		for i := 0; i < h.Len(); i++ {
+			m += math.Max(h.Y(i), 1.0)
+		}
+		n = int(math.Ceil(math.Sqrt(m)))
+	}
+	w := (xmax - xmin) / float64(n-1)
+
 	if n < 1 || xmax <= xmin {
 		n = 1
 	}
@@ -98,6 +113,7 @@ func (h *Histogram) bins() []histBin {
 		bins[i].xMax = xmin + float64(i+1)*w
 	}
 
+	sum := 0.0
 	for i := 0; i < h.Len(); i++ {
 		x := h.X(i)
 		bin := int((x - xmin) / w)
@@ -105,8 +121,17 @@ func (h *Histogram) bins() []histBin {
 			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",
 				h.X(i), xmin, xmax, w, bin, n))
 		}
-		bins[bin].height += h.Y(i) / w
+		y := h.Y(i)
+		bins[bin].height += y
+		sum += y
 	}
+
+	if h.Normalize > 0 {
+		for i := range bins {
+			bins[i].height = (bins[i].height / w / sum) * h.Normalize
+		}
+	}
+
 	return bins
 }
 
@@ -114,24 +139,4 @@ func (h *Histogram) bins() []histBin {
 type histBin struct {
 	xMin, xMax float64
 	height float64
-}
-
-// UsedBinWidth returns the bin width being used to
-// draw the histogram.  If the histogram's BinWidth
-// field is positive then it is returned, otherwise the
-// default value is computed and returned.
-//
-// The default number of bins is is the square root of
-// the number of samples.  According to Wikipedia,
-// this is what MS Excel uses.
-func (h *Histogram) UsedBinWidth() float64 {
-	if h.BinWidth > 0 {
-		return h.BinWidth
-	}
-	n := 0.0
-	for i := 0; i < h.Len(); i++ {
-		n += math.Max(h.Y(i), 1.0)
-	}
-	xmin, xmax := xDataRange(h.XYer)
-	return (xmax - xmin) / math.Sqrt(n)
 }
