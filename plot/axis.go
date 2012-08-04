@@ -96,17 +96,14 @@ func makeAxis() (Axis, error) {
 // sanitizeRange ensures that the range of the
 // axis makes sense.
 func (a *Axis) sanitizeRange() {
-	if a.Min > a.Max {
-		a.Min = a.Max
-	}
-	if a.Max < a.Min {
-		a.Max = a.Min
-	}
 	if math.IsInf(a.Min, 0) {
 		a.Min = 0
 	}
 	if math.IsInf(a.Max, 0) {
 		a.Max = 0
+	}
+	if a.Min > a.Max {
+		a.Min, a.Max = a.Max, a.Min
 	}
 	if a.Min == a.Max {
 		a.Min -= 1
