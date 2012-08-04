@@ -213,11 +213,11 @@ func Example_horizontalBoxes() *plot.Plot {
 // An example of making a histogram.
 func Example_histogram() *plot.Plot {
 	rand.Seed(int64(0))
-	n := 100
+	n := 1000
 	vals := make(XYs, n)
 	for i := 0; i < n; i++ {
 		vals[i].X = rand.NormFloat64()
-		vals[i].Y = 1.0/float64(n)
+		vals[i].Y = 1 / float64(n)
 	}
 
 	p, err := plot.New()

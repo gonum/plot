@@ -84,7 +84,13 @@ func (l *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 func (h *Histogram) bins() []histBin {
 	xmin, xmax := xDataRange(h.XYer)
 	w := h.UsedBinWidth()
+	xmin -= w/2
+	xmax += w/2
+
 	n := int(math.Ceil((xmax - xmin) / w))
+	if n < 1 || xmax <= xmin {
+		n = 1
+	}
 	bins := make([]histBin, n)
 
 	for i := range bins {
@@ -95,14 +101,11 @@ func (h *Histogram) bins() []histBin {
 	for i := 0; i < h.Len(); i++ {
 		x := h.X(i)
 		bin := int((x - xmin) / w)
-		if bin >= n && x == xmax {
-			bin = n-1
-		}
 		if bin < 0 || bin >= n {
 			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",
 				h.X(i), xmin, xmax, w, bin, n))
 		}
-		bins[bin].height += h.Y(i)
+		bins[bin].height += h.Y(i) / w
 	}
 	return bins
 }
