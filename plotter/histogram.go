@@ -98,7 +98,7 @@ func (h *Histogram) bins() []histBin {
 		if bin >= n && x == xmax {
 			bin = n-1
 		}
-		if bin < 0 || bin >= n || bins[bin].xMin > x || bins[bin].xMax < x {
+		if bin < 0 || bin >= n {
 			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",
 				h.X(i), xmin, xmax, w, bin, n))
 		}
