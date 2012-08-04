@@ -363,9 +363,9 @@ func colorString(clr color.Color) string {
 	}
 	r, g, b, _ := clr.RGBA()
 	return fmt.Sprintf("#%02X%02X%02X",
-		int(float64(r)/math.MaxUint16 * 255),
-		int(float64(g)/math.MaxUint16 * 255),
-		int(float64(b)/math.MaxUint16 * 255))
+		int(float64(r)/math.MaxUint16*255),
+		int(float64(g)/math.MaxUint16*255),
+		int(float64(b)/math.MaxUint16*255))
 }
 
 // opacityString returns the opacity value of

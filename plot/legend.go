@@ -69,7 +69,7 @@ func makeLegend() (Legend, error) {
 	}
 	return Legend{
 		ThumbnailWidth: vg.Points(20),
-		TextStyle: TextStyle{Font: font},
+		TextStyle:      TextStyle{Font: font},
 	}, nil
 }
 

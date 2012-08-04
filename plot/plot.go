@@ -135,7 +135,7 @@ func (p *Plot) Draw(da *DrawArea) {
 		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
 		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 	}
-	
+
 	p.X.sanitizeRange()
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
