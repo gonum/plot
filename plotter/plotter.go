@@ -97,7 +97,9 @@ func xDataRange(xys XYer) (xmin, xmax float64) {
 		xmax = math.Max(xmax, x)
 	}
 	return
-} // A Yer wraps methods for getting a set of Y data values.
+}
+
+// A Yer wraps methods for getting a set of Y data values.
 type Yer interface {
 	// Len returns the number of X and Y values
 	// that are available.

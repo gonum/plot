@@ -15,19 +15,19 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	if err := Example().Save(4, 4, "test.png"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example_functions().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }
@@ -54,7 +54,7 @@ func Example() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Plot Title"
+	p.Title.Text = "Example plot"
 	p.X.Label.Text = "X Values"
 	p.Y.Label.Text = "Y Values"
 	line := Line{pts, DefaultLineStyle}
@@ -162,7 +162,7 @@ func Example_boxPlot() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Plot Title"
+	p.Title.Text = "Box plot"
 	p.Y.Label.Text = "Values"
 
 	// Make boxes for our data and add them to the plot.
@@ -194,7 +194,7 @@ func Example_horizontalBoxes() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Plot Title"
+	p.Title.Text = "Horizontal box plot"
 	p.X.Label.Text = "Values"
 
 	// Make horizontal boxes for our data and add
@@ -207,5 +207,24 @@ func Example_horizontalBoxes() *plot.Plot {
 	// the given names for y=0, y=1 and y=2.
 	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
+	return p
+}
+
+// An example of making a histogram.
+func Example_histogram() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	vals := make(XYs, n)
+	for i := 0; i < n; i++ {
+		vals[i].X = rand.NormFloat64()
+		vals[i].Y = 1.0/float64(n)
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Histogram"
+	p.Add(NewHistogram(vals))
 	return p
 }

@@ -294,7 +294,6 @@ func (da *DrawArea) FillPolygon(clr color.Color, pts []Point) {
 
 	da.SetColor(clr)
 	var p vg.Path
-	fmt.Println(len(pts), "verts")
 	p.Move(pts[0].X, pts[0].Y)
 	for _, pt := range pts[1:] {
 		p.Line(pt.X, pt.Y)
