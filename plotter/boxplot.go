@@ -37,6 +37,10 @@ type BoxPlot struct {
 
 	// GlyphStyle is the style of the points.
 	GlyphStyle plot.GlyphStyle
+
+	// Statistics computes the 5 boxplot statistics
+	// and the indices of the outside points.
+	Statistics func(Yer) (min, q1, med, q3, max float64, points []int)
 }
 
 // NewBoxPlot returns new Box representing a distribution
@@ -58,6 +62,7 @@ func NewBoxPlot(width vg.Length, x float64, ys Yer) *BoxPlot {
 		WhiskerStyle: ws,
 		CapWidth:     3*width / 4,
 		GlyphStyle:   DefaultGlyphStyle,
+		Statistics: BoxPlotStatistics,
 	}
 }
 
@@ -66,7 +71,7 @@ func NewBoxPlot(width vg.Length, x float64, ys Yer) *BoxPlot {
 func (b *BoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	x := trX(b.X)
-	min, q1, med, q3, max, points := b.Statistics()
+	min, q1, med, q3, max, points := b.Statistics(b)
 	q1y, medy, q3y := trY(q1), trY(med), trY(q3)
 	da.StrokeLines(b.BoxStyle, da.ClipLinesY([]plot.Point{
 		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
@@ -97,7 +102,7 @@ func (b *BoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
 func (b *BoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
-	_, _, med, _, _, pts := b.Statistics()
+	_, _, med, _, _, pts := b.Statistics(b)
 	boxes = append(boxes, plot.GlyphBox{
 		X: p.X.Norm(b.X),
 		Y: p.Y.Norm(med),
@@ -114,7 +119,7 @@ func (b *BoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 	return
 }
 
-// Statistics returns the five `boxplot' statistics, and
+// BoxPlotStatistics returns the 5 `boxplot' statistics, and
 // the indices of `outside' points that should be drawn
 // separately.
 //
@@ -122,28 +127,28 @@ func (b *BoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 // by John Tukey in ``Exploratory Data Analysis'':
 // Points that are more than 1.5x the inter-quartile
 // range before the 1st and after the 3rd quartile.
-func (b *BoxPlot) Statistics() (min, q1, med, q3, max float64, points []int) {
-	if b.Len() <= 1 {
-		y0 := b.Y(0)
+func BoxPlotStatistics(ys Yer) (min, q1, med, q3, max float64, points []int) {
+	if ys.Len() <= 1 {
+		y0 := ys.Y(0)
 		return y0, y0, y0, y0, y0, []int{}
 	}
 
-	sorted := make([]int, b.Len())
+	sorted := make([]int, ys.Len())
 	for i := range sorted {
 		sorted[i] = i
 	}
-	sort.Sort(ySorter{b, sorted})
+	sort.Sort(ySorter{ys, sorted})
 
-	q1 = median(b, sorted[:len(sorted)/2])
-	med = median(b, sorted)
-	q3 = median(b, sorted[len(sorted)/2:])
+	q1 = median(ys, sorted[:len(sorted)/2])
+	med = median(ys, sorted)
+	q3 = median(ys, sorted[len(sorted)/2:])
 
 	hlow := q1 - 1.5*(q3-q1)
 	hhigh := q3 + 1.5*(q3-q1)
-	min = b.Y(sorted[b.Len()-1])
-	max = b.Y(sorted[0])
+	min = ys.Y(sorted[ys.Len()-1])
+	max = ys.Y(sorted[0])
 	for _, i := range sorted {
-		y := b.Y(i)
+		y := ys.Y(i)
 		if y > hhigh || y < hlow {
 			points = append(points, i)
 		} else if y > max {
@@ -190,7 +195,7 @@ func MakeHorizBoxPlot(width vg.Length, y float64, vals Yer) HorizBoxPlot {
 func (b HorizBoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	y := trY(b.X)
-	min, q1, med, q3, max, points := b.Statistics()
+	min, q1, med, q3, max, points := b.Statistics(b)
 	q1x, medx, q3x := trX(q1), trX(med), trX(q3)
 	da.StrokeLines(b.BoxStyle, da.ClipLinesX([]plot.Point{
 		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
@@ -221,7 +226,7 @@ func (b HorizBoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
 func (b HorizBoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
-	_, _, med, _, _, pts := b.Statistics()
+	_, _, med, _, _, pts := b.Statistics(b)
 	boxes = append(boxes, plot.GlyphBox{
 		X: p.X.Norm(med),
 		Y: p.Y.Norm(b.X),
