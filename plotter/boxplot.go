@@ -7,7 +7,6 @@ package plotter
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"math"
 	"sort"
 )
 
@@ -25,6 +24,9 @@ type BoxPlot struct {
 	// BoxStyle is the style used to draw the line
 	// around the box, the median line.
 	BoxStyle plot.LineStyle
+
+	// MedStyle is the style of the median line.
+	MedStyle plot.LineStyle
 
 	// WhiskerStyle is the style used to draw the
 	// whiskers.
@@ -45,13 +47,16 @@ type BoxPlot struct {
 // whiskers extend to the extremes of all data that are
 // not drawn as separate points.
 func NewBoxPlot(width vg.Length, x float64, ys Yer) *BoxPlot {
+	ws := DefaultLineStyle
+	ws.Dashes = []vg.Length{ vg.Points(4), vg.Points(2) }
 	return &BoxPlot{
 		Yer:          ys,
 		X:            x,
 		Width:        width,
 		BoxStyle:     DefaultLineStyle,
-		WhiskerStyle: DefaultLineStyle,
-		CapWidth:     width / 2,
+		MedStyle:     DefaultLineStyle,
+		WhiskerStyle: ws,
+		CapWidth:     3*width / 4,
 		GlyphStyle:   DefaultGlyphStyle,
 	}
 }
@@ -61,26 +66,21 @@ func NewBoxPlot(width vg.Length, x float64, ys Yer) *BoxPlot {
 func (b *BoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	x := trX(b.X)
-	q1, med, q3, points := b.Statistics()
+	min, q1, med, q3, max, points := b.Statistics()
 	q1y, medy, q3y := trY(q1), trY(med), trY(q3)
-	box := da.ClipLinesY([]plot.Point{
+	da.StrokeLines(b.BoxStyle, da.ClipLinesY([]plot.Point{
 		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
 		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
-		{x - b.Width/2 - b.BoxStyle.Width/2, q1y}},
-		[]plot.Point{{x - b.Width/2, medy}, {x + b.Width/2, medy}})
-	da.StrokeLines(b.BoxStyle, box...)
+		{x - b.Width/2 - b.BoxStyle.Width/2, q1y}})...)
+	da.StrokeLines(b.MedStyle,  da.ClipLinesY([]plot.Point{
+		{x - b.Width/2, medy}, {x + b.Width/2, medy},
+	})...)
 
-	min, max := q1, q3
-	if filtered := filteredIndices(b.Yer, points); len(filtered) > 0 {
-		min = b.Y(filtered[0])
-		max = b.Y(filtered[len(filtered)-1])
-	}
 	miny, maxy := trY(min), trY(max)
-	whisk := da.ClipLinesY([]plot.Point{{x, q3y}, {x, maxy}},
+	da.StrokeLines(b.WhiskerStyle, da.ClipLinesY([]plot.Point{{x, q3y}, {x, maxy}},
 		[]plot.Point{{x - b.CapWidth/2, maxy}, {x + b.CapWidth/2, maxy}},
 		[]plot.Point{{x, q1y}, {x, miny}},
-		[]plot.Point{{x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny}})
-	da.StrokeLines(b.WhiskerStyle, whisk...)
+		[]plot.Point{{x - b.CapWidth/2, miny}, {x + b.CapWidth/2, miny}})...)
 
 	for _, i := range points {
 		da.DrawGlyph(b.GlyphStyle, plot.Point{x, trY(b.Y(i))})
@@ -97,7 +97,7 @@ func (b *BoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
 func (b *BoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
-	_, med, _, pts := b.Statistics()
+	_, _, med, _, _, pts := b.Statistics()
 	boxes = append(boxes, plot.GlyphBox{
 		X: p.X.Norm(b.X),
 		Y: p.Y.Norm(med),
@@ -114,98 +114,59 @@ func (b *BoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 	return
 }
 
-// Statistics returns the `boxplot' statistics: the
-// first quartile, the median, the third quartile,
-// and a slice of indices to be drawn as separate
-// points. This latter slice is computed as
-// recommended by John Tukey in his book
-// Exploratory Data Analysis: all values that are 1.5x
-// the inter-quartile range before the first quartile
-// and 1.5x the inter-quartile range after the third
-// quartile.
-func (b *BoxPlot) Statistics() (q1, med, q3 float64, points []int) {
-	sorted := sortedIndices(b)
-	q1 = percentile(b, sorted, 0.25)
+// Statistics returns the five `boxplot' statistics, and
+// the indices of `outside' points that should be drawn
+// separately.
+//
+// The outside points are chosen as recommended
+// by John Tukey in ``Exploratory Data Analysis'':
+// Points that are more than 1.5x the inter-quartile
+// range before the 1st and after the 3rd quartile.
+func (b *BoxPlot) Statistics() (min, q1, med, q3, max float64, points []int) {
+	if b.Len() <= 1 {
+		y0 := b.Y(0)
+		return y0, y0, y0, y0, y0, []int{}
+	}
+
+	sorted := make([]int, b.Len())
+	for i := range sorted {
+		sorted[i] = i
+	}
+	sort.Sort(ySorter{b, sorted})
+
+	q1 = median(b, sorted[:len(sorted)/2])
 	med = median(b, sorted)
-	q3 = percentile(b, sorted, 0.75)
-	points = tukeyPoints(b, sorted)
+	q3 = median(b, sorted[len(sorted)/2:])
+
+	hlow := q1 - 1.5*(q3-q1)
+	hhigh := q3 + 1.5*(q3-q1)
+	min = b.Y(sorted[b.Len()-1])
+	max = b.Y(sorted[0])
+	for _, i := range sorted {
+		y := b.Y(i)
+		if y > hhigh || y < hlow {
+			points = append(points, i)
+		} else if y > max {
+			max = y			
+		} else if y < min {
+			min = y
+		}
+	}
 	return
 }
 
 // median returns the median Y value given a sorted
 // slice of indices.
 func median(ys Yer, sorted []int) float64 {
+	if len(sorted) == 1 {
+		return ys.Y(sorted[0])
+	}
 	med := ys.Y(sorted[len(sorted)/2])
 	if len(sorted)%2 == 0 {
 		med += ys.Y(sorted[len(sorted)/2-1])
 		med /= 2
 	}
 	return med
-}
-
-// percentile returns the given percentile.
-// According to Wikipedia, this technique is
-// an alternative technique recommended
-// by National Institute of Standards and
-// Technology (NIST), and is used by MS
-// Excel 2007.
-func percentile(ys Yer, sorted []int, p float64) float64 {
-	n := p*float64(len(sorted)-1) + 1
-	k := math.Floor(n)
-	d := n - k
-	if n <= 1 {
-		return ys.Y(sorted[0])
-	} else if n >= float64(len(sorted)) {
-		return ys.Y(sorted[len(sorted)-1])
-	}
-	yk := ys.Y(sorted[int(k)])
-	yk1 := ys.Y(sorted[int(k)-1])
-	return yk1 + d*(yk-yk1)
-}
-
-// sortedIndices returns a slice of the indices sorted in
-// ascending order of their corresponding Y value.
-func sortedIndices(ys Yer) []int {
-	data := make([]int, ys.Len())
-	for i := range data {
-		data[i] = i
-	}
-	sort.Sort(ySorter{ys, data})
-	return data
-}
-
-// tukeyPoints returns indices of values that are more than
-// 1½ of the inter-quartile range beyond the 1st and 3rd
-// quartile. According to John Tukey (Exploratory Data Analysis),
-// these values are reasonable to draw separately as points.
-func tukeyPoints(ys Yer, sorted []int) (pts []int) {
-	q1 := percentile(ys, sorted, 0.25)
-	q3 := percentile(ys, sorted, 0.75)
-	min := q1 - 1.5*(q3-q1)
-	max := q3 + 1.5*(q3-q1)
-	for _, i := range sorted {
-		if y := ys.Y(i); y > max || y < min {
-			pts = append(pts, i)
-		}
-	}
-	return
-}
-
-// filteredIndices returns a slice of the indices sorted in
-// ascending order of their corresponding Y value, and
-// excluding all indices in outList.
-func filteredIndices(ys Yer, outList []int) (data []int) {
-	out := make([]bool, ys.Len())
-	for _, o := range outList {
-		out[o] = true
-	}
-	for i := 0; i < ys.Len(); i++ {
-		if !out[i] {
-			data = append(data, i)
-		}
-	}
-	sort.Sort(ySorter{ys, data})
-	return data
 }
 
 // HorizBox is a boxplot that draws horizontally
@@ -229,26 +190,21 @@ func MakeHorizBoxPlot(width vg.Length, y float64, vals Yer) HorizBoxPlot {
 func (b HorizBoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	y := trY(b.X)
-	q1, med, q3, points := b.Statistics()
+	min, q1, med, q3, max, points := b.Statistics()
 	q1x, medx, q3x := trX(q1), trX(med), trX(q3)
-	box := da.ClipLinesX([]plot.Point{
+	da.StrokeLines(b.BoxStyle, da.ClipLinesX([]plot.Point{
 		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
 		{q3x, y + b.Width/2}, {q1x, y + b.Width/2},
-		{q1x, y - b.Width/2 - b.BoxStyle.Width/2}},
-		[]plot.Point{{medx, y - b.Width/2}, {medx, y + b.Width/2}})
-	da.StrokeLines(b.BoxStyle, box...)
+		{q1x, y - b.Width/2 - b.BoxStyle.Width/2}})...)
+	da.StrokeLines(b.MedStyle, da.ClipLinesX([]plot.Point{
+		{medx, y - b.Width/2}, {medx, y + b.Width/2},
+	})...)
 
-	min, max := q1, q3
-	if filtered := filteredIndices(b.Yer, points); len(filtered) > 0 {
-		min = b.Y(filtered[0])
-		max = b.Y(filtered[len(filtered)-1])
-	}
 	minx, maxx := trX(min), trX(max)
-	whisk := da.ClipLinesX([]plot.Point{{q3x, y}, {maxx, y}},
+	da.StrokeLines(b.WhiskerStyle, da.ClipLinesX([]plot.Point{{q3x, y}, {maxx, y}},
 		[]plot.Point{{maxx, y - b.CapWidth/2}, {maxx, y + b.CapWidth/2}},
 		[]plot.Point{{q1x, y}, {minx, y}},
-		[]plot.Point{{minx, y - b.CapWidth/2}, {minx, y + b.CapWidth/2}})
-	da.StrokeLines(b.WhiskerStyle, whisk...)
+		[]plot.Point{{minx, y - b.CapWidth/2}, {minx, y + b.CapWidth/2}})...)
 
 	for _, i := range points {
 		da.DrawGlyph(b.GlyphStyle, plot.Point{trX(b.Y(i)), y})
@@ -265,7 +221,7 @@ func (b HorizBoxPlot) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot.
 func (b HorizBoxPlot) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
-	_, med, _, pts := b.Statistics()
+	_, _, med, _, _, pts := b.Statistics()
 	boxes = append(boxes, plot.GlyphBox{
 		X: p.X.Norm(med),
 		Y: p.Y.Norm(b.X),
