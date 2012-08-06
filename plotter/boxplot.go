@@ -72,11 +72,13 @@ func (b *BoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	x := trX(b.X)
 	min, q1, med, q3, max, points := b.Statistics(b)
+
 	q1y, medy, q3y := trY(q1), trY(med), trY(q3)
 	da.StrokeLines(b.BoxStyle, da.ClipLinesY([]plot.Point{
 		{x - b.Width/2, q1y}, {x - b.Width/2, q3y},
 		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
 		{x - b.Width/2 - b.BoxStyle.Width/2, q1y}})...)
+
 	da.StrokeLines(b.MedStyle,  da.ClipLinesY([]plot.Point{
 		{x - b.Width/2, medy}, {x + b.Width/2, medy},
 	})...)
@@ -196,11 +198,13 @@ func (b HorizBoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	y := trY(b.X)
 	min, q1, med, q3, max, points := b.Statistics(b)
+
 	q1x, medx, q3x := trX(q1), trX(med), trX(q3)
 	da.StrokeLines(b.BoxStyle, da.ClipLinesX([]plot.Point{
 		{q1x, y - b.Width/2}, {q3x, y - b.Width/2},
 		{q3x, y + b.Width/2}, {q1x, y + b.Width/2},
 		{q1x, y - b.Width/2 - b.BoxStyle.Width/2}})...)
+
 	da.StrokeLines(b.MedStyle, da.ClipLinesX([]plot.Point{
 		{medx, y - b.Width/2}, {medx, y + b.Width/2},
 	})...)
