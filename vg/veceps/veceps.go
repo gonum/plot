@@ -64,12 +64,11 @@ func (e *Canvas) SetLineWidth(w vg.Length) {
 }
 
 func (e *Canvas) SetLineDash(dashes []vg.Length, o vg.Length) {
-	dashEq := true
-	curDash := e.cur().dashes
-	for i, d := range dashes {
-		if d != curDash[i] {
+	cur := e.cur().dashes
+	dashEq := len(dashes) == len(cur)
+	for i := 0; dashEq && i < len(dashes); i++ {
+		if dashes[i] != cur[i] {
 			dashEq = false
-			break
 		}
 	}
 	if !dashEq || e.cur().offs != o {
