@@ -35,8 +35,8 @@ func (l Line) Plot(da plot.DrawArea, p *plot.Plot) {
 
 // DataRange returns the minimum and maximum X and Y values
 func (l Line) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xDataRange(l)
-	ymin, ymax = yDataRange(l)
+	xmin, xmax = Range(XValues{l})
+	ymin, ymax = Range(YValues{l})
 	return
 }
 

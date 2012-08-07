@@ -35,16 +35,18 @@ type ErrorBars struct {
 // is returned, and while the resulting ErrorBars can be
 // successfully added to a plot, they will not draw
 // anything.
-func MakeErrorBars(xy XYer) (bars ErrorBars, err error) {
+func MakeErrorBars(xy XYer) (ErrorBars, error) {
 	_, xerr := xy.(XErrorer)
 	_, yerr := xy.(YErrorer)
 	if !xerr && !yerr {
-		err = fmt.Errorf("Type %T doesn't implement XErrorer or YErrorer")
+		err := fmt.Errorf("Type %T doesn't implement XErrorer or YErrorer", xy)
+		return ErrorBars{}, err
 	}
-	bars.XYer = xy
-	bars.CapWidth = vg.Points(6)
-	bars.LineStyle = DefaultLineStyle
-	return
+	return ErrorBars {
+		XYer: xy,
+		CapWidth: vg.Points(6),
+		LineStyle: DefaultLineStyle,
+	}, nil
 }
 
 // Plot implements the Plotter interface, drawing
@@ -176,7 +178,7 @@ func (e ErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 // xDataRange returns the range of x values
 // for the error bars.
 func (e ErrorBars) xDataRange() (xmin, xmax float64) {
-	xmin, xmax = xDataRange(e)
+	xmin, xmax = Range(XValues{e})
 	xerr, ok := e.XYer.(XErrorer)
 	if !ok {
 		return
@@ -195,7 +197,7 @@ func (e ErrorBars) xDataRange() (xmin, xmax float64) {
 // yDataRange returns the range of y values
 // for the error bars.
 func (e ErrorBars) yDataRange() (ymin, ymax float64) {
-	ymin, ymax = yDataRange(e)
+	ymin, ymax = Range(YValues{e})
 	yerr, ok := e.XYer.(YErrorer)
 	if !ok {
 		return

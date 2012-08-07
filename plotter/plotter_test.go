@@ -21,7 +21,7 @@ func TestDrawImage(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_horizontalBoxes().Save(4, 4, "test.eps"); err != nil {
+	if err := Example().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -149,9 +149,9 @@ func Example_logo() *plot.Plot {
 func Example_boxPlot() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10
-	uniform := make(Ys, n)
-	normal := make(Ys, n)
-	expon := make(Ys, n)
+	uniform := make(Values, n)
+	normal := make(Values, n)
+	expon := make(Values, n)
 	for i := 0; i < n; i++ {
 		uniform[i] = rand.Float64()
 		normal[i] = rand.NormFloat64()
@@ -181,9 +181,9 @@ func Example_boxPlot() *plot.Plot {
 func Example_horizontalBoxes() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10
-	uniform := make(Ys, n)
-	normal := make(Ys, n)
-	expon := make(Ys, n)
+	uniform := make(Values, n)
+	normal := make(Values, n)
+	expon := make(Values, n)
 	for i := 0; i < n; i++ {
 		uniform[i] = rand.Float64()
 		normal[i] = rand.NormFloat64()

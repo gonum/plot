@@ -43,9 +43,7 @@ func (s Scatter) GlyphBoxes(p *plot.Plot) (boxes []plot.GlyphBox) {
 
 // DataRange returns the minimum and maximum X and Y values
 func (s Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax = xDataRange(s)
-	ymin, ymax = yDataRange(s)
-	return
+	return XYRange(s)
 }
 
 // Thumbnail draws a glyph in the center of a DrawArea

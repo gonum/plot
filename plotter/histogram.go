@@ -91,7 +91,7 @@ func (l *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // bins returns the histogram's bins.
 func (h *Histogram) bins() []histBin {
-	xmin, xmax := xDataRange(h.XYer)
+	xmin, xmax := Range(XValues{h.XYer})
 	n := h.numBins(xmin, xmax)
 	bins := make([]histBin, n)
 
