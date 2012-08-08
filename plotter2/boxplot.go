@@ -330,7 +330,7 @@ func (b *HorizBoxPlot) PointLabels(labels Labeller) (*Labels, error) {
 	}
 	ls.XOffset += b.GlyphStyle.Radius / 2
 	ls.YOffset += b.GlyphStyle.Radius / 2
-	ls.Rotation = 3.1415926535/4
+	ls.Rotation = math.Pi / 4
 	return ls, nil
 }
 
