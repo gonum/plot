@@ -93,7 +93,7 @@ func (c *Canvas) Rotate(rot float64) {
 }
 
 func (c *Canvas) Translate(x, y vg.Length) {
-	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, x.Points(), pr, y.Points()))
+	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, x.Dots(c), pr, y.Dots(c)))
 	c.cur().gEnds++
 }
 
@@ -371,6 +371,9 @@ func colorString(clr color.Color) string {
 // opacityString returns the opacity value of
 // the given color.
 func opacityString(clr color.Color) string {
+	if clr == nil {
+		clr = color.Black
+	}
 	_, _, _, a := clr.RGBA()
 	return fmt.Sprintf("%.*g", pr, float64(a)/math.MaxUint16)
 }
