@@ -5,29 +5,29 @@
 package plotter2
 
 import (
-	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"fmt"
+	"code.google.com/p/plotinum/plot"
 	"image/color"
-	"math"
 	"math/rand"
 	"testing"
+	"math"
+	"fmt"
 )
 
 func TestDrawImage(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.png"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_verticalBoxPlots().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }
@@ -67,6 +67,7 @@ func Example_functions() *plot.Plot {
 	p.Y.Max = 100
 	return p
 }
+
 
 // Example_verticalBoxPlots draws vertical boxplots.
 func Example_verticalBoxPlots() *plot.Plot {
@@ -111,6 +112,7 @@ func Example_verticalBoxPlots() *plot.Plot {
 	}
 
 	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
+		
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -123,13 +125,16 @@ func Example_verticalBoxPlots() *plot.Plot {
 func Example_horizontalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
-	uniform := make(Values, n)
-	normal := make(Values, n)
-	expon := make(Values, n)
+	uniform := make(ValueLabels, n)
+	normal := make(ValueLabels, n)
+	expon := make(ValueLabels, n)
 	for i := 0; i < n; i++ {
-		uniform[i] = rand.Float64()
-		normal[i] = rand.NormFloat64()
-		expon[i] = rand.ExpFloat64()
+		uniform[i].Value = rand.Float64()
+		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
+		normal[i].Value = rand.NormFloat64()
+		normal[i].Label = fmt.Sprintf("%4.4f", normal[i].Value)
+		expon[i].Value = rand.ExpFloat64()
+		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
 	p, err := plot.New()
@@ -140,9 +145,24 @@ func Example_horizontalBoxPlots() *plot.Plot {
 	p.X.Label.Text = "Values"
 
 	// Make boxes for our data and add them to the plot.
-	p.Add(HorizBoxPlot{NewBoxPlot(vg.Points(20), 0, uniform)},
-		HorizBoxPlot{NewBoxPlot(vg.Points(20), 1, normal)},
-		HorizBoxPlot{NewBoxPlot(vg.Points(20), 2, expon)})
+	uniBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 0, uniform)}
+	uniLabels, err := uniBox.PointLabels(uniform)
+	if err != nil {
+		panic(err)
+	}
+
+	normBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 1, normal)}
+	normLabels, err := normBox.PointLabels(normal)
+	if err != nil {
+		panic(err)
+	}
+
+	expBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 2, expon)}
+	expLabels, err := expBox.PointLabels(expon)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
@@ -170,18 +190,18 @@ func Example_points() *plot.Plot {
 	p.Y.Label.Text = "Y"
 
 	s := NewScatter(scatterData)
-	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
+	s.GlyphStyle.Color = color.RGBA{R:255, B:128, A:255}
 	s.GlyphStyle.Radius = vg.Points(3)
 
 	l := NewLine(lineData)
 	l.LineStyle.Width = vg.Points(1)
-	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
-	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
+	l.LineStyle.Dashes = []vg.Length{ vg.Points(5), vg.Points(5) }
+	l.LineStyle.Color = color.RGBA{B:255, A:255}
 
 	lp := NewLinePoints(linePointsData)
-	lp.LineStyle.Color = color.RGBA{G: 255, A: 255}
+	lp.LineStyle.Color = color.RGBA{G:255, A:255}
 	lp.GlyphStyle.Shape = plot.CircleGlyph
-	lp.GlyphStyle.Color = color.RGBA{R: 255, A: 255}
+	lp.GlyphStyle.Color = color.RGBA{R:255, A:255}
 
 	p.Add(s, l, lp)
 	p.Legend.Add("scatter", s)
@@ -224,11 +244,11 @@ func Example_histogram() *plot.Plot {
 	h.Normalize(1)
 	p.Add(h)
 
-	// The normal distribution function
-	norm := NewFunction(stdNorm)
-	norm.Color = color.RGBA{R: 255, A: 255}
-	norm.Width = vg.Points(2)
-	p.Add(norm)
+        // The normal distribution function
+        norm := NewFunction(stdNorm)
+        norm.Color = color.RGBA{R: 255, A: 255}
+        norm.Width = vg.Points(2)
+        p.Add(norm)
 
 	return p
 }
@@ -236,10 +256,10 @@ func Example_histogram() *plot.Plot {
 // stdNorm returns the probability of drawing a
 // value from a standard normal distribution.
 func stdNorm(x float64) float64 {
-	const sigma = 1.0
-	const mu = 0.0
-	const root2π = 2.50662827459517818309
-	return 1.0 / (sigma * root2π) * math.Exp(-((x-mu)*(x-mu))/(2*sigma*sigma))
+        const sigma = 1.0
+        const mu = 0.0
+        const root2π = 2.50662827459517818309
+        return 1.0 / (sigma * root2π) * math.Exp(-((x-mu)*(x-mu))/(2*sigma*sigma))
 }
 
 func TestEmpty(t *testing.T) {

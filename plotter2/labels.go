@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
+	"math"
 )
 
 var (
@@ -42,6 +43,9 @@ type Labels struct {
 	// XOffset and YOffset are added directly to the final
 	// label X and Y location respectively.
 	XOffset, YOffset vg.Length
+
+	// Rotation is the rotation of the text in radians.
+	Rotation float64
 }
 
 // NewLabels returns a new Labels using
@@ -78,11 +82,22 @@ func (l *Labels) Plot(da plot.DrawArea, p *plot.Plot) {
 	for i, label := range l.Labels {
 		x := trX(l.XYs[i].X)
 		y := trY(l.XYs[i].Y)
-		if da.Contains(plot.Point{x, y}) {
-			x += l.XOffset
-			y += l.YOffset
-			da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+		if !da.Contains(plot.Point{x, y}) {
+			continue
 		}
+		x += l.XOffset
+		y += l.YOffset
+
+		if l.Rotation == 0 {
+			da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+			continue
+		}
+
+		da.Push()
+		da.Translate(x, y)
+		da.Rotate(l.Rotation)
+		da.FillText(l.TextStyle, 0, 0, l.XAlign, l.YAlign, label)
+		da.Pop()
 	}
 }
 
@@ -99,9 +114,14 @@ func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 	for i, label := range l.Labels {
 		bs[i].X = p.X.Norm(l.XYs[i].X)
 		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
-		bs[i].Rect = l.Rect(label)
-		bs[i].Rect.Min.X += l.Width(label)*vg.Length(l.XAlign) + l.XOffset
-		bs[i].Rect.Min.Y += l.Height(label)*vg.Length(l.YAlign) + l.YOffset
+		w := l.Width(label)
+		h := l.Height(label)
+		cos := vg.Length(math.Cos(l.Rotation))
+		sin := vg.Length(math.Sin(l.Rotation))
+		bs[i].Rect.Min.X = w*vg.Length(l.XAlign) + l.XOffset - h*sin
+		bs[i].Rect.Min.Y = h*vg.Length(l.YAlign) + l.YOffset
+		bs[i].Rect.Size.X = w*cos + h*sin
+		bs[i].Rect.Size.Y = w*sin + h*cos
 	}
 	return bs
 }

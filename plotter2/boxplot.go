@@ -324,7 +324,14 @@ func (b *HorizBoxPlot) PointLabels(labels Labeller) (*Labels, error) {
 	o := horizBoxPlotPointLabels{
 		boxPlotPointLabels{b.BoxPlot, strs},
 	}
-	return NewLabels(o, o)
+	ls, err := NewLabels(o, o)
+	if err != nil {
+		return nil, err
+	}
+	ls.XOffset += b.GlyphStyle.Radius / 2
+	ls.YOffset += b.GlyphStyle.Radius / 2
+	ls.Rotation = 3.1415926535/4
+	return ls, nil
 }
 
 type horizBoxPlotPointLabels struct {
