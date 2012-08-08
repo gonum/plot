@@ -21,7 +21,7 @@ func TestDrawImage(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_boxPlots().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -68,7 +68,41 @@ func Example_functions() *plot.Plot {
 	return p
 }
 
-// Example_verticalBoxPlots draws vertical boxplots.
+// Example_boxPlots draws vertical boxplots.
+func Example_boxPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(Values, n)
+	normal := make(Values, n)
+	expon := make(Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "Values"
+
+	// Make boxes for our data and add them to the plot.
+	p.Add(NewBoxPlot(vg.Points(20), 0, uniform),
+		NewBoxPlot(vg.Points(20), 1, normal),
+		NewBoxPlot(vg.Points(20), 2, expon))
+
+	// Set the X axis of the plot to nominal with
+	// the given names for x=0, x=1 and x=2.
+	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
+		"Exponential\nDistribution")
+	return p
+}
+
+
+// Example_verticalBoxPlots draws vertical boxplots
+// with some labels on their points.
 func Example_verticalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
@@ -119,7 +153,8 @@ func Example_verticalBoxPlots() *plot.Plot {
 	return p
 }
 
-// Example_horizontalBoxPlots draws horizontal boxplots.
+// Example_horizontalBoxPlots draws horizontal boxplots
+// with some labels on their points.
 func Example_horizontalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
