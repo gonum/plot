@@ -40,7 +40,7 @@ type Histogram struct {
 // If the number of bins is non-positive than
 // a reasonable default is used.
 func NewHistogram(xy XYer, n int) *Histogram {
-	bins, width := BinPoints(xy, n)
+	bins, width := binPoints(xy, n)
 	return &Histogram{
 		Bins:      bins,
 		Width:     width,
@@ -100,7 +100,7 @@ func (h *Histogram) Normalize(sum float64) {
 	}
 }
 
-// BinPoints returns a slice containing the
+// binPoints returns a slice containing the
 // given number of bins, and the width of
 // each bin.
 //
@@ -108,7 +108,7 @@ func (h *Histogram) Normalize(sum float64) {
 // then a reasonable default is used.  The
 // default is the square root of the sum of
 // the y values.
-func BinPoints(xys XYer, n int) ([]Bin, float64) {
+func binPoints(xys XYer, n int) ([]Bin, float64) {
 	xmin, xmax := Range(XValues{xys})
 	if n <= 0 {
 		m := 0.0
