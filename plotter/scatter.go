@@ -18,7 +18,7 @@ type Scatter struct {
 // MakeScatter returns a scatter of the given poins
 // with the default glyph style.
 func MakeScatter(xy XYer) Scatter {
-	return Scatter{ xy, DefaultGlyphStyle }
+	return Scatter{xy, DefaultGlyphStyle}
 }
 
 // Plot implements the Plot method of the Plotter interface,

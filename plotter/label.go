@@ -46,7 +46,7 @@ func MakeLabels(xy XYer) (Labels, error) {
 		err := fmt.Errorf("Type %T doesn't implement Labeller", xy)
 		return Labels{}, err
 	}
-	return Labels{ XYer: xy, TextStyle: plot.TextStyle{Font: fnt} }, nil
+	return Labels{XYer: xy, TextStyle: plot.TextStyle{Font: fnt}}, nil
 }
 
 // Plot implements the Plotter interface for Labels.

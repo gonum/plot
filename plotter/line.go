@@ -18,7 +18,7 @@ type Line struct {
 // MakeLine returns a line of the given points with
 // the default line style.
 func MakeLine(xy XYer) Line {
-	return Line{ xy, DefaultLineStyle }
+	return Line{xy, DefaultLineStyle}
 }
 
 // Plot implements the Plotter interface, drawing a line

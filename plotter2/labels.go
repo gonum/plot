@@ -1,0 +1,107 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
+package plotter2
+
+import (
+	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
+	"fmt"
+)
+
+var (
+	// DefaultFont is the default font name.
+	DefaultFont = "Times-Roman"
+
+	// DefaultFontSize is the default font.
+	DefaultFontSize = vg.Points(10)
+)
+
+// Labels implements the Plotter interface,
+// drawing a set of labels at specified points.
+type Labels struct {
+	XYs
+
+	// Labels is the set of labels corresponding
+	// to each point.
+	Labels []string
+
+	// TextStyle is the style of the label text.
+	plot.TextStyle
+
+	// XAlign and YAlign are multiplied by the width
+	// and height of each label respectively and the
+	// added to the final location.  E.g., XAlign=-0.5
+	// and YAlign=-0.5 centers the label at the given
+	// X, Y location, and XAlign=0, YAlign=0 aligns
+	// the text to the left of the point, and XAlign=-1,
+	// YAlign=0 aligns the text to the right of the point.
+	XAlign, YAlign float64
+
+	// XOffset and YOffset are added directly to the final
+	// label X and Y location respectively.
+	XOffset, YOffset vg.Length
+}
+
+// NewLabels returns a new Labels using
+// the DefaultFont and the DefaultFontSize.
+//
+// An error may be returned if there is an
+// error loading the default font or if the
+// number of labels does not match the
+// number of points.
+func NewLabels(xys XYer, labels Labeller) (*Labels, error) {
+	if xys.Len() != labels.Len() {
+		err := fmt.Errorf("NewLabels: number of points (%d) does not match number of labels (%d)",
+			xys.Len(), labels.Len())
+		return nil, err
+	}
+	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
+	if err != nil {
+		return nil, err
+	}
+	strs := make([]string, labels.Len())
+	for i := range strs {
+		strs[i] = labels.Label(i)
+	}
+	return &Labels{
+		XYs:       CopyXYs(xys),
+		Labels:    strs,
+		TextStyle: plot.TextStyle{Font: fnt},
+	}, nil
+}
+
+// Plot implements the Plotter interface, drawing labels.
+func (l *Labels) Plot(da plot.DrawArea, p *plot.Plot) {
+	trX, trY := p.Transforms(&da)
+	for i, label := range l.Labels {
+		x := trX(l.XYs[i].X)
+		y := trY(l.XYs[i].Y)
+		if da.Contains(plot.Point{x, y}) {
+			x += l.XOffset
+			y += l.YOffset
+			da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+		}
+	}
+}
+
+// DataRange returns the minimum and maximum X and Y values
+func (l *Labels) DataRange() (xmin, xmax, ymin, ymax float64) {
+	return XYRange(l)
+}
+
+// GlyphBoxes returns a slice of GlyphBoxes,
+// one for each of the labels, implementing the
+// plot.GlyphBoxer interface.
+func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
+	bs := make([]plot.GlyphBox, len(l.Labels))
+	for i, label := range l.Labels {
+		bs[i].X = p.X.Norm(l.XYs[i].X)
+		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
+		bs[i].Rect = l.Rect(label)
+		bs[i].Rect.Min.X += l.Width(label)*vg.Length(l.XAlign) + l.XOffset
+		bs[i].Rect.Min.Y += l.Height(label)*vg.Length(l.YAlign) + l.YOffset
+	}
+	return bs
+}

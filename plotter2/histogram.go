@@ -1,0 +1,149 @@
+// Copyright 2012 The Plotinum Authors. All rights reserved.
+// Use of this source code is governed by an MIT-style license
+// that can be found in the LICENSE file.
+
+package plotter2
+
+import (
+	"code.google.com/p/plotinum/plot"
+	"fmt"
+	"image/color"
+	"math"
+)
+
+// Histogram implements the Plotter interface,
+// drawing a histogram of the data.
+type Histogram struct {
+	// Bins is the set of bins for this histogram.
+	Bins []Bin
+
+	// Width is the width of each bin.
+	Width float64
+
+	// FillColor is the color used to fill each
+	// bar of the histogram.  If the color is nil
+	// then the bars are not filled.
+	FillColor color.Color
+
+	// LineStyle is the style of the outline of each
+	// bar of the histogram.
+	plot.LineStyle
+}
+
+// NewHistogram returns a new histogram
+// that represents the distribution of values
+// using the given number of bins.
+//
+// Each y value is assumed to be the frequency
+// count for the corresponding x.
+// 
+// If the number of bins is non-positive than
+// a reasonable default is used.
+func NewHistogram(xy XYer, n int) *Histogram {
+	bins, width := BinPoints(xy, n)
+	return &Histogram{
+		Bins:      bins,
+		Width:     width,
+		FillColor: color.Gray{128},
+		LineStyle: DefaultLineStyle,
+	}
+}
+
+// Plot implements the Plotter interface, drawing a line
+// that connects each point in the Line.
+func (h *Histogram) Plot(da plot.DrawArea, p *plot.Plot) {
+	trX, trY := p.Transforms(&da)
+
+	for _, bin := range h.Bins {
+		pts := []plot.Point{
+			{trX(bin.Min), trY(0)},
+			{trX(bin.Max), trY(0)},
+			{trX(bin.Max), trY(bin.Weight)},
+			{trX(bin.Min), trY(bin.Weight)},
+		}
+		if h.FillColor != nil {
+			da.FillPolygon(h.FillColor, da.ClipPolygonXY(pts))
+		}
+		pts = append(pts, plot.Point{trX(bin.Min), trY(0)})
+		da.StrokeLines(h.LineStyle, da.ClipLinesXY(pts)...)
+	}
+}
+
+// DataRange returns the minimum and maximum X and Y values
+func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin = math.Inf(1)
+	xmax = math.Inf(-1)
+	ymax = math.Inf(-1)
+	for _, bin := range h.Bins {
+		if bin.Max > xmax {
+			xmax = bin.Max
+		}
+		if bin.Min < xmin {
+			xmin = bin.Min
+		}
+		if bin.Weight > ymax {
+			ymax = bin.Weight
+		}
+	}
+	return
+}
+
+// Normalize normalizes the histogram so that the
+// total area beneath it sums to a given value.
+func (h *Histogram) Normalize(sum float64) {
+	mass := 0.0
+	for _, b := range h.Bins {
+		mass += b.Weight
+	}
+	for i := range h.Bins {
+		h.Bins[i].Weight *= sum / (h.Width * mass)
+	}
+}
+
+// BinPoints returns a slice containing the
+// given number of bins, and the width of
+// each bin.
+//
+// If the given number of bins is not positive
+// then a reasonable default is used.  The
+// default is the square root of the sum of
+// the y values.
+func BinPoints(xys XYer, n int) ([]Bin, float64) {
+	xmin, xmax := Range(XValues{xys})
+	if n <= 0 {
+		m := 0.0
+		for i := 0; i < xys.Len(); i++ {
+			_, y := xys.XY(i)
+			m += math.Max(y, 1.0)
+		}
+		n = int(math.Ceil(math.Sqrt(m)))
+	}
+	if n < 1 || xmax <= xmin {
+		n = 1
+	}
+
+	bins := make([]Bin, n)
+
+	w := (xmax - xmin) / float64(n-1)
+	for i := range bins {
+		bins[i].Min = xmin + float64(i)*w
+		bins[i].Max = xmin + float64(i+1)*w
+	}
+
+	for i := 0; i < xys.Len(); i++ {
+		x, y := xys.XY(i)
+		bin := int((x - xmin) / w)
+		if bin < 0 || bin >= n {
+			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",
+				x, xmin, xmax, w, bin, n))
+		}
+		bins[bin].Weight += y
+	}
+	return bins, w
+}
+
+// Bin is a histogram bin.
+type Bin struct {
+	Min, Max float64
+	Weight   float64
+}

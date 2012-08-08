@@ -13,9 +13,9 @@ package plotter
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"sort"
 	"image/color"
 	"math"
+	"sort"
 )
 
 var (

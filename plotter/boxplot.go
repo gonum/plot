@@ -47,15 +47,15 @@ type BoxPlot struct {
 // not drawn as separate points.
 func NewBoxPlot(width vg.Length, loc float64, vs Valuer) *BoxPlot {
 	ws := DefaultLineStyle
-	ws.Dashes = []vg.Length{ vg.Points(4), vg.Points(2) }
+	ws.Dashes = []vg.Length{vg.Points(4), vg.Points(2)}
 	return &BoxPlot{
-		Valuer:          vs,
-		Loc:            loc,
+		Valuer:       vs,
+		Loc:          loc,
 		Width:        width,
 		BoxStyle:     DefaultLineStyle,
-		MedianStyle:     DefaultLineStyle,
+		MedianStyle:  DefaultLineStyle,
 		WhiskerStyle: ws,
-		CapWidth:     3*width / 4,
+		CapWidth:     3 * width / 4,
 		GlyphStyle:   DefaultGlyphStyle,
 	}
 }
@@ -73,7 +73,7 @@ func (b *BoxPlot) Plot(da plot.DrawArea, p *plot.Plot) {
 		{x + b.Width/2, q3y}, {x + b.Width/2, q1y},
 		{x - b.Width/2 - b.BoxStyle.Width/2, q1y}})...)
 
-	da.StrokeLines(b.MedianStyle,  da.ClipLinesY([]plot.Point{
+	da.StrokeLines(b.MedianStyle, da.ClipLinesY([]plot.Point{
 		{x - b.Width/2, medy}, {x + b.Width/2, medy},
 	})...)
 
@@ -238,7 +238,7 @@ func (b *BoxPlot) Statistics() (min, q1, med, q3, max float64, outside []int) {
 		if v > hhigh || v < hlow {
 			outside = append(outside, i)
 		} else if v > max {
-			max = v			
+			max = v
 		} else if v < min {
 			min = v
 		}
@@ -261,9 +261,9 @@ func median(vs Valuer, sorted []int) float64 {
 }
 
 type boxPlotPoints struct {
-	xys XYer
+	xys    XYer
 	labels Labeller
-	inds []int
+	inds   []int
 }
 
 func (b boxPlotPoints) Len() int {

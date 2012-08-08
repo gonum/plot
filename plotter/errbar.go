@@ -42,9 +42,9 @@ func MakeErrorBars(xy XYer) (ErrorBars, error) {
 		err := fmt.Errorf("Type %T doesn't implement XErrorer or YErrorer", xy)
 		return ErrorBars{}, err
 	}
-	return ErrorBars {
-		XYer: xy,
-		CapWidth: vg.Points(6),
+	return ErrorBars{
+		XYer:      xy,
+		CapWidth:  vg.Points(6),
 		LineStyle: DefaultLineStyle,
 	}, nil
 }
