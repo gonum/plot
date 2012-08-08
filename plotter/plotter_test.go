@@ -21,7 +21,7 @@ func TestDrawImage(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_boxPlots().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -196,6 +196,9 @@ func Example_horizontalBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
+
+	// Add a GlyphBox plotter for debugging.
+	p.Add(NewGlyphBoxes())
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
