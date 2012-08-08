@@ -2,12 +2,6 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// plotter defines a variety of standard Plotters for the Plotinum plot package.
-//
-// Plotters use the primitives provided by the plot package to
-// draw to the data area of a plot.  This package provides
-// some standard data styles such as lines, scatter plots,
-// box plots, error bars, and labels.
 package plotter
 
 import (
@@ -15,73 +9,37 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"image/color"
 	"math"
-	"sort"
 )
 
 var (
-	// DefaultLineStyle is a reasonable default LineStyle
-	// for drawing most lines in a plot.
+	// DefaultLineStyle is the default style for drawing
+	// lines.
 	DefaultLineStyle = plot.LineStyle{
-		Width: vg.Points(0.5),
-		Color: color.Black,
+		Color:    color.Black,
+		Width:    vg.Points(0.5),
+		Dashes:   []vg.Length{},
+		DashOffs: 0,
 	}
 
-	// DefaultGlyhpStyle is a reasonable default GlyphStyle
-	// for drawing points on a plot.
+	// DefaultGlyphStyle is the default style used
+	// for gyph marks.
 	DefaultGlyphStyle = plot.GlyphStyle{
-		Radius: vg.Points(2),
 		Color:  color.Black,
+		Shape:  plot.RingGlyph,
+		Radius: vg.Points(2),
 	}
 )
 
-const (
-	// DefaultFont is the default font name.
-	DefaultFont = "Times-Roman"
-)
-
-// A Valuer wraps methods for getting a set of data values.
+// Valuer wraps the Len and Value methods.
 type Valuer interface {
-	// Len returns the number of values that are available.
+	// Len returns the number of values.
 	Len() int
 
-	// Value returns a value
+	// Value returns a value.
 	Value(int) float64
 }
 
-// indexSorter implements sort.Interface, sorting a slice
-// of indices for the given Valuer.
-type indexSorter struct {
-	Valuer
-	inds []int
-}
-
-// Len returns the number of indices.
-func (s indexSorter) Len() int {
-	return len(s.inds)
-}
-
-// Less returns true if the value at index i
-// is less than the value at index j.
-func (s indexSorter) Less(i, j int) bool {
-	return s.Value(s.inds[i]) < s.Value(s.inds[j])
-}
-
-// Swap swaps the ith and jth indices.
-func (s indexSorter) Swap(i, j int) {
-	s.inds[i], s.inds[j] = s.inds[j], s.inds[i]
-}
-
-func SortedIndices(vs Valuer) []int {
-	sorted := make([]int, vs.Len())
-	for i := range sorted {
-		sorted[i] = i
-	}
-	sort.Sort(indexSorter{vs, sorted})
-	return sorted
-}
-
-// Range returns the minimum and maximum
-// values in a Valuer.
+// Range returns the minimum and maximum values.
 func Range(vs Valuer) (min, max float64) {
 	min = math.Inf(1)
 	max = math.Inf(-1)
@@ -93,169 +51,128 @@ func Range(vs Valuer) (min, max float64) {
 	return
 }
 
-// Values is a slice of values, implementing the
-// Valuer interface.
+// Values implements the Valuer interface.
 type Values []float64
 
-// Len returns the number of values.
+// CopyValues returns a Values that is a copy of the
+// values from a Valuer.
+func CopyValues(vs Valuer) Values {
+	cpy := make(Values, vs.Len())
+	for i := 0; i < vs.Len(); i++ {
+		cpy[i] = vs.Value(i)
+	}
+	return cpy
+}
+
 func (vs Values) Len() int {
 	return len(vs)
 }
 
-// Less returns true if the ith value is less than
-// the jth value.
-func (vs Values) Less(i, j int) bool {
-	return vs[i] < vs[j]
-}
-
-// Swap swaps the ith and jth values.
-func (vs Values) Swap(i, j int) {
-	vs[i], vs[j] = vs[j], vs[i]
-}
-
-// Value returns the ith value.
 func (vs Values) Value(i int) float64 {
 	return vs[i]
 }
 
-// An XYer wraps methods for getting a set of
-// X and Y data values.
+// XYer wraps the Len and XY methods.
 type XYer interface {
-	// Len returns the number of X and Y values
-	// that are available.
+	// Len returns the number of x, y pairs.
 	Len() int
 
-	// X returns an X value
-	X(int) float64
-
-	// Y returns a Y value
-	Y(int) float64
+	// XY returns an x, y pair.
+	XY(int) (x, y float64)
 }
 
-// XYRange returns the range of X and Y values.
+// XYRange returns the minimum and maximum
+// x and y values.
 func XYRange(xys XYer) (xmin, xmax, ymin, ymax float64) {
 	xmin, xmax = Range(XValues{xys})
 	ymin, ymax = Range(YValues{xys})
 	return
 }
 
-// XYs is a slice of X, Y pairs, implementing the
-// XYer interface.
-type XYs []struct {
-	X, Y float64
+// XYs implements the XYer interface.
+type XYs []struct{ X, Y float64 }
+
+// CopyXYs returns an XYs that is a copy of the
+// x and y values from an XYer.
+func CopyXYs(xys XYer) XYs {
+	cpy := make(XYs, xys.Len())
+	for i := 0; i < xys.Len(); i++ {
+		x, y := xys.XY(i)
+		cpy[i].X = x
+		cpy[i].Y = y
+	}
+	return cpy
 }
 
-// Len returns the number of points.
-func (p XYs) Len() int {
-	return len(p)
+func (xys XYs) Len() int {
+	return len(xys)
 }
 
-// Less returns true if the ith X value is less than
-// the jth X value.  This implements the Less
-// method of sort.Interface, for sorting points by
-// increasing X.
-func (p XYs) Less(i, j int) bool {
-	return p[i].X < p[j].X
+func (xys XYs) XY(i int) (float64, float64) {
+	return xys[i].X, xys[i].Y
 }
 
-// Swap swaps the ith and jth points.
-func (p XYs) Swap(i, j int) {
-	p[i], p[j] = p[j], p[i]
-}
-
-// X returns the ith X value.
-func (p XYs) X(i int) float64 {
-	return p[i].X
-}
-
-// Y returns the ith Y value.
-func (p XYs) Y(i int) float64 {
-	return p[i].Y
-}
-
-// XValues is a Valuer that returns X values.
+// XValues implements the Valuer interface,
+// returning the x value from an XYer.
 type XValues struct {
 	XYer
 }
 
-func (vs XValues) Value(i int) float64 {
-	return vs.X(i)
+func (xs XValues) Value(i int) float64 {
+	x, _ := xs.XY(i)
+	return x
 }
 
-// YValues is a Vauler that returns Y values.
+// YValues implements the Valuer interface,
+// returning the y value from an XYer.
 type YValues struct {
 	XYer
 }
 
-func (vs YValues) Value(i int) float64 {
-	return vs.Y(i)
+func (ys YValues) Value(i int) float64 {
+	_, y := ys.XY(i)
+	return y
 }
 
-// Labeller wraps the Labeller method.
+// Labeller wraps the Len and Label methods.
 type Labeller interface {
 	// Len returns the number of labels.
 	Len() int
 
-	// Label returns the ith label text.
+	// Label returns a label.
 	Label(int) string
 }
 
-// XErrorer wraps the XError method.
-type XErrorer interface {
-	// Len returns the number of errors.
-	Len() int
-
-	// XError returns the low and high X errors.
-	// Both values are added to the corresponding
-	// X value to compute the range of error
-	// of the X value of the point, so most likely
-	// the low value will be negative.
-	XError(int) (float64, float64)
+type ValueLabels []struct {
+	Value float64
+	Label string
 }
 
-// YErrorer wraps the YError method.
-type YErrorer interface {
-	// Len returns the number of errors.
-	Len() int
-
-	// YError is the same as the XError method
-	// of the XErrorer interface, however it
-	// applies to the Y values of points instead
-	// of the X values.
-	YError(int) (float64, float64)
+func (vs ValueLabels) Len() int {
+	return len(vs)
 }
 
-// XYLabelErrors implements the XYer, XYLabeller, XErrorer,
-// and YErrorer interfaces.
-type XYLabelErrors struct {
-	XYs
-	Labels  []string
-	XErrors []struct{ Low, High float64 }
-	YErrors []struct{ Low, High float64 }
+func (vs ValueLabels) Value(i int) float64 {
+	return vs[i].Value
 }
 
-// MakeYXYLabelErrors returns a new XYLabelErrors
-// of the given length.
-func MakeXYLabelErrors(l int) XYLabelErrors {
-	return XYLabelErrors{
-		XYs:     make(XYs, l),
-		Labels:  make([]string, l),
-		XErrors: make([]struct{ Low, High float64 }, l),
-		YErrors: make([]struct{ Low, High float64 }, l),
-	}
+func (vs ValueLabels) Label(i int) string {
+	return vs[i].Label
 }
 
-// Label implements the XYLabeller interface.
-func (xy XYLabelErrors) Label(i int) string {
-	return xy.Labels[i]
+type XYLabels []struct {
+	X, Y  float64
+	Label string
 }
 
-// XError implements the XErrorer interface.
-func (xy XYLabelErrors) XError(i int) (float64, float64) {
-	return xy.XErrors[i].Low, xy.XErrors[i].High
+func (xys XYLabels) Len() int {
+	return len(xys)
 }
 
-// YError implements the YErrorer interface.
-func (xy XYLabelErrors) YError(i int) (float64, float64) {
-	return xy.YErrors[i].Low, xy.YErrors[i].High
+func (xys XYLabels) XY(i int) (float64, float64) {
+	return xys[i].X, xys[i].Y
+}
+
+func (xys XYLabels) Label(i int) string {
+	return xys[i].Label
 }

@@ -15,67 +15,24 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	if err := Example_horizontalBoxes().Save(4, 4, "test.png"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_boxPlots().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example_horizontalBoxes().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }
 
-// An example of making and saving a plot.
-func Example() *plot.Plot {
-	rand.Seed(int64(0))
-	pts := MakeXYLabelErrors(10)
-	for i := range pts.XYs {
-		if i == 0 {
-			pts.XYs[i].X = rand.Float64()
-		} else {
-			pts.XYs[i].X = pts.XYs[i-1].X + rand.Float64()
-		}
-		pts.XYs[i].Y = rand.Float64()
-		pts.Labels[i] = fmt.Sprintf("%d", i)
-		pts.XErrors[i].Low = -rand.Float64() / 2
-		pts.XErrors[i].High = rand.Float64() / 2
-		pts.YErrors[i].Low = -rand.Float64() / 2
-		pts.YErrors[i].High = rand.Float64() / 2
-	}
-
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
-	p.Title.Text = "Example plot"
-	p.X.Label.Text = "X Values"
-	p.Y.Label.Text = "Y Values"
-	line := MakeLine(pts)
-	scatter := MakeScatter(pts)
-	errbars, err := MakeErrorBars(pts)
-	if err != nil {
-		panic(err)
-	}
-	labels, err := MakeLabels(pts)
-	if err != nil {
-		panic(err)
-	}
-	labels.XOffs = scatter.Radius
-	labels.YOffs = scatter.Radius
-	p.Add(line, scatter, errbars, labels)
-	p.Legend.Add("line", line, scatter)
-	p.Legend.Left = true
-	return p
-}
-
-// An example of plotting a function.
+// Example_functions draws some functions.
 func Example_functions() *plot.Plot {
 	p, err := plot.New()
 	if err != nil {
@@ -85,15 +42,15 @@ func Example_functions() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	quad := MakeFunction(func(x float64) float64 { return x * x })
+	quad := NewFunction(func(x float64) float64 { return x * x })
 	quad.Color = color.RGBA{B: 255, A: 255}
 
-	exp := MakeFunction(func(x float64) float64 { return math.Pow(2, x) })
+	exp := NewFunction(func(x float64) float64 { return math.Pow(2, x) })
 	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
 	exp.Width = vg.Points(2)
 	exp.Color = color.RGBA{G: 255, A: 255}
 
-	sin := MakeFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
+	sin := NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
 	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
 	sin.Width = vg.Points(4)
 	sin.Color = color.RGBA{R: 255, A: 255}
@@ -102,6 +59,7 @@ func Example_functions() *plot.Plot {
 	p.Legend.Add("x^2", quad)
 	p.Legend.Add("2^x", exp)
 	p.Legend.Add("10*sin(x)+50", sin)
+	p.Legend.ThumbnailWidth = vg.Inches(0.5)
 
 	p.X.Min = 0
 	p.X.Max = 10
@@ -110,45 +68,10 @@ func Example_functions() *plot.Plot {
 	return p
 }
 
-// Draw the plotinum logo.
-func Example_logo() *plot.Plot {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
-
-	DefaultLineStyle.Width = vg.Points(1)
-	DefaultGlyphStyle.Radius = vg.Points(3)
-
-	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
-	})
-	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
-	})
-
-	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
-	line := Line{pts, DefaultLineStyle}
-	scatter := Scatter{pts, DefaultGlyphStyle}
-	p.Add(line, scatter)
-
-	pts = XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
-	line = Line{pts, DefaultLineStyle}
-	scatter = Scatter{pts, DefaultGlyphStyle}
-	p.Add(line, scatter)
-
-	pts = XYs{{0.5, 0.5}, {1, 0.5}}
-	line = Line{pts, DefaultLineStyle}
-	scatter = Scatter{pts, DefaultGlyphStyle}
-	p.Add(line, scatter)
-
-	return p
-}
-
-// An example of making a box plot.
-func Example_boxPlot() *plot.Plot {
+// Example_boxPlots draws vertical boxplots.
+func Example_boxPlots() *plot.Plot {
 	rand.Seed(int64(0))
-	n := 10
+	n := 100
 	uniform := make(Values, n)
 	normal := make(Values, n)
 	expon := make(Values, n)
@@ -162,7 +85,7 @@ func Example_boxPlot() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Box plot"
+	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "Values"
 
 	// Make boxes for our data and add them to the plot.
@@ -177,37 +100,162 @@ func Example_boxPlot() *plot.Plot {
 	return p
 }
 
-// An example of making a horizontal box plot.
-func Example_horizontalBoxes() *plot.Plot {
+
+// Example_verticalBoxPlots draws vertical boxplots
+// with some labels on their points.
+func Example_verticalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
-	n := 10
-	uniform := make(Values, n)
-	normal := make(Values, n)
-	expon := make(Values, n)
+	n := 100
+	uniform := make(ValueLabels, n)
+	normal := make(ValueLabels, n)
+	expon := make(ValueLabels, n)
 	for i := 0; i < n; i++ {
-		uniform[i] = rand.Float64()
-		normal[i] = rand.NormFloat64()
-		expon[i] = rand.ExpFloat64()
+		uniform[i].Value = rand.Float64()
+		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
+		normal[i].Value = rand.NormFloat64()
+		normal[i].Label = fmt.Sprintf("%4.4f", normal[i].Value)
+		expon[i].Value = rand.ExpFloat64()
+		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
 	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Horizontal box plot"
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "Values"
+
+	// Make boxes for our data and add them to the plot.
+	uniBox := NewBoxPlot(vg.Points(20), 0, uniform)
+	uniLabels, err := uniBox.PointLabels(uniform)
+	if err != nil {
+		panic(err)
+	}
+
+	normBox := NewBoxPlot(vg.Points(20), 1, normal)
+	normLabels, err := normBox.PointLabels(normal)
+	if err != nil {
+		panic(err)
+	}
+
+	expBox := NewBoxPlot(vg.Points(20), 2, expon)
+	expLabels, err := expBox.PointLabels(expon)
+	if err != nil {
+		panic(err)
+	}
+
+	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
+
+	// Set the X axis of the plot to nominal with
+	// the given names for x=0, x=1 and x=2.
+	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
+		"Exponential\nDistribution")
+	return p
+}
+
+// Example_horizontalBoxPlots draws horizontal boxplots
+// with some labels on their points.
+func Example_horizontalBoxPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(ValueLabels, n)
+	normal := make(ValueLabels, n)
+	expon := make(ValueLabels, n)
+	for i := 0; i < n; i++ {
+		uniform[i].Value = rand.Float64()
+		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
+		normal[i].Value = rand.NormFloat64()
+		normal[i].Label = fmt.Sprintf("%4.4f", normal[i].Value)
+		expon[i].Value = rand.ExpFloat64()
+		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Horizontal Box Plot"
 	p.X.Label.Text = "Values"
 
-	// Make horizontal boxes for our data and add
-	// them to the plot.
-	p.Add(MakeHorizBoxPlot(vg.Points(20), 0, uniform),
-		MakeHorizBoxPlot(vg.Points(20), 1, normal),
-		MakeHorizBoxPlot(vg.Points(20), 2, expon))
+	// Make boxes for our data and add them to the plot.
+	uniBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 0, uniform)}
+	uniLabels, err := uniBox.PointLabels(uniform)
+	if err != nil {
+		panic(err)
+	}
+
+	normBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 1, normal)}
+	normLabels, err := normBox.PointLabels(normal)
+	if err != nil {
+		panic(err)
+	}
+
+	expBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 2, expon)}
+	expLabels, err := expBox.PointLabels(expon)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
 	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
 	return p
+}
+
+// Example_points draws some scatter points, a line,
+// and a line with points.
+func Example_points() *plot.Plot {
+	rand.Seed(int64(0))
+
+	n := 15
+	scatterData := randomPoints(n)
+	lineData := randomPoints(n)
+	linePointsData := randomPoints(n)
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Points Example"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	s := NewScatter(scatterData)
+	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
+	s.GlyphStyle.Radius = vg.Points(3)
+
+	l := NewLine(lineData)
+	l.LineStyle.Width = vg.Points(1)
+	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
+	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
+
+	lp := NewLinePoints(linePointsData)
+	lp.LineStyle.Color = color.RGBA{G: 255, A: 255}
+	lp.GlyphStyle.Shape = plot.CircleGlyph
+	lp.GlyphStyle.Color = color.RGBA{R: 255, A: 255}
+
+	p.Add(s, l, lp)
+	p.Legend.Add("scatter", s)
+	p.Legend.Add("line", l)
+	p.Legend.Add("line points", lp)
+
+	return p
+}
+
+// randomPoints returns some random x, y points.
+func randomPoints(n int) XYs {
+	pts := make(XYs, n)
+	for i := range pts {
+		if i == 0 {
+			pts[i].X = rand.Float64()
+		} else {
+			pts[i].X = pts[i-1].X + rand.Float64()
+		}
+		pts[i].Y = pts[i].X + 10*rand.Float64()
+	}
+	return pts
 }
 
 // An example of making a histogram.
@@ -225,12 +273,26 @@ func Example_histogram() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h := NewHistogram(vals)
-	h.NumBins = 16
-	h.Normalize = 1
-
+	h := NewHistogram(vals, 16)
+	h.Normalize(1)
 	p.Add(h)
+
+	// The normal distribution function
+	norm := NewFunction(stdNorm)
+	norm.Color = color.RGBA{R: 255, A: 255}
+	norm.Width = vg.Points(2)
+	p.Add(norm)
+
 	return p
+}
+
+// stdNorm returns the probability of drawing a
+// value from a standard normal distribution.
+func stdNorm(x float64) float64 {
+	const sigma = 1.0
+	const mu = 0.0
+	const root2π = 2.50662827459517818309
+	return 1.0 / (sigma * root2π) * math.Exp(-((x-mu)*(x-mu))/(2*sigma*sigma))
 }
 
 func TestEmpty(t *testing.T) {
