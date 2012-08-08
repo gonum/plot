@@ -7,8 +7,8 @@ package plotter
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"math"
 	"sort"
+	"math"
 )
 
 // BoxPlot implements the Plotter interface, drawing
@@ -330,7 +330,6 @@ func (b *HorizBoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	}
 	ls.XOffset += b.GlyphStyle.Radius / 2
 	ls.YOffset += b.GlyphStyle.Radius / 2
-	ls.Rotation = math.Pi / 4
 	return ls, nil
 }
 
