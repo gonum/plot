@@ -127,19 +127,19 @@ func Example_verticalBoxPlots() *plot.Plot {
 
 	// Make boxes for our data and add them to the plot.
 	uniBox := NewBoxPlot(vg.Points(20), 0, uniform)
-	uniLabels, err := uniBox.PointLabels(uniform)
+	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
 	normBox := NewBoxPlot(vg.Points(20), 1, normal)
-	normLabels, err := normBox.PointLabels(normal)
+	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
 	expBox := NewBoxPlot(vg.Points(20), 2, expon)
-	expLabels, err := expBox.PointLabels(expon)
+	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
 	}
@@ -179,19 +179,19 @@ func Example_horizontalBoxPlots() *plot.Plot {
 
 	// Make boxes for our data and add them to the plot.
 	uniBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 0, uniform)}
-	uniLabels, err := uniBox.PointLabels(uniform)
+	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
 	normBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 1, normal)}
-	normLabels, err := normBox.PointLabels(normal)
+	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
 	expBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 2, expon)}
-	expLabels, err := expBox.PointLabels(expon)
+	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
 	}

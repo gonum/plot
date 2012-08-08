@@ -208,16 +208,16 @@ func (b *BoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	return bs
 }
 
-// PointLabels returns a *Labels that will plot
+// OutsideLabels returns a *Labels that will plot
 // a label for each of the outside points.  The
 // labels are assumed to correspond to the
 // points used to create the box plot.
-func (b *BoxPlot) PointLabels(labels Labeller) (*Labels, error) {
+func (b *BoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
 		strs[i] = labels.Label(out)
 	}
-	o := boxPlotPointLabels{b, strs}
+	o := boxPlotOutsideLabels{b, strs}
 	ls, err := NewLabels(o, o)
 	if err != nil {
 		return nil, err
@@ -227,20 +227,20 @@ func (b *BoxPlot) PointLabels(labels Labeller) (*Labels, error) {
 	return ls, nil
 }
 
-type boxPlotPointLabels struct {
+type boxPlotOutsideLabels struct {
 	box    *BoxPlot
 	labels []string
 }
 
-func (o boxPlotPointLabels) Len() int {
+func (o boxPlotOutsideLabels) Len() int {
 	return len(o.box.Outside)
 }
 
-func (o boxPlotPointLabels) XY(i int) (float64, float64) {
+func (o boxPlotOutsideLabels) XY(i int) (float64, float64) {
 	return o.box.Location, o.box.Value(o.box.Outside[i])
 }
 
-func (o boxPlotPointLabels) Label(i int) string {
+func (o boxPlotOutsideLabels) Label(i int) string {
 	return o.labels[i]
 }
 
@@ -312,17 +312,17 @@ func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	return bs
 }
 
-// PointLabels returns a *Labels that will plot
+// OutsideLabels returns a *Labels that will plot
 // a label for each of the outside points.  The
 // labels are assumed to correspond to the
 // points used to create the box plot.
-func (b *HorizBoxPlot) PointLabels(labels Labeller) (*Labels, error) {
+func (b *HorizBoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
 		strs[i] = labels.Label(out)
 	}
-	o := horizBoxPlotPointLabels{
-		boxPlotPointLabels{b.BoxPlot, strs},
+	o := horizBoxPlotOutsideLabels{
+		boxPlotOutsideLabels{b.BoxPlot, strs},
 	}
 	ls, err := NewLabels(o, o)
 	if err != nil {
@@ -334,10 +334,10 @@ func (b *HorizBoxPlot) PointLabels(labels Labeller) (*Labels, error) {
 	return ls, nil
 }
 
-type horizBoxPlotPointLabels struct {
-	boxPlotPointLabels
+type horizBoxPlotOutsideLabels struct {
+	boxPlotOutsideLabels
 }
 
-func (o horizBoxPlotPointLabels) XY(i int) (float64, float64) {
+func (o horizBoxPlotOutsideLabels) XY(i int) (float64, float64) {
 	return o.box.Value(o.box.Outside[i]), o.box.Location
 }
