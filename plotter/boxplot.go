@@ -248,6 +248,13 @@ func (o boxPlotOutsideLabels) Label(i int) string {
 // it draws horizontally instead of Vertically.
 type HorizBoxPlot struct{ *BoxPlot }
 
+// MakeHorizBoxPlot returns a HorizBoxPlot,
+// plotting the values in a horizontal box plot
+// centered along a fixed location of the y axis.
+func MakeHorizBoxPlot(w vg.Length, loc float64, vs Values) HorizBoxPlot {
+	return HorizBoxPlot{ NewBoxPlot(w, loc, vs) }
+}
+
 func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	y := trY(b.Location)
