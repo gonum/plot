@@ -15,7 +15,9 @@ import (
 	"go/build"
 	"image"
 	"image/color"
+	"image/draw"
 	"image/png"
+	"image/jpeg"
 	"os"
 	"path/filepath"
 )
@@ -49,6 +51,7 @@ func New(width, height vg.Length) (*Canvas, error) {
 	w := width.Inches() * dpi
 	h := height.Inches() * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
+	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
 	gc := draw2d.NewGraphicContext(img)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
@@ -244,6 +247,21 @@ func (c *Canvas) SavePNG(path string) error {
 
 	b := bufio.NewWriter(f)
 	err = png.Encode(b, c.img)
+	if err != nil {
+		return err
+	}
+	return b.Flush()
+}
+
+func (c *Canvas) SaveJPEG(path string) error {
+	f, err := os.Create(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	b := bufio.NewWriter(f)
+	err = jpeg.Encode(b, c.img, nil)
 	if err != nil {
 		return err
 	}

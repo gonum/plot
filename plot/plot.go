@@ -43,8 +43,7 @@ type Plot struct {
 	}
 
 	// BackgroundColor is the background color of the plot.
-	// If BackgroundColor is nil, then no background color
-	// is explicitly drawn.
+	// The default is White.
 	BackgroundColor color.Color
 
 	// X and Y are the horizontal and vertical axes
@@ -343,7 +342,7 @@ func (p *Plot) NominalY(names ...string) {
 // Save saves the plot to an image file.  Width and height
 // are specified in inches, and the file format is determined
 // by the extension.  Supported extensions are
-// .png, .eps, .pdf, and .svg.
+// .png, .jpg, .jpeg, .eps, .pdf, and .svg.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c vg.Canvas
@@ -357,6 +356,12 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 			return
 		}
 		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
+	case ".jpg", ".jpeg":
+		c, err = vecimg.New(w, h)
+		if err != nil {
+			return
+		}
+		defer func() { err = c.(*vecimg.Canvas).SaveJPEG(file) }()
 	case ".svg":
 		c = vecsvg.New(w, h)
 		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()

@@ -27,7 +27,7 @@ func TestFonts(t *testing.T) {
 		t.Fatal(err)
 	}
 	vg.DrawFonts(t, img)
-	err = img.SavePNG("fonts.png")
+	err = img.SaveJPEG("fonts.jpg")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,3 +3,5 @@ syntax: glob
 *.png
 *.eps
 *.pdf
+*.jpg
+*.jpeg
