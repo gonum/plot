@@ -61,7 +61,7 @@ func DrawFonts(t *testing.T, c Canvas) {
 	}
 	sort.Strings(fonts)
 	for _, fname := range fonts {
-		font, err := MakeFont(fname, 12)
+		font, err := MakeFont(fname, 20)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -69,22 +69,25 @@ func DrawFonts(t *testing.T, c Canvas) {
 		w := font.Width(fname + "Xqg")
 		h := font.Extents().Ascent
 
-		// Shift the bottom font up so that its descents
-		// aren't clipped.
-		if y == 0.0 {
-			y -= font.Extents().Descent
-		}
-
-		c.FillString(font, 0, y, fname+"Xqg")
+		c.FillString(font, 0, y-font.Extents().Descent, fname+"Xqg")
 		fmt.Println(fname)
 
-		path := Path{}
+		var path Path
 		path.Move(0, y+h)
 		path.Line(w, y+h)
 		path.Line(w, y)
 		path.Line(0, y)
 		path.Close()
 		c.Stroke(path)
+
+		path = Path{}
+		c.SetColor(color.RGBA{B:255, A:255})
+		c.SetLineDash([]Length{ Points(5), Points(3) }, 0)
+		path.Move(0, y-font.Extents().Descent)
+		path.Line(w, y-font.Extents().Descent)
+		c.Stroke(path)
+		c.SetColor(color.Black)
+		c.SetLineDash([]Length{}, 0)
 
 		y += h
 	}
