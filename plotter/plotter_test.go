@@ -15,19 +15,25 @@ import (
 )
 
 func TestDrawImage(t *testing.T) {
-	if err := Example_horizontalBoxPlots().Save(4, 4, "test.png"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example_horizontalBoxPlots().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.svg"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDrawPdf(t *testing.T) {
+	if err := Example_histogram().Save(4, 4, "test.pdf"); err != nil {
 		t.Error(err)
 	}
 }

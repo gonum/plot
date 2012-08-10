@@ -19,6 +19,7 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
+	"code.google.com/p/plotinum/vg/vecpdf"
 	"code.google.com/p/plotinum/vg/vecsvg"
 	"fmt"
 	"image/color"
@@ -342,7 +343,7 @@ func (p *Plot) NominalY(names ...string) {
 // Save saves the plot to an image file.  Width and height
 // are specified in inches, and the file format is determined
 // by the extension. Currently supproted extensions are
-// .png, .eps, and .svg.
+// .png, .eps, .pdf, and .svg.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c vg.Canvas
@@ -359,6 +360,9 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	case ".svg":
 		c = vecsvg.New(w, h)
 		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()
+	case ".pdf":
+		c = vecpdf.New(w, h)
+		defer func() { err = c.(*vecpdf.Canvas).Save(file) }()
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
