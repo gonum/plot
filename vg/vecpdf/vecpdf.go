@@ -3,7 +3,7 @@
 // that can be found in the LICENSE file.
 
 // The vecpdf implemens the vg.Canvas interface
-// using Gopdf.
+// using gopdf (bitbucket.org/zombiezen/gopdf/pdf).
 package vecpdf
 
 import (
