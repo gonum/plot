@@ -2,6 +2,13 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
+// plotter defines a variety of standard Plotters for the Plotinum
+// plot package.		
+//		
+// Plotters use the primitives provided by the plot package to		
+// draw to the data area of a plot.  This package provides		
+// some standard data styles such as lines, scatter plots,		
+// box plots, labels, and more.
 package plotter
 
 import (
