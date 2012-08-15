@@ -289,7 +289,7 @@ func Example_bubbles() *plot.Plot{
 	if err != nil {
 		panic(err)
 	}
-	p.Title.Text = "Points Bubbles"
+	p.Title.Text = "Bubbles"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
