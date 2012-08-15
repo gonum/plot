@@ -81,8 +81,8 @@ func DrawFonts(t *testing.T, c Canvas) {
 		c.Stroke(path)
 
 		path = Path{}
-		c.SetColor(color.RGBA{B:255, A:255})
-		c.SetLineDash([]Length{ Points(5), Points(3) }, 0)
+		c.SetColor(color.RGBA{B: 255, A: 255})
+		c.SetLineDash([]Length{Points(5), Points(3)}, 0)
 		path.Move(0, y-font.Extents().Descent)
 		path.Line(w, y-font.Extents().Descent)
 		c.Stroke(path)

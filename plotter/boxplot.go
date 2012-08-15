@@ -7,8 +7,8 @@ package plotter
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"sort"
 	"math"
+	"sort"
 )
 
 // BoxPlot implements the Plotter interface, drawing
@@ -252,7 +252,7 @@ type HorizBoxPlot struct{ *BoxPlot }
 // plotting the values in a horizontal box plot
 // centered along a fixed location of the y axis.
 func MakeHorizBoxPlot(w vg.Length, loc float64, vs Values) HorizBoxPlot {
-	return HorizBoxPlot{ NewBoxPlot(w, loc, vs) }
+	return HorizBoxPlot{NewBoxPlot(w, loc, vs)}
 }
 
 func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {

@@ -18,16 +18,16 @@ package plot
 import (
 	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
-	"code.google.com/p/plotinum/vg/veceps"
-	"code.google.com/p/plotinum/vg/vecimg"
-	"code.google.com/p/plotinum/vg/vecpdf"
-	"code.google.com/p/plotinum/vg/vecsvg"
+	"code.google.com/p/plotinum/vg/vgeps"
+	"code.google.com/p/plotinum/vg/vgimg"
+	"code.google.com/p/plotinum/vg/vgpdf"
+	"code.google.com/p/plotinum/vg/vgsvg"
 	"fmt"
-	"io"
 	"image"
 	"image/color"
-	"image/png"
 	"image/jpeg"
+	"image/png"
+	"io"
 	"math"
 	"path/filepath"
 	"strings"
@@ -354,40 +354,40 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
 
 	case ".eps":
-		c = veceps.New(w, h, file)
-		defer c.(*veceps.Canvas).Save(file)
+		c = vgeps.New(w, h, file)
+		defer c.(*vgeps.Canvas).Save(file)
 
 	case ".jpg", ".jpeg":
-		c, err = vecimg.New(w, h)
+		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
 		encode := func(w io.Writer, img image.Image) error {
 			return jpeg.Encode(w, img, nil)
 		}
-		defer func() { err = c.(*vecimg.Canvas).Save(file, encode) }()
+		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
 
 	case ".pdf":
-		c = vecpdf.New(w, h)
-		defer func() { err = c.(*vecpdf.Canvas).Save(file) }()
+		c = vgpdf.New(w, h)
+		defer func() { err = c.(*vgpdf.Canvas).Save(file) }()
 
 	case ".png":
-		c, err = vecimg.New(w, h)
+		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
-		defer func() { err = c.(*vecimg.Canvas).Save(file, png.Encode) }()
+		defer func() { err = c.(*vgimg.Canvas).Save(file, png.Encode) }()
 
 	case ".svg":
-		c = vecsvg.New(w, h)
-		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()
+		c = vgsvg.New(w, h)
+		defer func() { err = c.(*vgsvg.Canvas).Save(file) }()
 
 	case ".tiff":
-		c, err = vecimg.New(w, h)
+		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
-		defer func() { err = c.(*vecimg.Canvas).Save(file, tiff.Encode) }()
+		defer func() { err = c.(*vgimg.Canvas).Save(file, tiff.Encode) }()
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)

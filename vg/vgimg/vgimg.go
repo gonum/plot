@@ -2,10 +2,10 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// vecimg implements the vg.Canvas interface using
+// vgimg implements the vg.Canvas interface using
 // draw2d (code.google.com/p/draw2d/draw2d)
 // as a backend to output raster images.
-package vecimg
+package vgimg
 
 import (
 	"bufio"
@@ -26,7 +26,7 @@ const (
 	dpi = 96
 
 	// importString is the current package import string.
-	importString = "code.google.com/p/plotinum/vg/vecimg"
+	importString = "code.google.com/p/plotinum/vg/vgimg"
 )
 
 type Canvas struct {

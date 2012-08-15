@@ -2,35 +2,45 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-package vecsvg
+package vgimg
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"image/png"
 	"testing"
 )
 
 func TestFontExtents(t *testing.T) {
-	img := New(vg.Inches(4), vg.Inches(4))
+	img, err := New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		t.Fatal(err)
+	}
 	vg.DrawFontExtents(t, img)
-	err := img.Save("extents.svg")
+	err = img.Save("extents.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestFonts(t *testing.T) {
-	img := New(vg.Inches(4), vg.Inches(4))
+	img, err := New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		t.Fatal(err)
+	}
 	vg.DrawFonts(t, img)
-	err := img.Save("fonts.svg")
+	err = img.Save("fonts.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestArcss(t *testing.T) {
-	img := New(vg.Inches(4), vg.Inches(4))
+func TestArcs(t *testing.T) {
+	img, err := New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		t.Fatal(err)
+	}
 	vg.DrawArcs(t, img)
-	err := img.Save("arcs.svg")
+	err = img.Save("arcs.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}

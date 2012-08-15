@@ -2,9 +2,9 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// The vecsvg package uses svgo (github.com/ajstarks/svgo)
+// The vgsvg package uses svgo (github.com/ajstarks/svgo)
 // as a backend for vg.
-package vecsvg
+package vgsvg
 
 import (
 	"bufio"

@@ -112,7 +112,6 @@ func Example_boxPlots() *plot.Plot {
 	return p
 }
 
-
 // Example_verticalBoxPlots draws vertical boxplots
 // with some labels on their points.
 func Example_verticalBoxPlots() *plot.Plot {

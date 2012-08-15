@@ -2,9 +2,9 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// The vecpdf implemens the vg.Canvas interface
+// The vgpdf implemens the vg.Canvas interface
 // using gopdf (bitbucket.org/zombiezen/gopdf/pdf).
-package vecpdf
+package vgpdf
 
 import (
 	"bitbucket.org/zombiezen/gopdf/pdf"

@@ -2,9 +2,9 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// The veceps implemens the vg.Canvas interface using
+// The vgeps implemens the vg.Canvas interface using
 // encapsulated postscript.
-package veceps
+package vgeps
 
 import (
 	"bufio"
