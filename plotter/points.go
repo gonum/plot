@@ -14,12 +14,12 @@ type Points struct {
 	XYs
 
 	// LineStyle is the style of the line connecting
-	// the points.  If the line width is non-positive
-	// then no line is drawn.
+	// the points.  If the color is nil then no line is
+	// drawn.
 	plot.LineStyle
 
 	// GlyphStyle is the style of the glyphs drawn
-	// at each point.  If GlyphStyle.Shape is nil
+	// at each point.  If Shape or Color are nil 
 	// then no glyphs are drawn.
 	plot.GlyphStyle
 }
@@ -62,10 +62,10 @@ func (pts *Points) Plot(da plot.DrawArea, plt *plot.Plot) {
 		ps[i].X = trX(p.X)
 		ps[i].Y = trY(p.Y)
 	}
-	if pts.LineStyle.Width > 0 {
+	if pts.LineStyle.Color != nil {
 		da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
 	}
-	if pts.GlyphStyle.Shape != nil {
+	if pts.GlyphStyle.Shape != nil && pts.GlyphStyle.Color != nil {
 		for _, p := range ps {
 			da.DrawGlyph(pts.GlyphStyle, p)
 		}
@@ -80,12 +80,12 @@ func (pts *Points) DataRange() (xmin, xmax, ymin, ymax float64) {
 }
 
 // GlyphBoxes returns a slice of plot.GlyphBoxes.
-// If the GlyphStyle.Radius is positive then there
+// If the GlyphStyle.Shape is non-nil then there
 // is a plot.GlyphBox for each glyph, otherwise
 // the returned slice is empty.  This implements the
 // plot.GlyphBoxer interface.
 func (pts *Points) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	if pts.GlyphStyle.Shape != nil {
+	if pts.GlyphStyle.Shape != nil && pts.GlyphStyle.Color != nil {
 		return []plot.GlyphBox{}
 	}
 	bs := make([]plot.GlyphBox, len(pts.XYs))
@@ -100,9 +100,11 @@ func (pts *Points) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // Thumbnail the thumbnail for the Points,
 // implementing the plot.Thumbnailer interface.
 func (pts *Points) Thumbnail(da *plot.DrawArea) {
-	if pts.LineStyle.Width > 0 {
+	if pts.LineStyle.Color != nil {
 		y := da.Center().Y
 		da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
 	}
-	da.DrawGlyph(pts.GlyphStyle, da.Center())
+	if pts.GlyphStyle.Shape != nil && pts.GlyphStyle.Color != nil {
+		da.DrawGlyph(pts.GlyphStyle, da.Center())
+	}
 }
