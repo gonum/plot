@@ -157,7 +157,7 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 	}
 	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
 		for _, t := range marks {
-			if t.minor() {
+			if t.IsMinor() {
 				continue
 			}
 			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, -0.5, 0, t.Label)
@@ -178,7 +178,7 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
 func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
-		if t.minor() {
+		if t.IsMinor() {
 			continue
 		}
 		w := a.Tick.Label.Width(t.Label)
@@ -233,7 +233,7 @@ func (a *verticalAxis) draw(da *DrawArea) {
 		}
 		major := false
 		for _, t := range marks {
-			if t.minor() {
+			if t.IsMinor() {
 				continue
 			}
 			da.FillText(a.Tick.Label, x, da.Y(a.Norm(t.Value)), -1, -0.5, t.Label)
@@ -257,7 +257,7 @@ func (a *verticalAxis) draw(da *DrawArea) {
 // GlyphBoxes returns the GlyphBoxes for the tick labels
 func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker(a.Min, a.Max) {
-		if t.minor() {
+		if t.IsMinor() {
 			continue
 		}
 		h := a.Tick.Label.Height(t.Label)
@@ -340,8 +340,8 @@ type Tick struct {
 	Label string
 }
 
-// minor returns true if this is a minor tick mark.
-func (t Tick) minor() bool {
+// IsMinor returns true if this is a minor tick mark.
+func (t Tick) IsMinor() bool {
 	return t.Label == ""
 }
 
@@ -350,7 +350,7 @@ func (t Tick) minor() bool {
 // the line for a minor tick mark must be shifted by half of
 // the length.
 func (t Tick) lengthOffset(len vg.Length) vg.Length {
-	if t.minor() {
+	if t.IsMinor() {
 		return len / 2
 	}
 	return 0
@@ -360,7 +360,7 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 func tickLabelHeight(sty TextStyle, ticks []Tick) vg.Length {
 	maxHeight := vg.Length(0)
 	for _, t := range ticks {
-		if t.minor() {
+		if t.IsMinor() {
 			continue
 		}
 		h := sty.Height(t.Label)
@@ -375,7 +375,7 @@ func tickLabelHeight(sty TextStyle, ticks []Tick) vg.Length {
 func tickLabelWidth(sty TextStyle, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
-		if t.minor() {
+		if t.IsMinor() {
 			continue
 		}
 		w := sty.Width(t.Label)

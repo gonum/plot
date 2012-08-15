@@ -14,8 +14,8 @@ import (
 	"testing"
 )
 
-func TestDrawImage(t *testing.T) {
-	if err := Example_histogram().Save(4, 4, "test.png"); err != nil {
+func TestDrawPng(t *testing.T) {
+	if err := Example_points().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
@@ -27,19 +27,25 @@ func TestDrawEps(t *testing.T) {
 }
 
 func TestDrawSvg(t *testing.T) {
-	if err := Example_histogram().Save(4, 4, "test.svg"); err != nil {
+	if err := Example_points().Save(4, 4, "test.svg"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawTiff(t *testing.T) {
-	if err := Example_histogram().Save(4, 4, "test.tiff"); err != nil {
+	if err := Example_points().Save(4, 4, "test.tiff"); err != nil {
+		t.Error(err)
+	}
+}
+
+func TestDrawJpg(t *testing.T) {
+	if err := Example_points().Save(4, 4, "test.jpg"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawPdf(t *testing.T) {
-	if err := Example_histogram().Save(4, 4, "test.pdf"); err != nil {
+	if err := Example_points().Save(4, 4, "test.pdf"); err != nil {
 		t.Error(err)
 	}
 }
@@ -235,6 +241,7 @@ func Example_points() *plot.Plot {
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
+	p.Add(NewGrid())
 
 	s := NewScatter(scatterData)
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}

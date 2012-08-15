@@ -111,11 +111,15 @@ func New() (*Plot, error) {
 	return p, nil
 }
 
-// Add adds a Plotters to the plot.  If the plotters
-// implements DataRanger then the minimum
-// and maximum values of the X and Y axes are
-// changed if necessary to fit the range of
+// Add adds a Plotters to the plot.
+//
+// If the plotters implements DataRanger then the
+// minimum and maximum values of the X and Y
+// axes are changed if necessary to fit the range of
 // the data.
+//
+// When drawing the plot, Plotters are drawn in the
+// order in which they were added to the plot.
 func (p *Plot) Add(ps ...Plotter) {
 	for _, d := range ps {
 		if x, ok := d.(DataRanger); ok {
@@ -131,6 +135,12 @@ func (p *Plot) Add(ps ...Plotter) {
 }
 
 // Draw draws a plot to a DrawArea.
+//
+// Plotters are drawn in the order in which they were
+// added to the plot.  Plotters that  implement the
+// GlyphBoxer interface will have their GlyphBoxes
+// taken into account when padding the plot so that
+// none of their glyphs are clipped.
 func (p *Plot) Draw(da *DrawArea) {
 	if p.BackgroundColor != nil {
 		da.SetColor(p.BackgroundColor)
