@@ -15,7 +15,7 @@ import (
 )
 
 func TestDrawPng(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.png"); err != nil {
+	if err := Example_bubbles().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
@@ -265,7 +265,8 @@ func Example_points() *plot.Plot {
 	return p
 }
 
-// randomPoints returns some random x, y points.
+// randomPoints returns some random x, y points
+// with some interesting kind of trend.
 func randomPoints(n int) XYs {
 	pts := make(XYs, n)
 	for i := range pts {
@@ -277,6 +278,42 @@ func randomPoints(n int) XYs {
 		pts[i].Y = pts[i].X + 10*rand.Float64()
 	}
 	return pts
+}
+
+func Example_bubbles() *plot.Plot{
+	rand.Seed(int64(0))
+	n := 10
+	bubbleData := randomTriples(n)
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Points Bubbles"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	bs := NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	bs.Color = color.RGBA{R:196, B:128, A: 255}
+	p.Add(bs)
+
+	return p
+}
+
+// randomTriples returns some random x, y, z triples
+// with some interesting kind of trend.
+func randomTriples(n int) XYZs {
+	data := make(XYZs, n)
+	for i := range data {
+		if i == 0 {
+			data[i].X = rand.Float64()
+		} else {
+			data[i].X = data[i-1].X + 2*rand.Float64()
+		}
+		data[i].Y = data[i].X + 10*rand.Float64()
+		data[i].Z = data[i].X
+	}
+	return data
 }
 
 // An example of making a histogram.

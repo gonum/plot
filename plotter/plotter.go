@@ -101,12 +101,10 @@ type XYs []struct{ X, Y float64 }
 
 // CopyXYs returns an XYs that is a copy of the
 // x and y values from an XYer.
-func CopyXYs(xys XYer) XYs {
-	cpy := make(XYs, xys.Len())
-	for i := 0; i < xys.Len(); i++ {
-		x, y := xys.XY(i)
-		cpy[i].X = x
-		cpy[i].Y = y
+func CopyXYs(data XYer) XYs {
+	cpy := make(XYs, data.Len())
+	for i := range cpy {
+		cpy[i].X, cpy[i].Y = data.XY(i)
 	}
 	return cpy
 }
@@ -139,6 +137,46 @@ type YValues struct {
 func (ys YValues) Value(i int) float64 {
 	_, y := ys.XY(i)
 	return y
+}
+
+// XYZer wraps the Len and XYZ methods.
+type XYZer interface {
+	// Len returns the number of x, y, z triples.
+	Len() int
+
+	// XYZ returns an x, y, z triple.
+	XYZ(int) (float64, float64, float64)
+}
+
+// XYZs implements the XYZer interface using a slice.
+type XYZs []struct { X, Y, Z float64 }
+
+// Len implements the Len method of the XYZer interface.
+func (xyz XYZs) Len() int {
+	return len(xyz)
+}
+
+// XYZ implements the XYZ method of the XYZer interface.
+func (xyz XYZs) XYZ(i int) (float64, float64, float64) {
+	return xyz[i].X, xyz[i].Y, xyz[i].Z
+}
+
+// CopyXYZs copies an XYZer.
+func CopyXYZs(data XYZer) XYZs {
+	cpy := make(XYZs, data.Len())
+	for i := range cpy {
+		cpy[i].X, cpy[i].Y, cpy[i].Z = data.XYZ(i)
+	}
+	return cpy
+}
+
+// XYValues gets the x and y values from an XYZer.
+type XYValues struct { XYZer }
+
+// XY implements the XY method of the XYer interface.
+func (xy XYValues) XY(i int) (float64, float64) {
+	x, y, _ := xy.XYZ(i)
+	return x, y
 }
 
 // Labeller wraps the Len and Label methods.
