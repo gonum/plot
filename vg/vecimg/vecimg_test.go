@@ -6,6 +6,7 @@ package vecimg
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"image/png"
 	"testing"
 )
 
@@ -15,7 +16,7 @@ func TestFontExtents(t *testing.T) {
 		t.Fatal(err)
 	}
 	vg.DrawFontExtents(t, img)
-	err = img.SavePNG("extents.png")
+	err = img.Save("extents.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -27,7 +28,7 @@ func TestFonts(t *testing.T) {
 		t.Fatal(err)
 	}
 	vg.DrawFonts(t, img)
-	err = img.SaveJPEG("fonts.jpg")
+	err = img.Save("fonts.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +40,7 @@ func TestArcs(t *testing.T) {
 		t.Fatal(err)
 	}
 	vg.DrawArcs(t, img)
-	err = img.SavePNG("arcs.png")
+	err = img.Save("arcs.png", png.Encode)
 	if err != nil {
 		t.Fatal(err)
 	}

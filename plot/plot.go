@@ -16,13 +16,18 @@
 package plot
 
 import (
+	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/veceps"
 	"code.google.com/p/plotinum/vg/vecimg"
 	"code.google.com/p/plotinum/vg/vecpdf"
 	"code.google.com/p/plotinum/vg/vecsvg"
 	"fmt"
+	"io"
+	"image"
 	"image/color"
+	"image/png"
+	"image/jpeg"
 	"math"
 	"path/filepath"
 	"strings"
@@ -342,32 +347,48 @@ func (p *Plot) NominalY(names ...string) {
 // Save saves the plot to an image file.  Width and height
 // are specified in inches, and the file format is determined
 // by the extension.  Supported extensions are
-// .png, .jpg, .jpeg, .eps, .pdf, and .svg.
+// .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c vg.Canvas
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
+
 	case ".eps":
 		c = veceps.New(w, h, file)
 		defer c.(*veceps.Canvas).Save(file)
-	case ".png":
-		c, err = vecimg.New(w, h)
-		if err != nil {
-			return
-		}
-		defer func() { err = c.(*vecimg.Canvas).SavePNG(file) }()
+
 	case ".jpg", ".jpeg":
 		c, err = vecimg.New(w, h)
 		if err != nil {
 			return
 		}
-		defer func() { err = c.(*vecimg.Canvas).SaveJPEG(file) }()
-	case ".svg":
-		c = vecsvg.New(w, h)
-		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()
+		encode := func(w io.Writer, img image.Image) error {
+			return jpeg.Encode(w, img, nil)
+		}
+		defer func() { err = c.(*vecimg.Canvas).Save(file, encode) }()
+
 	case ".pdf":
 		c = vecpdf.New(w, h)
 		defer func() { err = c.(*vecpdf.Canvas).Save(file) }()
+
+	case ".png":
+		c, err = vecimg.New(w, h)
+		if err != nil {
+			return
+		}
+		defer func() { err = c.(*vecimg.Canvas).Save(file, png.Encode) }()
+
+	case ".svg":
+		c = vecsvg.New(w, h)
+		defer func() { err = c.(*vecsvg.Canvas).Save(file) }()
+
+	case ".tiff":
+		c, err = vecimg.New(w, h)
+		if err != nil {
+			return
+		}
+		defer func() { err = c.(*vecimg.Canvas).Save(file, tiff.Encode) }()
+
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}

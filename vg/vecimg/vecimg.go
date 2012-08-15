@@ -16,8 +16,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
-	"image/png"
-	"image/jpeg"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -238,7 +237,7 @@ var (
 	}
 )
 
-func (c *Canvas) SavePNG(path string) error {
+func (c *Canvas) Save(path string, encode func(io.Writer, image.Image) error) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -246,22 +245,7 @@ func (c *Canvas) SavePNG(path string) error {
 	defer f.Close()
 
 	b := bufio.NewWriter(f)
-	err = png.Encode(b, c.img)
-	if err != nil {
-		return err
-	}
-	return b.Flush()
-}
-
-func (c *Canvas) SaveJPEG(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	b := bufio.NewWriter(f)
-	err = jpeg.Encode(b, c.img, nil)
+	err = encode(b, c.img)
 	if err != nil {
 		return err
 	}

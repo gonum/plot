@@ -5,3 +5,4 @@ syntax: glob
 *.pdf
 *.jpg
 *.jpeg
+*.tiff

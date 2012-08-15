@@ -32,6 +32,12 @@ func TestDrawSvg(t *testing.T) {
 	}
 }
 
+func TestDrawTiff(t *testing.T) {
+	if err := Example_histogram().Save(4, 4, "test.tiff"); err != nil {
+		t.Error(err)
+	}
+}
+
 func TestDrawPdf(t *testing.T) {
 	if err := Example_histogram().Save(4, 4, "test.pdf"); err != nil {
 		t.Error(err)
