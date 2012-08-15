@@ -25,8 +25,8 @@ var (
 	// for gyph marks.
 	DefaultGlyphStyle = plot.GlyphStyle{
 		Color:  color.Black,
-		Shape:  plot.RingGlyph,
 		Radius: vg.Points(2),
+		Shape: plot.RingGlyph{},
 	}
 )
 

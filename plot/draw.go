@@ -6,7 +6,6 @@ package plot
 
 import (
 	"code.google.com/p/plotinum/vg"
-	"fmt"
 	"image/color"
 	"math"
 	"strings"
@@ -41,41 +40,166 @@ type LineStyle struct {
 	DashOffs vg.Length
 }
 
-// A GlyphShape is a lable representing a shape for drawing
-// a glyph that represents a point.
-//
-// GlyphShape values that corresponding to uppercase ASCII
-// letters (A'–'Z'), represent the shape of the corresponding
-// character.  A handful of other GlyphShape values are
-// defined as constants, all other GlyphShape values are
-// invalid.
-type GlyphShape uint8
-
-const (
-	// RingGlyph is an outlined circle
-	RingGlyph GlyphShape = iota
-
-	// CircleGlyph is a filled circle
-	CircleGlyph
-)
-
 // A GlyphStyle specifies the look of a glyph used to draw
 // a point on a plot.
 type GlyphStyle struct {
 	// Color is the color used to draw the glyph.
 	color.Color
 
-	// Shape is the shape of the glyph.
-	Shape GlyphShape
-
 	// Radius specifies the size of the glyph's radius.
 	Radius vg.Length
+
+	// Shape draws the shape of the glyph.
+	Shape GlyphDrawer
+}
+
+// A GlyphDrawer wraps the DrawGlyph function.
+type GlyphDrawer interface {
+	// DrawGlyph draws the glyph at the given
+	// point, with the given color and radius.
+	DrawGlyph(*DrawArea, GlyphStyle, Point)
+}
+
+// DrawGlyph implements the GlyphDrawer interface.
+// If the style's Shape is nil then nothing is drawn.
+func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
+	if sty.Shape == nil || !da.Contains(pt) {
+		return
+	}
+	da.SetColor(sty.Color)
+	sty.Shape.DrawGlyph(da, sty, pt)
 }
 
 // Rect returns the rectangle surrounding this glyph,
 // assuming that it is drawn centered at 0,0
 func (g GlyphStyle) Rect() Rect {
 	return Rect{Point{-g.Radius, -g.Radius}, Point{g.Radius * 2, g.Radius * 2}}
+}
+
+// CircleGlyph is a glyph that draws a solid circle.
+type CircleGlyph struct{}
+
+// DrawGlyph implements the GlyphDrawer interface.
+func (c CircleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		var p vg.Path
+		p.Move(pt.X+sty.Radius, pt.Y)
+		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+		p.Close()
+		da.Fill(p)
+}
+
+// RingGlyph is a glyph that draws the outline of a circle.
+type RingGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (RingGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
+		var p vg.Path
+		p.Move(pt.X+sty.Radius, pt.Y)
+		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+		p.Close()
+		da.Stroke(p)
+}
+
+// SquareGlyph is a glyph that draws the outline of a square.
+type SquareGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
+		const cosπ4 = vg.Length(.707106781202420876)
+		x := sty.Radius * cosπ4
+		var p vg.Path
+		p.Move(pt.X-x, pt.Y-x)
+		p.Line(pt.X + x, pt.Y - x)
+		p.Line(pt.X + x, pt.Y + x)
+		p.Line(pt.X - x, pt.Y + x)
+		p.Close()
+		da.Stroke(p)
+}
+
+const (
+	cosπover4 = vg.Length(.707106781202420)
+	sinπover6 = vg.Length(.500000000025921)
+	cosπover6 = vg.Length(.866025403769473)
+)
+
+// BoxGlyph is a glyph that draws a filled square.
+type BoxGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (BoxGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		x := sty.Radius * cosπover4
+		var p vg.Path
+		p.Move(pt.X-x, pt.Y-x)
+		p.Line(pt.X + x, pt.Y - x)
+		p.Line(pt.X + x, pt.Y + x)
+		p.Line(pt.X - x, pt.Y + x)
+		p.Close()
+		da.Fill(p)
+}
+
+// TriangleGlyph is a glyph that draws the outline of a triangle.
+type TriangleGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (TriangleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
+		r := sty.Radius
+		var p vg.Path
+		p.Move(pt.X, pt.Y+r)
+		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
+		p.Line(pt.X + r*cosπover6, pt.Y - r*sinπover6)
+		p.Close()
+		da.Stroke(p)
+}
+
+// PyramidGlyph is a glyph that draws a filled triangle.
+type PyramidGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (PyramidGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		r := sty.Radius
+		var p vg.Path
+		p.Move(pt.X, pt.Y+r)
+		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
+		p.Line(pt.X + r*cosπover6, pt.Y - r*sinπover6)
+		p.Close()
+		da.Fill(p)
+}
+
+// PlusGlyph is a glyph that draws a plus sign
+type PlusGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (PlusGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
+		r := sty.Radius
+		var p vg.Path
+		p.Move(pt.X, pt.Y+r)
+		p.Line(pt.X, pt.Y-r)
+		da.Stroke(p)
+		p = vg.Path{}
+		p.Move(pt.X-r, pt.Y)
+		p.Line(pt.X+r, pt.Y)
+		da.Stroke(p)
+}
+
+// CrossGlyph is a glyph that draws a big X.
+type CrossGlyph struct{}
+
+// DrawGlyph implements the Glyph interface.
+func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
+		r := sty.Radius*cosπover4
+		var p vg.Path
+		p.Move(pt.X-r, pt.Y-r)
+		p.Line(pt.X+r, pt.Y+r)
+		da.Stroke(p)
+		p = vg.Path{}
+		p.Move(pt.X-r, pt.Y+r)
+		p.Line(pt.X+r, pt.Y-r)
+		da.Stroke(p)
 }
 
 // NewDrawArea returns a new DrawArea of a specified
@@ -143,47 +267,6 @@ func (da *DrawArea) setLineStyle(sty LineStyle) {
 		dashDots = append(dashDots, dash)
 	}
 	da.SetLineDash(dashDots, sty.DashOffs)
-}
-
-// DrawGlyph draws a glyph at a specified location.  If
-// the location is outside of the DrawArea then it is
-// not drawn.
-func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
-	if !da.Contains(pt) {
-		return
-	}
-
-	da.setLineStyle(LineStyle{Width: vg.Points(0.5)})
-	da.SetColor(sty.Color)
-
-	switch {
-	case sty.Shape == CircleGlyph:
-		var p vg.Path
-		p.Move(pt.X+sty.Radius, pt.Y)
-		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
-		p.Close()
-		da.Fill(p)
-
-	case sty.Shape == RingGlyph:
-		var p vg.Path
-		p.Move(pt.X+sty.Radius, pt.Y)
-		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
-		p.Close()
-		da.Stroke(p)
-
-	case sty.Shape >= 'A' && sty.Shape <= 'Z':
-		font, err := vg.MakeFont(defaultFont, sty.Radius*2)
-		if err != nil {
-			panic(err)
-		}
-		str := string([]byte{byte(sty.Shape)})
-		x := pt.X - font.Width(str)/2
-		y := pt.Y + font.Extents().Descent
-		da.FillString(font, x, y, str)
-
-	default:
-		panic(fmt.Sprintf("Invalid GlyphShape: %d", sty.Shape))
-	}
 }
 
 // StrokeLines draws a line connecting a set of points

@@ -19,8 +19,8 @@ type Points struct {
 	plot.LineStyle
 
 	// GlyphStyle is the style of the glyphs drawn
-	// at each point.  If the radius of the glyphs
-	// is non-positive then no glyphs are drawn.
+	// at each point.  If GlyphStyle.Shape is nil
+	// then no glyphs are drawn.
 	plot.GlyphStyle
 }
 
@@ -65,7 +65,7 @@ func (pts *Points) Plot(da plot.DrawArea, plt *plot.Plot) {
 	if pts.LineStyle.Width > 0 {
 		da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
 	}
-	if pts.GlyphStyle.Radius > 0 {
+	if pts.GlyphStyle.Shape != nil {
 		for _, p := range ps {
 			da.DrawGlyph(pts.GlyphStyle, p)
 		}
@@ -85,7 +85,7 @@ func (pts *Points) DataRange() (xmin, xmax, ymin, ymax float64) {
 // the returned slice is empty.  This implements the
 // plot.GlyphBoxer interface.
 func (pts *Points) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	if pts.GlyphStyle.Radius <= 0 {
+	if pts.GlyphStyle.Shape != nil {
 		return []plot.GlyphBox{}
 	}
 	bs := make([]plot.GlyphBox, len(pts.XYs))
@@ -104,7 +104,5 @@ func (pts *Points) Thumbnail(da *plot.DrawArea) {
 		y := da.Center().Y
 		da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
 	}
-	if pts.GlyphStyle.Radius > 0 {
-		da.DrawGlyph(pts.GlyphStyle, da.Center())
-	}
+	da.DrawGlyph(pts.GlyphStyle, da.Center())
 }
