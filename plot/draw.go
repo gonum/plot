@@ -101,14 +101,19 @@ func (RingGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 		da.Stroke(p)
 }
 
+const (
+	cosπover4 = vg.Length(.707106781202420)
+	sinπover6 = vg.Length(.500000000025921)
+	cosπover6 = vg.Length(.866025403769473)
+)
+
 // SquareGlyph is a glyph that draws the outline of a square.
 type SquareGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		const cosπ4 = vg.Length(.707106781202420876)
-		x := sty.Radius * cosπ4
+		x := (sty.Radius - sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 		var p vg.Path
 		p.Move(pt.X-x, pt.Y-x)
 		p.Line(pt.X + x, pt.Y - x)
@@ -118,18 +123,12 @@ func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 		da.Stroke(p)
 }
 
-const (
-	cosπover4 = vg.Length(.707106781202420)
-	sinπover6 = vg.Length(.500000000025921)
-	cosπover6 = vg.Length(.866025403769473)
-)
-
 // BoxGlyph is a glyph that draws a filled square.
 type BoxGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (BoxGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		x := sty.Radius * cosπover4
+		x := (sty.Radius - sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 		var p vg.Path
 		p.Move(pt.X-x, pt.Y-x)
 		p.Line(pt.X + x, pt.Y - x)
@@ -145,7 +144,7 @@ type TriangleGlyph struct{}
 // DrawGlyph implements the Glyph interface.
 func (TriangleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		r := sty.Radius
+		r := sty.Radius + (sty.Radius - sty.Radius*sinπover6)/2
 		var p vg.Path
 		p.Move(pt.X, pt.Y+r)
 		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
@@ -159,7 +158,7 @@ type PyramidGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (PyramidGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		r := sty.Radius
+		r := sty.Radius + (sty.Radius - sty.Radius*sinπover6)/2
 		var p vg.Path
 		p.Move(pt.X, pt.Y+r)
 		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
