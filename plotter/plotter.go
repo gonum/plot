@@ -170,7 +170,8 @@ func CopyXYZs(data XYZer) XYZs {
 	return cpy
 }
 
-// XYValues gets the x and y values from an XYZer.
+// XYValues implements the XYer interface, returning
+// the x and y values from an XYZer.
 type XYValues struct { XYZer }
 
 // XY implements the XY method of the XYer interface.
