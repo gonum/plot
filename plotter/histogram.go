@@ -124,7 +124,7 @@ func binPoints(xys XYer, n int) ([]Bin, float64) {
 
 	bins := make([]Bin, n)
 
-	w := (xmax - xmin) / float64(n-1)
+	w := (xmax - xmin) / float64(n)
 	for i := range bins {
 		bins[i].Min = xmin + float64(i)*w
 		bins[i].Max = xmin + float64(i+1)*w
@@ -133,6 +133,9 @@ func binPoints(xys XYer, n int) ([]Bin, float64) {
 	for i := 0; i < xys.Len(); i++ {
 		x, y := xys.XY(i)
 		bin := int((x - xmin) / w)
+		if x == xmax && bin >= n {
+			bin = n-1
+		}
 		if bin < 0 || bin >= n {
 			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",
 				x, xmin, xmax, w, bin, n))

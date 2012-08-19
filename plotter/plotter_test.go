@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_histogram().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
