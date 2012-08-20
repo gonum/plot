@@ -320,10 +320,9 @@ func randomTriples(n int) XYZs {
 func Example_histogram() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10000
-	vals := make(XYs, n)
+	vals := make(Values, n)
 	for i := 0; i < n; i++ {
-		vals[i].X = rand.NormFloat64()
-		vals[i].Y = 1
+		vals[i] = rand.NormFloat64()
 	}
 
 	p, err := plot.New()
@@ -331,7 +330,7 @@ func Example_histogram() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h := NewHistogram(vals, 16)
+	h := NewHist(vals, 16)
 	h.Normalize(1)
 	p.Add(h)
 

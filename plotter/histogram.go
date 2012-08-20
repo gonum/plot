@@ -49,6 +49,21 @@ func NewHistogram(xy XYer, n int) *Histogram {
 	}
 }
 
+// NewHist returns a new histogram, as in
+// NewHistogram, except that it accepts a Valuer
+// instead of an XYer.
+func NewHist(vs Valuer, n int) *Histogram {
+	return NewHistogram(unitYs{vs}, n)
+}
+
+type unitYs struct {
+	Valuer
+}
+
+func (u unitYs) XY(i int) (float64, float64) {
+	return u.Value(i), 1.0
+}
+
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
 func (h *Histogram) Plot(da plot.DrawArea, p *plot.Plot) {
