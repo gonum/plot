@@ -85,7 +85,7 @@ func (pts *Points) DataRange() (xmin, xmax, ymin, ymax float64) {
 // the returned slice is empty.  This implements the
 // plot.GlyphBoxer interface.
 func (pts *Points) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	if pts.GlyphStyle.Shape != nil && pts.GlyphStyle.Color != nil {
+	if pts.GlyphStyle.Shape == nil || pts.GlyphStyle.Color == nil {
 		return []plot.GlyphBox{}
 	}
 	bs := make([]plot.GlyphBox, len(pts.XYs))
