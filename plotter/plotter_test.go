@@ -280,7 +280,7 @@ func randomPoints(n int) XYs {
 	return pts
 }
 
-func Example_bubbles() *plot.Plot{
+func Example_bubbles() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10
 	bubbleData := randomTriples(n)
@@ -294,7 +294,7 @@ func Example_bubbles() *plot.Plot{
 	p.Y.Label.Text = "Y"
 
 	bs := NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
-	bs.Color = color.RGBA{R:196, B:128, A: 255}
+	bs.Color = color.RGBA{R: 196, B: 128, A: 255}
 	p.Add(bs)
 
 	return p

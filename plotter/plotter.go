@@ -33,7 +33,7 @@ var (
 	DefaultGlyphStyle = plot.GlyphStyle{
 		Color:  color.Black,
 		Radius: vg.Points(2.5),
-		Shape: plot.RingGlyph{},
+		Shape:  plot.RingGlyph{},
 	}
 )
 
@@ -149,7 +149,7 @@ type XYZer interface {
 }
 
 // XYZs implements the XYZer interface using a slice.
-type XYZs []struct { X, Y, Z float64 }
+type XYZs []struct{ X, Y, Z float64 }
 
 // Len implements the Len method of the XYZer interface.
 func (xyz XYZs) Len() int {
@@ -172,7 +172,7 @@ func CopyXYZs(data XYZer) XYZs {
 
 // XYValues implements the XYer interface, returning
 // the x and y values from an XYZer.
-type XYValues struct { XYZer }
+type XYValues struct{ XYZer }
 
 // XY implements the XY method of the XYer interface.
 func (xy XYValues) XY(i int) (float64, float64) {

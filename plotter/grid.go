@@ -33,7 +33,7 @@ type Grid struct {
 // horizontal lines using the default grid line style.
 func NewGrid() *Grid {
 	return &Grid{
-		Vertical: DefaultGridLineStyle,
+		Vertical:   DefaultGridLineStyle,
 		Horizontal: DefaultGridLineStyle,
 	}
 }
@@ -50,7 +50,7 @@ func (g *Grid) Plot(da plot.DrawArea, plt *plot.Plot) {
 			continue
 		}
 		x := trX(tk.Value)
-		da.StrokeLine2(g.Vertical, x, da.Min.Y, x, da.Min.Y + da.Size.Y)
+		da.StrokeLine2(g.Vertical, x, da.Min.Y, x, da.Min.Y+da.Size.Y)
 	}
 
 horiz:
@@ -62,6 +62,6 @@ horiz:
 			continue
 		}
 		y := trY(tk.Value)
-		da.StrokeLine2(g.Vertical, da.Min.X, y, da.Min.X + da.Size.X, y)
+		da.StrokeLine2(g.Vertical, da.Min.X, y, da.Min.X+da.Size.X, y)
 	}
 }

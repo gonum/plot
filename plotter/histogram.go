@@ -149,7 +149,7 @@ func binPoints(xys XYer, n int) ([]Bin, float64) {
 		x, y := xys.XY(i)
 		bin := int((x - xmin) / w)
 		if x == xmax {
-			bin = n-1
+			bin = n - 1
 		}
 		if bin < 0 || bin >= n {
 			panic(fmt.Sprintf("%g, xmin=%g, xmax=%g, w=%g, bin=%d, n=%d\n",

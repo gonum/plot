@@ -43,11 +43,11 @@ func NewBubbles(xyz XYZer, min, max vg.Length) *Bubbles {
 		maxz = math.Max(maxz, d.Z)
 	}
 	return &Bubbles{
-		XYZs: cpy,
+		XYZs:      cpy,
 		MinRadius: min,
 		MaxRadius: max,
-		MinZ: minz,
-		MaxZ: maxz,
+		MinZ:      minz,
+		MaxZ:      maxz,
 	}
 }
 
@@ -64,7 +64,7 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 
 		// draw a circle centered at x, y
 		var p vg.Path
-		p.Move(x + rad, y)
+		p.Move(x+rad, y)
 		p.Arc(x, y, rad, 0, 2*math.Pi)
 		p.Close()
 		da.Fill(p)
@@ -73,7 +73,7 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 
 // radius returns the radius of a bubble by linearl interpolation.
 func (bs *Bubbles) radius(z float64) vg.Length {
-	dist := (z-bs.MinZ) / (bs.MaxZ - bs.MinZ)
+	dist := (z - bs.MinZ) / (bs.MaxZ - bs.MinZ)
 	return vg.Length(dist)*(bs.MaxRadius-bs.MinRadius) + bs.MinRadius
 }
 
@@ -91,9 +91,9 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		boxes[i].X = plt.X.Norm(d.X)
 		boxes[i].Y = plt.Y.Norm(d.Y)
 		r := bs.radius(d.Z)
-		boxes[i].Rect = plot.Rect {
-			Min: plot.Point{ -r, -r },
-			Size: plot.Point{ 2*r, 2*r },
+		boxes[i].Rect = plot.Rect{
+			Min:  plot.Point{-r, -r},
+			Size: plot.Point{2 * r, 2 * r},
 		}
 	}
 	return boxes

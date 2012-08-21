@@ -81,11 +81,11 @@ type CircleGlyph struct{}
 
 // DrawGlyph implements the GlyphDrawer interface.
 func (c CircleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		var p vg.Path
-		p.Move(pt.X+sty.Radius, pt.Y)
-		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
-		p.Close()
-		da.Fill(p)
+	var p vg.Path
+	p.Move(pt.X+sty.Radius, pt.Y)
+	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+	p.Close()
+	da.Fill(p)
 }
 
 // RingGlyph is a glyph that draws the outline of a circle.
@@ -93,12 +93,12 @@ type RingGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (RingGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		var p vg.Path
-		p.Move(pt.X+sty.Radius, pt.Y)
-		p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
-		p.Close()
-		da.Stroke(p)
+	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	var p vg.Path
+	p.Move(pt.X+sty.Radius, pt.Y)
+	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+	p.Close()
+	da.Stroke(p)
 }
 
 const (
@@ -112,15 +112,15 @@ type SquareGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		x := (sty.Radius - sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
-		var p vg.Path
-		p.Move(pt.X-x, pt.Y-x)
-		p.Line(pt.X + x, pt.Y - x)
-		p.Line(pt.X + x, pt.Y + x)
-		p.Line(pt.X - x, pt.Y + x)
-		p.Close()
-		da.Stroke(p)
+	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
+	var p vg.Path
+	p.Move(pt.X-x, pt.Y-x)
+	p.Line(pt.X+x, pt.Y-x)
+	p.Line(pt.X+x, pt.Y+x)
+	p.Line(pt.X-x, pt.Y+x)
+	p.Close()
+	da.Stroke(p)
 }
 
 // BoxGlyph is a glyph that draws a filled square.
@@ -128,14 +128,14 @@ type BoxGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (BoxGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		x := (sty.Radius - sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
-		var p vg.Path
-		p.Move(pt.X-x, pt.Y-x)
-		p.Line(pt.X + x, pt.Y - x)
-		p.Line(pt.X + x, pt.Y + x)
-		p.Line(pt.X - x, pt.Y + x)
-		p.Close()
-		da.Fill(p)
+	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
+	var p vg.Path
+	p.Move(pt.X-x, pt.Y-x)
+	p.Line(pt.X+x, pt.Y-x)
+	p.Line(pt.X+x, pt.Y+x)
+	p.Line(pt.X-x, pt.Y+x)
+	p.Close()
+	da.Fill(p)
 }
 
 // TriangleGlyph is a glyph that draws the outline of a triangle.
@@ -143,14 +143,14 @@ type TriangleGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (TriangleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		r := sty.Radius + (sty.Radius - sty.Radius*sinπover6)/2
-		var p vg.Path
-		p.Move(pt.X, pt.Y+r)
-		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
-		p.Line(pt.X + r*cosπover6, pt.Y - r*sinπover6)
-		p.Close()
-		da.Stroke(p)
+	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
+	var p vg.Path
+	p.Move(pt.X, pt.Y+r)
+	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
+	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
+	p.Close()
+	da.Stroke(p)
 }
 
 // PyramidGlyph is a glyph that draws a filled triangle.
@@ -158,13 +158,13 @@ type PyramidGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (PyramidGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		r := sty.Radius + (sty.Radius - sty.Radius*sinπover6)/2
-		var p vg.Path
-		p.Move(pt.X, pt.Y+r)
-		p.Line(pt.X - r*cosπover6, pt.Y - r*sinπover6)
-		p.Line(pt.X + r*cosπover6, pt.Y - r*sinπover6)
-		p.Close()
-		da.Fill(p)
+	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
+	var p vg.Path
+	p.Move(pt.X, pt.Y+r)
+	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
+	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
+	p.Close()
+	da.Fill(p)
 }
 
 // PlusGlyph is a glyph that draws a plus sign
@@ -172,16 +172,16 @@ type PlusGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (PlusGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		r := sty.Radius
-		var p vg.Path
-		p.Move(pt.X, pt.Y+r)
-		p.Line(pt.X, pt.Y-r)
-		da.Stroke(p)
-		p = vg.Path{}
-		p.Move(pt.X-r, pt.Y)
-		p.Line(pt.X+r, pt.Y)
-		da.Stroke(p)
+	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	r := sty.Radius
+	var p vg.Path
+	p.Move(pt.X, pt.Y+r)
+	p.Line(pt.X, pt.Y-r)
+	da.Stroke(p)
+	p = vg.Path{}
+	p.Move(pt.X-r, pt.Y)
+	p.Line(pt.X+r, pt.Y)
+	da.Stroke(p)
 }
 
 // CrossGlyph is a glyph that draws a big X.
@@ -189,16 +189,16 @@ type CrossGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-		da.setLineStyle(LineStyle{ Color: sty.Color, Width: vg.Points(0.5) })
-		r := sty.Radius*cosπover4
-		var p vg.Path
-		p.Move(pt.X-r, pt.Y-r)
-		p.Line(pt.X+r, pt.Y+r)
-		da.Stroke(p)
-		p = vg.Path{}
-		p.Move(pt.X-r, pt.Y+r)
-		p.Line(pt.X+r, pt.Y-r)
-		da.Stroke(p)
+	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	r := sty.Radius * cosπover4
+	var p vg.Path
+	p.Move(pt.X-r, pt.Y-r)
+	p.Line(pt.X+r, pt.Y+r)
+	da.Stroke(p)
+	p = vg.Path{}
+	p.Move(pt.X-r, pt.Y+r)
+	p.Line(pt.X+r, pt.Y-r)
+	da.Stroke(p)
 }
 
 // NewDrawArea returns a new DrawArea of a specified
