@@ -161,11 +161,12 @@ func (p *Plot) Draw(da *DrawArea) {
 	xheight := x.size()
 	y.draw(padY(p, da.crop(0, xheight, 0, 0)))
 
-	da = padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
+	dataDa := padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
 	for _, data := range p.plotters {
-		data.Plot(*da, p)
+		data.Plot(*dataDa, p)
 	}
-	p.Legend.draw(da)
+
+	p.Legend.draw(da.crop(ywidth, 0, 0, 0).crop(0, xheight, 0, 0))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
