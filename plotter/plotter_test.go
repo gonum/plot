@@ -15,13 +15,13 @@ import (
 )
 
 func TestDrawPng(t *testing.T) {
-	if err := Example_bubbles().Save(4, 4, "test.png"); err != nil {
+	if err := Example_barChart().Save(4, 4, "test.png"); err != nil {
 		t.Error(err)
 	}
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_histogram().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_barChart().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -350,6 +350,33 @@ func stdNorm(x float64) float64 {
 	const mu = 0.0
 	const root2π = 2.50662827459517818309
 	return 1.0 / (sigma * root2π) * math.Exp(-((x-mu)*(x-mu))/(2*sigma*sigma))
+}
+
+// An example of making a bar chart.
+func Example_barChart() *plot.Plot {
+	men := Values{20, 35, 30, 35, 27}
+	women := Values{25, 32, 34, 20, 25}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Bar chart"
+
+	w := vg.Points(15)
+
+	menBars := NewBarChart(men, w)
+	menBars.Color = color.RGBA{R: 255, A: 255}
+	menBars.Offset = -w
+
+	womenBars := NewBarChart(women, w)
+	womenBars.Color = color.RGBA{R: 196, G: 196, A: 255}
+	womenBars.Offset = 0
+
+	p.Add(menBars, womenBars)
+	p.NominalX("G1", "G2", "G3", "G4", "G5")
+
+	return p
 }
 
 func TestEmpty(t *testing.T) {
