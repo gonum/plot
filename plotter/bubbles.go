@@ -60,6 +60,10 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 	for _, d := range bs.XYZs {
 		x := trX(d.X)
 		y := trY(d.Y)
+		if !da.Contains(plot.Point{x, y}) {
+			continue
+		}
+
 		rad := bs.radius(d.Z)
 
 		// draw a circle centered at x, y

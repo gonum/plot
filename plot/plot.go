@@ -208,6 +208,9 @@ func rightMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	maxx := da.Max().X
 	r := GlyphBox{X: 1}
 	for _, b := range boxes {
+		if b.Size.X <= 0 {
+			continue
+		}
 		if x := da.X(b.X) + b.Min.X + b.Size.X; x > maxx && b.X <= 1 {
 			maxx = x
 			r = b
@@ -221,6 +224,9 @@ func leftMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	minx := da.Min.X
 	l := GlyphBox{}
 	for _, b := range boxes {
+		if b.Size.X <= 0 {
+			continue
+		}
 		if x := da.X(b.X) + b.Min.X; x < minx && b.X >= 0 {
 			minx = x
 			l = b
@@ -258,6 +264,9 @@ func topMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	maxy := da.Max().Y
 	t := GlyphBox{Y: 1}
 	for _, b := range boxes {
+		if b.Size.Y <= 0 {
+			continue
+		}
 		if y := da.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy && b.Y <= 1 {
 			maxy = y
 			t = b
@@ -271,6 +280,9 @@ func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	miny := da.Min.Y
 	l := GlyphBox{}
 	for _, b := range boxes {
+		if b.Size.Y <= 0 {
+			continue
+		}
 		if y := da.Y(b.Y) + b.Min.Y; y < miny && b.Y >= 0 {
 			miny = y
 			l = b
@@ -294,12 +306,34 @@ func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
 // the Plotter interface that draw glyphs so that
 // their glyphs are not clipped if drawn near the
 // edge of the DrawArea.
+//
+// When computing padding, the plot ignores
+// GlyphBoxes as follows:
+// - If the Size.X > 0 and the X value is not in range
+// of the X axis then the box is ignored.
+// - If Size.Y > 0 and the Y value is not in range of
+// the Y axis then the box is ignored.
+//
+// Also, GlyphBoxes with Size.X <= 0 are ignored
+// when computing horizontal padding and
+// GlyphBoxes with Size.Y <= 0 are ignored when
+// computing vertical padding.  This is useful
+// for things like box plots and bar charts where
+// the boxes and bars are considered to be glyphs
+// in the X direction (and thus need padding), but
+// may be clipped in the Y direction (and do not
+// need padding).
 type GlyphBoxer interface {
 	GlyphBoxes(*Plot) []GlyphBox
 }
 
 // A GlyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
+//
+// If the Rect.Size.X is non-positive (<= 0) then
+// the GlyphBox is ignored when computing the
+// horizontal padding, and likewise with
+// Rect.Size.Y and the vertical padding.
 type GlyphBox struct {
 	// The glyph location in normalized coordinates.
 	X, Y float64
@@ -313,8 +347,18 @@ type GlyphBox struct {
 // data that meet the GlyphBoxer interface.
 func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, d := range p.plotters {
-		if gb, ok := d.(GlyphBoxer); ok {
-			boxes = append(boxes, gb.GlyphBoxes(p)...)
+		gb, ok := d.(GlyphBoxer)
+		if !ok {
+			continue
+		}
+		for _, b := range gb.GlyphBoxes(p) {
+			if b.Size.X > 0 && (b.X < 0 || b.X > 1) {
+				continue
+			}
+			if b.Size.Y > 0 && (b.Y < 0 || b.Y > 1) {
+				continue
+			}
+			boxes = append(boxes, b)
 		}
 	}
 	return

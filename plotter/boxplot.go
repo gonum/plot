@@ -147,6 +147,9 @@ func median(vs Values) float64 {
 func (b *BoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	x := trX(b.Location)
+	if !da.ContainsX(x) {
+		return
+	}
 
 	med := trY(b.Median)
 	q1 := trY(b.Quartile1)
@@ -258,6 +261,9 @@ func MakeHorizBoxPlot(w vg.Length, loc float64, vs Values) HorizBoxPlot {
 func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	y := trY(b.Location)
+	if !da.ContainsY(y) {
+		return
+	}
 
 	med := trX(b.Median)
 	q1 := trX(b.Quartile1)

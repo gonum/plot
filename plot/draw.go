@@ -60,8 +60,9 @@ type GlyphDrawer interface {
 	DrawGlyph(*DrawArea, GlyphStyle, Point)
 }
 
-// DrawGlyph implements the GlyphDrawer interface.
-// If the style's Shape is nil then nothing is drawn.
+// DrawGlyph draws the given glyph to the draw
+// area.  If the point is not within the DrawArea
+// or the sty.Shape is nil then nothing is drawn.
 func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
 	if sty.Shape == nil || !da.Contains(pt) {
 		return
@@ -217,8 +218,19 @@ func (da *DrawArea) Center() Point {
 
 // Contains returns true if the DrawArea contains the point.
 func (da *DrawArea) Contains(p Point) bool {
-	return p.X <= da.Max().X && p.X >= da.Min.X &&
-		p.Y <= da.Max().Y && p.Y >= da.Min.Y
+	return da.ContainsX(p.X) && da.ContainsY(p.Y)
+}
+
+// Contains returns true if the DrawArea contains the
+// x coordinate.
+func (da *DrawArea) ContainsX(x vg.Length) bool {
+	return x <= da.Max().X+slop && x >= da.Min.X-slop
+}
+
+// ContainsY returns true if the DrawArea contains the
+// y coordinate.
+func (da *DrawArea) ContainsY(y vg.Length) bool {
+	return y <= da.Max().Y+slop && y >= da.Min.Y-slop
 }
 
 // X returns the value of x, given in the unit range,

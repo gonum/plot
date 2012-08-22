@@ -48,10 +48,14 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 
 	for x, ht := range b.Values {
+		xmin := trX(float64(x))
+		if !da.ContainsX(xmin) {
+			continue
+		}
+		xmin += b.Offset
+		xmax := xmin + b.Width
 		ymin := trY(0)
 		ymax := trY(ht)
-		xmin := trX(float64(x)) + b.Offset
-		xmax := xmin + b.Width
 
 		pts := []plot.Point{
 			{xmin, ymin},
