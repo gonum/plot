@@ -374,6 +374,9 @@ func Example_barChart() *plot.Plot {
 	womenBars.Offset = 0
 
 	p.Add(menBars, womenBars)
+	p.Legend.Top = true
+	p.Legend.Add("men", menBars)
+	p.Legend.Add("women", womenBars)
 	p.NominalX("G1", "G2", "G3", "G4", "G5")
 
 	return p

@@ -94,3 +94,18 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	return boxes
 }
+
+func (b *BarChart) Thumbnail(da *plot.DrawArea) {
+	pts := []plot.Point{
+		{da.Min.X, da.Min.Y},
+		{da.Min.X, da.Max().Y},
+		{da.Max().X, da.Max().Y},
+		{da.Max().X, da.Min.Y},
+	}
+	poly := da.ClipPolygonY(pts)
+	da.FillPolygon(b.Color, poly)
+
+	pts = append(pts, plot.Point{da.Min.X, da.Min.Y})
+	outline := da.ClipLinesY(pts)
+	da.StrokeLines(b.LineStyle, outline...)
+}
