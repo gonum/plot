@@ -155,23 +155,33 @@ func (a *horizontalAxis) draw(da *DrawArea) {
 		da.FillText(a.Label.TextStyle, da.Center().X, y, -0.5, 0, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
+
+	marks := a.Tick.Marker(a.Min, a.Max)
+	for _, t := range marks {
+		x := da.X(a.Norm(t.Value))
+		if !da.ContainsX(x) || t.IsMinor() {
+			continue
+		}
+		da.FillText(a.Tick.Label, x, y, -0.5, 0, t.Label)
+	}
+
+	if len(marks) > 0 {
+		y += tickLabelHeight(a.Tick.Label, marks)
+	}
+
+	if a.drawTicks() && len(marks) > 0 {
+		len := a.Tick.Length
 		for _, t := range marks {
-			if t.IsMinor() {
+			x := da.X(a.Norm(t.Value))
+			if !da.ContainsX(x) {
 				continue
 			}
-			da.FillText(a.Tick.Label, da.X(a.Norm(t.Value)), y, -0.5, 0, t.Label)
+			start := t.lengthOffset(len)
+			da.StrokeLine2(a.Tick.LineStyle, x, y+start, x, y+len)
 		}
-		y += tickLabelHeight(a.Tick.Label, marks)
-		if a.drawTicks() {
-			len := a.Tick.Length
-			for _, t := range marks {
-				x := da.X(a.Norm(t.Value))
-				da.StrokeLine2(a.Tick.LineStyle, x, y+t.lengthOffset(len), x, y+len)
-			}
-			y += len
-		}
+		y += len
 	}
+
 	da.StrokeLine2(a.LineStyle, da.Min.X, y, da.Max().X, y)
 }
 
@@ -227,29 +237,33 @@ func (a *verticalAxis) draw(da *DrawArea) {
 		da.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
-	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
-		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
-			x += lwidth
+	marks := a.Tick.Marker(a.Min, a.Max)
+	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
+		x += w
+	}
+	major := false
+	for _, t := range marks {
+		y := da.Y(a.Norm(t.Value))
+		if !da.ContainsY(y) || t.IsMinor() {
+			continue
 		}
-		major := false
+		da.FillText(a.Tick.Label, x, y, -1, -0.5, t.Label)
+		major = true
+	}
+	if major {
+		x += a.Tick.Label.Width(" ")
+	}
+	if a.drawTicks() && len(marks) > 0 {
+		len := a.Tick.Length
 		for _, t := range marks {
-			if t.IsMinor() {
+			y := da.Y(a.Norm(t.Value))
+			if !da.ContainsY(y) {
 				continue
 			}
-			da.FillText(a.Tick.Label, x, da.Y(a.Norm(t.Value)), -1, -0.5, t.Label)
-			major = true
+			start := t.lengthOffset(len)
+			da.StrokeLine2(a.Tick.LineStyle, x+start, y, x+len, y)
 		}
-		if major {
-			x += a.Tick.Label.Width(" ")
-		}
-		if a.drawTicks() {
-			len := a.Tick.Length
-			for _, t := range marks {
-				y := da.Y(a.Norm(t.Value))
-				da.StrokeLine2(a.Tick.LineStyle, x+t.lengthOffset(len), y, x+len, y)
-			}
-			x += len
-		}
+		x += len
 	}
 	da.StrokeLine2(a.LineStyle, x, da.Min.Y, x, da.Max().Y)
 }
