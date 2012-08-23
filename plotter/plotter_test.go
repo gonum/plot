@@ -123,9 +123,9 @@ func Example_boxPlots() *plot.Plot {
 func Example_verticalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
-	uniform := make(ValueLabels, n)
-	normal := make(ValueLabels, n)
-	expon := make(ValueLabels, n)
+	uniform := make(valueLabels, n)
+	normal := make(valueLabels, n)
+	expon := make(valueLabels, n)
 	for i := 0; i < n; i++ {
 		uniform[i].Value = rand.Float64()
 		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
@@ -170,14 +170,33 @@ func Example_verticalBoxPlots() *plot.Plot {
 	return p
 }
 
+// valueLabels implements both the Valuer
+// and Labellel interfaces.
+type valueLabels []struct {
+	Value float64
+	Label string
+}
+
+func (vs valueLabels) Len() int {
+	return len(vs)
+}
+
+func (vs valueLabels) Value(i int) float64 {
+	return vs[i].Value
+}
+
+func (vs valueLabels) Label(i int) string {
+	return vs[i].Label
+}
+
 // Example_horizontalBoxPlots draws horizontal boxplots
 // with some labels on their points.
 func Example_horizontalBoxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
-	uniform := make(ValueLabels, n)
-	normal := make(ValueLabels, n)
-	expon := make(ValueLabels, n)
+	uniform := make(valueLabels, n)
+	normal := make(valueLabels, n)
+	expon := make(valueLabels, n)
 	for i := 0; i < n; i++ {
 		uniform[i].Value = rand.Float64()
 		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)

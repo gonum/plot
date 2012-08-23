@@ -186,25 +186,6 @@ type Labeller interface {
 	Label(int) string
 }
 
-// ValueLabels implements both the Valuer
-// and Labellel interfaces.
-type ValueLabels []struct {
-	Value float64
-	Label string
-}
-
-func (vs ValueLabels) Len() int {
-	return len(vs)
-}
-
-func (vs ValueLabels) Value(i int) float64 {
-	return vs[i].Value
-}
-
-func (vs ValueLabels) Label(i int) string {
-	return vs[i].Label
-}
-
 // XYLabels implements both the XYer and
 // the Labeller interfaces.
 type XYLabels []struct {
