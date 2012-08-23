@@ -15,7 +15,7 @@ import (
 // drawing a histogram of the data.
 type Histogram struct {
 	// Bins is the set of bins for this histogram.
-	Bins []Bin
+	Bins []HistogramBin
 
 	// Width is the width of each bin.
 	Width float64
@@ -123,7 +123,7 @@ func (h *Histogram) Normalize(sum float64) {
 // then a reasonable default is used.  The
 // default is the square root of the sum of
 // the y values.
-func binPoints(xys XYer, n int) ([]Bin, float64) {
+func binPoints(xys XYer, n int) ([]HistogramBin, float64) {
 	xmin, xmax := Range(XValues{xys})
 	if n <= 0 {
 		m := 0.0
@@ -137,7 +137,7 @@ func binPoints(xys XYer, n int) ([]Bin, float64) {
 		n = 1
 	}
 
-	bins := make([]Bin, n)
+	bins := make([]HistogramBin, n)
 
 	w := (xmax - xmin) / float64(n)
 	for i := range bins {
@@ -160,8 +160,9 @@ func binPoints(xys XYer, n int) ([]Bin, float64) {
 	return bins, w
 }
 
-// Bin is a histogram bin.
-type Bin struct {
+// A HistogramBin approximates the number of values
+// within a range by a single number (the weight).
+type HistogramBin struct {
 	Min, Max float64
 	Weight   float64
 }
