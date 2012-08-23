@@ -24,7 +24,7 @@ type BarChart struct {
 
 	// Offset is added to the x location of each bar.
 	// When the Offset is zero, the bars are drawn
-	// with their left edge located at their x location.
+	// centered at their x location.
 	Offset vg.Length
 }
 
@@ -39,7 +39,6 @@ func NewBarChart(vs Valuer, width vg.Length) *BarChart {
 		Width:     width,
 		Color:     color.Black,
 		LineStyle: DefaultLineStyle,
-		Offset:    -width / 2,
 	}
 }
 
@@ -52,7 +51,7 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 		if !da.ContainsX(xmin) {
 			continue
 		}
-		xmin += b.Offset
+		xmin = xmin - b.Width/2 + b.Offset
 		xmax := xmin + b.Width
 		ymin := trY(0)
 		ymax := trY(ht)
@@ -88,7 +87,7 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		x := float64(i)
 		boxes[i].X = plt.X.Norm(x)
 		boxes[i].Rect = plot.Rect{
-			Min:  plot.Point{X: b.Offset},
+			Min:  plot.Point{X: b.Offset - b.Width/2},
 			Size: plot.Point{X: b.Width},
 		}
 	}
