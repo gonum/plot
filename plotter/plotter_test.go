@@ -354,37 +354,37 @@ func stdNorm(x float64) float64 {
 
 // An example of making a bar chart.
 func Example_barChart() *plot.Plot {
-        groupA := Values{20, 35, 30, 35, 27}
-        groupB := Values{25, 32, 34, 20, 25}
-        groupC := Values{12, 28, 15, 21, 8}
+	groupA := Values{20, 35, 30, 35, 27}
+	groupB := Values{25, 32, 34, 20, 25}
+	groupC := Values{12, 28, 15, 21, 8}
 
-        p, err := plot.New()
-        if err != nil {
-                panic(err)
-        }
-        p.Title.Text = "Bar chart"
-        p.Y.Label.Text = "Heights"
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Bar chart"
+	p.Y.Label.Text = "Heights"
 
-        w := vg.Points(15)
+	w := vg.Points(15)
 
-        barsA := NewBarChart(groupA, w)
-        barsA.Color = color.RGBA{R: 255, A: 255}
-        barsA.Offset = -w
+	barsA := NewBarChart(groupA, w)
+	barsA.Color = color.RGBA{R: 255, A: 255}
+	barsA.Offset = -w
 
-        barsB := NewBarChart(groupB, w)
-        barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
-        barsB.Offset = 0
+	barsB := NewBarChart(groupB, w)
+	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
+	barsB.Offset = 0
 
-        barsC := NewBarChart(groupC, w)
-        barsC.Color = color.RGBA{B: 255, A: 255}
-        barsC.Offset = w
+	barsC := NewBarChart(groupC, w)
+	barsC.Color = color.RGBA{B: 255, A: 255}
+	barsC.Offset = w
 
-        p.Add(barsA, barsB, barsC)
-        p.Legend.Add("Group A", barsA)
-        p.Legend.Add("Group B", barsB)
-        p.Legend.Add("Group C", barsC)
-        p.Legend.Top = true
-        p.NominalX("One", "Two", "Three", "Four", "Five")
+	p.Add(barsA, barsB, barsC)
+	p.Legend.Add("Group A", barsA)
+	p.Legend.Add("Group B", barsB)
+	p.Legend.Add("Group C", barsC)
+	p.Legend.Top = true
+	p.NominalX("One", "Two", "Three", "Four", "Five")
 
 	return p
 }
