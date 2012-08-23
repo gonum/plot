@@ -442,7 +442,10 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 		if err != nil {
 			return
 		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, tiff.Encode) }()
+		encode := func(w io.Writer, img image.Image) error {
+			return tiff.Encode(w, img, nil)
+		}
+		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
