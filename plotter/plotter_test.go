@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_points().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -271,10 +271,10 @@ func Example_points() *plot.Plot {
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	lp := NewLinePoints(linePointsData)
-	lp.LineStyle.Color = color.RGBA{G: 255, A: 255}
-	lp.GlyphStyle.Shape = plot.CircleGlyph{}
-	lp.GlyphStyle.Color = color.RGBA{R: 255, A: 255}
+	lp := MakeLinePoints(linePointsData)
+	lp.Line.Color = color.RGBA{G: 255, A: 255}
+	lp.Points.Shape = plot.CircleGlyph{}
+	lp.Points.Color = color.RGBA{R: 255, A: 255}
 
 	p.Add(s, l, lp)
 	p.Legend.Add("scatter", s)
