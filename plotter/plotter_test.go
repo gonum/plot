@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_barChart().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_horizontalBoxPlots().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }

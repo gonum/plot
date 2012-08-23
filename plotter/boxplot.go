@@ -221,7 +221,7 @@ func (b *BoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 		strs[i] = labels.Label(out)
 	}
 	o := boxPlotOutsideLabels{b, strs}
-	ls, err := NewLabels(o, o)
+	ls, err := NewLabels(o)
 	if err != nil {
 		return nil, err
 	}
@@ -337,7 +337,7 @@ func (b *HorizBoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	o := horizBoxPlotOutsideLabels{
 		boxPlotOutsideLabels{b.BoxPlot, strs},
 	}
-	ls, err := NewLabels(o, o)
+	ls, err := NewLabels(o)
 	if err != nil {
 		return nil, err
 	}

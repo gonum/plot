@@ -7,7 +7,6 @@ package plotter
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
-	"fmt"
 )
 
 var (
@@ -46,27 +45,22 @@ type Labels struct {
 
 // NewLabels returns a new Labels using
 // the DefaultFont and the DefaultFontSize.
-//
 // An error may be returned if there is an
-// error loading the default font or if the
-// number of labels does not match the
-// number of points.
-func NewLabels(xys XYer, labels Labeller) (*Labels, error) {
-	if xys.Len() != labels.Len() {
-		err := fmt.Errorf("NewLabels: number of points (%d) does not match number of labels (%d)",
-			xys.Len(), labels.Len())
-		return nil, err
-	}
+// error loading the default font.
+func NewLabels(d interface {
+	XYer
+	Labeller
+}) (*Labels, error) {
 	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
 	if err != nil {
 		return nil, err
 	}
-	strs := make([]string, labels.Len())
+	strs := make([]string, d.Len())
 	for i := range strs {
-		strs[i] = labels.Label(i)
+		strs[i] = d.Label(i)
 	}
 	return &Labels{
-		XYs:       CopyXYs(xys),
+		XYs:       CopyXYs(d),
 		Labels:    strs,
 		TextStyle: plot.TextStyle{Font: fnt},
 	}, nil
@@ -83,7 +77,6 @@ func (l *Labels) Plot(da plot.DrawArea, p *plot.Plot) {
 		}
 		x += l.XOffset
 		y += l.YOffset
-
 		da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
 	}
 }

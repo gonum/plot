@@ -180,11 +180,8 @@ func (xy XYValues) XY(i int) (float64, float64) {
 	return x, y
 }
 
-// Labeller wraps the Len and Label methods.
+// Labeller wraps the Label methods.
 type Labeller interface {
-	// Len returns the number of labels.
-	Len() int
-
 	// Label returns a label.
 	Label(int) string
 }
