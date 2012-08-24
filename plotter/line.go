@@ -60,30 +60,13 @@ type LinePoints struct {
 	Points *Scatter
 }
 
-// MakeLinePoints returns both a Line and a
+// NewLinePoints returns both a Line and a
 // Points for the given point data.
-func MakeLinePoints(xys XYer) LinePoints {
+func NewLinePoints(xys XYer) (*Line, *Scatter) {
 	s := NewScatter(xys)
 	l := &Line{
 		XYs:       s.XYs,
 		LineStyle: DefaultLineStyle,
 	}
-	return LinePoints{ Line: l, Points: s }
-}
-
-// Plot implements the plot.Plotter interface.
-func (l LinePoints) Plot(da plot.DrawArea, plt *plot.Plot) {
-	l.Line.Plot(da, plt)
-	l.Points.Plot(da, plt)
-}
-
-// DataRange implements the plot.DataRanger interface.
-func (l LinePoints) DataRange() (xmin, xmax, ymin, ymax float64) {
-	return XYRange(l.Line)
-}
-
-// Thumbnail implements the plot.Thumbnailer interface.
-func (l LinePoints) Thumbnail(da *plot.DrawArea) {
-	l.Line.Thumbnail(da)
-	l.Points.Thumbnail(da)
+	return l, s
 }

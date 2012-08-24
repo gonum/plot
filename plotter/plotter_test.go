@@ -271,15 +271,15 @@ func Example_points() *plot.Plot {
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	lp := MakeLinePoints(linePointsData)
-	lp.Line.Color = color.RGBA{G: 255, A: 255}
-	lp.Points.Shape = plot.CircleGlyph{}
-	lp.Points.Color = color.RGBA{R: 255, A: 255}
+	lpLine, lpPoints := NewLinePoints(linePointsData)
+	lpLine.Color = color.RGBA{G: 255, A: 255}
+	lpPoints.Shape = plot.CircleGlyph{}
+	lpPoints.Color = color.RGBA{R: 255, A: 255}
 
-	p.Add(s, l, lp)
+	p.Add(s, l, lpLine, lpPoints)
 	p.Legend.Add("scatter", s)
 	p.Legend.Add("line", l)
-	p.Legend.Add("line points", lp)
+	p.Legend.Add("line points", lpLine, lpPoints)
 
 	return p
 }
