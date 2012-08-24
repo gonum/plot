@@ -185,22 +185,3 @@ type Labeller interface {
 	// Label returns a label.
 	Label(int) string
 }
-
-// XYLabels implements both the XYer and
-// the Labeller interfaces.
-type XYLabels []struct {
-	X, Y  float64
-	Label string
-}
-
-func (xys XYLabels) Len() int {
-	return len(xys)
-}
-
-func (xys XYLabels) XY(i int) (float64, float64) {
-	return xys[i].X, xys[i].Y
-}
-
-func (xys XYLabels) Label(i int) string {
-	return xys[i].Label
-}

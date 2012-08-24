@@ -33,7 +33,7 @@ func NewScatter(xys XYer) *Scatter {
 func (pts *Scatter) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	for _, p := range pts.XYs {
-		da.DrawGlyph(pts.GlyphStyle, plot.Point{ trX(p.X), trY(p.Y) })
+		da.DrawGlyph(pts.GlyphStyle, plot.Point{trX(p.X), trY(p.Y)})
 	}
 }
 

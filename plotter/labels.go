@@ -50,7 +50,7 @@ type Labels struct {
 func NewLabels(d interface {
 	XYer
 	Labeller
-}) (*Labels, error) {
+},) (*Labels, error) {
 	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
 	if err != nil {
 		return nil, err
