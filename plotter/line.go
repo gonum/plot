@@ -54,12 +54,6 @@ func (pts *Line) Thumbnail(da *plot.DrawArea) {
 	da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
 }
 
-// LinePoints is a line with glyphs at each point.
-type LinePoints struct {
-	*Line
-	Points *Scatter
-}
-
 // NewLinePoints returns both a Line and a
 // Points for the given point data.
 func NewLinePoints(xys XYer) (*Line, *Scatter) {
