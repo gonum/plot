@@ -101,7 +101,7 @@ func (p *Path) Line(x, y Length) {
 
 // Arc adds an arc to the path defined by the center
 // point of the arc's circle, the radius of the circle
-// and the start and finish angles.
+// and the start and sweep angles.
 func (p *Path) Arc(x, y, rad Length, s, a float64) {
 	*p = append(*p, PathComp{
 		Type:   ArcComp,
