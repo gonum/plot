@@ -311,7 +311,7 @@ func Example_errbars() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 15
 	data := errPoints{
-		XYs: randomPoints(n),
+		XYs:     randomPoints(n),
 		YErrors: YErrors(randomError(n)),
 		XErrors: XErrors(randomError(n)),
 	}

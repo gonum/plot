@@ -5,8 +5,8 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 	"math"
 )
 
@@ -30,10 +30,10 @@ type YErrorBars struct {
 	CapWidth vg.Length
 }
 
-func NewYErrorBars(yerrs interface{
+func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
-}) *YErrorBars {
+},) *YErrorBars {
 
 	errors := make(YErrors, yerrs.Len())
 	for i := range errors {
@@ -41,13 +41,12 @@ func NewYErrorBars(yerrs interface{
 	}
 
 	return &YErrorBars{
-		XYs: CopyXYs(yerrs),
-		YErrors: errors,
+		XYs:       CopyXYs(yerrs),
+		YErrors:   errors,
 		LineStyle: DefaultLineStyle,
-		CapWidth: DefaultCapWidth,
+		CapWidth:  DefaultCapWidth,
 	}
 }
-
 
 // Plot implements the Plotter interface, drawing labels.
 func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
@@ -57,7 +56,7 @@ func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 		ylow := trY(e.XYs[i].Y - err.Low)
 		yhigh := trY(e.XYs[i].Y + err.High)
 
-		bar := da.ClipLinesY([]plot.Point{ { x, ylow }, { x, yhigh } })
+		bar := da.ClipLinesY([]plot.Point{{x, ylow}, {x, yhigh}})
 		da.StrokeLines(e.LineStyle, bar...)
 		e.drawCap(&da, x, ylow)
 		e.drawCap(&da, x, yhigh)
@@ -66,10 +65,10 @@ func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *YErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Point{ x, y }) {
+	if !da.Contains(plot.Point{x, y}) {
 		return
 	}
-	da.StrokeLine2(e.LineStyle, x - e.CapWidth/2, y, x + e.CapWidth/2, y)
+	da.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
 }
 
 // DataRange implements the plot.DataRanger interface.
@@ -91,8 +90,8 @@ func (e *YErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	rect := plot.Rect{
 		Min: plot.Point{
-			X: -e.CapWidth/2,
-			Y: -e.LineStyle.Width/2,
+			X: -e.CapWidth / 2,
+			Y: -e.LineStyle.Width / 2,
 		},
 		Size: plot.Point{
 			X: e.CapWidth,
@@ -104,8 +103,8 @@ func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		x := plt.X.Norm(e.XYs[i].X)
 		y := e.XYs[i].Y
 		bs = append(bs,
-			plot.GlyphBox{ X: x, Y: plt.Y.Norm(y - err.Low), Rect:rect },
-			plot.GlyphBox{ X: x, Y: plt.Y.Norm(y + err.High), Rect:rect })
+			plot.GlyphBox{X: x, Y: plt.Y.Norm(y - err.Low), Rect: rect},
+			plot.GlyphBox{X: x, Y: plt.Y.Norm(y + err.High), Rect: rect})
 	}
 	return bs
 }
@@ -127,10 +126,10 @@ type XErrorBars struct {
 	CapWidth vg.Length
 }
 
-func NewXErrorBars(xerrs interface{
+func NewXErrorBars(xerrs interface {
 	XYer
 	XErrorer
-}) *XErrorBars {
+},) *XErrorBars {
 
 	errors := make(XErrors, xerrs.Len())
 	for i := range errors {
@@ -138,13 +137,12 @@ func NewXErrorBars(xerrs interface{
 	}
 
 	return &XErrorBars{
-		XYs: CopyXYs(xerrs),
-		XErrors: errors,
+		XYs:       CopyXYs(xerrs),
+		XErrors:   errors,
 		LineStyle: DefaultLineStyle,
-		CapWidth: DefaultCapWidth,
+		CapWidth:  DefaultCapWidth,
 	}
 }
-
 
 // Plot implements the Plotter interface, drawing labels.
 func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
@@ -154,7 +152,7 @@ func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 		xlow := trX(e.XYs[i].X - err.Low)
 		xhigh := trX(e.XYs[i].X + err.High)
 
-		bar := da.ClipLinesX([]plot.Point{ { xlow, y }, { xhigh, y } })
+		bar := da.ClipLinesX([]plot.Point{{xlow, y}, {xhigh, y}})
 		da.StrokeLines(e.LineStyle, bar...)
 		e.drawCap(&da, xlow, y)
 		e.drawCap(&da, xhigh, y)
@@ -163,10 +161,10 @@ func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *XErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Point{ x, y }) {
+	if !da.Contains(plot.Point{x, y}) {
 		return
 	}
-	da.StrokeLine2(e.LineStyle, x, y - e.CapWidth/2, x, y + e.CapWidth/2)
+	da.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)
 }
 
 // DataRange implements the plot.DataRanger interface.
@@ -188,8 +186,8 @@ func (e *XErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	rect := plot.Rect{
 		Min: plot.Point{
-			X: -e.LineStyle.Width/2,
-			Y: -e.CapWidth/2,
+			X: -e.LineStyle.Width / 2,
+			Y: -e.CapWidth / 2,
 		},
 		Size: plot.Point{
 			X: e.LineStyle.Width,
@@ -201,8 +199,8 @@ func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		x := e.XYs[i].X
 		y := plt.Y.Norm(e.XYs[i].Y)
 		bs = append(bs,
-			plot.GlyphBox{ X: plt.X.Norm(x - err.Low), Y: y, Rect:rect },
-			plot.GlyphBox{ X: plt.X.Norm(x + err.High), Y: y, Rect:rect })
+			plot.GlyphBox{X: plt.X.Norm(x - err.Low), Y: y, Rect: rect},
+			plot.GlyphBox{X: plt.X.Norm(x + err.High), Y: y, Rect: rect})
 	}
 	return bs
 }

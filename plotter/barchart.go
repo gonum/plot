@@ -27,13 +27,14 @@ type BarChart struct {
 	// centered at their x location.
 	Offset vg.Length
 }
+
 // NewBarChartXY returns a new bar chart with
 // a single bar for each XY value.  The height of
 // the bar is the Y value, and the x location
 // corresponds to the X value.
 func NewBarChartXY(xys XYer, width vg.Length) *BarChart {
 	return &BarChart{
-		XYs:    CopyXYs(xys),
+		XYs:       CopyXYs(xys),
 		Width:     width,
 		Color:     color.Black,
 		LineStyle: DefaultLineStyle,
@@ -90,7 +91,7 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 // DataRange implements the plot.DataRanger interface.
 func (b *BarChart) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmin, xmax, _, ymax = XYRange(b)
-	return 
+	return
 }
 
 // GlyphBoxes implements the GlyphBoxer interface.
