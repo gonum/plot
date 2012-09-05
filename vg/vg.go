@@ -52,10 +52,11 @@ type Canvas interface {
 	// context.
 	Scale(float64, float64)
 
-	// Push saves the entire context (line width,
-	// line dash, color, rotation, scale, and
-	// translation) onto a stack so that the state
-	// can be later restored by calling Pop()
+	// Push saves the current line width, the
+	// current dash pattern, the current
+	// transforms, and the current color
+	// onto a stack so that the state can later
+	// be restored by calling Pop().
 	Push()
 
 	// Pop restores the context saved by the

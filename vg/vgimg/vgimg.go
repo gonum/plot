@@ -32,7 +32,7 @@ const (
 type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
-	color color.Color
+	color []color.Color
 
 	// width is the current line width.
 	width vg.Length
@@ -55,7 +55,7 @@ func New(width, height vg.Length) (*Canvas, error) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	c := &Canvas{gc: gc, img: img}
+	c := &Canvas{gc: gc, img: img, color: []color.Color{ color.Black }}
 	vg.Initialize(c)
 	return c, nil
 }
@@ -79,7 +79,7 @@ func (c *Canvas) SetColor(clr color.Color) {
 	}
 	c.gc.SetFillColor(clr)
 	c.gc.SetStrokeColor(clr)
-	c.color = clr
+	c.color[len(c.color)-1] = clr
 }
 
 func (c *Canvas) Rotate(t float64) {
@@ -95,10 +95,12 @@ func (c *Canvas) Scale(x, y float64) {
 }
 
 func (c *Canvas) Push() {
+	c.color = append(c.color, c.color[len(c.color)-1])
 	c.gc.Save()
 }
 
 func (c *Canvas) Pop() {
+	c.color = c.color[:len(c.color)-1]
 	c.gc.Restore()
 }
 
@@ -158,7 +160,7 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 	gc := draw2d.NewGraphicContext(img)
 
 	gc.SetDPI(int(c.DPI()))
-	gc.SetFillColor(c.color)
+	gc.SetFillColor(c.color[len(c.color)-1])
 	data, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
