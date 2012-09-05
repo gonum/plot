@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_errbars().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_barChart().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -412,7 +412,7 @@ func stdNorm(x float64) float64 {
 // An example of making a bar chart.
 func Example_barChart() *plot.Plot {
 	groupA := Values{20, 35, 30, 35, 27}
-	groupB := Values{25, 32, 34, 20, 25}
+	groupB := XYs{{0, 25}, {1, 32}, {2, 34}, {4, 20}}
 	groupC := Values{12, 28, 15, 21, 8}
 
 	p, err := plot.New()
@@ -428,7 +428,7 @@ func Example_barChart() *plot.Plot {
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w
 
-	barsB := NewBarChart(groupB, w)
+	barsB := NewBarChartXY(groupB, w)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.Offset = 0
 
