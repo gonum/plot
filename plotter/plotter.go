@@ -185,3 +185,32 @@ type Labeller interface {
 	// Label returns a label.
 	Label(int) string
 }
+
+// XErrorer wraps the XError method.
+type XErrorer interface {
+	// XError returns two error values for X data.
+	XError(int) (float64, float64)
+}
+
+// Errors is a slice of low and high error values.
+type Errors []struct{ Low, High float64 }
+
+// XErrors implements the XErrorer interface.
+type XErrors Errors
+
+func (xe XErrors) XError(i int) (float64, float64) {
+	return xe[i].Low, xe[i].High
+}
+
+// YErrorer wraps the YError method.
+type YErrorer interface {
+	// YError returns two error values for Y data.
+	YError(int) (float64, float64)
+}
+
+// YErrors implements the YErrorer interface.
+type YErrors Errors
+
+func (ye YErrors) YError(i int) (float64, float64) {
+	return ye[i].Low, ye[i].High
+}

@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_errbars().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -297,6 +297,44 @@ func randomPoints(n int) XYs {
 		pts[i].Y = pts[i].X + 10*rand.Float64()
 	}
 	return pts
+}
+
+// Example_errbars draws points and error bars.
+func Example_errbars() *plot.Plot {
+
+	type errPoints struct {
+		XYs
+		YErrors
+		XErrors
+	}
+
+	rand.Seed(int64(0))
+	n := 15
+	data := errPoints{
+		XYs: randomPoints(n),
+		YErrors: YErrors(randomError(n)),
+		XErrors: XErrors(randomError(n)),
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	scatter := NewScatter(data)
+	scatter.Shape = plot.CrossGlyph{}
+	p.Add(scatter, NewXErrorBars(data), NewYErrorBars(data))
+	p.Add(NewGlyphBoxes())
+
+	return p
+}
+
+func randomError(n int) Errors {
+	err := make(Errors, n)
+	for i := range err {
+		err[i].Low = rand.Float64()
+		err[i].High = rand.Float64()
+	}
+	return err
 }
 
 func Example_bubbles() *plot.Plot {
