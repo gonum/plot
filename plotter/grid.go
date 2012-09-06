@@ -25,7 +25,6 @@ type Grid struct {
 	Vertical plot.LineStyle
 
 	// Horizantal is the style of the horizontal lines.
-	// If the radius is <= 0 or the color is nil.
 	Horizontal plot.LineStyle
 }
 
@@ -62,6 +61,6 @@ horiz:
 			continue
 		}
 		y := trY(tk.Value)
-		da.StrokeLine2(g.Vertical, da.Min.X, y, da.Min.X+da.Size.X, y)
+		da.StrokeLine2(g.Horizontal, da.Min.X, y, da.Min.X+da.Size.X, y)
 	}
 }
