@@ -412,8 +412,9 @@ func stdNorm(x float64) float64 {
 // An example of making a bar chart.
 func Example_barChart() *plot.Plot {
 	groupA := Values{20, 35, 30, 35, 27}
-	groupB := XYs{{0, 25}, {1, 32}, {2, 34}, {4, 20}}
+	groupB := Values{25, 32, 34, 20, 25}
 	groupC := Values{12, 28, 15, 21, 8}
+	groupD := Values{30, 42, 6, 9, 12}
 
 	p, err := plot.New()
 	if err != nil {
@@ -422,26 +423,34 @@ func Example_barChart() *plot.Plot {
 	p.Title.Text = "Bar chart"
 	p.Y.Label.Text = "Heights"
 
-	w := vg.Points(15)
+	w := vg.Points(8)
 
 	barsA := NewBarChart(groupA, w)
 	barsA.Color = color.RGBA{R: 255, A: 255}
-	barsA.Offset = -w
+	barsA.Offset = -w / 2
 
-	barsB := NewBarChartXY(groupB, w)
+	barsB := NewBarChart(groupB, w)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
-	barsB.Offset = 0
+	barsB.Offset = w / 2
 
 	barsC := NewBarChart(groupC, w)
 	barsC.Color = color.RGBA{B: 255, A: 255}
-	barsC.Offset = w
+	barsC.XMin = 6
+	barsC.Offset = -w / 2
 
-	p.Add(barsA, barsB, barsC)
-	p.Legend.Add("Group A", barsA)
-	p.Legend.Add("Group B", barsB)
-	p.Legend.Add("Group C", barsC)
+	barsD := NewBarChart(groupD, w)
+	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
+	barsD.XMin = 6
+	barsD.Offset = w / 2
+
+	p.Add(barsA, barsB, barsC, barsD)
+	p.Legend.Add("A", barsA)
+	p.Legend.Add("B", barsB)
+	p.Legend.Add("C", barsC)
+	p.Legend.Add("D", barsD)
 	p.Legend.Top = true
-	p.NominalX("One", "Two", "Three", "Four", "Five")
+	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
+		"Six", "Seven", "Eight", "Nine", "Ten")
 
 	return p
 }

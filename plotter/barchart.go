@@ -11,7 +11,7 @@ import (
 )
 
 type BarChart struct {
-	XYs
+	Values
 
 	// Width is the width of the bars.
 	Width vg.Length
@@ -26,20 +26,12 @@ type BarChart struct {
 	// When the Offset is zero, the bars are drawn
 	// centered at their x location.
 	Offset vg.Length
-}
 
-// NewBarChartXY returns a new bar chart with
-// a single bar for each XY value.  The height of
-// the bar is the Y value, and the x location
-// corresponds to the X value.
-func NewBarChartXY(xys XYer, width vg.Length) *BarChart {
-	return &BarChart{
-		XYs:       CopyXYs(xys),
-		Width:     width,
-		Color:     color.Black,
-		LineStyle: DefaultLineStyle,
-	}
-
+	// XMin is the X location of the first bar.  XMin
+	// can be changed to move groups of bars
+	// down the X axis in order to make grouped
+	// bar charts.
+	XMin float64
 }
 
 // NewBarChart returns a new bar chart with
@@ -48,30 +40,28 @@ func NewBarChartXY(xys XYer, width vg.Length) *BarChart {
 // correspond to the index of their value in the
 // Valuer.
 func NewBarChart(vs Valuer, width vg.Length) *BarChart {
-	return NewBarChartXY(indexXs{vs}, width)
-}
-
-// indexXs implements the XYer interface, returning the
-// indices for the x values and the values for the y values.
-type indexXs struct{ Valuer }
-
-func (v indexXs) XY(i int) (float64, float64) {
-	return float64(i), v.Value(i)
+	return &BarChart{
+		Values:    CopyValues(vs),
+		Width:     width,
+		Color:     color.Black,
+		LineStyle: DefaultLineStyle,
+	}
 }
 
 // Plot implements the plot.Plotter interface.
 func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 
-	for _, xy := range b.XYs {
-		xmin := trX(xy.X)
+	for i, ht := range b.Values {
+		x := b.XMin + float64(i)
+		xmin := trX(float64(x))
 		if !da.ContainsX(xmin) {
 			continue
 		}
 		xmin = xmin - b.Width/2 + b.Offset
 		xmax := xmin + b.Width
 		ymin := trY(0)
-		ymax := trY(xy.Y)
+		ymax := trY(ht)
 
 		pts := []plot.Point{
 			{xmin, ymin},
@@ -90,15 +80,19 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 
 // DataRange implements the plot.DataRanger interface.
 func (b *BarChart) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin, xmax, _, ymax = XYRange(b)
+	xmin = b.XMin
+	xmax = xmin + float64(len(b.Values)-1)
+	_, ymax = Range(b)
+	ymin = 0
 	return
 }
 
 // GlyphBoxes implements the GlyphBoxer interface.
 func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	boxes := make([]plot.GlyphBox, len(b.XYs))
-	for i, xy := range b.XYs {
-		boxes[i].X = plt.X.Norm(xy.X)
+	boxes := make([]plot.GlyphBox, len(b.Values))
+	for i := range b.Values {
+		x := b.XMin + float64(i)
+		boxes[i].X = plt.X.Norm(x)
 		boxes[i].Rect = plot.Rect{
 			Min:  plot.Point{X: b.Offset - b.Width/2},
 			Size: plot.Point{X: b.Width},
