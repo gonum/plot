@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_barChart().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_stackedBarChart().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -442,6 +442,50 @@ func Example_barChart() *plot.Plot {
 	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
 	barsD.XMin = 6
 	barsD.Offset = w / 2
+
+	p.Add(barsA, barsB, barsC, barsD)
+	p.Legend.Add("A", barsA)
+	p.Legend.Add("B", barsB)
+	p.Legend.Add("C", barsC)
+	p.Legend.Add("D", barsD)
+	p.Legend.Top = true
+	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
+		"Six", "Seven", "Eight", "Nine", "Ten")
+
+	return p
+}
+
+// An example of making a stacked bar chart.
+func Example_stackedBarChart() *plot.Plot {
+	groupA := Values{20, 35, 30, 35, 27}
+	groupB := Values{25, 32, 34, 20, 25}
+	groupC := Values{12, 28, 15, 21, 8}
+	groupD := Values{30, 42, 6, 9, 12}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Bar chart"
+	p.Y.Label.Text = "Heights"
+
+	w := vg.Points(15)
+
+	barsA := NewBarChart(groupA, w)
+	barsA.Color = color.RGBA{R: 255, A: 255}
+	barsA.Offset = -w / 2
+
+	barsB := NewBarChart(groupB, w)
+	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
+	barsB.StackOn(barsA)
+
+	barsC := NewBarChart(groupC, w)
+	barsC.Color = color.RGBA{B: 255, A: 255}
+	barsC.Offset = w / 2
+
+	barsD := NewBarChart(groupD, w)
+	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
+	barsD.StackOn(barsC)
 
 	p.Add(barsA, barsB, barsC, barsD)
 	p.Legend.Add("A", barsA)

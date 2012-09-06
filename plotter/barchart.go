@@ -8,6 +8,7 @@ import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
 	"image/color"
+	"math"
 )
 
 type BarChart struct {
@@ -32,6 +33,10 @@ type BarChart struct {
 	// down the X axis in order to make grouped
 	// bar charts.
 	XMin float64
+
+	// stackedOn is the bar chart upon which
+	// this bar chart is stacked.
+	stackedOn *BarChart
 }
 
 // NewBarChart returns a new bar chart with
@@ -48,6 +53,32 @@ func NewBarChart(vs Valuer, width vg.Length) *BarChart {
 	}
 }
 
+// BarHeight returns the maximum y value of the
+// ith bar, taking into account any bars upon
+// which it is stacked.
+func (b *BarChart) BarHeight(i int) float64 {
+	ht := 0.0
+	if b == nil {
+		return 0
+	}
+	if i >= 0 && i < len(b.Values) {
+		ht += b.Values[i]
+	}
+	if b.stackedOn != nil {
+		ht += b.stackedOn.BarHeight(i)
+	}
+	return ht
+}
+
+// StackOn stacks a bar chart on top of another,
+// and sets the XMin and Offset to that of the
+// chart upon which it is being stacked.
+func (b *BarChart) StackOn(on *BarChart) {
+	b.XMin = on.XMin
+	b.Offset = on.Offset
+	b.stackedOn = on
+}
+
 // Plot implements the plot.Plotter interface.
 func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
@@ -60,8 +91,9 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 		}
 		xmin = xmin - b.Width/2 + b.Offset
 		xmax := xmin + b.Width
-		ymin := trY(0)
-		ymax := trY(ht)
+		bottom := b.stackedOn.BarHeight(i)
+		ymin := trY(bottom)
+		ymax := trY(bottom + ht)
 
 		pts := []plot.Point{
 			{xmin, ymin},
@@ -82,8 +114,15 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 func (b *BarChart) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmin = b.XMin
 	xmax = xmin + float64(len(b.Values)-1)
-	_, ymax = Range(b)
-	ymin = 0
+
+	ymin = math.Inf(1)
+	ymax = math.Inf(-1)
+	for i, y := range b.Values {
+		ybot := b.stackedOn.BarHeight(i)
+		ytop := ybot + y
+		ymin = math.Min(ymin, math.Min(ybot, ytop))
+		ymax = math.Max(ymax, math.Max(ybot, ytop))
+	}
 	return
 }
 
