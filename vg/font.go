@@ -30,7 +30,7 @@ const (
 var (
 	// FontMap maps Postscript/PDF font names to compatible
 	// free fonts (TrueType converted ghostscript fonts).
-	// Fonts that are not in this map are not supported.
+	// Fonts that are not keys of this map are not supported.
 	FontMap = map[string]string{
 
 		// At the moment, we use fonts from GNU's freefont
@@ -62,7 +62,7 @@ var (
 type Font struct {
 	// Size is the size of the font.  The font size can
 	// be used as a reasonable value for the horizontal
-	// distance between two lines in the given font.
+	// distance between two successive lines of text.
 	Size Length
 
 	// name is the name of this font.
@@ -87,7 +87,8 @@ type Font struct {
 	font *truetype.Font
 }
 
-// MakeFont returns a font object.
+// MakeFont returns a font object.  The name
+// of the font must be a key of the FontMap.
 func MakeFont(name string, size Length) (font Font, err error) {
 	font.Size = size
 	font.name = name
@@ -155,7 +156,7 @@ func getFont(name string) (*truetype.Font, error) {
 	return font, err
 }
 
-// FontExtents has font metric information.
+// FontExtents contains font metric information.
 type FontExtents struct {
 	// Ascent is the distance that the text
 	// extends above the baseline.
@@ -172,8 +173,7 @@ type FontExtents struct {
 	Height Length
 }
 
-// Extents returns the FontExtents structure for the
-// given font.
+// Extents returns the FontExtents for a font.
 func (f *Font) Extents() FontExtents {
 	bounds := f.font.Bounds(f.Font().FUnitsPerEm())
 	scale := f.Size / Points(float64(f.Font().FUnitsPerEm()))
@@ -184,8 +184,7 @@ func (f *Font) Extents() FontExtents {
 	}
 }
 
-// Width returns width of a string when rendered
-// using this font.
+// Width returns width of a string when drawn using the font.
 func (f *Font) Width(s string) Length {
 	// scale converts truetype.FUnit to float64
 	scale := f.Size / Points(float64(f.font.FUnitsPerEm()))
