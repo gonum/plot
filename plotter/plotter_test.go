@@ -21,7 +21,7 @@ func TestDrawPng(t *testing.T) {
 }
 
 func TestDrawEps(t *testing.T) {
-	if err := Example_stackedBarChart().Save(4, 4, "test.eps"); err != nil {
+	if err := Example_logo().Save(4, 4, "test.eps"); err != nil {
 		t.Error(err)
 	}
 }
@@ -48,6 +48,41 @@ func TestDrawPdf(t *testing.T) {
 	if err := Example_points().Save(4, 4, "test.pdf"); err != nil {
 		t.Error(err)
 	}
+}
+
+// Draw the plotinum logo.
+func Example_logo() *plot.Plot {
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+
+	DefaultLineStyle.Width = vg.Points(1)
+	DefaultGlyphStyle.Radius = vg.Points(3)
+
+	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
+		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	})
+	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
+		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	})
+
+	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
+	line := NewLine(pts)
+	scatter := NewScatter(pts)
+	p.Add(line, scatter)
+
+	pts = XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
+	line = NewLine(pts)
+	scatter = NewScatter(pts)
+	p.Add(line, scatter)
+
+	pts = XYs{{0.5, 0.5}, {1, 0.5}}
+	line = NewLine(pts)
+	scatter = NewScatter(pts)
+	p.Add(line, scatter)
+
+	return p
 }
 
 // Example_functions draws some functions.
