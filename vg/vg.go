@@ -138,8 +138,8 @@ type PathComp struct {
 	Type int
 
 	// The X and Y fields are used as the destination
-	// of a MoveComp or LineComp and is the center
-	// point of an ArcComp.  It is not used in
+	// of a MoveComp or LineComp and are the center
+	// point of an ArcComp.  They are not used in
 	// the CloseComp.
 	X, Y Length
 

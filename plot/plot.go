@@ -44,6 +44,12 @@ type Plot struct {
 		// Text is the empty string then the plot
 		// will not have a title.
 		Text string
+
+		// Padding is the amount of padding
+		// between the bottom of the title and
+		// the top of the plot.
+		Padding vg.Length
+
 		TextStyle
 	}
 
@@ -149,6 +155,7 @@ func (p *Plot) Draw(da *DrawArea) {
 	if p.Title.Text != "" {
 		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
 		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		da.Size.Y -= p.Title.Padding
 	}
 
 	p.X.sanitizeRange()

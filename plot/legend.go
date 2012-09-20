@@ -17,6 +17,12 @@ type Legend struct {
 	// entry texts.
 	TextStyle
 
+	// Padding is the amount of padding to add
+	// betweeneach entry of the legend.  If Padding
+	// is zero then entries are spaced based on the
+	// font size.
+	Padding vg.Length
+
 	// Top and Left specify the location of the legend.
 	// If Top is true the legend is located along the top
 	// edge of the plot, otherwise it is located along
@@ -89,7 +95,7 @@ func (l *Legend) draw(da *DrawArea) {
 	enth := l.entryHeight()
 	y := da.Max().Y - enth
 	if !l.Top {
-		y = da.Min.Y + enth*(vg.Length(len(l.entries))-1)
+		y = da.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
 	}
 	y += l.YOffs
 
@@ -103,7 +109,7 @@ func (l *Legend) draw(da *DrawArea) {
 		}
 		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
 		da.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
-		icon.Min.Y -= enth
+		icon.Min.Y -= enth + l.Padding
 	}
 }
 
