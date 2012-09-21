@@ -151,6 +151,7 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 
 	gc.SetDPI(int(c.DPI()))
 	gc.SetFillColor(c.color[len(c.color)-1])
+	gc.SetStrokeColor(c.color[len(c.color)-1])
 	data, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
