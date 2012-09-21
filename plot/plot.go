@@ -389,6 +389,26 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Marker = ConstantTicks(ticks)
 }
 
+// HideX configures the X axis so that it will not be drawn.
+func (p *Plot) HideX() {
+	p.X.Tick.Length = 0
+	p.X.Width = 0
+	p.X.Tick.Marker = ConstantTicks([]Tick{})
+}
+
+// HideY configures the Y axis so that it will not be drawn.
+func (p *Plot) HideY() {
+	p.Y.Tick.Length = 0
+	p.Y.Width = 0
+	p.Y.Tick.Marker = ConstantTicks([]Tick{})
+}
+
+// HideAxes hides the X and Y axes.
+func (p *Plot) HideAxes() {
+	p.HideX()
+	p.HideY()
+}
+
 // NominalY configures the plot to have a nominal Y
 // axis—an Y axis with names instead of numbers.  The
 // Y location corresponding to each name are the integers,
