@@ -12,23 +12,18 @@ import (
 	"code.google.com/p/draw2d/draw2d"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
-	"go/build"
 	"image"
 	"image/color"
 	"image/draw"
 	"io"
 	"os"
-	"path/filepath"
 )
 
-const (
-	// dpi is the number of dots per inch.
-	dpi = 96
+// dpi is the number of dots per inch.
+const dpi = 96
 
-	// importString is the current package import string.
-	importString = "code.google.com/p/plotinum/vg/vgimg"
-)
-
+// Canvas implements the vg.Canvas interface,
+// drawing to an image.Image using draw2d.
 type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
@@ -38,15 +33,10 @@ type Canvas struct {
 	width vg.Length
 }
 
-// New returns a new image canvas with the size specified.
-// rounded up to the nearest pixel.
+// New returns a new image canvas with
+// the size specified  rounded up to the
+// nearest pixel.
 func New(width, height vg.Length) (*Canvas, error) {
-	pkg, err := build.Import(importString, "", build.FindOnly)
-	if err != nil {
-		return nil, err
-	}
-	draw2d.SetFontFolder(filepath.Join(pkg.Dir, "fonts"))
-
 	w := width.Inches() * dpi
 	h := height.Inches() * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
@@ -166,6 +156,11 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
 	}
 
+	if !registeredFont[font.Name()] {
+		draw2d.RegisterFont(data, font.Font())
+		registeredFont[font.Name()] = true
+	}
+
 	gc.SetFontData(data)
 	gc.SetFontSize(font.Size.Points())
 	gc.MoveTo(0, h+font.Extents().Descent.Dots(c))
@@ -175,6 +170,14 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 }
 
 var (
+	// RegisteredFont contains the set of font names
+	// that have already been registered with draw2d.
+	registeredFont = map[string]bool{}
+
+	// FontMap contains a mapping from vg's font
+	// names to draw2d.FontData for the corresponding
+	// font.  This is needed to register the  fonts with
+	// draw2d.
 	fontMap = map[string]draw2d.FontData{
 		"Courier": draw2d.FontData{
 			Name:   "Nimbus",
@@ -239,6 +242,8 @@ var (
 	}
 )
 
+// Save saves the Canvas to a file using
+// the given image encoding.
 func (c *Canvas) Save(path string, encode func(io.Writer, image.Image) error) error {
 	f, err := os.Create(path)
 	if err != nil {
