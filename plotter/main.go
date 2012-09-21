@@ -2,51 +2,81 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-package plotter
+// A simple test program to test plotters.
+// +build ignore
+package main
 
 import (
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/plotter"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"math"
 	"math/rand"
-	"testing"
 )
 
-func TestDrawPng(t *testing.T) {
-	if err := Example_barChart().Save(4, 4, "test.png"); err != nil {
-		t.Error(err)
+var examples = []struct{
+	name string
+	mkplot func()*plot.Plot
+} {
+	{ "example_logo", Example_logo },
+	{ "example_functions", Example_functions },
+	{ "example_boxPlots", Example_boxPlots },
+	{ "example_verticalBoxPlots", Example_verticalBoxPlots },
+	{ "example_horizontalBoxPlots", Example_horizontalBoxPlots },
+	{ "example_points", Example_points },
+	{ "example_errBars", Example_errBars },
+	{ "example_bubbles", Example_bubbles },
+	{ "example_histogram", Example_histogram },
+	{ "example_barChart", Example_barChart },
+	{ "example_tackedBarChart", Example_stackedBarChart },
+}
+
+func main() {
+	for _, ex := range examples {
+		drawEps(ex.name, ex.mkplot)
+		drawSvg(ex.name, ex.mkplot)
+		drawPng(ex.name, ex.mkplot)
+		drawTiff(ex.name, ex.mkplot)
+		drawJpg(ex.name, ex.mkplot)
+		drawPdf(ex.name, ex.mkplot)
 	}
 }
 
-func TestDrawEps(t *testing.T) {
-	if err := Example_barChart().Save(4, 4, "test.eps"); err != nil {
-		t.Error(err)
+func drawEps(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
+		panic(err)
 	}
 }
 
-func TestDrawSvg(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.svg"); err != nil {
-		t.Error(err)
+func drawPdf(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
+		panic(err)
 	}
 }
 
-func TestDrawTiff(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.tiff"); err != nil {
-		t.Error(err)
+func drawSvg(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
+		panic(err)
 	}
 }
 
-func TestDrawJpg(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.jpg"); err != nil {
-		t.Error(err)
+func drawPng(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".png"); err != nil {
+		panic(err)
 	}
 }
 
-func TestDrawPdf(t *testing.T) {
-	if err := Example_points().Save(4, 4, "test.pdf"); err != nil {
-		t.Error(err)
+func drawTiff(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
+		panic(err)
+	}
+}
+
+func drawJpg(name string, mkplot func()*plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
+		panic(err)
 	}
 }
 
@@ -57,8 +87,8 @@ func Example_logo() *plot.Plot {
 		panic(err)
 	}
 
-	DefaultLineStyle.Width = vg.Points(1)
-	DefaultGlyphStyle.Radius = vg.Points(3)
+	plotter.DefaultLineStyle.Width = vg.Points(1)
+	plotter.DefaultGlyphStyle.Radius = vg.Points(3)
 
 	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
 		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
@@ -67,19 +97,19 @@ func Example_logo() *plot.Plot {
 		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
 	})
 
-	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
-	line := NewLine(pts)
-	scatter := NewScatter(pts)
+	pts := plotter.XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
+	line := plotter.NewLine(pts)
+	scatter := plotter.NewScatter(pts)
 	p.Add(line, scatter)
 
-	pts = XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
-	line = NewLine(pts)
-	scatter = NewScatter(pts)
+	pts = plotter.XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
+	line = plotter.NewLine(pts)
+	scatter = plotter.NewScatter(pts)
 	p.Add(line, scatter)
 
-	pts = XYs{{0.5, 0.5}, {1, 0.5}}
-	line = NewLine(pts)
-	scatter = NewScatter(pts)
+	pts = plotter.XYs{{0.5, 0.5}, {1, 0.5}}
+	line = plotter.NewLine(pts)
+	scatter = plotter.NewScatter(pts)
 	p.Add(line, scatter)
 
 	return p
@@ -95,15 +125,15 @@ func Example_functions() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	quad := NewFunction(func(x float64) float64 { return x * x })
+	quad := plotter.NewFunction(func(x float64) float64 { return x * x })
 	quad.Color = color.RGBA{B: 255, A: 255}
 
-	exp := NewFunction(func(x float64) float64 { return math.Pow(2, x) })
+	exp := plotter.NewFunction(func(x float64) float64 { return math.Pow(2, x) })
 	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
 	exp.Width = vg.Points(2)
 	exp.Color = color.RGBA{G: 255, A: 255}
 
-	sin := NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
+	sin := plotter.NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
 	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
 	sin.Width = vg.Points(4)
 	sin.Color = color.RGBA{R: 255, A: 255}
@@ -125,9 +155,9 @@ func Example_functions() *plot.Plot {
 func Example_boxPlots() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 100
-	uniform := make(Values, n)
-	normal := make(Values, n)
-	expon := make(Values, n)
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
 	for i := 0; i < n; i++ {
 		uniform[i] = rand.Float64()
 		normal[i] = rand.NormFloat64()
@@ -139,12 +169,12 @@ func Example_boxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "Values"
+	p.Y.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	p.Add(NewBoxPlot(vg.Points(20), 0, uniform),
-		NewBoxPlot(vg.Points(20), 1, normal),
-		NewBoxPlot(vg.Points(20), 2, expon))
+	p.Add(plotter.NewBoxPlot(vg.Points(20), 0, uniform),
+		plotter.NewBoxPlot(vg.Points(20), 1, normal),
+		plotter.NewBoxPlot(vg.Points(20), 2, expon))
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -175,22 +205,22 @@ func Example_verticalBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "Values"
+	p.Y.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := NewBoxPlot(vg.Points(20), 0, uniform)
+	uniBox := plotter.NewBoxPlot(vg.Points(20), 0, uniform)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := NewBoxPlot(vg.Points(20), 1, normal)
+	normBox := plotter.NewBoxPlot(vg.Points(20), 1, normal)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := NewBoxPlot(vg.Points(20), 2, expon)
+	expBox := plotter.NewBoxPlot(vg.Points(20), 2, expon)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -246,22 +276,22 @@ func Example_horizontalBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Horizontal Box Plot"
-	p.X.Label.Text = "Values"
+	p.X.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 0, uniform)}
+	uniBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 0, uniform)}
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 1, normal)}
+	normBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 1, normal)}
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := HorizBoxPlot{NewBoxPlot(vg.Points(20), 2, expon)}
+	expBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 2, expon)}
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -269,7 +299,7 @@ func Example_horizontalBoxPlots() *plot.Plot {
 	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
 
 	// Add a GlyphBox plotter for debugging.
-	p.Add(NewGlyphBoxes())
+	p.Add(plotter.NewGlyphBoxes())
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
@@ -295,18 +325,18 @@ func Example_points() *plot.Plot {
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	s := NewScatter(scatterData)
+	s := plotter.NewScatter(scatterData)
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(3)
 
-	l := NewLine(lineData)
+	l := plotter.NewLine(lineData)
 	l.LineStyle.Width = vg.Points(1)
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	lpLine, lpPoints := NewLinePoints(linePointsData)
+	lpLine, lpPoints := plotter.NewLinePoints(linePointsData)
 	lpLine.Color = color.RGBA{G: 255, A: 255}
 	lpPoints.Shape = plot.CircleGlyph{}
 	lpPoints.Color = color.RGBA{R: 255, A: 255}
@@ -321,8 +351,8 @@ func Example_points() *plot.Plot {
 
 // randomPoints returns some random x, y points
 // with some interesting kind of trend.
-func randomPoints(n int) XYs {
-	pts := make(XYs, n)
+func randomPoints(n int) plotter.XYs {
+	pts := make(plotter.XYs, n)
 	for i := range pts {
 		if i == 0 {
 			pts[i].X = rand.Float64()
@@ -334,37 +364,37 @@ func randomPoints(n int) XYs {
 	return pts
 }
 
-// Example_errbars draws points and error bars.
-func Example_errbars() *plot.Plot {
+// Example_errBars draws points and error bars.
+func Example_errBars() *plot.Plot {
 
 	type errPoints struct {
-		XYs
-		YErrors
-		XErrors
+		plotter.XYs
+		plotter.YErrors
+		plotter.XErrors
 	}
 
 	rand.Seed(int64(0))
 	n := 15
 	data := errPoints{
-		XYs:     randomPoints(n),
-		YErrors: YErrors(randomError(n)),
-		XErrors: XErrors(randomError(n)),
+		plotter.XYs:     randomPoints(n),
+		plotter.YErrors: plotter.YErrors(randomError(n)),
+		plotter.XErrors: plotter.XErrors(randomError(n)),
 	}
 
 	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
-	scatter := NewScatter(data)
+	scatter := plotter.NewScatter(data)
 	scatter.Shape = plot.CrossGlyph{}
-	p.Add(scatter, NewXErrorBars(data), NewYErrorBars(data))
-	p.Add(NewGlyphBoxes())
+	p.Add(scatter, plotter.NewXErrorBars(data), plotter.NewYErrorBars(data))
+	p.Add(plotter.NewGlyphBoxes())
 
 	return p
 }
 
-func randomError(n int) Errors {
-	err := make(Errors, n)
+func randomError(n int) plotter.Errors {
+	err := make(plotter.Errors, n)
 	for i := range err {
 		err[i].Low = rand.Float64()
 		err[i].High = rand.Float64()
@@ -385,7 +415,7 @@ func Example_bubbles() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	bs := NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	bs := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
 	bs.Color = color.RGBA{R: 196, B: 128, A: 255}
 	p.Add(bs)
 
@@ -394,8 +424,8 @@ func Example_bubbles() *plot.Plot {
 
 // randomTriples returns some random x, y, z triples
 // with some interesting kind of trend.
-func randomTriples(n int) XYZs {
-	data := make(XYZs, n)
+func randomTriples(n int) plotter.XYZs {
+	data := make(plotter.XYZs, n)
 	for i := range data {
 		if i == 0 {
 			data[i].X = rand.Float64()
@@ -412,7 +442,7 @@ func randomTriples(n int) XYZs {
 func Example_histogram() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 10000
-	vals := make(Values, n)
+	vals := make(plotter.Values, n)
 	for i := 0; i < n; i++ {
 		vals[i] = rand.NormFloat64()
 	}
@@ -422,12 +452,12 @@ func Example_histogram() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h := NewHist(vals, 16)
+	h := plotter.NewHist(vals, 16)
 	h.Normalize(1)
 	p.Add(h)
 
 	// The normal distribution function
-	norm := NewFunction(stdNorm)
+	norm := plotter.NewFunction(stdNorm)
 	norm.Color = color.RGBA{R: 255, A: 255}
 	norm.Width = vg.Points(2)
 	p.Add(norm)
@@ -446,10 +476,10 @@ func stdNorm(x float64) float64 {
 
 // An example of making a bar chart.
 func Example_barChart() *plot.Plot {
-	groupA := Values{20, 35, 30, 35, 27}
-	groupB := Values{25, 32, 34, 20, 25}
-	groupC := Values{12, 28, 15, 21, 8}
-	groupD := Values{30, 42, 6, 9, 12}
+	groupA := plotter.Values{20, 35, 30, 35, 27}
+	groupB := plotter.Values{25, 32, 34, 20, 25}
+	groupC := plotter.Values{12, 28, 15, 21, 8}
+	groupD := plotter.Values{30, 42, 6, 9, 12}
 
 	p, err := plot.New()
 	if err != nil {
@@ -460,20 +490,20 @@ func Example_barChart() *plot.Plot {
 
 	w := vg.Points(8)
 
-	barsA := NewBarChart(groupA, w)
+	barsA := plotter.NewBarChart(groupA, w)
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB := NewBarChart(groupB, w)
+	barsB := plotter.NewBarChart(groupB, w)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.Offset = w / 2
 
-	barsC := NewBarChart(groupC, w)
+	barsC := plotter.NewBarChart(groupC, w)
 	barsC.Color = color.RGBA{B: 255, A: 255}
 	barsC.XMin = 6
 	barsC.Offset = -w / 2
 
-	barsD := NewBarChart(groupD, w)
+	barsD := plotter.NewBarChart(groupD, w)
 	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
 	barsD.XMin = 6
 	barsD.Offset = w / 2
@@ -492,10 +522,10 @@ func Example_barChart() *plot.Plot {
 
 // An example of making a stacked bar chart.
 func Example_stackedBarChart() *plot.Plot {
-	groupA := Values{20, 35, 30, 35, 27}
-	groupB := Values{25, 32, 34, 20, 25}
-	groupC := Values{12, 28, 15, 21, 8}
-	groupD := Values{30, 42, 6, 9, 12}
+	groupA := plotter.Values{20, 35, 30, 35, 27}
+	groupB := plotter.Values{25, 32, 34, 20, 25}
+	groupC := plotter.Values{12, 28, 15, 21, 8}
+	groupD := plotter.Values{30, 42, 6, 9, 12}
 
 	p, err := plot.New()
 	if err != nil {
@@ -506,19 +536,19 @@ func Example_stackedBarChart() *plot.Plot {
 
 	w := vg.Points(15)
 
-	barsA := NewBarChart(groupA, w)
+	barsA := plotter.NewBarChart(groupA, w)
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB := NewBarChart(groupB, w)
+	barsB := plotter.NewBarChart(groupB, w)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.StackOn(barsA)
 
-	barsC := NewBarChart(groupC, w)
+	barsC := plotter.NewBarChart(groupC, w)
 	barsC.Color = color.RGBA{B: 255, A: 255}
 	barsC.Offset = w / 2
 
-	barsD := NewBarChart(groupD, w)
+	barsD := plotter.NewBarChart(groupD, w)
 	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
 	barsD.StackOn(barsC)
 
@@ -532,15 +562,4 @@ func Example_stackedBarChart() *plot.Plot {
 		"Six", "Seven", "Eight", "Nine", "Ten")
 
 	return p
-}
-
-func TestEmpty(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Error(err)
-	}
-
-	if err := p.Save(4, 4, "empty.svg"); err != nil {
-		t.Error(err)
-	}
 }
