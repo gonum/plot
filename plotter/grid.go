@@ -24,7 +24,7 @@ type Grid struct {
 	// Vertical is the style of the vertical lines.
 	Vertical plot.LineStyle
 
-	// Horizantal is the style of the horizontal lines.
+	// Horizontal is the style of the horizontal lines.
 	Horizontal plot.LineStyle
 }
 
