@@ -12,23 +12,18 @@ import (
 	"code.google.com/p/draw2d/draw2d"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
-	"go/build"
 	"image"
 	"image/color"
 	"image/draw"
 	"io"
 	"os"
-	"path/filepath"
 )
 
-const (
-	// dpi is the number of dots per inch.
-	dpi = 96
+// dpi is the number of dots per inch.
+const dpi = 96
 
-	// importString is the current package import string.
-	importString = "code.google.com/p/plotinum/vg/vgimg"
-)
-
+// Canvas implements the vg.Canvas interface,
+// drawing to an image.Image using draw2d.
 type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
@@ -38,15 +33,10 @@ type Canvas struct {
 	width vg.Length
 }
 
-// New returns a new image canvas with the size specified.
-// rounded up to the nearest pixel.
+// New returns a new image canvas with
+// the size specified  rounded up to the
+// nearest pixel.
 func New(width, height vg.Length) (*Canvas, error) {
-	pkg, err := build.Import(importString, "", build.FindOnly)
-	if err != nil {
-		return nil, err
-	}
-	draw2d.SetFontFolder(filepath.Join(pkg.Dir, "fonts"))
-
 	w := width.Inches() * dpi
 	h := height.Inches() * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
@@ -58,6 +48,23 @@ func New(width, height vg.Length) (*Canvas, error) {
 	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
 	vg.Initialize(c)
 	return c, nil
+}
+
+// NewImage returns a new image canvas
+// that draws to the given image.  The
+// minimum point of the given image
+// should probably be 0,0.
+func NewImage(img draw.Image) (*Canvas, vg.Length, vg.Length) {
+	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
+	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
+	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
+	gc := draw2d.NewGraphicContext(img)
+	gc.SetDPI(dpi)
+	gc.Scale(1, -1)
+	gc.Translate(0, -h)
+	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
+	vg.Initialize(c)
+	return c, vg.Inches(w / dpi), vg.Inches(h / dpi)
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
@@ -161,9 +168,15 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 
 	gc.SetDPI(int(c.DPI()))
 	gc.SetFillColor(c.color[len(c.color)-1])
+	gc.SetStrokeColor(c.color[len(c.color)-1])
 	data, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
+	}
+
+	if !registeredFont[font.Name()] {
+		draw2d.RegisterFont(data, font.Font())
+		registeredFont[font.Name()] = true
 	}
 
 	gc.SetFontData(data)
@@ -175,6 +188,14 @@ func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
 }
 
 var (
+	// RegisteredFont contains the set of font names
+	// that have already been registered with draw2d.
+	registeredFont = map[string]bool{}
+
+	// FontMap contains a mapping from vg's font
+	// names to draw2d.FontData for the corresponding
+	// font.  This is needed to register the  fonts with
+	// draw2d.
 	fontMap = map[string]draw2d.FontData{
 		"Courier": draw2d.FontData{
 			Name:   "Nimbus",
@@ -239,6 +260,8 @@ var (
 	}
 )
 
+// Save saves the Canvas to a file using
+// the given image encoding.
 func (c *Canvas) Save(path string, encode func(io.Writer, image.Image) error) error {
 	f, err := os.Create(path)
 	if err != nil {

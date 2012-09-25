@@ -80,7 +80,7 @@ func makeLegend() (Legend, error) {
 }
 
 // draw draws the legend to the given DrawArea.
-func (l *Legend) draw(da *DrawArea) {
+func (l *Legend) draw(da DrawArea) {
 	iconx := da.Min.X
 	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
 	xalign := 0.0

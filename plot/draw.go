@@ -254,7 +254,7 @@ func (da *DrawArea) Y(y float64) vg.Length {
 // crop returns a new DrawArea corresponding to the receiver
 // area with the given number of inches added to the minimum
 // and maximum x and y values of the DrawArea's Rect.
-func (da *DrawArea) crop(minx, miny, maxx, maxy vg.Length) *DrawArea {
+func (da DrawArea) crop(minx, miny, maxx, maxy vg.Length) DrawArea {
 	minpt := Point{
 		X: da.Min.X + minx,
 		Y: da.Min.Y + miny,
@@ -263,7 +263,7 @@ func (da *DrawArea) crop(minx, miny, maxx, maxy vg.Length) *DrawArea {
 		X: da.Max().X + maxx - minpt.X,
 		Y: da.Max().Y + maxy - minpt.Y,
 	}
-	return &DrawArea{
+	return DrawArea{
 		vg.Canvas: vg.Canvas(da),
 		Rect:      Rect{Min: minpt, Size: sz},
 	}

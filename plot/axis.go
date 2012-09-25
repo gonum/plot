@@ -148,7 +148,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 }
 
 // draw draws the axis along the lower edge of a DrawArea.
-func (a *horizontalAxis) draw(da *DrawArea) {
+func (a *horizontalAxis) draw(da DrawArea) {
 	y := da.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
@@ -227,7 +227,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 }
 
 // draw draws the axis along the left side of a DrawArea.
-func (a *verticalAxis) draw(da *DrawArea) {
+func (a *verticalAxis) draw(da DrawArea) {
 	x := da.Min.X
 	if a.Label.Text != "" {
 		x += a.Label.Height(a.Label.Text)

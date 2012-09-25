@@ -2,28 +2,160 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// vgtest contains some functions to "test"
-// vg implementations.
-package vgtest
+// +build ignore
+
+// A simple test program that draws fonts
+// and arcs with the different back-ends.
+package main
 
 import (
 	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/vg/vgimg"
+	"code.google.com/p/plotinum/vg/vgeps"
+	"code.google.com/p/plotinum/vg/vgpdf"
+	"code.google.com/p/plotinum/vg/vgsvg"
 	"fmt"
 	"image/color"
 	"math"
 	"sort"
-	"testing"
+	"image/png"
 )
+
+func main() {
+	TestFontExtentsIMG()
+	TestFontsIMG()
+	TestArcsIMG()
+	TestFontExtentsPDF()
+	TestFontsPDF()
+	TestArcsPDF()
+	TestFontExtentsEPS()
+	TestFontsEPS()
+	TestArcsEPS()
+	TestFontExtentsSVG()
+	TestFontsSVG()
+	TestArcsSVG()
+}
+
+func TestFontExtentsIMG() {
+	img, err := vgimg.New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		panic(err)
+	}
+	DrawFontExtents(img)
+	err = img.Save("extents.png", png.Encode)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestFontsIMG() {
+	img, err := vgimg.New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		panic(err)
+	}
+	DrawFonts(img)
+	err = img.Save("fonts.png", png.Encode)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestArcsIMG() {
+	img, err := vgimg.New(vg.Inches(4), vg.Inches(4))
+	if err != nil {
+		panic(err)
+	}
+	DrawArcs(img)
+	err = img.Save("arcs.png", png.Encode)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestFontExtentsPDF() {
+	pdf := vgpdf.New(vg.Inches(4), vg.Inches(4))
+	DrawFontExtents(pdf)
+	if err := pdf.Save("extents.pdf"); err != nil {
+		panic(err)
+	}
+}
+
+func TestFontsPDF() {
+	pdf := vgpdf.New(vg.Inches(4), vg.Inches(4))
+	DrawFonts(pdf)
+	if err := pdf.Save("fonts.pdf"); err != nil {
+		panic(err)
+	}
+}
+
+func TestArcsPDF() {
+	pdf := vgpdf.New(vg.Inches(4), vg.Inches(4))
+	DrawArcs(pdf)
+	if err := pdf.Save("arcs.pdf"); err != nil {
+		panic(err)
+	}
+}
+
+func TestFontExtentsEPS() {
+	eps := vgeps.New(vg.Inches(4), vg.Inches(4), "extents")
+	DrawFontExtents(eps)
+	if err := eps.Save("extents.eps"); err != nil {
+		panic(err)
+	}
+}
+
+func TestFontsEPS() {
+	eps := vgeps.New(vg.Inches(4), vg.Inches(4), "fonts")
+	DrawFonts(eps)
+	if err := eps.Save("fonts.eps"); err != nil {
+		panic(err)
+	}
+}
+
+func TestArcsEPS() {
+	eps := vgeps.New(vg.Inches(4), vg.Inches(4), "arcs")
+	DrawArcs(eps)
+	if err := eps.Save("arcs.eps"); err != nil {
+		panic(err)
+	}
+}
+
+func TestFontExtentsSVG() {
+	img := vgsvg.New(vg.Inches(4), vg.Inches(4))
+	DrawFontExtents(img)
+	err := img.Save("extents.svg")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestFontsSVG() {
+	img := vgsvg.New(vg.Inches(4), vg.Inches(4))
+	DrawFonts(img)
+	err := img.Save("fonts.svg")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func TestArcsSVG() {
+	img := vgsvg.New(vg.Inches(4), vg.Inches(4))
+	DrawArcs(img)
+	err := img.Save("arcs.svg")
+	if err != nil {
+		panic(err)
+	}
+}
 
 // DrawFontExtents draws some text and denotes the
 // various extents and width with lines. Expects
 // about a 4x4 inch canvas.
-func DrawFontExtents(t *testing.T, c vg.Canvas) {
+func DrawFontExtents(c vg.Canvas) {
 	x, y := vg.Inches(1), vg.Inches(2)
 	str := "Eloquent"
 	font, err := vg.MakeFont("Times-Roman", 18)
 	if err != nil {
-		t.Fatal(err)
+		panic(err)
 	}
 	width := font.Width(str)
 	ext := font.Extents()
@@ -56,7 +188,7 @@ func DrawFontExtents(t *testing.T, c vg.Canvas) {
 // DrawFonts draws some text in all of the various
 // fonts along with a box to make sure that their
 // sizes are computed correctly.
-func DrawFonts(t *testing.T, c vg.Canvas) {
+func DrawFonts(c vg.Canvas) {
 	y := vg.Points(0)
 	var fonts []string
 	for fname := range vg.FontMap {
@@ -66,7 +198,7 @@ func DrawFonts(t *testing.T, c vg.Canvas) {
 	for _, fname := range fonts {
 		font, err := vg.MakeFont(fname, 20)
 		if err != nil {
-			t.Fatal(err)
+			panic(err)
 		}
 
 		w := font.Width(fname + "Xqg")
@@ -98,7 +230,7 @@ func DrawFonts(t *testing.T, c vg.Canvas) {
 
 // DrawArcs draws some arcs to the canvas.
 // The canvas is assumed to be 4 inches square.
-func DrawArcs(t *testing.T, c vg.Canvas) {
+func DrawArcs(c vg.Canvas) {
 	green := color.RGBA{G: 255, A: 255}
 
 	var p vg.Path

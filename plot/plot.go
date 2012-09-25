@@ -147,7 +147,7 @@ func (p *Plot) Add(ps ...Plotter) {
 // GlyphBoxer interface will have their GlyphBoxes
 // taken into account when padding the plot so that
 // none of their glyphs are clipped.
-func (p *Plot) Draw(da *DrawArea) {
+func (p *Plot) Draw(da DrawArea) {
 	if p.BackgroundColor != nil {
 		da.SetColor(p.BackgroundColor)
 		da.Fill(rectPath(da.Rect))
@@ -170,10 +170,25 @@ func (p *Plot) Draw(da *DrawArea) {
 
 	dataDa := padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
 	for _, data := range p.plotters {
-		data.Plot(*dataDa, p)
+		data.Plot(dataDa, p)
 	}
 
 	p.Legend.draw(da.crop(ywidth, 0, 0, 0).crop(0, xheight, 0, 0))
+}
+
+// DataDrawArea returns a new *DrawArea that
+// is the subset of the given draw area into which
+// the plot data will be drawn.
+func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
+	if p.Title.Text != "" {
+		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		da.Size.Y -= p.Title.Padding
+	}
+	p.X.sanitizeRange()
+	x := horizontalAxis{p.X}
+	p.Y.sanitizeRange()
+	y := verticalAxis{p.Y}
+	return padY(p, padX(p, da.crop(x.size(), y.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
@@ -187,14 +202,14 @@ func (p *Plot) DrawGlyphBoxes(da *DrawArea) {
 	}
 }
 
-// padX returns a new DrawArea that is padded horizontally
+// padX returns a DrawArea that is padded horizontally
 // so that glyphs will no be clipped.
-func padX(p *Plot, da *DrawArea) *DrawArea {
+func padX(p *Plot, da DrawArea) DrawArea {
 	glyphs := p.GlyphBoxes(p)
-	l := leftMost(da, glyphs)
+	l := leftMost(&da, glyphs)
 	xAxis := horizontalAxis{p.X}
 	glyphs = append(glyphs, xAxis.GlyphBoxes(p)...)
-	r := rightMost(da, glyphs)
+	r := rightMost(&da, glyphs)
 
 	minx := da.Min.X - l.Min.X
 	maxx := da.Max().X - (r.Min.X + r.Size.X)
@@ -202,7 +217,7 @@ func padX(p *Plot, da *DrawArea) *DrawArea {
 	rx := vg.Length(r.X)
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
-	return &DrawArea{
+	return DrawArea{
 		vg.Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{X: n, Y: da.Min.Y},
@@ -243,14 +258,14 @@ func leftMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	return l
 }
 
-// padY returns a new DrawArea that is padded vertically
+// padY returns a DrawArea that is padded vertically
 // so that glyphs will no be clipped.
-func padY(p *Plot, da *DrawArea) *DrawArea {
+func padY(p *Plot, da DrawArea) DrawArea {
 	glyphs := p.GlyphBoxes(p)
-	b := bottomMost(da, glyphs)
+	b := bottomMost(&da, glyphs)
 	yAxis := verticalAxis{p.Y}
 	glyphs = append(glyphs, yAxis.GlyphBoxes(p)...)
-	t := topMost(da, glyphs)
+	t := topMost(&da, glyphs)
 
 	miny := da.Min.Y - b.Min.Y
 	maxy := da.Max().Y - (t.Min.Y + t.Size.Y)
@@ -258,7 +273,7 @@ func padY(p *Plot, da *DrawArea) *DrawArea {
 	ty := vg.Length(t.Y)
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
-	return &DrawArea{
+	return DrawArea{
 		vg.Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{Y: n, X: da.Min.X},
@@ -389,6 +404,26 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Marker = ConstantTicks(ticks)
 }
 
+// HideX configures the X axis so that it will not be drawn.
+func (p *Plot) HideX() {
+	p.X.Tick.Length = 0
+	p.X.Width = 0
+	p.X.Tick.Marker = ConstantTicks([]Tick{})
+}
+
+// HideY configures the Y axis so that it will not be drawn.
+func (p *Plot) HideY() {
+	p.Y.Tick.Length = 0
+	p.Y.Width = 0
+	p.Y.Tick.Marker = ConstantTicks([]Tick{})
+}
+
+// HideAxes hides the X and Y axes.
+func (p *Plot) HideAxes() {
+	p.HideX()
+	p.HideY()
+}
+
 // NominalY configures the plot to have a nominal Y
 // axis—an Y axis with names instead of numbers.  The
 // Y location corresponding to each name are the integers,
@@ -457,6 +492,6 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
-	p.Draw(NewDrawArea(c, w, h))
+	p.Draw(*NewDrawArea(c, w, h))
 	return
 }
