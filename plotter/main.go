@@ -2,8 +2,9 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// A simple test program to test plotters.
 // +build ignore
+
+// A simple test program to test plotters.
 package main
 
 import (
