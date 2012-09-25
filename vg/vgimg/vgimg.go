@@ -50,6 +50,23 @@ func New(width, height vg.Length) (*Canvas, error) {
 	return c, nil
 }
 
+// NewImage returns a new image canvas
+// that draws to the given image.  The
+// minimum point of the given image
+// should probably be 0,0.
+func NewImage(img draw.Image) (*Canvas, vg.Length, vg.Length) {
+	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
+	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
+	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
+	gc := draw2d.NewGraphicContext(img)
+	gc.SetDPI(dpi)
+	gc.Scale(1, -1)
+	gc.Translate(0, -h)
+	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
+	vg.Initialize(c)
+	return c, vg.Inches(w / dpi), vg.Inches(h / dpi)
+}
+
 func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.width = w
 	c.gc.SetLineWidth(w.Dots(c))
