@@ -31,7 +31,7 @@ var examples = []struct{
 	{ "example_bubbles", Example_bubbles },
 	{ "example_histogram", Example_histogram },
 	{ "example_barChart", Example_barChart },
-	{ "example_tackedBarChart", Example_stackedBarChart },
+	{ "example_stackedBarChart", Example_stackedBarChart },
 }
 
 func main() {
