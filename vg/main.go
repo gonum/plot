@@ -2,9 +2,10 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
+// +build ignore
+
 // A simple test program that draws fonts
 // and arcs with the different back-ends.
-// +build ignore
 package main
 
 import (
