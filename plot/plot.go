@@ -188,7 +188,7 @@ func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, da.crop(x.size(), y.size(), 0, 0)))
+	return padY(p, padX(p, da.crop(y.size(), x.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
