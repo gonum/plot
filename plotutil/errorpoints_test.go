@@ -6,7 +6,7 @@ import (
 	"math/rand"
 )
 
-func ExampleCentroids() {
+func ExampleErrorPoints() {
 	// Get some random data.
 	n, m := 5, 10
 	pts := make([]plotter.XYer, n)
@@ -20,22 +20,18 @@ func ExampleCentroids() {
 		}
 	}
 
-	cs := NewCentroids(MeanAndConf95, pts...)
-
 	plt, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
 
-	plt.Add(plotter.NewLinePoints(cs))
-	plt.Add(plotter.NewXErrorBars(cs), plotter.NewYErrorBars(cs))
-
-	for i, p := range pts {
-		scatter := plotter.NewScatter(p)
-		scatter.Color = Color(i)
-		scatter.Shape = Shape(i)
-		plt.Add(scatter)
-	}
+	mean95 := NewErrorPoints(MeanAndConf95, pts...)
+	medMinMax := NewErrorPoints(MedianAndMinMax, pts...)
+	AddLinePoints(plt,
+		"mean and 95% confidence", mean95,
+		"median and minimum and maximum", medMinMax)
+	AddErrorBars(plt, mean95, medMinMax)
+	AddScatters(plt, pts[0], pts[1], pts[2], pts[3], pts[4])
 
 	plt.Save(4, 4, "centroids.png")
 }
