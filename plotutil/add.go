@@ -136,3 +136,75 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) {
 		}
 	}
 }
+
+// AddErrorBars adds XErrorBars and YErrorBars
+// to a plot.  The variadic arguments must be
+// of type plotter.XYer, and must be either a
+// plotter.XErrorer, plotter.YErrorer, or both. 
+// Each errorer is added to the plot the color from
+// the Colors function corresponding to its position
+// in the argument list.
+func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
+	for i, v := range vs {
+		added := false
+
+		if xerr, ok := v.(interface {
+			plotter.XYer
+			plotter.XErrorer
+		}); ok {
+			e := plotter.NewXErrorBars(xerr)
+			e.Color = Color(i)
+			plt.Add(e)
+			added = true
+		}
+
+		if yerr, ok := v.(interface {
+			plotter.XYer
+			plotter.YErrorer
+		}); ok {
+			e := plotter.NewYErrorBars(yerr)
+			e.Color = Color(i)
+			plt.Add(e)
+			added = true
+		}
+
+		if added {
+			continue
+		}
+		panic(fmt.Sprintf("AddErrorBars expects plotter.XErrorer or plotter.YErrorer, got %T", v))
+	}
+}
+
+// AddXErrorBars adds XErrorBars to a plot.
+// The variadic arguments must be
+// of type plotter.XYer, and plotter.XErrorer. 
+// Each errorer is added to the plot the color from
+// the Colors function corresponding to its position
+// in the argument list.
+func AddXErrorBars(plt *plot.Plot, es ...interface {
+	plotter.XYer
+	plotter.XErrorer
+},) {
+	for i, e := range es {
+		bars := plotter.NewXErrorBars(e)
+		bars.Color = Color(i)
+		plt.Add(bars)
+	}
+}
+
+// AddYErrorBars adds YErrorBars to a plot.
+// The variadic arguments must be
+// of type plotter.XYer, and plotter.YErrorer.
+// Each errorer is added to the plot the color from
+// the Colors function corresponding to its position
+// in the argument list.
+func AddYErrorBars(plt *plot.Plot, es ...interface {
+	plotter.XYer
+	plotter.YErrorer
+},) {
+	for i, e := range es {
+		bars := plotter.NewYErrorBars(e)
+		bars.Color = Color(i)
+		plt.Add(bars)
+	}
+}
