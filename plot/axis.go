@@ -167,9 +167,11 @@ func (a *horizontalAxis) draw(da DrawArea) {
 
 	if len(marks) > 0 {
 		y += tickLabelHeight(a.Tick.Label, marks)
+	} else {
+		y += a.Width / 2
 	}
 
-	if a.drawTicks() && len(marks) > 0 {
+	if len(marks) > 0 && a.drawTicks() {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := da.X(a.Norm(t.Value))
