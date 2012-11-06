@@ -218,7 +218,7 @@ func padX(p *Plot, da DrawArea) DrawArea {
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
 	return DrawArea{
-		vg.Canvas: vg.Canvas(da),
+		Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{X: n, Y: da.Min.Y},
 			Size: Point{X: m - n, Y: da.Size.Y},
@@ -274,7 +274,7 @@ func padY(p *Plot, da DrawArea) DrawArea {
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
 	return DrawArea{
-		vg.Canvas: vg.Canvas(da),
+		Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{Y: n, X: da.Min.X},
 			Size: Point{Y: m - n, X: da.Size.X},

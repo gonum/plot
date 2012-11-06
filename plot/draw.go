@@ -264,8 +264,8 @@ func (da DrawArea) crop(minx, miny, maxx, maxy vg.Length) DrawArea {
 		Y: da.Max().Y + maxy - minpt.Y,
 	}
 	return DrawArea{
-		vg.Canvas: vg.Canvas(da),
-		Rect:      Rect{Min: minpt, Size: sz},
+		Canvas: vg.Canvas(da),
+		Rect:   Rect{Min: minpt, Size: sz},
 	}
 }
 
