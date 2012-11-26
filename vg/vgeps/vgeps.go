@@ -35,7 +35,12 @@ type ctx struct {
 const pr = 5
 
 // New returns a new Canvas.
-func New(w, h vg.Length, title string) *Canvas {
+func New(w, h vg.Length) *Canvas {
+	return NewTitle(w, h, "")
+}
+
+// NewTitle returns a new Canvas with the given title string.
+func NewTitle(w, h vg.Length, title string) *Canvas {
 	c := &Canvas{stk: []ctx{ctx{}}, buf: new(bytes.Buffer)}
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
 	c.buf.WriteString("%%Creator code.google.com/p/plotinum/vg/veceps\n")

@@ -451,7 +451,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
 
 	case ".eps":
-		c = vgeps.New(w, h, file)
+		c = vgeps.NewTitle(w, h, file)
 		defer c.(*vgeps.Canvas).Save(file)
 
 	case ".jpg", ".jpeg":
