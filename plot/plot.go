@@ -173,7 +173,7 @@ func (p *Plot) Draw(da DrawArea) {
 	p.Legend.draw(da.crop(ywidth, 0, 0, 0).crop(0, xheight, 0, 0))
 }
 
-// DataDrawArea returns a new *DrawArea that
+// DataDrawArea returns a new DrawArea that
 // is the subset of the given draw area into which
 // the plot data will be drawn.
 func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
@@ -484,7 +484,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
-	p.Draw(*NewDrawArea(c))
+	p.Draw(MakeDrawArea(c))
 
 	f, err := os.Create(file)
 	if err != nil {
