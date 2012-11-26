@@ -14,7 +14,6 @@ import (
 	"image/color"
 	"io"
 	"math"
-	"os"
 )
 
 // Canvas implements the vg.Canvas interface,
@@ -183,28 +182,29 @@ func unit(l vg.Length) pdf.Unit {
 	return pdf.Unit(l.Points()) * pdf.Pt
 }
 
-// Save saves the Canvas to a PDF file at the
-// given path.  After calling Save, the canvas
-// is considered closed and may no longer
-// be used for additional drawing.
-func (c *Canvas) Save(path string) error {
-	c.page.Close()
+// WriterCounter implements the io.Writer interface, and counts
+// the total number of bytes written.
+type writerCounter struct {
+	io.Writer
+	n int64
+}
 
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return c.WriteTo(f)
+func (w *writerCounter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	w.n += int64(n)
+	return n, err
 }
 
 // WriteTo writes the Canvas to an io.Writer. 
 // After calling Write, the canvas is closed
 // and may no longer be used for drawing.
-func (c *Canvas) WriteTo(w io.Writer) error {
-	b := bufio.NewWriter(w)
+func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
+	c.page.Close()
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
 	if err := c.doc.Encode(b); err != nil {
-		return err
+		return wc.n, err
 	}
-	return b.Flush()
+	err := b.Flush()
+	return wc.n, err
 }

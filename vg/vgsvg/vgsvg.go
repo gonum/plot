@@ -15,7 +15,6 @@ import (
 	"image/color"
 	"io"
 	"math"
-	"os"
 )
 
 const (
@@ -269,37 +268,32 @@ func (c *Canvas) DPI() float64 {
 	return dpi
 }
 
-// Save saves the canvas to a file.
-func (c *Canvas) Save(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return c.WriteTo(f)
-}
-
 // WriteTo writes the canvas to an io.Writer.
-func (c *Canvas) WriteTo(w io.Writer) error {
+func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	b := bufio.NewWriter(w)
-	if _, err := c.buf.WriteTo(b); err != nil {
-		return err
+	n, err := c.buf.WriteTo(b)
+	if err != nil {
+		return n, err
 	}
 
-	// Cose the groups and svg in the output buffer
+	// Close the groups and svg in the output buffer
 	// so that the Canvas is not closed and can be
 	// used again if needed.
 	for i := 0; i < c.nEnds(); i++ {
-		if _, err := fmt.Fprintln(b, "</g>"); err != nil {
-			return err
+		m, err := fmt.Fprintln(b, "</g>")
+		n += int64(m)
+		if err != nil {
+			return n, err
 		}
 	}
 
-	if _, err := fmt.Fprintln(b, "</svg>\n"); err != nil {
-		return err
+	m, err := fmt.Fprintln(b, "</svg>\n")
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
 
-	return b.Flush()
+	return n, b.Flush()
 }
 
 // nEnds returns the number of group ends

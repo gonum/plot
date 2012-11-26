@@ -16,19 +16,16 @@
 package plot
 
 import (
-	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/vgeps"
 	"code.google.com/p/plotinum/vg/vgimg"
 	"code.google.com/p/plotinum/vg/vgpdf"
 	"code.google.com/p/plotinum/vg/vgsvg"
 	"fmt"
-	"image"
 	"image/color"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"math"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -449,7 +446,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c interface {
 		vg.Canvas
-		Save(string) error
+		io.WriterTo
 	}
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
 
@@ -457,34 +454,30 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 		c = vgeps.NewTitle(w, h, file)
 
 	case ".jpg", ".jpeg":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
-		}
-		c.(*vgimg.Canvas).Encode = func(w io.Writer, img image.Image) error {
-			return jpeg.Encode(w, img, nil)
+		if img, err := vgimg.New(w, h); err != nil {
+			return err
+		} else {
+			c = vgimg.JpegCanvas{img}
 		}
 
 	case ".pdf":
 		c = vgpdf.New(w, h)
 
 	case ".png":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
+		if img, err := vgimg.New(w, h); err != nil {
+			return err
+		} else {
+			c = vgimg.PngCanvas{img}
 		}
-		c.(*vgimg.Canvas).Encode = png.Encode
 
 	case ".svg":
 		c = vgsvg.New(w, h)
 
 	case ".tiff":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
-		}
-		c.(*vgimg.Canvas).Encode = func(w io.Writer, img image.Image) error {
-			return tiff.Encode(w, img, nil)
+		if img, err := vgimg.New(w, h); err != nil {
+			return err
+		} else {
+			c = vgimg.TiffCanvas{img}
 		}
 
 	default:
@@ -492,5 +485,11 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	}
 	p.Draw(*NewDrawArea(c, w, h))
 
-	return c.Save(file)
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = c.WriteTo(f)
+	return err
 }

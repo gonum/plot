@@ -10,14 +10,15 @@ package vgimg
 import (
 	"bufio"
 	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
-	"errors"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
+	"image/png"
 	"io"
-	"os"
 )
 
 // dpi is the number of dots per inch.
@@ -29,11 +30,6 @@ type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
 	color []color.Color
-
-	// Encode encodes the image before writing.
-	// Initially this is nil, so it must be set before calling
-	// Save or WriteTo.
-	Encode func(io.Writer, image.Image) error
 
 	// width is the current line width.
 	width vg.Length
@@ -266,27 +262,66 @@ var (
 	}
 )
 
-// Save saves the Canvas to a file.
-func (c *Canvas) Save(path string) error {
-	if c.Encode == nil {
-		return errors.New("vgimg.Save: Encode field is nil")
-	}
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return c.WriteTo(f)
+// WriterCounter implements the io.Writer interface, and counts
+// the total number of bytes written.
+type writerCounter struct {
+	io.Writer
+	n int64
 }
 
-// WriteTo writes the Canvas to an io.Writer.
-func (c *Canvas) WriteTo(w io.Writer) error {
-	if c.Encode == nil {
-		return errors.New("vgimg.WriteTo: Encode field is nil")
+func (w *writerCounter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	w.n += int64(n)
+	return n, err
+}
+
+// A JpegCanvas is an image canvas with a WriteTo method
+// that writes a jpeg image.
+type JpegCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a jpeg image.
+func (c JpegCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := jpeg.Encode(b, c.img, nil); err != nil {
+		return wc.n, err
 	}
-	b := bufio.NewWriter(w)
-	if err := c.Encode(b, c.img); err != nil {
-		return err
+	err := b.Flush()
+	return wc.n, err
+}
+
+// A PngCanvas is an image canvas with a WriteTo method that
+// writes a png image.
+type PngCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a png image.
+func (c PngCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := png.Encode(b, c.img); err != nil {
+		return wc.n, err
 	}
-	return b.Flush()
+	err := b.Flush()
+	return wc.n, err
+}
+
+// A TiffCanvas is an image canvas with a WriteTo method that
+// writes a tiff image.
+type TiffCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a tiff image.
+func (c TiffCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := tiff.Encode(b, c.img, nil); err != nil {
+		return wc.n, err
+	}
+	err := b.Flush()
+	return wc.n, err
 }

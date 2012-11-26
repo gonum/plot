@@ -14,7 +14,6 @@ import (
 	"image/color"
 	"io"
 	"math"
-	"os"
 	"time"
 )
 
@@ -178,24 +177,17 @@ func (e *Canvas) DPI() float64 {
 	return 72
 }
 
-// Save saves the canvas to the given path.
-func (e *Canvas) Save(path string) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-	return e.WriteTo(f)
-}
-
-// Write writes the canvas to an io.Writer.
-func (e *Canvas) WriteTo(w io.Writer) error {
+// WriteTo writes the canvas to an io.Writer.
+func (e *Canvas) WriteTo(w io.Writer) (int64, error) {
 	b := bufio.NewWriter(w)
-	if _, err := e.buf.WriteTo(b); err != nil {
-		return err
+	n, err := e.buf.WriteTo(b)
+	if err != nil {
+		return n, err
 	}
-	if _, err := fmt.Fprintln(b, "showpage"); err != nil {
-		return err
+	m, err := fmt.Fprintln(b, "showpage")
+	n += int64(m)
+	if err != nil {
+		return n, err
 	}
-	return b.Flush()
+	return n, b.Flush()
 }
