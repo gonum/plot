@@ -447,51 +447,50 @@ func (p *Plot) NominalY(names ...string) {
 // .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
-	var c vg.Canvas
+	var c interface {
+		vg.Canvas
+		Save(string) error
+	}
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
 
 	case ".eps":
 		c = vgeps.NewTitle(w, h, file)
-		defer c.(*vgeps.Canvas).Save(file)
 
 	case ".jpg", ".jpeg":
 		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
-		encode := func(w io.Writer, img image.Image) error {
+		c.(*vgimg.Canvas).Encode = func(w io.Writer, img image.Image) error {
 			return jpeg.Encode(w, img, nil)
 		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
 
 	case ".pdf":
 		c = vgpdf.New(w, h)
-		defer func() { err = c.(*vgpdf.Canvas).Save(file) }()
 
 	case ".png":
 		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, png.Encode) }()
+		c.(*vgimg.Canvas).Encode = png.Encode
 
 	case ".svg":
 		c = vgsvg.New(w, h)
-		defer func() { err = c.(*vgsvg.Canvas).Save(file) }()
 
 	case ".tiff":
 		c, err = vgimg.New(w, h)
 		if err != nil {
 			return
 		}
-		encode := func(w io.Writer, img image.Image) error {
+		c.(*vgimg.Canvas).Encode = func(w io.Writer, img image.Image) error {
 			return tiff.Encode(w, img, nil)
 		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
 	p.Draw(*NewDrawArea(c, w, h))
-	return
+
+	return c.Save(file)
 }

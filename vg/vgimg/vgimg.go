@@ -11,6 +11,7 @@ import (
 	"bufio"
 	"code.google.com/p/draw2d/draw2d"
 	"code.google.com/p/plotinum/vg"
+	"errors"
 	"fmt"
 	"image"
 	"image/color"
@@ -28,6 +29,11 @@ type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
 	color []color.Color
+
+	// Encode encodes the image before writing.
+	// Initially this is nil, so it must be set before calling
+	// Save or WriteTo.
+	Encode func(io.Writer, image.Image) error
 
 	// width is the current line width.
 	width vg.Length
@@ -260,18 +266,26 @@ var (
 	}
 )
 
-// Save saves the Canvas to a file using
-// the given image encoding.
-func (c *Canvas) Save(path string, encode func(io.Writer, image.Image) error) error {
+// Save saves the Canvas to a file.
+func (c *Canvas) Save(path string) error {
+	if c.Encode == nil {
+		return errors.New("vgimg.Save: Encode field is nil")
+	}
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+	return c.WriteTo(f)
+}
 
-	b := bufio.NewWriter(f)
-	err = encode(b, c.img)
-	if err != nil {
+// WriteTo writes the Canvas to an io.Writer.
+func (c *Canvas) WriteTo(w io.Writer) error {
+	if c.Encode == nil {
+		return errors.New("vgimg.WriteTo: Encode field is nil")
+	}
+	b := bufio.NewWriter(w)
+	if err := c.Encode(b, c.img); err != nil {
 		return err
 	}
 	return b.Flush()

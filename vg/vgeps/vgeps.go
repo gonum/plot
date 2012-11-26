@@ -12,6 +12,7 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
+	"io"
 	"math"
 	"os"
 	"time"
@@ -177,21 +178,23 @@ func (e *Canvas) DPI() float64 {
 	return 72
 }
 
-// Save saves the plot to the given path.
+// Save saves the canvas to the given path.
 func (e *Canvas) Save(path string) error {
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
+	return e.WriteTo(f)
+}
 
-	b := bufio.NewWriter(f)
-	_, err = e.buf.WriteTo(b)
-	if err != nil {
+// Write writes the canvas to an io.Writer.
+func (e *Canvas) WriteTo(w io.Writer) error {
+	b := bufio.NewWriter(w)
+	if _, err := e.buf.WriteTo(b); err != nil {
 		return err
 	}
-	_, err = fmt.Fprintln(b, "showpage")
-	if err != nil {
+	if _, err := fmt.Fprintln(b, "showpage"); err != nil {
 		return err
 	}
 	return b.Flush()

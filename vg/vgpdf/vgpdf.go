@@ -12,6 +12,7 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
+	"io"
 	"math"
 	"os"
 )
@@ -194,9 +195,14 @@ func (c *Canvas) Save(path string) error {
 		return err
 	}
 	defer f.Close()
+	return c.WriteTo(f)
+}
 
-	b := bufio.NewWriter(f)
-
+// WriteTo writes the Canvas to an io.Writer. 
+// After calling Write, the canvas is closed
+// and may no longer be used for drawing.
+func (c *Canvas) WriteTo(w io.Writer) error {
+	b := bufio.NewWriter(w)
 	if err := c.doc.Encode(b); err != nil {
 		return err
 	}

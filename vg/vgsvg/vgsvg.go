@@ -276,10 +276,13 @@ func (c *Canvas) Save(path string) error {
 		return err
 	}
 	defer f.Close()
+	return c.WriteTo(f)
+}
 
-	b := bufio.NewWriter(f)
-	_, err = c.buf.WriteTo(b)
-	if err != nil {
+// WriteTo writes the canvas to an io.Writer.
+func (c *Canvas) WriteTo(w io.Writer) error {
+	b := bufio.NewWriter(w)
+	if _, err := c.buf.WriteTo(b); err != nil {
 		return err
 	}
 
@@ -287,13 +290,14 @@ func (c *Canvas) Save(path string) error {
 	// so that the Canvas is not closed and can be
 	// used again if needed.
 	for i := 0; i < c.nEnds(); i++ {
-		_, err = fmt.Fprintln(b, "</g>")
-		if err != nil {
+		if _, err := fmt.Fprintln(b, "</g>"); err != nil {
 			return err
 		}
 	}
 
-	fmt.Fprintln(b, "</svg>\n")
+	if _, err := fmt.Fprintln(b, "</svg>\n"); err != nil {
+		return err
+	}
 
 	return b.Flush()
 }
