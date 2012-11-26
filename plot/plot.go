@@ -446,6 +446,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
 	var c interface {
 		vg.Canvas
+		Size() (w, h vg.Length)
 		io.WriterTo
 	}
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
@@ -483,7 +484,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
-	p.Draw(*NewDrawArea(c, w, h))
+	p.Draw(*NewDrawArea(c))
 
 	f, err := os.Create(file)
 	if err != nil {

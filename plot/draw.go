@@ -202,10 +202,23 @@ func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 	da.Stroke(p)
 }
 
-// NewDrawArea returns a new DrawArea of a specified
-// size using the given canvas.
-func NewDrawArea(c vg.Canvas, w, h vg.Length) *DrawArea {
-	return &DrawArea{Canvas: c, Rect: Rect{Min: Point{}, Size: Point{w, h}}}
+// NewDrawArea returns a new DrawArea for a canvas with a
+// Size method.
+func NewDrawArea(c interface {
+	vg.Canvas
+	Size() (vg.Length, vg.Length)
+},) *DrawArea {
+	w, h := c.Size()
+	return NewDrawAreaSize(c, w, h)
+}
+
+// NewDrawAreaSize returns a new DrawArea of the given
+// size for a canvas.
+func NewDrawAreaSize(c vg.Canvas, w, h vg.Length) *DrawArea {
+	return &DrawArea{
+		Canvas: c,
+		Rect:   Rect{Size: Point{w, h}},
+	}
 }
 
 // Center returns the center point of the area

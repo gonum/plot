@@ -20,16 +20,24 @@ import (
 // drawing to a PDF.
 type Canvas struct {
 	doc  *pdf.Document
+	w, h vg.Length
 	page *pdf.Canvas
 }
 
 // New creates a new PDF Canvas.
 func New(w, h vg.Length) *Canvas {
-	c := new(Canvas)
-	c.doc = pdf.New()
+	c := &Canvas{
+		doc: pdf.New(),
+		w:   w,
+		h:   h,
+	}
 	c.page = c.doc.NewPage(unit(w), unit(h))
 	vg.Initialize(c)
 	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {

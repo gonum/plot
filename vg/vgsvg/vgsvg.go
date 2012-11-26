@@ -28,10 +28,11 @@ const (
 )
 
 type Canvas struct {
-	svg *svgo.SVG
-	buf *bytes.Buffer
-	ht  float64
-	stk []context
+	svg  *svgo.SVG
+	w, h vg.Length
+	buf  *bytes.Buffer
+	ht   float64
+	stk  []context
 }
 
 type context struct {
@@ -46,6 +47,8 @@ func New(w, h vg.Length) *Canvas {
 	buf := new(bytes.Buffer)
 	c := &Canvas{
 		svg: svgo.New(buf),
+		w:   w,
+		h:   h,
 		buf: buf,
 		ht:  w.Points(),
 		stk: []context{context{}},
@@ -67,6 +70,10 @@ func New(w, h vg.Length) *Canvas {
 
 	vg.Initialize(c)
 	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 func (c *Canvas) cur() *context {

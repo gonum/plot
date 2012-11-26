@@ -29,6 +29,7 @@ const dpi = 96
 type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
+	w, h  vg.Length
 	color []color.Color
 
 	// width is the current line width.
@@ -47,9 +48,19 @@ func New(width, height vg.Length) (*Canvas, error) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
+	c := &Canvas{
+		gc:    gc,
+		img:   img,
+		w:     width,
+		h:     height,
+		color: []color.Color{color.Black},
+	}
 	vg.Initialize(c)
 	return c, nil
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 // NewImage returns a new image canvas

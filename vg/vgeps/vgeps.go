@@ -18,8 +18,9 @@ import (
 )
 
 type Canvas struct {
-	stk []ctx
-	buf *bytes.Buffer
+	stk  []ctx
+	w, h vg.Length
+	buf  *bytes.Buffer
 }
 
 type ctx struct {
@@ -41,7 +42,12 @@ func New(w, h vg.Length) *Canvas {
 
 // NewTitle returns a new Canvas with the given title string.
 func NewTitle(w, h vg.Length, title string) *Canvas {
-	c := &Canvas{stk: []ctx{ctx{}}, buf: new(bytes.Buffer)}
+	c := &Canvas{
+		stk: []ctx{ctx{}},
+		w:   w,
+		h:   h,
+		buf: new(bytes.Buffer),
+	}
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
 	c.buf.WriteString("%%Creator code.google.com/p/plotinum/vg/veceps\n")
 	c.buf.WriteString("%%Title: " + title + "\n")
@@ -54,6 +60,10 @@ func NewTitle(w, h vg.Length, title string) *Canvas {
 	c.buf.WriteString("\n")
 	vg.Initialize(c)
 	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 // cur returns the top context on the stack.
