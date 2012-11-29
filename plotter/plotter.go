@@ -23,7 +23,7 @@ var (
 	// lines.
 	DefaultLineStyle = plot.LineStyle{
 		Color:    color.Black,
-		Width:    vg.Points(0.5),
+		Width:    vg.Points(1),
 		Dashes:   []vg.Length{},
 		DashOffs: 0,
 	}
