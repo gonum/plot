@@ -226,7 +226,8 @@ func fontPath(name string) (string, error) {
 // or GOPATH variables, e.g., : on Unix) if it is defined, then the vg
 // source import directory if it is found (i.e., if vg was installed by
 // go get).  If the resulting FontDirs slice is empty then the current
-// directory is added to it.
+// directory is added to it.  This slice may be changed to load fonts
+// from different locations.
 var FontDirs = initFontDirs()
 
 // InitFontDirs returns the initial value for the FontDirectories variable.
