@@ -12,7 +12,6 @@ package vg
 
 import (
 	"errors"
-	"fmt"
 	"go/build"
 	"io/ioutil"
 	"os"
@@ -177,7 +176,6 @@ func getFont(name string) (*truetype.Font, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("loading font", path)
 
 	file, err := os.Open(path)
 	if err != nil {
