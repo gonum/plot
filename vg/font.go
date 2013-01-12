@@ -224,7 +224,7 @@ func fontPath(name string) (string, error) {
 // environment variable VGFONTPATH (which contains directories
 // separated by the os-specific directory separator used for PATH
 // or GOPATH variables, e.g., : on Unix) if it is defined, then the vg
-// source import directory if it is found (i.e., if vg was instaled by
+// source import directory if it is found (i.e., if vg was installed by
 // go get).  If the resulting FontDirs slice is empty then the current
 // directory is added to it.
 var FontDirs = initFontDirs()
