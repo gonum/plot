@@ -88,8 +88,12 @@ type Font struct {
 	font *truetype.Font
 }
 
-// MakeFont returns a font object.  The name
-// of the font must be a key of the FontMap.
+// MakeFont returns a font object.  The name of the font must
+// be a key of the FontMap.  The font file is located by searching
+// the FontDirs slice for a directory containing the relevant font
+// file.  The font file name is name mapped by FontMap with the
+// .ttf extension.  For example, the font file for the font name
+// Courier is NimbusMonL-Regu.ttf.
 func MakeFont(name string, size Length) (font Font, err error) {
 	font.Size = size
 	font.name = name
@@ -206,7 +210,7 @@ func fontPath(name string) (string, error) {
 	}
 
 	for _, d := range FontDirs {
-		p := filepath.Join(d, "fonts", fname)
+		p := filepath.Join(d, fname)
 		if _, err := os.Stat(p); err != nil {
 			continue
 		}
@@ -221,10 +225,8 @@ func fontPath(name string) (string, error) {
 // subsequent directories are not tried, and the font will fail to load.
 //
 // The default slice contains, in the following order, the values of the
-// environment variable VGFONTPATH (which contains directories
-// separated by the os-specific directory separator used for PATH
-// or GOPATH variables, e.g., : on Unix) if it is defined, then the vg
-// source import directory if it is found (i.e., if vg was installed by
+// environment variable VGFONTPATH if it is defined, then the vg
+// source fonts directory if it is found (i.e., if vg was installed by
 // go get).  If the resulting FontDirs slice is empty then the current
 // directory is added to it.  This slice may be changed to load fonts
 // from different locations.
@@ -235,11 +237,14 @@ func initFontDirs() []string {
 	dirs := filepath.SplitList(os.Getenv("VGFONTPATH"))
 
 	if pkg, err := build.Import(importString, "", build.FindOnly); err == nil {
-		dirs = append(dirs, pkg.Dir)
+		p := filepath.Join(pkg.Dir, "fonts")
+		if _, err := os.Stat(p); err == nil {
+			dirs = append(dirs, p)
+		}
 	}
 
 	if len(dirs) == 0 {
-		dirs = []string{"."}
+		dirs = []string{"./fonts"}
 	}
 
 	return dirs
