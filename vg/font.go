@@ -11,13 +11,14 @@
 package vg
 
 import (
-	"code.google.com/p/freetype-go/freetype"
-	"code.google.com/p/freetype-go/freetype/truetype"
-	"fmt"
+	"errors"
 	"go/build"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"code.google.com/p/freetype-go/freetype"
+	"code.google.com/p/freetype-go/freetype/truetype"
 )
 
 const (
@@ -128,30 +129,36 @@ func getFont(name string) (*truetype.Font, error) {
 
 	n, ok := FontMap[name]
 	if !ok {
-		return nil, fmt.Errorf("No matching font: %s", name)
+		errStr := "Unknown font: " + name + ".  Available fonts are:"
+		for n := range FontMap {
+			errStr += " " + n
+		}
+		return nil, errors.New(errStr)
 	}
 
 	pkg, err := build.Import(importString, "", build.FindOnly)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Failed to locate source import directory for " + importString + ".  This is needed to locate the font data files.  This directory should be located in $GOPATH/src/" + importString + " if you installed via go get.  If you did not use go get to install this package then you must copy the font directory from the vg source directory into the aformentioned path: " + err.Error())
 	}
 
 	path := filepath.Join(pkg.Dir, "fonts", n+".ttf")
 
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Failed to locate font data: " + err.Error())
 	}
 	defer file.Close()
 
 	bytes, err := ioutil.ReadAll(file)
 	if err != nil {
-		return nil, err
+		return nil, errors.New("Failed to read font file: " + err.Error())
 	}
 
 	font, err := freetype.ParseFont(bytes)
 	if err != nil {
 		loadedFonts[name] = font
+	} else {
+		err = errors.New("Failed to parse font file: " + err.Error())
 	}
 	return font, err
 }
