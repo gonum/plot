@@ -216,9 +216,8 @@ func fontPath(name string) (string, error) {
 	return "", errors.New("Failed to locate a font file " + fname + " for font name " + name)
 }
 
-// FontDirs is a slice of directories searched for the font data files.
-// The first directory in which the fonts are found is teh one that is
-// used.  If the first font file is unreadable or cannot be parsed, then
+// FontDirs is a slice of directories searched for font data files.
+// If the first font file found is unreadable or cannot be parsed, then
 // subsequent directories are not tried, and the font will fail to load.
 //
 // The default slice contains, in the following order, the values of the
