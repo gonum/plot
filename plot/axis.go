@@ -46,7 +46,9 @@ type Axis struct {
 		// tick marks.
 		Length vg.Length
 
-		// Marker returns the tick marks.
+		// Marker returns the tick marks.  Any tick marks
+		// returned by the Marker function that are not in
+		// range of the axis are not drawn.
 		Marker func(min, max float64) []Tick
 	}
 }

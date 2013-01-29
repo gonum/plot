@@ -12,7 +12,7 @@
 // of the Plotter interface can be found in the
 // code.google.com/p/plotinum/plotter package
 // which is documented here: 
-// http://go.pkgdoc.org/code.google.com/p/plotinum/plotter
+// http://godoc.org/code.google.com/p/plotinum/plotter
 package plot
 
 import (
@@ -388,7 +388,9 @@ func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 // axis—an X axis with names instead of numbers.  The
 // X location corresponding to each name are the integers,
 // e.g., the x value 0 is centered above the first name and
-// 1 is above the second name, etc.
+// 1 is above the second name, etc.  Labels for x values
+// that do not end up in range of the X axis will not have
+// tick marks.
 func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
@@ -421,11 +423,7 @@ func (p *Plot) HideAxes() {
 	p.HideY()
 }
 
-// NominalY configures the plot to have a nominal Y
-// axis—an Y axis with names instead of numbers.  The
-// Y location corresponding to each name are the integers,
-// e.g., the y value 0 is centered above the first name and
-// 1 is above the second name, etc.
+// NominalY is like NominalX, but for the Y axis.
 func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Width = 0
 	p.Y.Tick.Length = 0
