@@ -16,7 +16,7 @@ import (
 // DefaultColors is a set of colors used by the Color funciton.
 var DefaultColors = SoftColors
 
-// SoftColors is a set darker colors.
+// DarkColors is a set darker colors.
 var DarkColors = []color.Color{
 	rgb(238, 46, 47),
 	rgb(0, 140, 72),
