@@ -19,9 +19,10 @@ import (
 // Canvas implements the vg.Canvas interface,
 // drawing to a PDF.
 type Canvas struct {
-	doc  *pdf.Document
-	w, h vg.Length
-	page *pdf.Canvas
+	doc         *pdf.Document
+	w, h        vg.Length
+	page        *pdf.Canvas
+	lineVisible bool
 }
 
 // New creates a new PDF Canvas.
@@ -42,6 +43,7 @@ func (c *Canvas) Size() (w, h vg.Length) {
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.page.SetLineWidth(unit(w))
+	c.lineVisible = w != 0
 }
 
 func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
@@ -78,7 +80,9 @@ func (c *Canvas) Pop() {
 }
 
 func (c *Canvas) Stroke(p vg.Path) {
-	c.page.Stroke(pdfPath(c, p))
+	if c.lineVisible {
+		c.page.Stroke(pdfPath(c, p))
+	}
 }
 
 func (c *Canvas) Fill(p vg.Path) {
