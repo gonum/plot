@@ -28,9 +28,10 @@ type Canvas struct {
 // New creates a new PDF Canvas.
 func New(w, h vg.Length) *Canvas {
 	c := &Canvas{
-		doc: pdf.New(),
-		w:   w,
-		h:   h,
+		doc:         pdf.New(),
+		w:           w,
+		h:           h,
+		lineVisible: true,
 	}
 	c.page = c.doc.NewPage(unit(w), unit(h))
 	vg.Initialize(c)
