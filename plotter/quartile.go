@@ -75,11 +75,11 @@ type QuartPlot struct {
 }
 
 // NewQuartPlot returns a new QuartPlot that represents
-// the distribution of the given values.  The style of
-// the box plot is that used for Tukey's schematic
-// plots is ``Exploratory Data Analysis.''
+// the distribution of the given values.  This style of
+// the plot appears in Tufte's "The Visual Display of 
+// Quantitative Information".
 //
-// An error is returned if the boxplot is created with
+// An error is returned if the plot is created with
 // no values.
 //
 // The fence values are 1.5x the interquartile before
@@ -228,7 +228,7 @@ func (o quartPlotOutsideLabels) Label(i int) string {
 type HorizQuartPlot struct{ *QuartPlot }
 
 // MakeHorizQuartPlot returns a HorizQuartPlot,
-// plotting the values in a horizontal box plot
+// plotting the values in a horizontal plot
 // centered along a fixed location of the y axis.
 func MakeHorizQuartPlot(w vg.Length, loc float64, vs Values) HorizQuartPlot {
 	return HorizQuartPlot{NewQuartPlot(w, loc, vs)}
