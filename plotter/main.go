@@ -207,9 +207,9 @@ func Example_quartPlots() *plot.Plot {
 	p.Title.Text = "Quartile Plot"
 	p.Y.Label.Text = "plotter.Values"
 
-	p.Add(plotter.NewQuartPlot(vg.Points(20), 0, uniform),
-		plotter.NewQuartPlot(vg.Points(20), 1, normal),
-		plotter.NewQuartPlot(vg.Points(20), 2, expon))
+	p.Add(plotter.NewQuartPlot(0, uniform),
+		plotter.NewQuartPlot(1, normal),
+		plotter.NewQuartPlot(2, expon))
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -294,19 +294,19 @@ func Example_verticalQuartPlots() *plot.Plot {
 	p.Title.Text = "Quart Plot"
 	p.Y.Label.Text = "plotter.Values"
 
-	uniBox := plotter.NewQuartPlot(vg.Points(20), 0, uniform)
+	uniBox := plotter.NewQuartPlot(0, uniform)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.NewQuartPlot(vg.Points(20), 1, normal)
+	normBox := plotter.NewQuartPlot(1, normal)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.NewQuartPlot(vg.Points(20), 2, expon)
+	expBox := plotter.NewQuartPlot(2, expon)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -419,19 +419,19 @@ func Example_horizontalQuartPlots() *plot.Plot {
 	p.X.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(vg.Points(20), 0, uniform)}
+	uniBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(0, uniform)}
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(vg.Points(20), 1, normal)}
+	normBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(1, normal)}
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(vg.Points(20), 2, expon)}
+	expBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(2, expon)}
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
