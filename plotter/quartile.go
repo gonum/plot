@@ -29,7 +29,10 @@ var (
 )
 
 // QuartPlot implements the Plotter interface, drawing
-// a boxplot to represent the distribution of values.
+// a plot to represent the distribution of values.
+//
+// This style of the plot appears in Tufte's "The Visual
+// Display of Quantitative Information".
 type QuartPlot struct {
 	fiveStatPlot
 
@@ -42,9 +45,7 @@ type QuartPlot struct {
 }
 
 // NewQuartPlot returns a new QuartPlot that represents
-// the distribution of the given values.  This style of
-// the plot appears in Tufte's "The Visual Display of 
-// Quantitative Information".
+// the distribution of the given values.
 //
 // An error is returned if the plot is created with
 // no values.
@@ -103,9 +104,8 @@ func (b *QuartPlot) DataRange() (float64, float64, float64, float64) {
 	return b.Location, b.Location, b.Min, b.Max
 }
 
-// GlyphBoxes returns a slice of GlyphBoxes for the
-// points and for the median line of the boxplot,
-// implementing the plot.GlyphBoxer interface
+// GlyphBoxes returns a slice of GlyphBoxes for the plot,
+// implementing the plot.GlyphBoxer interface.
 func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 	for i, out := range b.Outside {
@@ -125,7 +125,7 @@ func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // OutsideLabels returns a *Labels that will plot
 // a label for each of the outside points.  The
 // labels are assumed to correspond to the
-// points used to create the box plot.
+// points used to create the plot.
 func (b *QuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
@@ -142,16 +142,16 @@ func (b *QuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 }
 
 type quartPlotOutsideLabels struct {
-	box    *QuartPlot
+	qp     *QuartPlot
 	labels []string
 }
 
 func (o quartPlotOutsideLabels) Len() int {
-	return len(o.box.Outside)
+	return len(o.qp.Outside)
 }
 
 func (o quartPlotOutsideLabels) XY(i int) (float64, float64) {
-	return o.box.Location, o.box.Value(o.box.Outside[i])
+	return o.qp.Location, o.qp.Value(o.qp.Outside[i])
 }
 
 func (o quartPlotOutsideLabels) Label(i int) string {
@@ -201,9 +201,8 @@ func (b HorizQuartPlot) DataRange() (float64, float64, float64, float64) {
 	return b.Min, b.Max, b.Location, b.Location
 }
 
-// GlyphBoxes returns a slice of GlyphBoxes for the
-// points and for the median line of the boxplot,
-// implementing the plot.GlyphBoxer interface
+// GlyphBoxes returns a slice of GlyphBoxes for the plot,
+// implementing the plot.GlyphBoxer interface.
 func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 	for i, out := range b.Outside {
@@ -223,7 +222,7 @@ func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // OutsideLabels returns a *Labels that will plot
 // a label for each of the outside points.  The
 // labels are assumed to correspond to the
-// points used to create the box plot.
+// points used to create the plot.
 func (b *HorizQuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
@@ -246,5 +245,5 @@ type horizQuartPlotOutsideLabels struct {
 }
 
 func (o horizQuartPlotOutsideLabels) XY(i int) (float64, float64) {
-	return o.box.Value(o.box.Outside[i]), o.box.Location
+	return o.qp.Value(o.qp.Outside[i]), o.qp.Location
 }
