@@ -21,13 +21,6 @@ type fiveStatPlot struct {
 	// Location is the location of the box along its axis.
 	Location float64
 
-	// Width is the width used to draw the box.
-	Width vg.Length
-
-	// CapWidth is the width of the cap used to top
-	// off a whisker.
-	CapWidth vg.Length
-
 	// Median is the median value of the data.
 	Median float64
 
@@ -52,6 +45,13 @@ type fiveStatPlot struct {
 // a boxplot to represent the distribution of values.
 type BoxPlot struct {
 	fiveStatPlot
+
+	// Width is the width used to draw the box.
+	Width vg.Length
+
+	// CapWidth is the width of the cap used to top
+	// off a whisker.
+	CapWidth vg.Length
 
 	// GlyphStyle is the style of the outside point glyphs.
 	GlyphStyle plot.GlyphStyle
@@ -85,6 +85,9 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
 	b := new(BoxPlot)
 	b.fiveStatPlot = newFiveStat(w, loc, values)
 
+	b.Width = w
+	b.CapWidth = 3 * w / 4
+
 	b.GlyphStyle = DefaultGlyphStyle
 	b.BoxStyle = DefaultLineStyle
 	b.MedianStyle = DefaultLineStyle
@@ -107,8 +110,6 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
 func newFiveStat(w vg.Length, loc float64, values Valuer) fiveStatPlot {
 	var b fiveStatPlot
 	b.Location = loc
-	b.Width = w
-	b.CapWidth = 3 * w / 4
 
 	b.Values = CopyValues(values)
 	if len(b.Values) == 0 {
