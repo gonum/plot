@@ -114,11 +114,7 @@ func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
-	w := b.MedianStyle.Rect().Size.X
-	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{X: -w / 2},
-		Size: plot.Point{X: w},
-	}
+	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
 	return bs
 }
 
@@ -212,11 +208,7 @@ func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
-	h := b.MedianStyle.Rect().Size.Y
-	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{Y: -h / 2},
-		Size: plot.Point{Y: h},
-	}
+	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
 	return bs
 }
 
