@@ -9,8 +9,6 @@ import (
 	"code.google.com/p/plotinum/vg"
 
 	"image/color"
-	"math"
-	"sort"
 )
 
 var (
@@ -33,40 +31,9 @@ var (
 // QuartPlot implements the Plotter interface, drawing
 // a boxplot to represent the distribution of values.
 type QuartPlot struct {
-	// Values is a copy of the values of the values used to
-	// create this box plot.
-	Values
+	fiveStatPlot
 
-	// Location is the location of the box along its axis.
-	Location float64
-
-	// Width is the width used to draw the box.
-	Width vg.Length
-
-	// CapWidth is the width of the cap used to top
-	// off a whisker.
-	CapWidth vg.Length
-
-	// Median is the median value of the data.
-	Median float64
-
-	// Quartile1 and Quartile3 are the first and
-	// third quartiles of the data respectively.
-	Quartile1, Quartile3 float64
-
-	// AdjLow and AdjHigh are the `adjacent' values
-	// on the low and high ends of the data.  The
-	// adjacent values are the points to which the
-	// whiskers are drawn.
-	AdjLow, AdjHigh float64
-
-	// Min and Max are the extreme values of the data.
-	Min, Max float64
-
-	// Outside are the indices of Vs for the outside points.
-	Outside []int
-
-	// MedianStyle is the line style for the median line.
+	// MedianStyle is the line style for the median point.
 	MedianStyle plot.GlyphStyle
 
 	// WhiskerStyle is the line style used to draw the
@@ -90,47 +57,15 @@ type QuartPlot struct {
 // values that are not outside the fences.
 func NewQuartPlot(w vg.Length, loc float64, values Valuer) *QuartPlot {
 	b := new(QuartPlot)
-	b.Location = loc
-	b.Width = w
-	b.CapWidth = 3 * w / 4
+	b.fiveStatPlot = newFiveStat(w, loc, values)
+
 	b.MedianStyle = DefaultQuartMedianStyle
 	b.WhiskerStyle = DefaultQuartWhiskerStyle
 
-	b.Values = CopyValues(values)
-	sorted := CopyValues(values)
-	sort.Float64s(sorted)
-	if len(sorted) == 0 {
+	if len(b.Values) == 0 {
 		b.Width = 0
 		b.MedianStyle.Radius = 0
 		b.WhiskerStyle.Width = 0
-		return b
-	} else if len(sorted) == 1 {
-		b.Median = sorted[0]
-		b.Quartile1 = sorted[0]
-		b.Quartile3 = sorted[0]
-	} else {
-		b.Median = median(sorted)
-		b.Quartile1 = median(sorted[:len(sorted)/2])
-		b.Quartile3 = median(sorted[len(sorted)/2:])
-	}
-	b.Min = sorted[0]
-	b.Max = sorted[len(sorted)-1]
-
-	low := b.Quartile1 - 1.5*(b.Quartile3-b.Quartile1)
-	high := b.Quartile3 + 1.5*(b.Quartile3-b.Quartile1)
-	b.AdjLow = math.Inf(1)
-	b.AdjHigh = math.Inf(-1)
-	for i, v := range b.Values {
-		if v > high || v < low {
-			b.Outside = append(b.Outside, i)
-			continue
-		}
-		if v < b.AdjLow {
-			b.AdjLow = v
-		}
-		if v > b.AdjHigh {
-			b.AdjHigh = v
-		}
 	}
 
 	return b
