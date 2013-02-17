@@ -111,11 +111,12 @@ func newFiveStat(w vg.Length, loc float64, values Valuer) fiveStatPlot {
 	b.CapWidth = 3 * w / 4
 
 	b.Values = CopyValues(values)
-	sorted := CopyValues(values)
-	sort.Float64s(sorted)
-	if len(sorted) == 0 {
+	if len(b.Values) == 0 {
 		return b
 	}
+
+	sorted := CopyValues(values)
+	sort.Float64s(sorted)
 
 	if len(sorted) == 1 {
 		b.Median = sorted[0]
