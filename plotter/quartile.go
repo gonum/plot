@@ -107,10 +107,13 @@ func (b *QuartPlot) DataRange() (float64, float64, float64, float64) {
 // implementing the plot.GlyphBoxer interface.
 func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
+
+	ostyle := b.MedianStyle
+	ostyle.Radius = b.MedianStyle.Radius / 2
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Location)
 		bs[i].Y = plt.Y.Norm(b.Value(out))
-		bs[i].Rect = b.MedianStyle.Rect()
+		bs[i].Rect = ostyle.Rect()
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
