@@ -13,7 +13,7 @@ import (
 	"image/color"
 )
 
-// DefaultColors is a set of colors used by the Color funciton.
+// DefaultColors is a set of colors used by the Color function.
 var DefaultColors = SoftColors
 
 var DarkColors = []color.Color{
