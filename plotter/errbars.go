@@ -33,19 +33,26 @@ type YErrorBars struct {
 func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
-},) *YErrorBars {
+},) (*YErrorBars, error) {
 
 	errors := make(YErrors, yerrs.Len())
 	for i := range errors {
 		errors[i].Low, errors[i].High = yerrs.YError(i)
+		if err := CheckFloats(errors[i].Low, errors[i].High); err != nil {
+			return nil, err
+		}
+	}
+	xys, err := CopyXYs(yerrs)
+	if err != nil {
+		return nil, err
 	}
 
 	return &YErrorBars{
-		XYs:       CopyXYs(yerrs),
+		XYs:       xys,
 		YErrors:   errors,
 		LineStyle: DefaultLineStyle,
 		CapWidth:  DefaultCapWidth,
-	}
+	}, nil
 }
 
 // Plot implements the Plotter interface, drawing labels.
@@ -129,19 +136,26 @@ type XErrorBars struct {
 func NewXErrorBars(xerrs interface {
 	XYer
 	XErrorer
-},) *XErrorBars {
+},) (*XErrorBars, error) {
 
 	errors := make(XErrors, xerrs.Len())
 	for i := range errors {
 		errors[i].Low, errors[i].High = xerrs.XError(i)
+		if err := CheckFloats(errors[i].Low, errors[i].High); err != nil {
+			return nil, err
+		}
+	}
+	xys, err := CopyXYs(xerrs)
+	if err != nil {
+		return nil, err
 	}
 
 	return &XErrorBars{
-		XYs:       CopyXYs(xerrs),
+		XYs:       xys,
 		XErrors:   errors,
 		LineStyle: DefaultLineStyle,
 		CapWidth:  DefaultCapWidth,
-	}
+	}, nil
 }
 
 // Plot implements the Plotter interface, drawing labels.

@@ -25,13 +25,26 @@ func ExampleErrorPoints() {
 		panic(err)
 	}
 
-	mean95 := NewErrorPoints(MeanAndConf95, pts...)
-	medMinMax := NewErrorPoints(MedianAndMinMax, pts...)
-	AddLinePoints(plt,
+	mean95, err := NewErrorPoints(MeanAndConf95, pts...)
+	if err != nil {
+		panic(err)
+	}
+	medMinMax, err := NewErrorPoints(MedianAndMinMax, pts...)
+	if err != nil {
+		panic(err)
+	}
+	err = AddLinePoints(plt,
 		"mean and 95% confidence", mean95,
 		"median and minimum and maximum", medMinMax)
-	AddErrorBars(plt, mean95, medMinMax)
-	AddScatters(plt, pts[0], pts[1], pts[2], pts[3], pts[4])
+	if err != nil {
+		panic(err)
+	}
+	if err := AddErrorBars(plt, mean95, medMinMax); err != nil {
+		panic(err)
+	}
+	if err := AddScatters(plt, pts[0], pts[1], pts[2], pts[3], pts[4]); err != nil {
+		panic(err)
+	}
 
 	plt.Save(4, 4, "centroids.png")
 }

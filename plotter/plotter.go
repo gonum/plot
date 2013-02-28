@@ -12,10 +12,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"errors"
 	"image/color"
 	"math"
+
+	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 var (
@@ -61,14 +63,40 @@ func Range(vs Valuer) (min, max float64) {
 // Values implements the Valuer interface.
 type Values []float64
 
-// CopyValues returns a Values that is a copy of the
-// values from a Valuer.
-func CopyValues(vs Valuer) Values {
+var (
+	ErrInfinity = errors.New("Infinite data point")
+	ErrNaN      = errors.New("NaN data point")
+	ErrNoData   = errors.New("No data points")
+)
+
+// CheckFloats returns an error if any of the arguments are NaN or Infinity.
+func CheckFloats(fs ...float64) error {
+	for _, f := range fs {
+		switch {
+		case math.IsNaN(f):
+			return ErrNaN
+		case math.IsInf(f, 0):
+			return ErrInfinity
+		}
+	}
+	return nil
+}
+
+// CopyValues returns a Values that is a copy of the values
+// from a Valuer, or an error if there are no values, or if one of
+// the copied values is a NaN or Infinity.
+func CopyValues(vs Valuer) (Values, error) {
+	if vs.Len() == 0 {
+		return nil, ErrNoData
+	}
 	cpy := make(Values, vs.Len())
 	for i := 0; i < vs.Len(); i++ {
 		cpy[i] = vs.Value(i)
+		if err := CheckFloats(cpy[i]); err != nil {
+			return nil, err
+		}
 	}
-	return cpy
+	return cpy, nil
 }
 
 func (vs Values) Len() int {
@@ -99,14 +127,18 @@ func XYRange(xys XYer) (xmin, xmax, ymin, ymax float64) {
 // XYs implements the XYer interface.
 type XYs []struct{ X, Y float64 }
 
-// CopyXYs returns an XYs that is a copy of the
-// x and y values from an XYer.
-func CopyXYs(data XYer) XYs {
+// CopyXYs returns an XYs that is a copy of the x and y values from
+// an XYer, or an error if one of the data points contains a NaN or
+// Infinity.
+func CopyXYs(data XYer) (XYs, error) {
 	cpy := make(XYs, data.Len())
 	for i := range cpy {
 		cpy[i].X, cpy[i].Y = data.XY(i)
+		if err := CheckFloats(cpy[i].X, cpy[i].Y); err != nil {
+			return nil, err
+		}
 	}
-	return cpy
+	return cpy, nil
 }
 
 func (xys XYs) Len() int {

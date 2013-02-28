@@ -5,10 +5,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"errors"
 	"image/color"
 	"math"
+
+	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 type BarChart struct {
@@ -39,18 +41,23 @@ type BarChart struct {
 	stackedOn *BarChart
 }
 
-// NewBarChart returns a new bar chart with
-// a single bar for each value.  The bars heights
-// correspond to the values and their x locations
-// correspond to the index of their value in the
-// Valuer.
-func NewBarChart(vs Valuer, width vg.Length) *BarChart {
+// NewBarChart returns a new bar chart with a single bar for each value.
+// The bars heights correspond to the values and their x locations correspond
+// to the index of their value in the Valuer.
+func NewBarChart(vs Valuer, width vg.Length) (*BarChart, error) {
+	if width <= 0 {
+		return nil, errors.New("Width parameter was not positive")
+	}
+	values, err := CopyValues(vs)
+	if err != nil {
+		return nil, err
+	}
 	return &BarChart{
-		Values:    CopyValues(vs),
+		Values:    values,
 		Width:     width,
 		Color:     color.Black,
 		LineStyle: DefaultLineStyle,
-	}
+	}, nil
 }
 
 // BarHeight returns the maximum y value of the

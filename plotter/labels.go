@@ -5,6 +5,8 @@
 package plotter
 
 import (
+	"errors"
+
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/vg"
 )
@@ -43,24 +45,33 @@ type Labels struct {
 	XOffset, YOffset vg.Length
 }
 
-// NewLabels returns a new Labels using
-// the DefaultFont and the DefaultFontSize.
-// An error may be returned if there is an
-// error loading the default font.
+// NewLabels returns a new Labels using the DefaultFont and
+// the DefaultFontSize.
 func NewLabels(d interface {
 	XYer
 	Labeller
 },) (*Labels, error) {
-	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
+	xys, err := CopyXYs(d)
 	if err != nil {
 		return nil, err
 	}
+
+	if d.Len() != len(xys) {
+		return nil, errors.New("Number of points does not match the number of labels")
+	}
+
 	strs := make([]string, d.Len())
 	for i := range strs {
 		strs[i] = d.Label(i)
 	}
+
+	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Labels{
-		XYs:       CopyXYs(d),
+		XYs:       xys,
 		Labels:    strs,
 		TextStyle: plot.TextStyle{Font: fnt},
 	}, nil

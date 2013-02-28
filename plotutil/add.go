@@ -16,7 +16,11 @@ import (
 // plotter.Valuer is immediately preceeded by a
 // string then the string value is used to label the
 // tick mark for the box plot's X location.
-func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) {
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) error {
+	var ps []plot.Plotter
 	var names []string
 	name := ""
 	for _, v := range vs {
@@ -25,7 +29,11 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) {
 			name = t
 
 		case plotter.Valuer:
-			plt.Add(plotter.NewBoxPlot(width, float64(len(names)), t))
+			b, err := plotter.NewBoxPlot(width, float64(len(names)), t)
+			if err != nil {
+				return err
+			}
+			ps = append(ps, b)
 			names = append(names, name)
 			name = ""
 
@@ -33,7 +41,9 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) {
 			panic(fmt.Sprintf("AddScatters handles strings and plotter.XYers, got %T", t))
 		}
 	}
+	plt.Add(ps...)
 	plt.NominalX(names...)
+	return nil
 }
 
 // AddScatters adds Scatter plotters to a plot.
@@ -44,7 +54,12 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) {
 // plotter.XYer is immediately preceeded by
 // a string then a legend entry is added to the plot
 // using the string as the name.
-func AddScatters(plt *plot.Plot, vs ...interface{}) {
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddScatters(plt *plot.Plot, vs ...interface{}) error {
+	var ps []plot.Plotter
+	names := make(map[*plotter.Scatter]string)
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -53,13 +68,16 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) {
 			name = t
 
 		case plotter.XYer:
-			s := plotter.NewScatter(t)
+			s, err := plotter.NewScatter(t)
+			if err != nil {
+				return err
+			}
 			s.Color = Color(i)
 			s.Shape = Shape(i)
 			i++
-			plt.Add(s)
+			ps = append(ps, s)
 			if name != "" {
-				plt.Legend.Add(name, s)
+				names[s] = name
 				name = ""
 			}
 
@@ -67,6 +85,11 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) {
 			panic(fmt.Sprintf("AddScatters handles strings and plotter.XYers, got %T", t))
 		}
 	}
+	plt.Add(ps...)
+	for p, n := range names {
+		plt.Legend.Add(n, p)
+	}
+	return nil
 }
 
 // AddLines adds Line plotters to a plot.
@@ -77,7 +100,12 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) {
 // If a plotter.XYer is immediately preceeded by
 // a string then a legend entry is added to the plot
 // using the string as the name.
-func AddLines(plt *plot.Plot, vs ...interface{}) {
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddLines(plt *plot.Plot, vs ...interface{}) error {
+	var ps []plot.Plotter
+	names := make(map[*plotter.Line]string)
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -86,13 +114,16 @@ func AddLines(plt *plot.Plot, vs ...interface{}) {
 			name = t
 
 		case plotter.XYer:
-			l := plotter.NewLine(t)
+			l, err := plotter.NewLine(t)
+			if err != nil {
+				return err
+			}
 			l.Color = Color(i)
 			l.Dashes = Dashes(i)
 			i++
-			plt.Add(l)
+			ps = append(ps, l)
 			if name != "" {
-				plt.Legend.Add(name, l)
+				names[l] = name
 				name = ""
 			}
 
@@ -100,6 +131,11 @@ func AddLines(plt *plot.Plot, vs ...interface{}) {
 			panic(fmt.Sprintf("AddLines handles strings and plotter.XYers, got %T", t))
 		}
 	}
+	plt.Add(ps...)
+	for p, n := range names {
+		plt.Legend.Add(n, p)
+	}
+	return nil
 }
 
 // AddLinePoints adds Line and Scatter plotters to a
@@ -110,7 +146,12 @@ func AddLines(plt *plot.Plot, vs ...interface{}) {
 // If a plotter.XYer is immediately preceeded by
 // a string then a legend entry is added to the plot
 // using the string as the name.
-func AddLinePoints(plt *plot.Plot, vs ...interface{}) {
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
+	var ps []plot.Plotter
+	names := make(map[[2]plot.Thumbnailer]string)
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -119,15 +160,18 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) {
 			name = t
 
 		case plotter.XYer:
-			l, s := plotter.NewLinePoints(t)
+			l, s, err := plotter.NewLinePoints(t)
+			if err != nil {
+				return err
+			}
 			l.Color = Color(i)
 			l.Dashes = Dashes(i)
 			s.Color = Color(i)
 			s.Shape = Shape(i)
 			i++
-			plt.Add(l, s)
+			ps = append(ps, l, s)
 			if name != "" {
-				plt.Legend.Add(name, l, s)
+				names[[2]plot.Thumbnailer{l, s}] = name
 				name = ""
 			}
 
@@ -135,6 +179,11 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) {
 			panic(fmt.Sprintf("AddLinePoints handles strings and plotter.XYers, got %T", t))
 		}
 	}
+	plt.Add(ps...)
+	for ps, n := range names {
+		plt.Legend.Add(n, ps[0], ps[1])
+	}
+	return nil
 }
 
 // AddErrorBars adds XErrorBars and YErrorBars
@@ -144,7 +193,11 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) {
 // Each errorer is added to the plot the color from
 // the Colors function corresponding to its position
 // in the argument list.
-func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddErrorBars(plt *plot.Plot, vs ...interface{}) error {
+	var ps []plot.Plotter
 	for i, v := range vs {
 		added := false
 
@@ -152,9 +205,12 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
 			plotter.XYer
 			plotter.XErrorer
 		}); ok {
-			e := plotter.NewXErrorBars(xerr)
+			e, err := plotter.NewXErrorBars(xerr)
+			if err != nil {
+				return err
+			}
 			e.Color = Color(i)
-			plt.Add(e)
+			ps = append(ps, e)
 			added = true
 		}
 
@@ -162,9 +218,12 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
 			plotter.XYer
 			plotter.YErrorer
 		}); ok {
-			e := plotter.NewYErrorBars(yerr)
+			e, err := plotter.NewYErrorBars(yerr)
+			if err != nil {
+				return err
+			}
 			e.Color = Color(i)
-			plt.Add(e)
+			ps = append(ps, e)
 			added = true
 		}
 
@@ -173,6 +232,8 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
 		}
 		panic(fmt.Sprintf("AddErrorBars expects plotter.XErrorer or plotter.YErrorer, got %T", v))
 	}
+	plt.Add(ps...)
+	return nil
 }
 
 // AddXErrorBars adds XErrorBars to a plot.
@@ -181,15 +242,24 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) {
 // Each errorer is added to the plot the color from
 // the Colors function corresponding to its position
 // in the argument list.
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
 func AddXErrorBars(plt *plot.Plot, es ...interface {
 	plotter.XYer
 	plotter.XErrorer
-},) {
+},) error {
+	var ps []plot.Plotter
 	for i, e := range es {
-		bars := plotter.NewXErrorBars(e)
+		bars, err := plotter.NewXErrorBars(e)
+		if err != nil {
+			return err
+		}
 		bars.Color = Color(i)
-		plt.Add(bars)
+		ps = append(ps, bars)
 	}
+	plt.Add(ps...)
+	return nil
 }
 
 // AddYErrorBars adds YErrorBars to a plot.
@@ -198,13 +268,22 @@ func AddXErrorBars(plt *plot.Plot, es ...interface {
 // Each errorer is added to the plot the color from
 // the Colors function corresponding to its position
 // in the argument list.
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
 func AddYErrorBars(plt *plot.Plot, es ...interface {
 	plotter.XYer
 	plotter.YErrorer
-},) {
+},) error {
+	var ps []plot.Plotter
 	for i, e := range es {
-		bars := plotter.NewYErrorBars(e)
+		bars, err := plotter.NewYErrorBars(e)
+		if err != nil {
+			return err
+		}
 		bars.Color = Color(i)
-		plt.Add(bars)
+		ps = append(ps, bars)
 	}
+	plt.Add(ps...)
+	return nil
 }

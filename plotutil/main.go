@@ -3,9 +3,9 @@
 package main
 
 import (
-	"code.google.com/p/plotinum/plotutil"
-	"code.google.com/p/plotinum/plotter"
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/plotter"
+	"code.google.com/p/plotinum/plotutil"
 	"math/rand"
 )
 
@@ -28,13 +28,23 @@ func main() {
 		panic(err)
 	}
 
-	mean95 := plotutil.NewErrorPoints(plotutil.MeanAndConf95, pts...)
-	medMinMax := plotutil.NewErrorPoints(plotutil.MedianAndMinMax, pts...)
+	mean95, err := plotutil.NewErrorPoints(plotutil.MeanAndConf95, pts...)
+	if err != nil {
+		panic(err)
+	}
+	medMinMax, err := plotutil.NewErrorPoints(plotutil.MedianAndMinMax, pts...)
+	if err != nil {
+		panic(err)
+	}
 	plotutil.AddLinePoints(plt,
 		"mean and 95% confidence", mean95,
 		"median and minimum and maximum", medMinMax)
-	plotutil.AddErrorBars(plt, mean95, medMinMax)
-	plotutil.AddScatters(plt, pts[0], pts[1], pts[2], pts[3], pts[4])
+	if err := plotutil.AddErrorBars(plt, mean95, medMinMax); err != nil {
+		panic(err)
+	}
+	if err := plotutil.AddScatters(plt, pts[0], pts[1], pts[2], pts[3], pts[4]); err != nil {
+		panic(err)
+	}
 
 	plt.Save(4, 4, "errpoints.png")
 }
