@@ -12,28 +12,39 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
+	"io"
 	"math"
-	"os"
 )
 
 // Canvas implements the vg.Canvas interface,
 // drawing to a PDF.
 type Canvas struct {
-	doc  *pdf.Document
-	page *pdf.Canvas
+	doc         *pdf.Document
+	w, h        vg.Length
+	page        *pdf.Canvas
+	lineVisible bool
 }
 
 // New creates a new PDF Canvas.
 func New(w, h vg.Length) *Canvas {
-	c := new(Canvas)
-	c.doc = pdf.New()
+	c := &Canvas{
+		doc:         pdf.New(),
+		w:           w,
+		h:           h,
+		lineVisible: true,
+	}
 	c.page = c.doc.NewPage(unit(w), unit(h))
 	vg.Initialize(c)
 	return c
 }
 
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
+}
+
 func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.page.SetLineWidth(unit(w))
+	c.lineVisible = w != 0
 }
 
 func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
@@ -70,7 +81,9 @@ func (c *Canvas) Pop() {
 }
 
 func (c *Canvas) Stroke(p vg.Path) {
-	c.page.Stroke(pdfPath(c, p))
+	if c.lineVisible {
+		c.page.Stroke(pdfPath(c, p))
+	}
 }
 
 func (c *Canvas) Fill(p vg.Path) {
@@ -182,23 +195,29 @@ func unit(l vg.Length) pdf.Unit {
 	return pdf.Unit(l.Points()) * pdf.Pt
 }
 
-// Save saves the Canvas to a PDF file at the
-// given path.  After calling Save, the canvas
-// is considered closed and may no longer
-// be used for additional drawing.
-func (c *Canvas) Save(path string) error {
+// WriterCounter implements the io.Writer interface, and counts
+// the total number of bytes written.
+type writerCounter struct {
+	io.Writer
+	n int64
+}
+
+func (w *writerCounter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	w.n += int64(n)
+	return n, err
+}
+
+// WriteTo writes the Canvas to an io.Writer. 
+// After calling Write, the canvas is closed
+// and may no longer be used for drawing.
+func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	c.page.Close()
-
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	b := bufio.NewWriter(f)
-
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
 	if err := c.doc.Encode(b); err != nil {
-		return err
+		return wc.n, err
 	}
-	return b.Flush()
+	err := b.Flush()
+	return wc.n, err
 }

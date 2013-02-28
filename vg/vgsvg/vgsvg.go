@@ -15,7 +15,6 @@ import (
 	"image/color"
 	"io"
 	"math"
-	"os"
 )
 
 const (
@@ -29,10 +28,11 @@ const (
 )
 
 type Canvas struct {
-	svg *svgo.SVG
-	buf *bytes.Buffer
-	ht  float64
-	stk []context
+	svg  *svgo.SVG
+	w, h vg.Length
+	buf  *bytes.Buffer
+	ht   float64
+	stk  []context
 }
 
 type context struct {
@@ -47,6 +47,8 @@ func New(w, h vg.Length) *Canvas {
 	buf := new(bytes.Buffer)
 	c := &Canvas{
 		svg: svgo.New(buf),
+		w:   w,
+		h:   h,
 		buf: buf,
 		ht:  w.Points(),
 		stk: []context{context{}},
@@ -68,6 +70,10 @@ func New(w, h vg.Length) *Canvas {
 
 	vg.Initialize(c)
 	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 func (c *Canvas) cur() *context {
@@ -269,33 +275,32 @@ func (c *Canvas) DPI() float64 {
 	return dpi
 }
 
-// Save saves the canvas to a file.
-func (c *Canvas) Save(path string) error {
-	f, err := os.Create(path)
+// WriteTo writes the canvas to an io.Writer.
+func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
+	b := bufio.NewWriter(w)
+	n, err := c.buf.WriteTo(b)
 	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	b := bufio.NewWriter(f)
-	_, err = c.buf.WriteTo(b)
-	if err != nil {
-		return err
+		return n, err
 	}
 
-	// Cose the groups and svg in the output buffer
+	// Close the groups and svg in the output buffer
 	// so that the Canvas is not closed and can be
 	// used again if needed.
 	for i := 0; i < c.nEnds(); i++ {
-		_, err = fmt.Fprintln(b, "</g>")
+		m, err := fmt.Fprintln(b, "</g>")
+		n += int64(m)
 		if err != nil {
-			return err
+			return n, err
 		}
 	}
 
-	fmt.Fprintln(b, "</svg>\n")
+	m, err := fmt.Fprintln(b, "</svg>\n")
+	n += int64(m)
+	if err != nil {
+		return n, err
+	}
 
-	return b.Flush()
+	return n, b.Flush()
 }
 
 // nEnds returns the number of group ends

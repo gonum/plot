@@ -12,14 +12,15 @@ import (
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
+	"io"
 	"math"
-	"os"
 	"time"
 )
 
 type Canvas struct {
-	stk []ctx
-	buf *bytes.Buffer
+	stk  []ctx
+	w, h vg.Length
+	buf  *bytes.Buffer
 }
 
 type ctx struct {
@@ -35,8 +36,18 @@ type ctx struct {
 const pr = 5
 
 // New returns a new Canvas.
-func New(w, h vg.Length, title string) *Canvas {
-	c := &Canvas{stk: []ctx{ctx{}}, buf: new(bytes.Buffer)}
+func New(w, h vg.Length) *Canvas {
+	return NewTitle(w, h, "")
+}
+
+// NewTitle returns a new Canvas with the given title string.
+func NewTitle(w, h vg.Length, title string) *Canvas {
+	c := &Canvas{
+		stk: []ctx{ctx{}},
+		w:   w,
+		h:   h,
+		buf: new(bytes.Buffer),
+	}
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
 	c.buf.WriteString("%%Creator code.google.com/p/plotinum/vg/veceps\n")
 	c.buf.WriteString("%%Title: " + title + "\n")
@@ -49,6 +60,10 @@ func New(w, h vg.Length, title string) *Canvas {
 	c.buf.WriteString("\n")
 	vg.Initialize(c)
 	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 // cur returns the top context on the stack.
@@ -172,22 +187,17 @@ func (e *Canvas) DPI() float64 {
 	return 72
 }
 
-// Save saves the plot to the given path.
-func (e *Canvas) Save(path string) error {
-	f, err := os.Create(path)
+// WriteTo writes the canvas to an io.Writer.
+func (e *Canvas) WriteTo(w io.Writer) (int64, error) {
+	b := bufio.NewWriter(w)
+	n, err := e.buf.WriteTo(b)
 	if err != nil {
-		return err
+		return n, err
 	}
-	defer f.Close()
-
-	b := bufio.NewWriter(f)
-	_, err = e.buf.WriteTo(b)
+	m, err := fmt.Fprintln(b, "showpage")
+	n += int64(m)
 	if err != nil {
-		return err
+		return n, err
 	}
-	_, err = fmt.Fprintln(b, "showpage")
-	if err != nil {
-		return err
-	}
-	return b.Flush()
+	return n, b.Flush()
 }

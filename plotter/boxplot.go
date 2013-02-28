@@ -11,22 +11,15 @@ import (
 	"sort"
 )
 
-// BoxPlot implements the Plotter interface, drawing
-// a boxplot to represent the distribution of values.
-type BoxPlot struct {
+// fiveStatPlot contains the shared fields for quartile
+// and box-whisker plots.
+type fiveStatPlot struct {
 	// Values is a copy of the values of the values used to
 	// create this box plot.
 	Values
 
 	// Location is the location of the box along its axis.
 	Location float64
-
-	// Width is the width used to draw the box.
-	Width vg.Length
-
-	// CapWidth is the width of the cap used to top
-	// off a whisker.
-	CapWidth vg.Length
 
 	// Median is the median value of the data.
 	Median float64
@@ -46,9 +39,22 @@ type BoxPlot struct {
 
 	// Outside are the indices of Vs for the outside points.
 	Outside []int
+}
+
+// BoxPlot implements the Plotter interface, drawing
+// a boxplot to represent the distribution of values.
+type BoxPlot struct {
+	fiveStatPlot
+
+	// Width is the width used to draw the box.
+	Width vg.Length
+
+	// CapWidth is the width of the cap used to top
+	// off a whisker.
+	CapWidth vg.Length
 
 	// GlyphStyle is the style of the outside point glyphs.
-	plot.GlyphStyle
+	GlyphStyle plot.GlyphStyle
 
 	// BoxStyle is the line style for the box.
 	BoxStyle plot.LineStyle
@@ -77,9 +83,11 @@ type BoxPlot struct {
 // values that are not outside the fences.
 func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
 	b := new(BoxPlot)
-	b.Location = loc
+	b.fiveStatPlot = newFiveStat(w, loc, values)
+
 	b.Width = w
 	b.CapWidth = 3 * w / 4
+
 	b.GlyphStyle = DefaultGlyphStyle
 	b.BoxStyle = DefaultLineStyle
 	b.MedianStyle = DefaultLineStyle
@@ -88,17 +96,30 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
 		Dashes: []vg.Length{vg.Points(4), vg.Points(2)},
 	}
 
-	b.Values = CopyValues(values)
-	sorted := CopyValues(values)
-	sort.Float64s(sorted)
-	if len(sorted) == 0 {
+	if len(b.Values) == 0 {
 		b.Width = 0
 		b.GlyphStyle.Radius = 0
 		b.BoxStyle.Width = 0
 		b.MedianStyle.Width = 0
 		b.WhiskerStyle.Width = 0
+	}
+
+	return b
+}
+
+func newFiveStat(w vg.Length, loc float64, values Valuer) fiveStatPlot {
+	var b fiveStatPlot
+	b.Location = loc
+
+	b.Values = CopyValues(values)
+	if len(b.Values) == 0 {
 		return b
-	} else if len(sorted) == 1 {
+	}
+
+	sorted := CopyValues(values)
+	sort.Float64s(sorted)
+
+	if len(sorted) == 1 {
 		b.Median = sorted[0]
 		b.Quartile1 = sorted[0]
 		b.Quartile3 = sorted[0]

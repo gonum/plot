@@ -75,10 +75,14 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 	}
 }
 
-// radius returns the radius of a bubble by linearl interpolation.
+// radius returns the radius of a bubble by linear interpolation.
 func (bs *Bubbles) radius(z float64) vg.Length {
-	dist := (z - bs.MinZ) / (bs.MaxZ - bs.MinZ)
-	return vg.Length(dist)*(bs.MaxRadius-bs.MinRadius) + bs.MinRadius
+	rng := bs.MaxRadius - bs.MinRadius
+	if bs.MaxZ == bs.MinZ {
+		return rng/2 + bs.MinRadius
+	}
+	d := (z - bs.MinZ) / (bs.MaxZ - bs.MinZ)
+	return vg.Length(d)*rng + bs.MinRadius
 }
 
 // DataRange implements the DataRange method

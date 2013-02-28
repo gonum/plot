@@ -46,7 +46,9 @@ type Axis struct {
 		// tick marks.
 		Length vg.Length
 
-		// Marker returns the tick marks.
+		// Marker returns the tick marks.  Any tick marks
+		// returned by the Marker function that are not in
+		// range of the axis are not drawn.
 		Marker func(min, max float64) []Tick
 	}
 }
@@ -167,9 +169,11 @@ func (a *horizontalAxis) draw(da DrawArea) {
 
 	if len(marks) > 0 {
 		y += tickLabelHeight(a.Tick.Label, marks)
+	} else {
+		y += a.Width / 2
 	}
 
-	if a.drawTicks() && len(marks) > 0 {
+	if len(marks) > 0 && a.drawTicks() {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := da.X(a.Norm(t.Value))

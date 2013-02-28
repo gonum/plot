@@ -10,13 +10,15 @@ package vgimg
 import (
 	"bufio"
 	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image"
 	"image/color"
 	"image/draw"
+	"image/jpeg"
+	"image/png"
 	"io"
-	"os"
 )
 
 // dpi is the number of dots per inch.
@@ -27,6 +29,7 @@ const dpi = 96
 type Canvas struct {
 	gc    draw2d.GraphicContext
 	img   image.Image
+	w, h  vg.Length
 	color []color.Color
 
 	// width is the current line width.
@@ -36,25 +39,19 @@ type Canvas struct {
 // New returns a new image canvas with
 // the size specified  rounded up to the
 // nearest pixel.
-func New(width, height vg.Length) (*Canvas, error) {
+func New(width, height vg.Length) *Canvas {
 	w := width.Inches() * dpi
 	h := height.Inches() * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
-	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
-	gc := draw2d.NewGraphicContext(img)
-	gc.SetDPI(dpi)
-	gc.Scale(1, -1)
-	gc.Translate(0, -h)
-	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
-	vg.Initialize(c)
-	return c, nil
+
+	return NewImage(img)
 }
 
 // NewImage returns a new image canvas
 // that draws to the given image.  The
 // minimum point of the given image
 // should probably be 0,0.
-func NewImage(img draw.Image) (*Canvas, vg.Length, vg.Length) {
+func NewImage(img draw.Image) *Canvas {
 	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
 	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
 	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
@@ -62,9 +59,19 @@ func NewImage(img draw.Image) (*Canvas, vg.Length, vg.Length) {
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
-	c := &Canvas{gc: gc, img: img, color: []color.Color{color.Black}}
+	c := &Canvas{
+		gc:    gc,
+		img:   img,
+		w:     vg.Inches(w / dpi),
+		h:     vg.Inches(h / dpi),
+		color: []color.Color{color.Black},
+	}
 	vg.Initialize(c)
-	return c, vg.Inches(w / dpi), vg.Inches(h / dpi)
+	return c
+}
+
+func (c *Canvas) Size() (w, h vg.Length) {
+	return c.w, c.h
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
@@ -260,19 +267,66 @@ var (
 	}
 )
 
-// Save saves the Canvas to a file using
-// the given image encoding.
-func (c *Canvas) Save(path string, encode func(io.Writer, image.Image) error) error {
-	f, err := os.Create(path)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+// WriterCounter implements the io.Writer interface, and counts
+// the total number of bytes written.
+type writerCounter struct {
+	io.Writer
+	n int64
+}
 
-	b := bufio.NewWriter(f)
-	err = encode(b, c.img)
-	if err != nil {
-		return err
+func (w *writerCounter) Write(p []byte) (int, error) {
+	n, err := w.Writer.Write(p)
+	w.n += int64(n)
+	return n, err
+}
+
+// A JpegCanvas is an image canvas with a WriteTo method
+// that writes a jpeg image.
+type JpegCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a jpeg image.
+func (c JpegCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := jpeg.Encode(b, c.img, nil); err != nil {
+		return wc.n, err
 	}
-	return b.Flush()
+	err := b.Flush()
+	return wc.n, err
+}
+
+// A PngCanvas is an image canvas with a WriteTo method that
+// writes a png image.
+type PngCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a png image.
+func (c PngCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := png.Encode(b, c.img); err != nil {
+		return wc.n, err
+	}
+	err := b.Flush()
+	return wc.n, err
+}
+
+// A TiffCanvas is an image canvas with a WriteTo method that
+// writes a tiff image.
+type TiffCanvas struct {
+	*Canvas
+}
+
+// WriteTo implements the io.WriterTo interface, writing a tiff image.
+func (c TiffCanvas) WriteTo(w io.Writer) (int64, error) {
+	wc := writerCounter{Writer: w}
+	b := bufio.NewWriter(&wc)
+	if err := tiff.Encode(b, c.img, nil); err != nil {
+		return wc.n, err
+	}
+	err := b.Flush()
+	return wc.n, err
 }

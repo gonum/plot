@@ -17,21 +17,24 @@ import (
 	"math/rand"
 )
 
-var examples = []struct{
-	name string
-	mkplot func()*plot.Plot
-} {
-	{ "example_logo", Example_logo },
-	{ "example_functions", Example_functions },
-	{ "example_boxPlots", Example_boxPlots },
-	{ "example_verticalBoxPlots", Example_verticalBoxPlots },
-	{ "example_horizontalBoxPlots", Example_horizontalBoxPlots },
-	{ "example_points", Example_points },
-	{ "example_errBars", Example_errBars },
-	{ "example_bubbles", Example_bubbles },
-	{ "example_histogram", Example_histogram },
-	{ "example_barChart", Example_barChart },
-	{ "example_stackedBarChart", Example_stackedBarChart },
+var examples = []struct {
+	name   string
+	mkplot func() *plot.Plot
+}{
+	{"example_logo", Example_logo},
+	{"example_functions", Example_functions},
+	{"example_boxPlots", Example_boxPlots},
+	{"example_quartPlots", Example_quartPlots},
+	{"example_verticalBoxPlots", Example_verticalBoxPlots},
+	{"example_verticalQuartPlots", Example_verticalQuartPlots},
+	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
+	{"example_horizontalQuartPlots", Example_horizontalQuartPlots},
+	{"example_points", Example_points},
+	{"example_errBars", Example_errBars},
+	{"example_bubbles", Example_bubbles},
+	{"example_histogram", Example_histogram},
+	{"example_barChart", Example_barChart},
+	{"example_stackedBarChart", Example_stackedBarChart},
 }
 
 func main() {
@@ -45,37 +48,37 @@ func main() {
 	}
 }
 
-func drawEps(name string, mkplot func()*plot.Plot) {
+func drawEps(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
 		panic(err)
 	}
 }
 
-func drawPdf(name string, mkplot func()*plot.Plot) {
+func drawPdf(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
 		panic(err)
 	}
 }
 
-func drawSvg(name string, mkplot func()*plot.Plot) {
+func drawSvg(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
 		panic(err)
 	}
 }
 
-func drawPng(name string, mkplot func()*plot.Plot) {
+func drawPng(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".png"); err != nil {
 		panic(err)
 	}
 }
 
-func drawTiff(name string, mkplot func()*plot.Plot) {
+func drawTiff(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
 		panic(err)
 	}
 }
 
-func drawJpg(name string, mkplot func()*plot.Plot) {
+func drawJpg(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
 		panic(err)
 	}
@@ -184,6 +187,37 @@ func Example_boxPlots() *plot.Plot {
 	return p
 }
 
+// Example_quartPlots draws vertical quartile plots.
+func Example_quartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Quartile Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	p.Add(plotter.NewQuartPlot(0, uniform),
+		plotter.NewQuartPlot(1, normal),
+		plotter.NewQuartPlot(2, expon))
+
+	// Set the X axis of the plot to nominal with
+	// the given names for x=0, x=1 and x=2.
+	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
+		"Exponential\nDistribution")
+	return p
+}
+
 // Example_verticalBoxPlots draws vertical boxplots
 // with some labels on their points.
 func Example_verticalBoxPlots() *plot.Plot {
@@ -222,6 +256,57 @@ func Example_verticalBoxPlots() *plot.Plot {
 	}
 
 	expBox := plotter.NewBoxPlot(vg.Points(20), 2, expon)
+	expLabels, err := expBox.OutsideLabels(expon)
+	if err != nil {
+		panic(err)
+	}
+
+	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
+
+	// Set the X axis of the plot to nominal with
+	// the given names for x=0, x=1 and x=2.
+	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
+		"Exponential\nDistribution")
+	return p
+}
+
+// Example_verticalQuartPlots draws vertical boxplots
+// with some labels on their points.
+func Example_verticalQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(valueLabels, n)
+	normal := make(valueLabels, n)
+	expon := make(valueLabels, n)
+	for i := 0; i < n; i++ {
+		uniform[i].Value = rand.Float64()
+		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
+		normal[i].Value = rand.NormFloat64()
+		normal[i].Label = fmt.Sprintf("%4.4f", normal[i].Value)
+		expon[i].Value = rand.ExpFloat64()
+		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Quart Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	uniBox := plotter.NewQuartPlot(0, uniform)
+	uniLabels, err := uniBox.OutsideLabels(uniform)
+	if err != nil {
+		panic(err)
+	}
+
+	normBox := plotter.NewQuartPlot(1, normal)
+	normLabels, err := normBox.OutsideLabels(normal)
+	if err != nil {
+		panic(err)
+	}
+
+	expBox := plotter.NewQuartPlot(2, expon)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -293,6 +378,60 @@ func Example_horizontalBoxPlots() *plot.Plot {
 	}
 
 	expBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 2, expon)}
+	expLabels, err := expBox.OutsideLabels(expon)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
+
+	// Add a GlyphBox plotter for debugging.
+	p.Add(plotter.NewGlyphBoxes())
+
+	// Set the Y axis of the plot to nominal with
+	// the given names for y=0, y=1 and y=2.
+	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
+		"Exponential\nDistribution")
+	return p
+}
+
+// Example_horizontalQuartPlots draws horizontal quartile plots
+// with some labels on their points.
+func Example_horizontalQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(valueLabels, n)
+	normal := make(valueLabels, n)
+	expon := make(valueLabels, n)
+	for i := 0; i < n; i++ {
+		uniform[i].Value = rand.Float64()
+		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
+		normal[i].Value = rand.NormFloat64()
+		normal[i].Label = fmt.Sprintf("%4.4f", normal[i].Value)
+		expon[i].Value = rand.ExpFloat64()
+		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Horizontal Quartile Plot"
+	p.X.Label.Text = "plotter.Values"
+
+	// Make boxes for our data and add them to the plot.
+	uniBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(0, uniform)}
+	uniLabels, err := uniBox.OutsideLabels(uniform)
+	if err != nil {
+		panic(err)
+	}
+
+	normBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(1, normal)}
+	normLabels, err := normBox.OutsideLabels(normal)
+	if err != nil {
+		panic(err)
+	}
+
+	expBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(2, expon)}
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)

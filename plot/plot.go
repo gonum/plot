@@ -12,23 +12,20 @@
 // of the Plotter interface can be found in the
 // code.google.com/p/plotinum/plotter package
 // which is documented here: 
-// http://go.pkgdoc.org/code.google.com/p/plotinum/plotter
+// http://godoc.org/code.google.com/p/plotinum/plotter
 package plot
 
 import (
-	"code.google.com/p/go.image/tiff"
 	"code.google.com/p/plotinum/vg"
 	"code.google.com/p/plotinum/vg/vgeps"
 	"code.google.com/p/plotinum/vg/vgimg"
 	"code.google.com/p/plotinum/vg/vgpdf"
 	"code.google.com/p/plotinum/vg/vgsvg"
 	"fmt"
-	"image"
 	"image/color"
-	"image/jpeg"
-	"image/png"
 	"io"
 	"math"
+	"os"
 	"path/filepath"
 	"strings"
 )
@@ -176,7 +173,7 @@ func (p *Plot) Draw(da DrawArea) {
 	p.Legend.draw(da.crop(ywidth, 0, 0, 0).crop(0, xheight, 0, 0))
 }
 
-// DataDrawArea returns a new *DrawArea that
+// DataDrawArea returns a new DrawArea that
 // is the subset of the given draw area into which
 // the plot data will be drawn.
 func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
@@ -188,7 +185,7 @@ func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, da.crop(x.size(), y.size(), 0, 0)))
+	return padY(p, padX(p, da.crop(y.size(), x.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
@@ -218,7 +215,7 @@ func padX(p *Plot, da DrawArea) DrawArea {
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
 	return DrawArea{
-		vg.Canvas: vg.Canvas(da),
+		Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{X: n, Y: da.Min.Y},
 			Size: Point{X: m - n, Y: da.Size.Y},
@@ -274,7 +271,7 @@ func padY(p *Plot, da DrawArea) DrawArea {
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
 	return DrawArea{
-		vg.Canvas: vg.Canvas(da),
+		Canvas: vg.Canvas(da),
 		Rect: Rect{
 			Min:  Point{Y: n, X: da.Min.X},
 			Size: Point{Y: m - n, X: da.Size.X},
@@ -391,7 +388,9 @@ func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 // axis—an X axis with names instead of numbers.  The
 // X location corresponding to each name are the integers,
 // e.g., the x value 0 is centered above the first name and
-// 1 is above the second name, etc.
+// 1 is above the second name, etc.  Labels for x values
+// that do not end up in range of the X axis will not have
+// tick marks.
 func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
@@ -424,11 +423,7 @@ func (p *Plot) HideAxes() {
 	p.HideY()
 }
 
-// NominalY configures the plot to have a nominal Y
-// axis—an Y axis with names instead of numbers.  The
-// Y location corresponding to each name are the integers,
-// e.g., the y value 0 is centered above the first name and
-// 1 is above the second name, etc.
+// NominalY is like NominalX, but for the Y axis.
 func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Width = 0
 	p.Y.Tick.Length = 0
@@ -447,51 +442,41 @@ func (p *Plot) NominalY(names ...string) {
 // .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(width, height float64, file string) (err error) {
 	w, h := vg.Inches(width), vg.Inches(height)
-	var c vg.Canvas
+	var c interface {
+		vg.Canvas
+		Size() (w, h vg.Length)
+		io.WriterTo
+	}
 	switch ext := strings.ToLower(filepath.Ext(file)); ext {
 
 	case ".eps":
-		c = vgeps.New(w, h, file)
-		defer c.(*vgeps.Canvas).Save(file)
+		c = vgeps.NewTitle(w, h, file)
 
 	case ".jpg", ".jpeg":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
-		}
-		encode := func(w io.Writer, img image.Image) error {
-			return jpeg.Encode(w, img, nil)
-		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
+		c = vgimg.JpegCanvas{vgimg.New(w, h)}
 
 	case ".pdf":
 		c = vgpdf.New(w, h)
-		defer func() { err = c.(*vgpdf.Canvas).Save(file) }()
 
 	case ".png":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
-		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, png.Encode) }()
+		c = vgimg.PngCanvas{vgimg.New(w, h)}
 
 	case ".svg":
 		c = vgsvg.New(w, h)
-		defer func() { err = c.(*vgsvg.Canvas).Save(file) }()
 
 	case ".tiff":
-		c, err = vgimg.New(w, h)
-		if err != nil {
-			return
-		}
-		encode := func(w io.Writer, img image.Image) error {
-			return tiff.Encode(w, img, nil)
-		}
-		defer func() { err = c.(*vgimg.Canvas).Save(file, encode) }()
+		c = vgimg.TiffCanvas{vgimg.New(w, h)}
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
-	p.Draw(*NewDrawArea(c, w, h))
-	return
+	p.Draw(MakeDrawArea(c))
+
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	_, err = c.WriteTo(f)
+	return err
 }
