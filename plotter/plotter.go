@@ -10,9 +10,9 @@ Plotters use the primitives provided by the plot package to draw to
 the data area of a plot. This package provides some standard data
 styles such as lines, scatter plots, box plots, labels, and more.
 
-All New* functions return an error if the data contains Inf, NaN, or
-is empty. Some of the New* functions return other plotter-specific
-errors too.
+New* functions return an error if the data contains Inf, NaN, or is
+empty. Some of the New* functions return other plotter-specific errors
+too.
 */
 package plotter
 
