@@ -56,19 +56,17 @@ type QuartPlot struct {
 // Outside points.  The adjacent values (to which the
 // whiskers stretch) are the minimum and maximum
 // values that are not outside the fences.
-func NewQuartPlot(loc float64, values Valuer) *QuartPlot {
+func NewQuartPlot(loc float64, values Valuer) (*QuartPlot, error) {
 	b := new(QuartPlot)
-	b.fiveStatPlot = newFiveStat(0, loc, values)
+	var err error
+	if b.fiveStatPlot, err = newFiveStat(0, loc, values); err != nil {
+		return nil, err
+	}
 
 	b.MedianStyle = DefaultQuartMedianStyle
 	b.WhiskerStyle = DefaultQuartWhiskerStyle
 
-	if len(b.Values) == 0 {
-		b.MedianStyle.Radius = 0
-		b.WhiskerStyle.Width = 0
-	}
-
-	return b
+	return b, err
 }
 
 func (b *QuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
@@ -164,8 +162,9 @@ type HorizQuartPlot struct{ *QuartPlot }
 // MakeHorizQuartPlot returns a HorizQuartPlot,
 // plotting the values in a horizontal plot
 // centered along a fixed location of the y axis.
-func MakeHorizQuartPlot(loc float64, vs Values) HorizQuartPlot {
-	return HorizQuartPlot{NewQuartPlot(loc, vs)}
+func MakeHorizQuartPlot(loc float64, vs Valuer) (HorizQuartPlot, error) {
+	q, err := NewQuartPlot(loc, vs)
+	return HorizQuartPlot{q}, err
 }
 
 func (b HorizQuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {

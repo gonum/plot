@@ -18,14 +18,17 @@ type Line struct {
 	plot.LineStyle
 }
 
-// NewLine returns a Line that uses the
-// default line style and does not draw
-// glyphs.
-func NewLine(xys XYer) *Line {
-	return &Line{
-		XYs:       CopyXYs(xys),
-		LineStyle: DefaultLineStyle,
+// NewLine returns a Line that uses the default line style and
+// does not draw glyphs.
+func NewLine(xys XYer) (*Line, error) {
+	data, err := CopyXYs(xys)
+	if err != nil {
+		return nil, err
 	}
+	return &Line{
+		XYs:       data,
+		LineStyle: DefaultLineStyle,
+	}, nil
 }
 
 // Plot draws the Line, implementing the plot.Plotter
@@ -56,11 +59,14 @@ func (pts *Line) Thumbnail(da *plot.DrawArea) {
 
 // NewLinePoints returns both a Line and a
 // Points for the given point data.
-func NewLinePoints(xys XYer) (*Line, *Scatter) {
-	s := NewScatter(xys)
+func NewLinePoints(xys XYer) (*Line, *Scatter, error) {
+	s, err := NewScatter(xys)
+	if err != nil {
+		return nil, nil, err
+	}
 	l := &Line{
 		XYs:       s.XYs,
 		LineStyle: DefaultLineStyle,
 	}
-	return l, s
+	return l, s, nil
 }

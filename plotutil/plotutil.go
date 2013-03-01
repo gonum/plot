@@ -2,9 +2,13 @@
 // Use of this source code is governed by an MIT-style license
 // that can be found in the LICENSE file.
 
-// plotutil contains a small number of utilites for creating plots.
-// This package is under active development so portions of
-// it may change.
+/*
+The plotutil package contains a small number of utilites for creating
+plots.
+
+
+This package is under active development so portions of it may change.
+*/
 package plotutil
 
 import (

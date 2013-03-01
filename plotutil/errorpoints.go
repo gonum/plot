@@ -24,7 +24,7 @@ type ErrorPoints struct {
 // This function can be useful for summarizing sets of
 // scatter points using a single point and error bars for
 // each element of the scatter.
-func NewErrorPoints(f func([]float64) (c, l, h float64), pts ...plotter.XYer) *ErrorPoints {
+func NewErrorPoints(f func([]float64) (c, l, h float64), pts ...plotter.XYer) (*ErrorPoints, error) {
 
 	c := &ErrorPoints{
 		XYs:     make(plotter.XYs, len(pts)),
@@ -37,12 +37,21 @@ func NewErrorPoints(f func([]float64) (c, l, h float64), pts ...plotter.XYer) *E
 		ys := make([]float64, xy.Len())
 		for j := 0; j < xy.Len(); j++ {
 			xs[j], ys[j] = xy.XY(j)
+			if err := plotter.CheckFloats(xs[j], ys[j]); err != nil {
+				return nil, err
+			}
 		}
 		c.XYs[i].X, c.XErrors[i].Low, c.XErrors[i].High = f(xs)
+		if err := plotter.CheckFloats(c.XYs[i].X, c.XErrors[i].Low, c.XErrors[i].High); err != nil {
+			return nil, err
+		}
 		c.XYs[i].Y, c.YErrors[i].Low, c.YErrors[i].High = f(ys)
+		if err := plotter.CheckFloats(c.XYs[i].Y, c.YErrors[i].Low, c.YErrors[i].High); err != nil {
+			return nil, err
+		}
 	}
 
-	return c
+	return c, nil
 }
 
 // MeanAndConf95 returns the mean

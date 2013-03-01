@@ -5,10 +5,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"errors"
 	"math"
 	"sort"
+
+	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 // fiveStatPlot contains the shared fields for quartile
@@ -81,9 +83,16 @@ type BoxPlot struct {
 // Outside points.  The adjacent values (to which the
 // whiskers stretch) are the minimum and maximum
 // values that are not outside the fences.
-func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
+func NewBoxPlot(w vg.Length, loc float64, values Valuer) (*BoxPlot, error) {
+	if w < 0 {
+		return nil, errors.New("Negative boxplot width")
+	}
+
 	b := new(BoxPlot)
-	b.fiveStatPlot = newFiveStat(w, loc, values)
+	var err error
+	if b.fiveStatPlot, err = newFiveStat(w, loc, values); err != nil {
+		return nil, err
+	}
 
 	b.Width = w
 	b.CapWidth = 3 * w / 4
@@ -104,19 +113,20 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) *BoxPlot {
 		b.WhiskerStyle.Width = 0
 	}
 
-	return b
+	return b, nil
 }
 
-func newFiveStat(w vg.Length, loc float64, values Valuer) fiveStatPlot {
+func newFiveStat(w vg.Length, loc float64, values Valuer) (fiveStatPlot, error) {
 	var b fiveStatPlot
 	b.Location = loc
 
-	b.Values = CopyValues(values)
-	if len(b.Values) == 0 {
-		return b
+	var err error
+	if b.Values, err = CopyValues(values); err != nil {
+		return fiveStatPlot{}, err
 	}
 
-	sorted := CopyValues(values)
+	sorted := make(Values, len(b.Values))
+	copy(sorted, b.Values)
 	sort.Float64s(sorted)
 
 	if len(sorted) == 1 {
@@ -148,7 +158,7 @@ func newFiveStat(w vg.Length, loc float64, values Valuer) fiveStatPlot {
 		}
 	}
 
-	return b
+	return b, nil
 }
 
 // median returns the median value from a
@@ -275,8 +285,9 @@ type HorizBoxPlot struct{ *BoxPlot }
 // MakeHorizBoxPlot returns a HorizBoxPlot,
 // plotting the values in a horizontal box plot
 // centered along a fixed location of the y axis.
-func MakeHorizBoxPlot(w vg.Length, loc float64, vs Values) HorizBoxPlot {
-	return HorizBoxPlot{NewBoxPlot(w, loc, vs)}
+func MakeHorizBoxPlot(w vg.Length, loc float64, vs Valuer) (HorizBoxPlot, error) {
+	b, err := NewBoxPlot(w, loc, vs)
+	return HorizBoxPlot{b}, err
 }
 
 func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {

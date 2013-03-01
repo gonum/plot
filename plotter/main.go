@@ -17,24 +17,24 @@ import (
 	"math/rand"
 )
 
-var examples = []struct{
-	name string
-	mkplot func()*plot.Plot
-} {
-	{ "example_logo", Example_logo },
-	{ "example_functions", Example_functions },
-	{ "example_boxPlots", Example_boxPlots },
-	{ "example_quartPlots", Example_quartPlots },
-	{ "example_verticalBoxPlots", Example_verticalBoxPlots },
-	{ "example_verticalQuartPlots", Example_verticalQuartPlots },
-	{ "example_horizontalBoxPlots", Example_horizontalBoxPlots },
-	{ "example_horizontalQuartPlots", Example_horizontalQuartPlots },
-	{ "example_points", Example_points },
-	{ "example_errBars", Example_errBars },
-	{ "example_bubbles", Example_bubbles },
-	{ "example_histogram", Example_histogram },
-	{ "example_barChart", Example_barChart },
-	{ "example_stackedBarChart", Example_stackedBarChart },
+var examples = []struct {
+	name   string
+	mkplot func() *plot.Plot
+}{
+	{"example_logo", Example_logo},
+	{"example_functions", Example_functions},
+	{"example_boxPlots", Example_boxPlots},
+	{"example_quartPlots", Example_quartPlots},
+	{"example_verticalBoxPlots", Example_verticalBoxPlots},
+	{"example_verticalQuartPlots", Example_verticalQuartPlots},
+	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
+	{"example_horizontalQuartPlots", Example_horizontalQuartPlots},
+	{"example_points", Example_points},
+	{"example_errBars", Example_errBars},
+	{"example_bubbles", Example_bubbles},
+	{"example_histogram", Example_histogram},
+	{"example_barChart", Example_barChart},
+	{"example_stackedBarChart", Example_stackedBarChart},
 }
 
 func main() {
@@ -48,37 +48,37 @@ func main() {
 	}
 }
 
-func drawEps(name string, mkplot func()*plot.Plot) {
+func drawEps(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
 		panic(err)
 	}
 }
 
-func drawPdf(name string, mkplot func()*plot.Plot) {
+func drawPdf(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
 		panic(err)
 	}
 }
 
-func drawSvg(name string, mkplot func()*plot.Plot) {
+func drawSvg(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
 		panic(err)
 	}
 }
 
-func drawPng(name string, mkplot func()*plot.Plot) {
+func drawPng(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".png"); err != nil {
 		panic(err)
 	}
 }
 
-func drawTiff(name string, mkplot func()*plot.Plot) {
+func drawTiff(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
 		panic(err)
 	}
 }
 
-func drawJpg(name string, mkplot func()*plot.Plot) {
+func drawJpg(name string, mkplot func() *plot.Plot) {
 	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
 		panic(err)
 	}
@@ -102,18 +102,18 @@ func Example_logo() *plot.Plot {
 	})
 
 	pts := plotter.XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
-	line := plotter.NewLine(pts)
-	scatter := plotter.NewScatter(pts)
+	line := must(plotter.NewLine(pts)).(*plotter.Line)
+	scatter := must(plotter.NewScatter(pts)).(*plotter.Scatter)
 	p.Add(line, scatter)
 
 	pts = plotter.XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
-	line = plotter.NewLine(pts)
-	scatter = plotter.NewScatter(pts)
+	line = must(plotter.NewLine(pts)).(*plotter.Line)
+	scatter = must(plotter.NewScatter(pts)).(*plotter.Scatter)
 	p.Add(line, scatter)
 
 	pts = plotter.XYs{{0.5, 0.5}, {1, 0.5}}
-	line = plotter.NewLine(pts)
-	scatter = plotter.NewScatter(pts)
+	line = must(plotter.NewLine(pts)).(*plotter.Line)
+	scatter = must(plotter.NewScatter(pts)).(*plotter.Scatter)
 	p.Add(line, scatter)
 
 	return p
@@ -176,9 +176,9 @@ func Example_boxPlots() *plot.Plot {
 	p.Y.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	p.Add(plotter.NewBoxPlot(vg.Points(20), 0, uniform),
-		plotter.NewBoxPlot(vg.Points(20), 1, normal),
-		plotter.NewBoxPlot(vg.Points(20), 2, expon))
+	p.Add(must(plotter.NewBoxPlot(vg.Points(20), 0, uniform)).(*plotter.BoxPlot),
+		must(plotter.NewBoxPlot(vg.Points(20), 1, normal)).(*plotter.BoxPlot),
+		must(plotter.NewBoxPlot(vg.Points(20), 2, expon)).(*plotter.BoxPlot))
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -207,9 +207,9 @@ func Example_quartPlots() *plot.Plot {
 	p.Title.Text = "Quartile Plot"
 	p.Y.Label.Text = "plotter.Values"
 
-	p.Add(plotter.NewQuartPlot(0, uniform),
-		plotter.NewQuartPlot(1, normal),
-		plotter.NewQuartPlot(2, expon))
+	p.Add(must(plotter.NewQuartPlot(0, uniform)).(*plotter.QuartPlot),
+		must(plotter.NewQuartPlot(1, normal)).(*plotter.QuartPlot),
+		must(plotter.NewQuartPlot(2, expon)).(*plotter.QuartPlot))
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.
@@ -243,19 +243,19 @@ func Example_verticalBoxPlots() *plot.Plot {
 	p.Y.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := plotter.NewBoxPlot(vg.Points(20), 0, uniform)
+	uniBox := must(plotter.NewBoxPlot(vg.Points(20), 0, uniform)).(*plotter.BoxPlot)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.NewBoxPlot(vg.Points(20), 1, normal)
+	normBox := must(plotter.NewBoxPlot(vg.Points(20), 1, normal)).(*plotter.BoxPlot)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.NewBoxPlot(vg.Points(20), 2, expon)
+	expBox := must(plotter.NewBoxPlot(vg.Points(20), 2, expon)).(*plotter.BoxPlot)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -294,19 +294,19 @@ func Example_verticalQuartPlots() *plot.Plot {
 	p.Title.Text = "Quart Plot"
 	p.Y.Label.Text = "plotter.Values"
 
-	uniBox := plotter.NewQuartPlot(0, uniform)
+	uniBox := must(plotter.NewQuartPlot(0, uniform)).(*plotter.QuartPlot)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.NewQuartPlot(1, normal)
+	normBox := must(plotter.NewQuartPlot(1, normal)).(*plotter.QuartPlot)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.NewQuartPlot(2, expon)
+	expBox := must(plotter.NewQuartPlot(2, expon)).(*plotter.QuartPlot)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -365,19 +365,19 @@ func Example_horizontalBoxPlots() *plot.Plot {
 	p.X.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 0, uniform)}
+	uniBox := must(plotter.MakeHorizBoxPlot(vg.Points(20), 0, uniform)).(plotter.HorizBoxPlot)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 1, normal)}
+	normBox := must(plotter.MakeHorizBoxPlot(vg.Points(20), 1, normal)).(plotter.HorizBoxPlot)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.HorizBoxPlot{plotter.NewBoxPlot(vg.Points(20), 2, expon)}
+	expBox := must(plotter.MakeHorizBoxPlot(vg.Points(20), 2, expon)).(plotter.HorizBoxPlot)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -419,19 +419,19 @@ func Example_horizontalQuartPlots() *plot.Plot {
 	p.X.Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
-	uniBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(0, uniform)}
+	uniBox := must(plotter.MakeHorizQuartPlot(0, uniform)).(plotter.HorizQuartPlot)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
 	if err != nil {
 		panic(err)
 	}
 
-	normBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(1, normal)}
+	normBox := must(plotter.MakeHorizQuartPlot(1, normal)).(plotter.HorizQuartPlot)
 	normLabels, err := normBox.OutsideLabels(normal)
 	if err != nil {
 		panic(err)
 	}
 
-	expBox := plotter.HorizQuartPlot{plotter.NewQuartPlot(2, expon)}
+	expBox := must(plotter.MakeHorizQuartPlot(2, expon)).(plotter.HorizQuartPlot)
 	expLabels, err := expBox.OutsideLabels(expon)
 	if err != nil {
 		panic(err)
@@ -467,16 +467,19 @@ func Example_points() *plot.Plot {
 	p.Y.Label.Text = "Y"
 	p.Add(plotter.NewGrid())
 
-	s := plotter.NewScatter(scatterData)
+	s := must(plotter.NewScatter(scatterData)).(*plotter.Scatter)
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(3)
 
-	l := plotter.NewLine(lineData)
+	l := must(plotter.NewLine(lineData)).(*plotter.Line)
 	l.LineStyle.Width = vg.Points(1)
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	lpLine, lpPoints := plotter.NewLinePoints(linePointsData)
+	lpLine, lpPoints, err := plotter.NewLinePoints(linePointsData)
+	if err != nil {
+		panic(err)
+	}
 	lpLine.Color = color.RGBA{G: 255, A: 255}
 	lpPoints.Shape = plot.CircleGlyph{}
 	lpPoints.Color = color.RGBA{R: 255, A: 255}
@@ -525,9 +528,17 @@ func Example_errBars() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
-	scatter := plotter.NewScatter(data)
+	scatter := must(plotter.NewScatter(data)).(*plotter.Scatter)
 	scatter.Shape = plot.CrossGlyph{}
-	p.Add(scatter, plotter.NewXErrorBars(data), plotter.NewYErrorBars(data))
+	xerrs, err := plotter.NewXErrorBars(data)
+	if err != nil {
+		panic(err)
+	}
+	yerrs, err := plotter.NewYErrorBars(data)
+	if err != nil {
+		panic(err)
+	}
+	p.Add(scatter, xerrs, yerrs)
 	p.Add(plotter.NewGlyphBoxes())
 
 	return p
@@ -630,20 +641,20 @@ func Example_barChart() *plot.Plot {
 
 	w := vg.Points(8)
 
-	barsA := plotter.NewBarChart(groupA, w)
+	barsA := must(plotter.NewBarChart(groupA, w)).(*plotter.BarChart)
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB := plotter.NewBarChart(groupB, w)
+	barsB := must(plotter.NewBarChart(groupB, w)).(*plotter.BarChart)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.Offset = w / 2
 
-	barsC := plotter.NewBarChart(groupC, w)
+	barsC := must(plotter.NewBarChart(groupC, w)).(*plotter.BarChart)
 	barsC.Color = color.RGBA{B: 255, A: 255}
 	barsC.XMin = 6
 	barsC.Offset = -w / 2
 
-	barsD := plotter.NewBarChart(groupD, w)
+	barsD := must(plotter.NewBarChart(groupD, w)).(*plotter.BarChart)
 	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
 	barsD.XMin = 6
 	barsD.Offset = w / 2
@@ -676,19 +687,19 @@ func Example_stackedBarChart() *plot.Plot {
 
 	w := vg.Points(15)
 
-	barsA := plotter.NewBarChart(groupA, w)
+	barsA := must(plotter.NewBarChart(groupA, w)).(*plotter.BarChart)
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB := plotter.NewBarChart(groupB, w)
+	barsB := must(plotter.NewBarChart(groupB, w)).(*plotter.BarChart)
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.StackOn(barsA)
 
-	barsC := plotter.NewBarChart(groupC, w)
+	barsC := must(plotter.NewBarChart(groupC, w)).(*plotter.BarChart)
 	barsC.Color = color.RGBA{B: 255, A: 255}
 	barsC.Offset = w / 2
 
-	barsD := plotter.NewBarChart(groupD, w)
+	barsD := must(plotter.NewBarChart(groupD, w)).(*plotter.BarChart)
 	barsD.Color = color.RGBA{B: 255, R: 255, A: 255}
 	barsD.StackOn(barsC)
 
@@ -701,5 +712,12 @@ func Example_stackedBarChart() *plot.Plot {
 	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
 		"Six", "Seven", "Eight", "Nine", "Ten")
 
+	return p
+}
+
+func must(p plot.Plotter, err error) plot.Plotter {
+	if err != nil {
+		panic(err)
+	}
 	return p
 }
