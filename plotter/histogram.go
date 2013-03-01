@@ -5,10 +5,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
+	"errors"
 	"fmt"
 	"image/color"
 	"math"
+
+	"code.google.com/p/plotinum/plot"
 )
 
 // Histogram implements the Plotter interface,
@@ -39,20 +41,23 @@ type Histogram struct {
 // 
 // If the number of bins is non-positive than
 // a reasonable default is used.
-func NewHistogram(xy XYer, n int) *Histogram {
+func NewHistogram(xy XYer, n int) (*Histogram, error) {
+	if n <= 0 {
+		return nil, errors.New("Histogram with non-positive number of bins")
+	}
 	bins, width := binPoints(xy, n)
 	return &Histogram{
 		Bins:      bins,
 		Width:     width,
 		FillColor: color.Gray{128},
 		LineStyle: DefaultLineStyle,
-	}
+	}, nil
 }
 
 // NewHist returns a new histogram, as in
 // NewHistogram, except that it accepts a Valuer
 // instead of an XYer.
-func NewHist(vs Valuer, n int) *Histogram {
+func NewHist(vs Valuer, n int) (*Histogram, error) {
 	return NewHistogram(unitYs{vs}, n)
 }
 

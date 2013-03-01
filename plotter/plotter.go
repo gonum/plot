@@ -199,12 +199,15 @@ func (xyz XYZs) XYZ(i int) (float64, float64, float64) {
 }
 
 // CopyXYZs copies an XYZer.
-func CopyXYZs(data XYZer) XYZs {
+func CopyXYZs(data XYZer) (XYZs, error) {
 	cpy := make(XYZs, data.Len())
 	for i := range cpy {
 		cpy[i].X, cpy[i].Y, cpy[i].Z = data.XYZ(i)
+		if err := CheckFloats(cpy[i].X, cpy[i].Y, cpy[i].Z); err != nil {
+			return nil, err
+		}
 	}
-	return cpy
+	return cpy, nil
 }
 
 // XYValues implements the XYer interface, returning

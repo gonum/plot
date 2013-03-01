@@ -5,10 +5,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"errors"
 	"image/color"
 	"math"
+
+	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 // Bubbles implements the Plotter interface, drawing
@@ -34,8 +36,14 @@ type Bubbles struct {
 // NewBubbles creates as new bubble plot plotter for
 // the given data, with a minimum and maximum
 // bubble radius.
-func NewBubbles(xyz XYZer, min, max vg.Length) *Bubbles {
-	cpy := CopyXYZs(xyz)
+func NewBubbles(xyz XYZer, min, max vg.Length) (*Bubbles, error) {
+	cpy, err := CopyXYZs(xyz)
+	if err != nil {
+		return nil, err
+	}
+	if min > max {
+		return nil, errors.New("Min bubble radius is greater than the max radius")
+	}
 	minz := cpy[0].Z
 	maxz := cpy[0].Z
 	for _, d := range cpy {
@@ -48,7 +56,7 @@ func NewBubbles(xyz XYZer, min, max vg.Length) *Bubbles {
 		MaxRadius: max,
 		MinZ:      minz,
 		MaxZ:      maxz,
-	}
+	}, nil
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.

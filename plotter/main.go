@@ -566,7 +566,10 @@ func Example_bubbles() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	bs := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	bs, err := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	if err != nil {
+		panic(err)
+	}
 	bs.Color = color.RGBA{R: 196, B: 128, A: 255}
 	p.Add(bs)
 
@@ -603,7 +606,10 @@ func Example_histogram() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h := plotter.NewHist(vals, 16)
+	h, err := plotter.NewHist(vals, 16)
+	if err != nil {
+		panic(err)
+	}
 	h.Normalize(1)
 	p.Add(h)
 
