@@ -294,7 +294,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 		}
 	}
 
-	m, err := fmt.Fprintln(b, "</svg>\n")
+	m, err := fmt.Fprintln(b, "</svg>")
 	n += int64(m)
 	if err != nil {
 		return n, err

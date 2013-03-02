@@ -68,7 +68,7 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 	for _, d := range bs.XYZs {
 		x := trX(d.X)
 		y := trY(d.Y)
-		if !da.Contains(plot.Point{x, y}) {
+		if !da.Contains(plot.Pt(x, y)) {
 			continue
 		}
 
@@ -108,8 +108,8 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		boxes[i].Y = plt.Y.Norm(d.Y)
 		r := bs.radius(d.Z)
 		boxes[i].Rect = plot.Rect{
-			Min:  plot.Point{-r, -r},
-			Size: plot.Point{2 * r, 2 * r},
+			Min:  plot.Pt(-r, -r),
+			Size: plot.Pt(2*r, 2*r),
 		}
 	}
 	return boxes

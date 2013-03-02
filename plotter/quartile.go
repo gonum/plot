@@ -76,7 +76,7 @@ func (b *QuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 		return
 	}
 
-	med := plot.Point{x, trY(b.Median)}
+	med := plot.Pt(x, trY(b.Median))
 	q1 := trY(b.Quartile1)
 	q3 := trY(b.Quartile3)
 	aLow := trY(b.AdjLow)
@@ -90,7 +90,7 @@ func (b *QuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
-		da.DrawGlyph(ostyle, plot.Point{x, y})
+		da.DrawGlyph(ostyle, plot.Pt(x, y))
 	}
 }
 
@@ -174,7 +174,7 @@ func (b HorizQuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 		return
 	}
 
-	med := plot.Point{trX(b.Median), y}
+	med := plot.Pt(trX(b.Median), y)
 	q1 := trX(b.Quartile1)
 	q3 := trX(b.Quartile3)
 	aLow := trX(b.AdjLow)
@@ -188,7 +188,7 @@ func (b HorizQuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
-		da.DrawGlyph(ostyle, plot.Point{x, y})
+		da.DrawGlyph(ostyle, plot.Pt(x, y))
 	}
 }
 

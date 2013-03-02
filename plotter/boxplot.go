@@ -212,7 +212,7 @@ func (b *BoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
-		da.DrawGlyph(b.GlyphStyle, plot.Point{x, y})
+		da.DrawGlyph(b.GlyphStyle, plot.Pt(x, y))
 	}
 }
 
@@ -327,7 +327,7 @@ func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
-		da.DrawGlyph(b.GlyphStyle, plot.Point{x, y})
+		da.DrawGlyph(b.GlyphStyle, plot.Pt(x, y))
 	}
 }
 

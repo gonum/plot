@@ -84,7 +84,7 @@ func (h *Histogram) Plot(da plot.DrawArea, p *plot.Plot) {
 		if h.FillColor != nil {
 			da.FillPolygon(h.FillColor, da.ClipPolygonXY(pts))
 		}
-		pts = append(pts, plot.Point{trX(bin.Min), trY(0)})
+		pts = append(pts, plot.Pt(trX(bin.Min), trY(0)))
 		da.StrokeLines(h.LineStyle, da.ClipLinesXY(pts)...)
 	}
 }
