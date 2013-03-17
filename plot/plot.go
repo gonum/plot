@@ -329,9 +329,9 @@ func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
 //
 // When computing padding, the plot ignores
 // GlyphBoxes as follows:
-// - If the Size.X > 0 and the X value is not in range
+// If the Size.X > 0 and the X value is not in range
 // of the X axis then the box is ignored.
-// - If Size.Y > 0 and the Y value is not in range of
+// If Size.Y > 0 and the Y value is not in range of
 // the Y axis then the box is ignored.
 //
 // Also, GlyphBoxes with Size.X <= 0 are ignored
