@@ -519,9 +519,9 @@ func Example_errBars() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 15
 	data := errPoints{
-		plotter.XYs:     randomPoints(n),
-		plotter.YErrors: plotter.YErrors(randomError(n)),
-		plotter.XErrors: plotter.XErrors(randomError(n)),
+		XYs:     randomPoints(n),
+		YErrors: plotter.YErrors(randomError(n)),
+		XErrors: plotter.XErrors(randomError(n)),
 	}
 
 	p, err := plot.New()
