@@ -20,13 +20,18 @@ import (
 var examples = []struct {
 	name   string
 	mkplot func() *plot.Plot
-}{	
+}{
+/*
 	{"example_logo", Example_logo},
 	{"example_functions", Example_functions},
 	{"example_boxPlots", Example_boxPlots},
 	{"example_groupedBoxPlots", Example_groupedBoxPlots},
 	{"example_groupedHorizontalBoxPlots", Example_groupedHorizontalBoxPlots},
 	{"example_quartPlots", Example_quartPlots},
+	{"example_groupedQuartPlots", Example_groupedQuartPlots},
+*/
+	{"example_groupedHorizontalQuartPlots", Example_groupedHorizontalQuartPlots},
+/*
 	{"example_verticalBoxPlots", Example_verticalBoxPlots},
 	{"example_verticalQuartPlots", Example_verticalQuartPlots},
 	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
@@ -37,6 +42,7 @@ var examples = []struct {
 	{"example_histogram", Example_histogram},
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
+*/
 }
 
 func main() {
@@ -286,6 +292,74 @@ func Example_quartPlots() *plot.Plot {
 	// the given names for x=0, x=1 and x=2.
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
+	return p
+}
+
+func Example_groupedQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(10)
+	for x := 0.0; x < 3.0; x++ {
+		b0 := must(plotter.NewQuartPlot(x, uniform)).(*plotter.QuartPlot)
+		b0.Offset = -w
+		b1 := must(plotter.NewQuartPlot(x, normal)).(*plotter.QuartPlot)
+		b2 := must(plotter.NewQuartPlot(x, expon)).(*plotter.QuartPlot)
+		b2.Offset = w
+		p.Add(b0, b1, b2)
+	}
+	p.Add(plotter.NewGlyphBoxes())
+
+	p.NominalX("Group 0", "Group 1", "Group 2")
+	return p
+}
+
+func Example_groupedHorizontalQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(10)
+	for x := 0.0; x < 3.0; x++ {
+		b0 := must(plotter.MakeHorizQuartPlot(x, uniform)).(plotter.HorizQuartPlot)
+		b0.Offset = -w
+		b1 := must(plotter.MakeHorizQuartPlot(x, normal)).(plotter.HorizQuartPlot)
+		b2 := must(plotter.MakeHorizQuartPlot(x, expon)).(plotter.HorizQuartPlot)
+		b2.Offset = w
+		p.Add(b0, b1, b2)
+	}
+	p.Add(plotter.NewGlyphBoxes())
+
+	p.NominalY("Group 0", "Group 1", "Group 2")
 	return p
 }
 
