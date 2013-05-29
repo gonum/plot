@@ -71,6 +71,16 @@ func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
 	sty.Shape.DrawGlyph(da, sty, pt)
 }
 
+// DrawGlyphNoClip draws the given glyph to the draw
+// area.  If the sty.Shape is nil then nothing is drawn.
+func (da *DrawArea) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
+	if sty.Shape == nil {
+		return
+	}
+	da.SetColor(sty.Color)
+	sty.Shape.DrawGlyph(da, sty, pt)
+}
+
 // Rect returns the rectangle surrounding this glyph,
 // assuming that it is drawn centered at 0,0
 func (g GlyphStyle) Rect() Rect {
