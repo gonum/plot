@@ -48,6 +48,11 @@ type fiveStatPlot struct {
 type BoxPlot struct {
 	fiveStatPlot
 
+	// Offset is added to the x location of each box.
+	// When the Offset is zero, the boxes are drawn
+	// centered at their x location.
+	Offset vg.Length
+
 	// Width is the width used to draw the box.
 	Width vg.Length
 
@@ -181,6 +186,7 @@ func (b *BoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	if !da.ContainsX(x) {
 		return
 	}
+	x += b.Offset
 
 	med := trY(b.Median)
 	q1 := trY(b.Quartile1)
@@ -236,7 +242,7 @@ func (b *BoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
 	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{X: -(b.Width/2 + b.BoxStyle.Width/2)},
+		Min:  plot.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
 		Size: plot.Point{X: b.Width + b.BoxStyle.Width},
 	}
 	return bs
@@ -296,6 +302,7 @@ func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	if !da.ContainsY(y) {
 		return
 	}
+	y += b.Offset
 
 	med := trX(b.Median)
 	q1 := trX(b.Quartile1)
@@ -351,7 +358,7 @@ func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
 	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{Y: -(b.Width/2 + b.BoxStyle.Width/2)},
+		Min:  plot.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
 		Size: plot.Point{Y: b.Width + b.BoxStyle.Width},
 	}
 	return bs
