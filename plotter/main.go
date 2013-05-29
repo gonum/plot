@@ -21,7 +21,6 @@ var examples = []struct {
 	name   string
 	mkplot func() *plot.Plot
 }{
-/*
 	{"example_logo", Example_logo},
 	{"example_functions", Example_functions},
 	{"example_boxPlots", Example_boxPlots},
@@ -29,9 +28,7 @@ var examples = []struct {
 	{"example_groupedHorizontalBoxPlots", Example_groupedHorizontalBoxPlots},
 	{"example_quartPlots", Example_quartPlots},
 	{"example_groupedQuartPlots", Example_groupedQuartPlots},
-*/
 	{"example_groupedHorizontalQuartPlots", Example_groupedHorizontalQuartPlots},
-/*
 	{"example_verticalBoxPlots", Example_verticalBoxPlots},
 	{"example_verticalQuartPlots", Example_verticalQuartPlots},
 	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
@@ -42,7 +39,6 @@ var examples = []struct {
 	{"example_histogram", Example_histogram},
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
-*/
 }
 
 func main() {
