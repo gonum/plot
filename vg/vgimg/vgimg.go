@@ -161,37 +161,20 @@ func (c *Canvas) DPI() float64 {
 
 func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 	c.gc.Save()
-	c.gc.Translate(x.Dots(c), (y + font.Extents().Ascent).Dots(c))
-	c.gc.Scale(1, -1)
-	c.gc.DrawImage(c.textImage(font, str))
-	c.gc.Restore()
-}
+	defer c.gc.Restore()
 
-func (c *Canvas) textImage(font vg.Font, str string) *image.RGBA {
-	w := font.Width(str).Dots(c)
-	h := font.Extents().Height.Dots(c)
-	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
-	gc := draw2d.NewGraphicContext(img)
-
-	gc.SetDPI(int(c.DPI()))
-	gc.SetFillColor(c.color[len(c.color)-1])
-	gc.SetStrokeColor(c.color[len(c.color)-1])
 	data, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
 	}
-
 	if !registeredFont[font.Name()] {
 		draw2d.RegisterFont(data, font.Font())
 		registeredFont[font.Name()] = true
 	}
-
-	gc.SetFontData(data)
-	gc.SetFontSize(font.Size.Points())
-	gc.MoveTo(0, h+font.Extents().Descent.Dots(c))
-	gc.FillString(str)
-
-	return img
+	c.gc.SetFontData(data)
+	c.gc.Translate(x.Dots(c), y.Dots(c))
+	c.gc.Scale(1, -1)
+	c.gc.FillString(str)
 }
 
 var (
