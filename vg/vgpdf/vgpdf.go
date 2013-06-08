@@ -139,7 +139,13 @@ func arc(p *pdf.Path, comp vg.PathComp) {
 		sign = -1.0
 	}
 	left := math.Abs(comp.Angle)
-	for left > 0 {
+
+	// Square root of the machine epsilon for IEEE 64-bit floating
+	// point values.  This is the equality threshold recommended
+	// in Numerical Recipes, if I recall correctly—it's small enough.
+	const epsilon = 1.4901161193847656e-08
+
+	for left > epsilon {
 		a2 := a1 + sign*math.Min(math.Pi/2, left)
 		partialArc(p, comp.X, comp.Y, comp.Radius, a1, a2)
 		left -= math.Abs(a2 - a1)
