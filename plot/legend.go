@@ -26,7 +26,7 @@ type Legend struct {
 	// Top and Left specify the location of the legend.
 	// If Top is true the legend is located along the top
 	// edge of the plot, otherwise it is located along
-	// the bottom edge.  If Left is true then the legend	
+	// the bottom edge.  If Left is true then the legend
 	// is located along the left edge of the plot, and the
 	// text is positioned after the icons, otherwise it is
 	// located along the right edge and the text is
@@ -48,7 +48,7 @@ type Legend struct {
 // A legendEntry represents a single line of a legend, it
 // has a name and an icon.
 type legendEntry struct {
-	// text is the text associated with this entry. 
+	// text is the text associated with this entry.
 	text string
 
 	// thumbs is a slice of all of the thumbnails styles

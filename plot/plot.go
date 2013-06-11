@@ -11,7 +11,7 @@
 // made available by this package.  Some standard implementations
 // of the Plotter interface can be found in the
 // code.google.com/p/plotinum/plotter package
-// which is documented here: 
+// which is documented here:
 // http://godoc.org/code.google.com/p/plotinum/plotter
 package plot
 
