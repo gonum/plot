@@ -134,7 +134,8 @@ func (c *Canvas) Stroke(path vg.Path) {
 
 func (c *Canvas) Fill(path vg.Path) {
 	c.svg.Path(c.pathData(path),
-		style(elm("fill", "#000000", colorString(c.cur().color))))
+		style(elm("fill", "#000000", colorString(c.cur().color)),
+			elm("fill-opacity", "1", opacityString(c.cur().color))))
 }
 
 func (c *Canvas) pathData(path vg.Path) string {
