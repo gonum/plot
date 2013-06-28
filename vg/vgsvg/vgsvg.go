@@ -362,21 +362,18 @@ func dashArrayString(c *Canvas) string {
 	return str
 }
 
-// colorString returns the hexadecimal string
-// representation of the coloro.
+// colorString returns the hexadecimal string representation of the color
 func colorString(clr color.Color) string {
 	if clr == nil {
 		clr = color.Black
 	}
-	r, g, b, _ := clr.RGBA()
-	return fmt.Sprintf("#%02X%02X%02X",
-		int(float64(r)/math.MaxUint16*255),
-		int(float64(g)/math.MaxUint16*255),
-		int(float64(b)/math.MaxUint16*255))
+	r, g, b, _a := clr.RGBA()
+	a := 255.0 / float64(_a)
+	return fmt.Sprintf("#%02X%02X%02X", int(float64(r)*a),
+		int(float64(g)*a), int(float64(b)*a))
 }
 
-// opacityString returns the opacity value of
-// the given color.
+// opacityString returns the opacity value of the given color.
 func opacityString(clr color.Color) string {
 	if clr == nil {
 		clr = color.Black
