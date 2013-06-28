@@ -214,7 +214,7 @@ func (w *writerCounter) Write(p []byte) (int, error) {
 	return n, err
 }
 
-// WriteTo writes the Canvas to an io.Writer. 
+// WriteTo writes the Canvas to an io.Writer.
 // After calling Write, the canvas is closed
 // and may no longer be used for drawing.
 func (c *Canvas) WriteTo(w io.Writer) (int64, error) {

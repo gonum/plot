@@ -50,7 +50,7 @@ type Labels struct {
 func NewLabels(d interface {
 	XYer
 	Labeller
-},) (*Labels, error) {
+}) (*Labels, error) {
 	xys, err := CopyXYs(d)
 	if err != nil {
 		return nil, err

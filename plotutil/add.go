@@ -189,7 +189,7 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
 // AddErrorBars adds XErrorBars and YErrorBars
 // to a plot.  The variadic arguments must be
 // of type plotter.XYer, and must be either a
-// plotter.XErrorer, plotter.YErrorer, or both. 
+// plotter.XErrorer, plotter.YErrorer, or both.
 // Each errorer is added to the plot the color from
 // the Colors function corresponding to its position
 // in the argument list.
@@ -238,7 +238,7 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) error {
 
 // AddXErrorBars adds XErrorBars to a plot.
 // The variadic arguments must be
-// of type plotter.XYer, and plotter.XErrorer. 
+// of type plotter.XYer, and plotter.XErrorer.
 // Each errorer is added to the plot the color from
 // the Colors function corresponding to its position
 // in the argument list.
@@ -248,7 +248,7 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) error {
 func AddXErrorBars(plt *plot.Plot, es ...interface {
 	plotter.XYer
 	plotter.XErrorer
-},) error {
+}) error {
 	var ps []plot.Plotter
 	for i, e := range es {
 		bars, err := plotter.NewXErrorBars(e)
@@ -274,7 +274,7 @@ func AddXErrorBars(plt *plot.Plot, es ...interface {
 func AddYErrorBars(plt *plot.Plot, es ...interface {
 	plotter.XYer
 	plotter.YErrorer
-},) error {
+}) error {
 	var ps []plot.Plotter
 	for i, e := range es {
 		bars, err := plotter.NewYErrorBars(e)

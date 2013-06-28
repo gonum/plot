@@ -33,7 +33,7 @@ type YErrorBars struct {
 func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
-},) (*YErrorBars, error) {
+}) (*YErrorBars, error) {
 
 	errors := make(YErrors, yerrs.Len())
 	for i := range errors {
@@ -136,7 +136,7 @@ type XErrorBars struct {
 func NewXErrorBars(xerrs interface {
 	XYer
 	XErrorer
-},) (*XErrorBars, error) {
+}) (*XErrorBars, error) {
 
 	errors := make(XErrors, xerrs.Len())
 	for i := range errors {

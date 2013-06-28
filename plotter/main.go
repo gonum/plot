@@ -214,10 +214,10 @@ func Example_groupedBoxPlots() *plot.Plot {
 	w := vg.Points(20)
 	for x := 0.0; x < 3.0; x++ {
 		b0 := must(plotter.NewBoxPlot(w, x, uniform)).(*plotter.BoxPlot)
-		b0.Offset = -w-vg.Points(3)
+		b0.Offset = -w - vg.Points(3)
 		b1 := must(plotter.NewBoxPlot(w, x, normal)).(*plotter.BoxPlot)
 		b2 := must(plotter.NewBoxPlot(w, x, expon)).(*plotter.BoxPlot)
-		b2.Offset = w+vg.Points(3)
+		b2.Offset = w + vg.Points(3)
 		p.Add(b0, b1, b2)
 	}
 
@@ -250,10 +250,10 @@ func Example_groupedHorizontalBoxPlots() *plot.Plot {
 	w := vg.Points(20)
 	for y := 0.0; y < 3.0; y++ {
 		b0 := must(plotter.MakeHorizBoxPlot(w, y, uniform)).(plotter.HorizBoxPlot)
-		b0.Offset = -w-vg.Points(3)
+		b0.Offset = -w - vg.Points(3)
 		b1 := must(plotter.MakeHorizBoxPlot(w, y, normal)).(plotter.HorizBoxPlot)
 		b2 := must(plotter.MakeHorizBoxPlot(w, y, expon)).(plotter.HorizBoxPlot)
-		b2.Offset = w+vg.Points(3)
+		b2.Offset = w + vg.Points(3)
 		p.Add(b0, b1, b2)
 	}
 	p.NominalY("Group 0", "Group 1", "Group 2")

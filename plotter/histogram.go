@@ -38,7 +38,7 @@ type Histogram struct {
 //
 // Each y value is assumed to be the frequency
 // count for the corresponding x.
-// 
+//
 // If the number of bins is non-positive than
 // a reasonable default is used.
 func NewHistogram(xy XYer, n int) (*Histogram, error) {
