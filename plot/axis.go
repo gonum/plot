@@ -292,6 +292,9 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 // it returns a resonable default set of tick marks.
 func DefaultTicks(min, max float64) (ticks []Tick) {
 	const SuggestedTicks = 3
+	if max < min {
+		panic("illegal range")
+	}
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
 	n := (max - min) / tens
 	for n < SuggestedTicks {
