@@ -315,6 +315,9 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 		if val >= min && val <= max {
 			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", float32(val))})
 		}
+		if math.Nextafter(val, val+majorDelta) == val {
+			break
+		}
 		val += majorDelta
 	}
 
@@ -336,6 +339,9 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 		}
 		if val >= min && val <= max && !found {
 			ticks = append(ticks, Tick{Value: val})
+		}
+		if math.Nextafter(val, val+minorDelta) == val {
+			break
 		}
 		val += minorDelta
 	}
