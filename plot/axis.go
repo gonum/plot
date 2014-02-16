@@ -51,6 +51,11 @@ type Axis struct {
 		// range of the axis are not drawn.
 		Marker func(min, max float64) []Tick
 	}
+
+	// Scale transforms a value given in the data coordinate system
+	// to the normalized coordinate system of the axis—its distance
+	// along the axis as a fraction of the axis range.
+	Scale func(min, max, x float64) float64
 }
 
 // makeAxis returns a default Axis.
@@ -76,6 +81,7 @@ func makeAxis() (Axis, error) {
 			Width: vg.Points(0.5),
 		},
 		Padding: vg.Points(5),
+		Scale:   LinearScale,
 	}
 	a.Label.TextStyle = TextStyle{
 		Color: color.Black,
@@ -113,12 +119,26 @@ func (a *Axis) sanitizeRange() {
 	}
 }
 
-// Norm return the value of x, given in the data coordinate
+// LinearScale is a scale function for a standard linear axis.
+func LinearScale(min, max, x float64) float64 {
+	return (x - min) / (max - min)
+}
+
+// LocScale is a scale function for a log-scale axis.
+func LogScale(min, max, x float64) float64 {
+	logMin := 0.0
+	if min > 0 {
+		logMin = math.Log(min)
+	}
+	return (math.Log(x) - logMin) / (math.Log(max) - logMin)
+}
+
+// Norm returns the value of x, given in the data coordinate
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
 func (a *Axis) Norm(x float64) float64 {
-	return (x - a.Min) / (a.Max - a.Min)
+	return a.Scale(a.Min, a.Max, x)
 }
 
 // drawTicks returns true if the tick marks should be drawn.
