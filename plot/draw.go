@@ -71,6 +71,16 @@ func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
 	sty.Shape.DrawGlyph(da, sty, pt)
 }
 
+// DrawGlyphNoClip draws the given glyph to the draw
+// area.  If the sty.Shape is nil then nothing is drawn.
+func (da *DrawArea) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
+	if sty.Shape == nil {
+		return
+	}
+	da.SetColor(sty.Color)
+	sty.Shape.DrawGlyph(da, sty, pt)
+}
+
 // Rect returns the rectangle surrounding this glyph,
 // assuming that it is drawn centered at 0,0
 func (g GlyphStyle) Rect() Rect {
@@ -94,7 +104,7 @@ type RingGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (RingGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	var p vg.Path
 	p.Move(pt.X+sty.Radius, pt.Y)
 	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
@@ -113,7 +123,7 @@ type SquareGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
 	p.Move(pt.X-x, pt.Y-x)
@@ -144,7 +154,7 @@ type TriangleGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (TriangleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
@@ -173,7 +183,7 @@ type PlusGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (PlusGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
@@ -190,7 +200,7 @@ type CrossGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
 func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.setLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius * cosπover4
 	var p vg.Path
 	p.Move(pt.X-r, pt.Y-r)
@@ -207,7 +217,7 @@ func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 func MakeDrawArea(c interface {
 	vg.Canvas
 	Size() (vg.Length, vg.Length)
-},) DrawArea {
+}) DrawArea {
 	w, h := c.Size()
 	return MakeDrawAreaSize(c, w, h)
 }
@@ -282,8 +292,8 @@ func (da DrawArea) crop(minx, miny, maxx, maxy vg.Length) DrawArea {
 	}
 }
 
-// setLineStyle sets the current line style
-func (da *DrawArea) setLineStyle(sty LineStyle) {
+// SetLineStyle sets the current line style
+func (da *DrawArea) SetLineStyle(sty LineStyle) {
 	da.SetColor(sty.Color)
 	da.SetLineWidth(sty.Width)
 	var dashDots []vg.Length
@@ -300,7 +310,7 @@ func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
 		return
 	}
 
-	da.setLineStyle(sty)
+	da.SetLineStyle(sty)
 
 	for _, l := range lines {
 		if len(l) == 0 {
@@ -585,6 +595,11 @@ func (r Rect) Max() Point {
 // data, see the XYer interface.
 type Point struct {
 	X, Y vg.Length
+}
+
+// Pt returns a point from x, y coordinates.
+func Pt(x, y vg.Length) Point {
+	return Point{X: x, Y: y}
 }
 
 // dot returns the dot product of two points.

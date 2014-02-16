@@ -111,7 +111,7 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 		poly := da.ClipPolygonY(pts)
 		da.FillPolygon(b.Color, poly)
 
-		pts = append(pts, plot.Point{xmin, ymin})
+		pts = append(pts, plot.Pt(xmin, ymin))
 		outline := da.ClipLinesY(pts)
 		da.StrokeLines(b.LineStyle, outline...)
 	}
@@ -157,7 +157,7 @@ func (b *BarChart) Thumbnail(da *plot.DrawArea) {
 	poly := da.ClipPolygonY(pts)
 	da.FillPolygon(b.Color, poly)
 
-	pts = append(pts, plot.Point{da.Min.X, da.Min.Y})
+	pts = append(pts, plot.Pt(da.Min.X, da.Min.Y))
 	outline := da.ClipLinesY(pts)
 	da.StrokeLines(b.LineStyle, outline...)
 }

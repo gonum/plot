@@ -11,7 +11,7 @@
 // made available by this package.  Some standard implementations
 // of the Plotter interface can be found in the
 // code.google.com/p/plotinum/plotter package
-// which is documented here: 
+// which is documented here:
 // http://godoc.org/code.google.com/p/plotinum/plotter
 package plot
 
@@ -329,9 +329,9 @@ func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
 //
 // When computing padding, the plot ignores
 // GlyphBoxes as follows:
-// - If the Size.X > 0 and the X value is not in range
+// If the Size.X > 0 and the X value is not in range
 // of the X axis then the box is ignored.
-// - If Size.Y > 0 and the Y value is not in range of
+// If Size.Y > 0 and the Y value is not in range of
 // the Y axis then the box is ignored.
 //
 // Also, GlyphBoxes with Size.X <= 0 are ignored
@@ -453,19 +453,19 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 		c = vgeps.NewTitle(w, h, file)
 
 	case ".jpg", ".jpeg":
-		c = vgimg.JpegCanvas{vgimg.New(w, h)}
+		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
 
 	case ".pdf":
 		c = vgpdf.New(w, h)
 
 	case ".png":
-		c = vgimg.PngCanvas{vgimg.New(w, h)}
+		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
 
 	case ".svg":
 		c = vgsvg.New(w, h)
 
 	case ".tiff":
-		c = vgimg.TiffCanvas{vgimg.New(w, h)}
+		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)

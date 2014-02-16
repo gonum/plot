@@ -36,6 +36,11 @@ var (
 type QuartPlot struct {
 	fiveStatPlot
 
+	// Offset is added to the x location of each plot.
+	// When the Offset is zero, the plot is drawn
+	// centered at its x location.
+	Offset vg.Length
+
 	// MedianStyle is the line style for the median point.
 	MedianStyle plot.GlyphStyle
 
@@ -75,22 +80,27 @@ func (b *QuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	if !da.ContainsX(x) {
 		return
 	}
+	x += b.Offset
 
-	med := plot.Point{x, trY(b.Median)}
+	med := plot.Pt(x, trY(b.Median))
 	q1 := trY(b.Quartile1)
 	q3 := trY(b.Quartile3)
 	aLow := trY(b.AdjLow)
 	aHigh := trY(b.AdjHigh)
 
 	da.StrokeLine2(b.WhiskerStyle, x, aHigh, x, q3)
-	da.DrawGlyph(b.MedianStyle, med)
+	if da.ContainsY(med.Y) {
+		da.DrawGlyphNoClip(b.MedianStyle, med)
+	}
 	da.StrokeLine2(b.WhiskerStyle, x, aLow, x, q1)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
-		da.DrawGlyph(ostyle, plot.Point{x, y})
+		if da.ContainsY(y) {
+			da.DrawGlyphNoClip(ostyle, plot.Pt(x, y))
+		}
 	}
 }
 
@@ -112,10 +122,12 @@ func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		bs[i].X = plt.X.Norm(b.Location)
 		bs[i].Y = plt.Y.Norm(b.Value(out))
 		bs[i].Rect = ostyle.Rect()
+		bs[i].Rect.Min.X += b.Offset
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
 	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
+	bs[len(bs)-1].Rect.Min.X += b.Offset
 	return bs
 }
 
@@ -173,22 +185,27 @@ func (b HorizQuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	if !da.ContainsY(y) {
 		return
 	}
+	y += b.Offset
 
-	med := plot.Point{trX(b.Median), y}
+	med := plot.Pt(trX(b.Median), y)
 	q1 := trX(b.Quartile1)
 	q3 := trX(b.Quartile3)
 	aLow := trX(b.AdjLow)
 	aHigh := trX(b.AdjHigh)
 
 	da.StrokeLine2(b.WhiskerStyle, aHigh, y, q3, y)
-	da.DrawGlyph(b.MedianStyle, med)
+	if da.ContainsX(med.X) {
+		da.DrawGlyphNoClip(b.MedianStyle, med)
+	}
 	da.StrokeLine2(b.WhiskerStyle, aLow, y, q1, y)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
-		da.DrawGlyph(ostyle, plot.Point{x, y})
+		if da.ContainsX(x) {
+			da.DrawGlyphNoClip(ostyle, plot.Pt(x, y))
+		}
 	}
 }
 
@@ -210,10 +227,12 @@ func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		bs[i].X = plt.X.Norm(b.Value(out))
 		bs[i].Y = plt.Y.Norm(b.Location)
 		bs[i].Rect = ostyle.Rect()
+		bs[i].Rect.Min.Y += b.Offset
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
 	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
+	bs[len(bs)-1].Rect.Min.Y += b.Offset
 	return bs
 }
 

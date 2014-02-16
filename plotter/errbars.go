@@ -33,7 +33,7 @@ type YErrorBars struct {
 func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
-},) (*YErrorBars, error) {
+}) (*YErrorBars, error) {
 
 	errors := make(YErrors, yerrs.Len())
 	for i := range errors {
@@ -72,7 +72,7 @@ func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *YErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Point{x, y}) {
+	if !da.Contains(plot.Pt(x, y)) {
 		return
 	}
 	da.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
@@ -136,7 +136,7 @@ type XErrorBars struct {
 func NewXErrorBars(xerrs interface {
 	XYer
 	XErrorer
-},) (*XErrorBars, error) {
+}) (*XErrorBars, error) {
 
 	errors := make(XErrors, xerrs.Len())
 	for i := range errors {
@@ -175,7 +175,7 @@ func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *XErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Point{x, y}) {
+	if !da.Contains(plot.Pt(x, y)) {
 		return
 	}
 	da.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)

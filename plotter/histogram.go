@@ -5,10 +5,12 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
+	"errors"
 	"fmt"
 	"image/color"
 	"math"
+
+	"code.google.com/p/plotinum/plot"
 )
 
 // Histogram implements the Plotter interface,
@@ -36,23 +38,26 @@ type Histogram struct {
 //
 // Each y value is assumed to be the frequency
 // count for the corresponding x.
-// 
+//
 // If the number of bins is non-positive than
 // a reasonable default is used.
-func NewHistogram(xy XYer, n int) *Histogram {
+func NewHistogram(xy XYer, n int) (*Histogram, error) {
+	if n <= 0 {
+		return nil, errors.New("Histogram with non-positive number of bins")
+	}
 	bins, width := binPoints(xy, n)
 	return &Histogram{
 		Bins:      bins,
 		Width:     width,
 		FillColor: color.Gray{128},
 		LineStyle: DefaultLineStyle,
-	}
+	}, nil
 }
 
 // NewHist returns a new histogram, as in
 // NewHistogram, except that it accepts a Valuer
 // instead of an XYer.
-func NewHist(vs Valuer, n int) *Histogram {
+func NewHist(vs Valuer, n int) (*Histogram, error) {
 	return NewHistogram(unitYs{vs}, n)
 }
 
@@ -79,7 +84,7 @@ func (h *Histogram) Plot(da plot.DrawArea, p *plot.Plot) {
 		if h.FillColor != nil {
 			da.FillPolygon(h.FillColor, da.ClipPolygonXY(pts))
 		}
-		pts = append(pts, plot.Point{trX(bin.Min), trY(0)})
+		pts = append(pts, plot.Pt(trX(bin.Min), trY(0)))
 		da.StrokeLines(h.LineStyle, da.ClipLinesXY(pts)...)
 	}
 }

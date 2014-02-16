@@ -17,7 +17,7 @@ type Canvas interface {
 	// SetLineWidth sets the width of stroked paths.
 	// If the width is set to 0 then stroked lines are
 	// not drawn.
-	// 
+	//
 	// The initial line width is 1 point.
 	SetLineWidth(Length)
 

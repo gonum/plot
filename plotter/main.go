@@ -24,7 +24,11 @@ var examples = []struct {
 	{"example_logo", Example_logo},
 	{"example_functions", Example_functions},
 	{"example_boxPlots", Example_boxPlots},
+	{"example_groupedBoxPlots", Example_groupedBoxPlots},
+	{"example_groupedHorizontalBoxPlots", Example_groupedHorizontalBoxPlots},
 	{"example_quartPlots", Example_quartPlots},
+	{"example_groupedQuartPlots", Example_groupedQuartPlots},
+	{"example_groupedHorizontalQuartPlots", Example_groupedHorizontalQuartPlots},
 	{"example_verticalBoxPlots", Example_verticalBoxPlots},
 	{"example_verticalQuartPlots", Example_verticalQuartPlots},
 	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
@@ -187,6 +191,75 @@ func Example_boxPlots() *plot.Plot {
 	return p
 }
 
+// Example_groupedBoxPlots draws vertical boxplots.
+func Example_groupedBoxPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(20)
+	for x := 0.0; x < 3.0; x++ {
+		b0 := must(plotter.NewBoxPlot(w, x, uniform)).(*plotter.BoxPlot)
+		b0.Offset = -w - vg.Points(3)
+		b1 := must(plotter.NewBoxPlot(w, x, normal)).(*plotter.BoxPlot)
+		b2 := must(plotter.NewBoxPlot(w, x, expon)).(*plotter.BoxPlot)
+		b2.Offset = w + vg.Points(3)
+		p.Add(b0, b1, b2)
+	}
+
+	// Set the X axis of the plot to nominal with
+	// the given names for x=0, x=1 and x=2.
+	p.NominalX("Group 0", "Group 1", "Group 2")
+	return p
+}
+
+// Example_groupedHorizontalBoxPlots draws vertical boxplots.
+func Example_groupedHorizontalBoxPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(20)
+	for y := 0.0; y < 3.0; y++ {
+		b0 := must(plotter.MakeHorizBoxPlot(w, y, uniform)).(plotter.HorizBoxPlot)
+		b0.Offset = -w - vg.Points(3)
+		b1 := must(plotter.MakeHorizBoxPlot(w, y, normal)).(plotter.HorizBoxPlot)
+		b2 := must(plotter.MakeHorizBoxPlot(w, y, expon)).(plotter.HorizBoxPlot)
+		b2.Offset = w + vg.Points(3)
+		p.Add(b0, b1, b2)
+	}
+	p.NominalY("Group 0", "Group 1", "Group 2")
+	return p
+}
+
 // Example_quartPlots draws vertical quartile plots.
 func Example_quartPlots() *plot.Plot {
 	rand.Seed(int64(0))
@@ -215,6 +288,74 @@ func Example_quartPlots() *plot.Plot {
 	// the given names for x=0, x=1 and x=2.
 	p.NominalX("Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
+	return p
+}
+
+func Example_groupedQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(10)
+	for x := 0.0; x < 3.0; x++ {
+		b0 := must(plotter.NewQuartPlot(x, uniform)).(*plotter.QuartPlot)
+		b0.Offset = -w
+		b1 := must(plotter.NewQuartPlot(x, normal)).(*plotter.QuartPlot)
+		b2 := must(plotter.NewQuartPlot(x, expon)).(*plotter.QuartPlot)
+		b2.Offset = w
+		p.Add(b0, b1, b2)
+	}
+	p.Add(plotter.NewGlyphBoxes())
+
+	p.NominalX("Group 0", "Group 1", "Group 2")
+	return p
+}
+
+func Example_groupedHorizontalQuartPlots() *plot.Plot {
+	rand.Seed(int64(0))
+	n := 100
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
+	for i := 0; i < n; i++ {
+		uniform[i] = rand.Float64()
+		normal[i] = rand.NormFloat64()
+		expon[i] = rand.ExpFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Box Plot"
+	p.Y.Label.Text = "plotter.Values"
+
+	w := vg.Points(10)
+	for x := 0.0; x < 3.0; x++ {
+		b0 := must(plotter.MakeHorizQuartPlot(x, uniform)).(plotter.HorizQuartPlot)
+		b0.Offset = -w
+		b1 := must(plotter.MakeHorizQuartPlot(x, normal)).(plotter.HorizQuartPlot)
+		b2 := must(plotter.MakeHorizQuartPlot(x, expon)).(plotter.HorizQuartPlot)
+		b2.Offset = w
+		p.Add(b0, b1, b2)
+	}
+	p.Add(plotter.NewGlyphBoxes())
+
+	p.NominalY("Group 0", "Group 1", "Group 2")
 	return p
 }
 
@@ -519,9 +660,9 @@ func Example_errBars() *plot.Plot {
 	rand.Seed(int64(0))
 	n := 15
 	data := errPoints{
-		plotter.XYs:     randomPoints(n),
-		plotter.YErrors: plotter.YErrors(randomError(n)),
-		plotter.XErrors: plotter.XErrors(randomError(n)),
+		XYs:     randomPoints(n),
+		YErrors: plotter.YErrors(randomError(n)),
+		XErrors: plotter.XErrors(randomError(n)),
 	}
 
 	p, err := plot.New()
@@ -566,7 +707,10 @@ func Example_bubbles() *plot.Plot {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	bs := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	bs, err := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	if err != nil {
+		panic(err)
+	}
 	bs.Color = color.RGBA{R: 196, B: 128, A: 255}
 	p.Add(bs)
 
@@ -603,7 +747,10 @@ func Example_histogram() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h := plotter.NewHist(vals, 16)
+	h, err := plotter.NewHist(vals, 16)
+	if err != nil {
+		panic(err)
+	}
 	h.Normalize(1)
 	p.Add(h)
 
