@@ -367,28 +367,22 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 
 func LogTicks(min, max float64) []Tick {
 	var ticks []Tick
-	min = math.Trunc(min/10) * 10
-	if min == 0 {
-		min = 1
+	val := math.Pow10(int(math.Floor(math.Log10(min))))
+	if min <= 0 {
+		panic("Values must be greater than 0 for a log scale.")
 	}
-	max = math.Trunc(max/10) * 10
-	for min < max {
-		ticks = append(ticks, Tick{
-			Value: min,
-			Label: fmt.Sprintf("%g", float32(min)),
-		})
-		for i := 2; i < 10; i++ {
-			ticks = append(ticks, Tick{Value: min * float64(i)})
+	for val < max*10 {
+		for i := 1; i < 10; i++ {
+			tick := Tick{Value: val * float64(i)}
+			if i == 1 {
+				tick.Label = fmt.Sprintf("%g", float32(val)*float32(i))
+			}
+			ticks = append(ticks, tick)
 		}
-		min *= 10
-		if len(ticks) > 100 {
-			panic("too many ticks")
-		}
+		val *= 10
 	}
-	ticks = append(ticks, Tick{
-		Value: max,
-		Label: fmt.Sprintf("%g", float32(max)),
-	})
+	tick := Tick{Value: val, Label: fmt.Sprintf("%g", float32(val))}
+	ticks = append(ticks, tick)
 	return ticks
 }
 
@@ -458,8 +452,8 @@ func tickLabelWidth(sty TextStyle, ticks []Tick) vg.Length {
 }
 
 func log(x float64) float64 {
-	if x == 0 {
-		return 0
+	if x <= 0 {
+		panic("Values must be greater than 0 for a log scale.")
 	}
 	return math.Log(x)
 }
