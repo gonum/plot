@@ -126,11 +126,8 @@ func LinearScale(min, max, x float64) float64 {
 
 // LocScale is a scale function for a log-scale axis.
 func LogScale(min, max, x float64) float64 {
-	logMin := 0.0
-	if min > 0 {
-		logMin = math.Log(min)
-	}
-	return (math.Log(x) - logMin) / (math.Log(max) - logMin)
+	logMin := log(min)
+	return (log(x) - logMin) / (log(max) - logMin)
 }
 
 // Norm returns the value of x, given in the data coordinate
@@ -368,6 +365,33 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 	return
 }
 
+func LogTicks(min, max float64) []Tick {
+	var ticks []Tick
+	min = math.Trunc(min/10) * 10
+	if min == 0 {
+		min = 1
+	}
+	max = math.Trunc(max/10) * 10
+	for min < max {
+		ticks = append(ticks, Tick{
+			Value: min,
+			Label: fmt.Sprintf("%g", float32(min)),
+		})
+		for i := 2; i < 10; i++ {
+			ticks = append(ticks, Tick{Value: min * float64(i)})
+		}
+		min *= 10
+		if len(ticks) > 100 {
+			panic("too many ticks")
+		}
+	}
+	ticks = append(ticks, Tick{
+		Value: max,
+		Label: fmt.Sprintf("%g", float32(max)),
+	})
+	return ticks
+}
+
 // ConstantTicks returns a function suitable for the Tick.Marker
 // field of an Axis.  This function returns the given set of ticks.
 func ConstantTicks(ts []Tick) func(float64, float64) []Tick {
@@ -431,4 +455,11 @@ func tickLabelWidth(sty TextStyle, ticks []Tick) vg.Length {
 		}
 	}
 	return maxWidth
+}
+
+func log(x float64) float64 {
+	if x == 0 {
+		return 0
+	}
+	return math.Log(x)
 }
