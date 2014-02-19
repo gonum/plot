@@ -119,12 +119,14 @@ func (a *Axis) sanitizeRange() {
 	}
 }
 
-// LinearScale is a scale function for a standard linear axis.
+// LinearScale an be used as the value of an Axis.Scale function to
+// set the axis to a standard linear scale.
 func LinearScale(min, max, x float64) float64 {
 	return (x - min) / (max - min)
 }
 
-// LocScale is a scale function for a log-scale axis.
+// LocScale can be used as the value of an Axis.Scale function to
+// set the axis to a log scale.
 func LogScale(min, max, x float64) float64 {
 	logMin := log(min)
 	return (log(x) - logMin) / (log(max) - logMin)
@@ -365,6 +367,8 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 	return
 }
 
+// LogTicks is suitable for the Tick.Marker field of an Axis,
+// it returns tick marks suitable for a log-scale axis.
 func LogTicks(min, max float64) []Tick {
 	var ticks []Tick
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
