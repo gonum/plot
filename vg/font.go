@@ -16,6 +16,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"code.google.com/p/freetype-go/freetype"
 	"code.google.com/p/freetype-go/freetype/truetype"
@@ -56,6 +57,9 @@ var (
 	// loadedFonts is indexed by a font name and it
 	// caches the associated *truetype.Font.
 	loadedFonts = make(map[string]*truetype.Font)
+
+	// FontLock protects access to the loadedFonts map.
+	fontLock sync.RWMutex
 )
 
 // A Font represents one of the supported font
@@ -172,7 +176,10 @@ func (f *Font) Width(s string) Length {
 
 // getFont returns the truetype.Font for the given font name or an error.
 func getFont(name string) (*truetype.Font, error) {
-	if f, ok := loadedFonts[name]; ok {
+	fontLock.RLock()
+	f, ok := loadedFonts[name]
+	fontLock.RUnlock()
+	if ok {
 		return f, nil
 	}
 
@@ -194,7 +201,9 @@ func getFont(name string) (*truetype.Font, error) {
 
 	font, err := freetype.ParseFont(bytes)
 	if err == nil {
+		fontLock.Lock()
 		loadedFonts[name] = font
+		fontLock.Unlock()
 	} else {
 		err = errors.New("Failed to parse font file: " + err.Error())
 	}
