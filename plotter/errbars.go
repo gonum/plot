@@ -30,6 +30,11 @@ type YErrorBars struct {
 	CapWidth vg.Length
 }
 
+// Returns a new YErrorBars plotter, or an error on failure. The error values
+// from the YErrorer interface are interpreted as relative to the corresponding
+// Y value. The errors for a given Y value are computed by taking the absolute
+// value of the error returned by the YErrorer and subtracting the first and
+// adding the second to the Y value.
 func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
@@ -60,8 +65,8 @@ func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	for i, err := range e.YErrors {
 		x := trX(e.XYs[i].X)
-		ylow := trY(e.XYs[i].Y - err.Low)
-		yhigh := trY(e.XYs[i].Y + err.High)
+		ylow := trY(e.XYs[i].Y - math.Abs(err.Low))
+		yhigh := trY(e.XYs[i].Y + math.Abs(err.High))
 
 		bar := da.ClipLinesY([]plot.Point{{x, ylow}, {x, yhigh}})
 		da.StrokeLines(e.LineStyle, bar...)
@@ -85,8 +90,8 @@ func (e *YErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 	ymax = math.Inf(-1)
 	for i, err := range e.YErrors {
 		y := e.XYs[i].Y
-		ylow := y - err.Low
-		yhigh := y + err.High
+		ylow := y - math.Abs(err.Low)
+		yhigh := y + math.Abs(err.High)
 		ymin = math.Min(math.Min(math.Min(ymin, y), ylow), yhigh)
 		ymax = math.Max(math.Max(math.Max(ymax, y), ylow), yhigh)
 	}
@@ -133,6 +138,11 @@ type XErrorBars struct {
 	CapWidth vg.Length
 }
 
+// Returns a new XErrorBars plotter, or an error on failure. The error values
+// from the XErrorer interface are interpreted as relative to the corresponding
+// X value. The errors for a given X value are computed by taking the absolute
+// value of the error returned by the XErrorer and subtracting the first and
+// adding the second to the X value.
 func NewXErrorBars(xerrs interface {
 	XYer
 	XErrorer
@@ -163,8 +173,8 @@ func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
 	trX, trY := p.Transforms(&da)
 	for i, err := range e.XErrors {
 		y := trY(e.XYs[i].Y)
-		xlow := trX(e.XYs[i].X - err.Low)
-		xhigh := trX(e.XYs[i].X + err.High)
+		xlow := trX(e.XYs[i].X - math.Abs(err.Low))
+		xhigh := trX(e.XYs[i].X + math.Abs(err.High))
 
 		bar := da.ClipLinesX([]plot.Point{{xlow, y}, {xhigh, y}})
 		da.StrokeLines(e.LineStyle, bar...)
@@ -188,8 +198,8 @@ func (e *XErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmax = math.Inf(-1)
 	for i, err := range e.XErrors {
 		x := e.XYs[i].X
-		xlow := x - err.Low
-		xhigh := x + err.High
+		xlow := x - math.Abs(err.Low)
+		xhigh := x + math.Abs(err.High)
 		xmin = math.Min(math.Min(math.Min(xmin, x), xlow), xhigh)
 		xmax = math.Max(math.Max(math.Max(xmax, x), xlow), xhigh)
 	}
