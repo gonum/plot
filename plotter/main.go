@@ -10,6 +10,7 @@ package main
 import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/plotter"
+	"code.google.com/p/plotinum/plotutil"
 	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
@@ -39,6 +40,7 @@ var examples = []struct {
 	{"example_histogram", Example_histogram},
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
+	{"example_stackedAreaChart", Example_stackedAreaChart},
 }
 
 func main() {
@@ -858,6 +860,74 @@ func Example_stackedBarChart() *plot.Plot {
 	p.Legend.Top = true
 	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
 		"Six", "Seven", "Eight", "Nine", "Ten")
+
+	return p
+}
+
+// An example of making a stacked area chart.
+func Example_stackedAreaChart() *plot.Plot {
+	rand.Seed(int64(0))
+	stackedAreaX := []float64{1, 2, 3, 4, 5}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Stacked Area"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	bs, err := plotter.NewStackedArea(stackedAreaX)
+	if err != nil {
+		panic(err)
+	}
+
+	bs.Add(plotter.YData{
+		Data:  []float64{1, 2, 5, 3, 7},
+		Color: plotutil.DefaultColors[0],
+		Label: "First",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{1, 2, 2, 1, 1},
+		Color: plotutil.DefaultColors[1],
+		Label: "Second",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{2, 4, 1, 3, 4},
+		Color: plotutil.DefaultColors[2],
+		Label: "Third",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{4, 7, 1, 4, 6},
+		Color: plotutil.DefaultColors[3],
+		Label: "Fourth",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{5, 1, 4, 2, 2},
+		Color: plotutil.DefaultColors[4],
+		Label: "Fifth",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{1, 2, 1, 3, 2},
+		Color: plotutil.DefaultColors[5],
+		Label: "Sixth",
+	})
+
+	bs.Add(plotter.YData{
+		Data:  []float64{7, 3, 4, 1, 6},
+		Color: plotutil.DefaultColors[6],
+		Label: "Seventh",
+	})
+
+	err = bs.AddToPlot(p)
+	if err != nil {
+		panic(err)
+	}
 
 	return p
 }
