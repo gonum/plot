@@ -872,9 +872,9 @@ func Example_stackedAreaChart() *plot.Plot {
 		panic(err)
 	}
 
-	p.Title.Text = "Stacked Area"
-	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	p.Title.Text = "Example: Software Version Comparison"
+	p.X.Label.Text = "Date"
+	p.Y.Label.Text = "Users (in thousands)"
 
 	bs, err := createStackedArea()
 	if err != nil {
@@ -895,9 +895,9 @@ func Example_normalizedStackedAreaChart() *plot.Plot {
 		panic(err)
 	}
 
-	p.Title.Text = "Normalized Stacked Area"
-	p.X.Label.Text = "X"
-	p.Y.Label.Text = "%"
+	p.Title.Text = "Example: Software Version Comparison (Normalized)"
+	p.X.Label.Text = "Date"
+	p.Y.Label.Text = "Relative Proportion of Users (%)"
 
 	bs, err := createStackedArea()
 	if err != nil {
@@ -915,7 +915,7 @@ func Example_normalizedStackedAreaChart() *plot.Plot {
 
 func createStackedArea() (*plotter.StackedArea, error) {
 	rand.Seed(int64(0))
-	stackedAreaX := []float64{1, 2, 3, 4, 5}
+	stackedAreaX := []float64{2007, 2008, 2009, 2010, 2011, 2012, 2013}
 
 	bs, err := plotter.NewStackedArea(stackedAreaX)
 	if err != nil {
@@ -923,45 +923,45 @@ func createStackedArea() (*plotter.StackedArea, error) {
 	}
 
 	bs.Add(plotter.YData{
-		Data:  []float64{1, 2, 5, 3, 7},
+		Data:  []float64{0.02, 0.015, 0, 0, 0, 0, 0},
 		Color: plotutil.DefaultColors[0],
-		Label: "First",
+		Label: "Beta",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{1, 2, 2, 1, 1},
+		Data:  []float64{0, 0.48, 0.36, 0.34, 0.32, 0.32, 0.28},
 		Color: plotutil.DefaultColors[1],
-		Label: "Second",
+		Label: "Version 1.0",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{2, 4, 1, 3, 4},
+		Data:  []float64{0, 0, 0.87, 1.4, 0.64, 0.32, 0.28},
 		Color: plotutil.DefaultColors[2],
-		Label: "Third",
+		Label: "Version 1.1",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{4, 7, 1, 4, 6},
+		Data:  []float64{0, 0, 0, 1.26, 0.34, 0.12, 0.09},
 		Color: plotutil.DefaultColors[3],
-		Label: "Fourth",
+		Label: "Version 2.0",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{5, 1, 4, 2, 2},
+		Data:  []float64{0, 0, 0, 0, 2.48, 2.68, 2.13},
 		Color: plotutil.DefaultColors[4],
-		Label: "Fifth",
+		Label: "Version 2.0.1",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{1, 2, 1, 3, 2},
+		Data:  []float64{0, 0, 0, 0, 0, 1.32, 0.54},
 		Color: plotutil.DefaultColors[5],
-		Label: "Sixth",
+		Label: "Version 2.1",
 	})
 
 	bs.Add(plotter.YData{
-		Data:  []float64{7, 3, 4, 1, 6},
+		Data:  []float64{0, 0, 0, 0, 0, 0.68, 5.67},
 		Color: plotutil.DefaultColors[6],
-		Label: "Seventh",
+		Label: "Version 3.0",
 	})
 
 	return bs, nil
