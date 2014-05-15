@@ -106,3 +106,15 @@ func (sa *StackedArea) pointsForPlot(n int) XYs {
 	}
 	return pts
 }
+
+// Normalize will normalize the current data. It should (obviously) be run after
+// all data has been added.
+func (sa *StackedArea) Normalize() {
+	for i := range sa.x {
+		total := sa.ys[len(sa.ys)-1].Data[i]
+		for _, y := range sa.ys {
+			y.Data[i] /= total
+			y.Data[i] *= 100.0
+		}
+	}
+}

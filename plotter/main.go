@@ -41,6 +41,7 @@ var examples = []struct {
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
 	{"example_stackedAreaChart", Example_stackedAreaChart},
+	{"example_normalizedStackedAreaChart", Example_normalizedStackedAreaChart},
 }
 
 func main() {
@@ -879,6 +880,31 @@ func Example_stackedAreaChart() *plot.Plot {
 	if err != nil {
 		panic(err)
 	}
+
+	if err := bs.AddToPlot(p); err != nil {
+		panic(err)
+	}
+	
+	return p
+}
+
+// An example of making a normalized stacked area chart.
+func Example_normalizedStackedAreaChart() *plot.Plot {
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+
+	p.Title.Text = "Normalized Stacked Area"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "%"
+
+	bs, err := createStackedArea()
+	if err != nil {
+		panic(err)
+	}
+
+	bs.Normalize()
 
 	if err := bs.AddToPlot(p); err != nil {
 		panic(err)
