@@ -5,7 +5,10 @@
 package plotter
 
 import (
+	"image/color"
+
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 // Line implements the Plotter interface, drawing a line.
@@ -16,6 +19,12 @@ type Line struct {
 	// LineStyle is the style of the line connecting
 	// the points.
 	plot.LineStyle
+
+	// Shade determines whether or not the area below the line should be shaded.
+	shade bool
+
+	// ShadeColor is the color of the shaded area.
+	shadeColor color.Color
 }
 
 // NewLine returns a Line that uses the default line style and
@@ -36,11 +45,40 @@ func NewLine(xys XYer) (*Line, error) {
 func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	ps := make([]plot.Point, len(pts.XYs))
+
+	if pts.shade {
+		da.SetColor(pts.shadeColor)
+	}
+
+	minY := trY(plt.Y.Min)
+	var pa vg.Path
+
 	for i, p := range pts.XYs {
 		ps[i].X = trX(p.X)
 		ps[i].Y = trY(p.Y)
+
+		if !pts.shade {
+			continue
+		}
+
+		if i == 0 {
+			pa.Move(ps[i].X, minY)
+			pa.Line(ps[i].X, ps[i].Y)
+		} else {
+			pa.Line(ps[i].X, ps[i].Y)
+		}
 	}
+
+	pa.Line(ps[len(pts.XYs)-1].X, minY)
+	pa.Close()
+	da.Fill(pa)
+
 	da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
+}
+
+func (pts *Line) EnableShading(color color.Color) {
+	pts.shade = true
+	pts.shadeColor = color
 }
 
 // DataRange returns the minimum and maximum
@@ -53,8 +91,21 @@ func (pts *Line) DataRange() (xmin, xmax, ymin, ymax float64) {
 // Thumbnail the thumbnail for the Line,
 // implementing the plot.Thumbnailer interface.
 func (pts *Line) Thumbnail(da *plot.DrawArea) {
-	y := da.Center().Y
-	da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
+	if pts.shade {
+		points := []plot.Point{
+			{da.Min.X, da.Min.Y},
+			{da.Min.X, da.Max().Y},
+			{da.Max().X, da.Max().Y},
+			{da.Max().X, da.Min.Y},
+		}
+		poly := da.ClipPolygonY(points)
+		da.FillPolygon(pts.shadeColor, poly)
+
+		points = append(points, plot.Pt(da.Min.X, da.Min.Y))
+	} else {
+		y := da.Center().Y
+		da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
+	}
 }
 
 // NewLinePoints returns both a Line and a
