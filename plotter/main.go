@@ -866,20 +866,34 @@ func Example_stackedBarChart() *plot.Plot {
 
 // An example of making a stacked area chart.
 func Example_stackedAreaChart() *plot.Plot {
-	rand.Seed(int64(0))
-	stackedAreaX := []float64{1, 2, 3, 4, 5}
-
 	p, err := plot.New()
 	if err != nil {
 		panic(err)
 	}
+
 	p.Title.Text = "Stacked Area"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	bs, err := plotter.NewStackedArea(stackedAreaX)
+	bs, err := createStackedArea()
 	if err != nil {
 		panic(err)
+	}
+
+	if err := bs.AddToPlot(p); err != nil {
+		panic(err)
+	}
+	
+	return p
+}
+
+func createStackedArea() (*plotter.StackedArea, error) {
+	rand.Seed(int64(0))
+	stackedAreaX := []float64{1, 2, 3, 4, 5}
+
+	bs, err := plotter.NewStackedArea(stackedAreaX)
+	if err != nil {
+		return nil, err
 	}
 
 	bs.Add(plotter.YData{
@@ -924,12 +938,7 @@ func Example_stackedAreaChart() *plot.Plot {
 		Label: "Seventh",
 	})
 
-	err = bs.AddToPlot(p)
-	if err != nil {
-		panic(err)
-	}
-
-	return p
+	return bs, nil
 }
 
 func must(p plot.Plotter, err error) plot.Plotter {
