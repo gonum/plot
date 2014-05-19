@@ -109,7 +109,7 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) error {
 			name = ""
 
 		default:
-			panic(fmt.Sprintf("AddScatters handles strings and plotter.XYers, got %T", t))
+			panic(fmt.Sprintf("AddBoxPlots handles strings and plotter.Valuers, got %T", t))
 		}
 	}
 	plt.Add(ps...)
