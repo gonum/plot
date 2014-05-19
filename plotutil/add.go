@@ -67,6 +67,7 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 		}
 	}
 
+	var ps []*plotter.Line
 	for i := numPlots - 1; i >= 0; i-- {
 		// Make a line plotter and set its style.
 		l, err := plotter.NewLine(xys[i])
@@ -78,6 +79,10 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 		color := Color(i)
 		l.ShadeColor = &color
 
+		ps = append(ps, l)
+	}
+	
+	for i, l := range ps {
 		plt.Add(l)
 		plt.Legend.Add(names[i], l)
 	}
