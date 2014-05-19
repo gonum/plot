@@ -72,6 +72,7 @@ var (
 	ErrInfinity = errors.New("Infinite data point")
 	ErrNaN      = errors.New("NaN data point")
 	ErrNoData   = errors.New("No data points")
+	ErrXYLength = errors.New("X/Y length mismatch")
 )
 
 // CheckFloats returns an error if any of the arguments are NaN or Infinity.
@@ -139,6 +140,23 @@ func CopyXYs(data XYer) (XYs, error) {
 	cpy := make(XYs, data.Len())
 	for i := range cpy {
 		cpy[i].X, cpy[i].Y = data.XY(i)
+		if err := CheckFloats(cpy[i].X, cpy[i].Y); err != nil {
+			return nil, err
+		}
+	}
+	return cpy, nil
+}
+
+// CreateXYs returns an XYs that is a copy of the x and y values from
+// the Valuers, or an error if one of the data points contains a NaN or
+// Infinity, or if the lengths do not match.
+func CreateXYs(xs Valuer, ys Valuer) (XYs, error) {
+	if xs.Len() != ys.Len() {
+		return nil, ErrXYLength
+	}
+	cpy := make(XYs, xs.Len())
+	for i := range cpy {
+		cpy[i].X, cpy[i].Y = xs.Value(i), ys.Value(i)
 		if err := CheckFloats(cpy[i].X, cpy[i].Y); err != nil {
 			return nil, err
 		}
