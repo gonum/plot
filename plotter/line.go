@@ -20,11 +20,8 @@ type Line struct {
 	// the points.
 	plot.LineStyle
 
-	// Shade determines whether or not the area below the line should be shaded.
-	shade bool
-
 	// ShadeColor is the color of the shaded area.
-	shadeColor color.Color
+	ShadeColor *color.Color
 }
 
 // NewLine returns a Line that uses the default line style and
@@ -46,8 +43,8 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	ps := make([]plot.Point, len(pts.XYs))
 
-	if pts.shade {
-		da.SetColor(pts.shadeColor)
+	if pts.ShadeColor != nil {
+		da.SetColor(*pts.ShadeColor)
 	}
 
 	minY := trY(plt.Y.Min)
@@ -57,16 +54,15 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 		ps[i].X = trX(p.X)
 		ps[i].Y = trY(p.Y)
 
-		if !pts.shade {
+		if pts.ShadeColor == nil {
 			continue
 		}
 
 		if i == 0 {
 			pa.Move(ps[i].X, minY)
-			pa.Line(ps[i].X, ps[i].Y)
-		} else {
-			pa.Line(ps[i].X, ps[i].Y)
 		}
+		
+		pa.Line(ps[i].X, ps[i].Y)
 	}
 
 	pa.Line(ps[len(pts.XYs)-1].X, minY)
@@ -74,11 +70,6 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	da.Fill(pa)
 
 	da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
-}
-
-func (pts *Line) EnableShading(color color.Color) {
-	pts.shade = true
-	pts.shadeColor = color
 }
 
 // DataRange returns the minimum and maximum
@@ -91,7 +82,7 @@ func (pts *Line) DataRange() (xmin, xmax, ymin, ymax float64) {
 // Thumbnail the thumbnail for the Line,
 // implementing the plot.Thumbnailer interface.
 func (pts *Line) Thumbnail(da *plot.DrawArea) {
-	if pts.shade {
+	if pts.ShadeColor != nil {
 		points := []plot.Point{
 			{da.Min.X, da.Min.Y},
 			{da.Min.X, da.Max().Y},
@@ -99,7 +90,7 @@ func (pts *Line) Thumbnail(da *plot.DrawArea) {
 			{da.Max().X, da.Min.Y},
 		}
 		poly := da.ClipPolygonY(points)
-		da.FillPolygon(pts.shadeColor, poly)
+		da.FillPolygon(*pts.ShadeColor, poly)
 
 		points = append(points, plot.Pt(da.Min.X, da.Min.Y))
 	} else {

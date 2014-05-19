@@ -85,7 +85,7 @@ func (sa *StackedArea) AddToPlot(p *plot.Plot) error {
 		}
 
 		l.LineStyle.Width = vg.Points(0)
-		l.EnableShading(sa.ys[i].Color)
+		l.ShadeColor = &sa.ys[i].Color
 
 		p.Add(l)
 		p.Legend.Add(sa.ys[i].Label, l)
