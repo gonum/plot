@@ -19,7 +19,7 @@ import (
 //
 // If an error occurs then none of the plotters are added
 // to the plot, and the error is returned.
-func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
+func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs ...interface{}) error {
 	var names []string
 	name := ""
 
@@ -55,6 +55,16 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 	numPlots := len(xys)
 	if numPlots == 0 {
 		return errors.New("No data has been added")
+	}
+
+	if normalize {
+		for i := range xys[0] {
+			total := xys[len(xys)-1][i].Y
+			for _, xy := range xys {
+				xy[i].Y /= total
+				xy[i].Y *= 100.0
+			}
+		}
 	}
 
 	for i := numPlots - 1; i >= 0; i-- {
