@@ -4,8 +4,79 @@ import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/plotter"
 	"code.google.com/p/plotinum/vg"
+	"errors"
 	"fmt"
 )
+
+// AddStackedAreaPlots adds stacked area plot plotters to
+// a plot.
+// The variadic arguments must be either strings
+// or plotter.Valuers.  Each valuer adds a stacked area
+// plot to the plot above the stacked area plots added
+// before it.  If a plotter.Valuer is immediately
+// preceeded by a string then the string value is used to
+// label the legend.
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
+	var names []string
+	name := ""
+
+	xys := make([]plotter.XYs, 0)
+
+	for _, v := range vs {
+		switch t := v.(type) {
+		case string:
+			name = t
+
+		case plotter.Valuer:
+			// Stack the data by adding the incoming data to the previous values
+			stackedData, err := plotter.CreateXYs(xs, t)
+			if err != nil {
+				return err
+			}
+			if 0 != len(xys) {
+				for i := range stackedData {
+					stackedData[i].Y += xys[len(xys)-1][i].Y
+				}
+			}
+
+			xys = append(xys, stackedData)
+
+			names = append(names, name)
+			name = ""
+
+		default:
+			panic(fmt.Sprintf("AddStackedAreaPlots handles strings and plotter.Valuers, got %T", t))
+		}
+	}
+
+	numPlots := len(xys)
+	if numPlots == 0 {
+		return errors.New("No data has been added")
+	}
+
+	for i := numPlots - 1; i >= 0; i-- {
+		// Make a line plotter and set its style.
+		l, err := plotter.NewLine(xys[i])
+		if err != nil {
+			return err
+		}
+
+		l.LineStyle.Width = vg.Points(0)
+		color := Color(i)
+		l.ShadeColor = &color
+
+		plt.Add(l)
+		plt.Legend.Add(names[i], l)
+	}
+
+	plt.Legend.Top = true
+	plt.Legend.Left = true
+
+	return nil
+}
 
 // AddBoxPlots adds box plot plotters to a plot and
 // sets the X axis of the plot to be nominal.

@@ -41,7 +41,6 @@ var examples = []struct {
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
 	{"example_stackedAreaChart", Example_stackedAreaChart},
-	{"example_normalizedStackedAreaChart", Example_normalizedStackedAreaChart},
 }
 
 func main() {
@@ -876,95 +875,27 @@ func Example_stackedAreaChart() *plot.Plot {
 	p.X.Label.Text = "Date"
 	p.Y.Label.Text = "Users (in thousands)"
 
-	bs, err := createStackedArea()
+	err = plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013},
+		"Beta",
+		plotter.Values{0.02, 0.015, 0, 0, 0, 0, 0},
+		"Version 1.0",
+		plotter.Values{0, 0.48, 0.36, 0.34, 0.32, 0.32, 0.28},
+		"Version 1.1",
+		plotter.Values{0, 0, 0.87, 1.4, 0.64, 0.32, 0.28},
+		"Version 2.0",
+		plotter.Values{0, 0, 0, 1.26, 0.34, 0.12, 0.09},
+		"Version 2.0.1",
+		plotter.Values{0, 0, 0, 0, 2.48, 2.68, 2.13},
+		"Version 2.1",
+		plotter.Values{0, 0, 0, 0, 0, 1.32, 0.54},
+		"Version 3.0",
+		plotter.Values{0, 0, 0, 0, 0, 0.68, 5.67},
+	)
 	if err != nil {
 		panic(err)
 	}
 
-	if err := bs.AddToPlot(p); err != nil {
-		panic(err)
-	}
-	
 	return p
-}
-
-// An example of making a normalized stacked area chart.
-func Example_normalizedStackedAreaChart() *plot.Plot {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
-
-	p.Title.Text = "Example: Software Version Comparison (Normalized)"
-	p.X.Label.Text = "Date"
-	p.Y.Label.Text = "Relative Proportion of Users (%)"
-
-	bs, err := createStackedArea()
-	if err != nil {
-		panic(err)
-	}
-
-	bs.Normalize()
-
-	if err := bs.AddToPlot(p); err != nil {
-		panic(err)
-	}
-	
-	return p
-}
-
-func createStackedArea() (*plotter.StackedArea, error) {
-	rand.Seed(int64(0))
-	stackedAreaX := []float64{2007, 2008, 2009, 2010, 2011, 2012, 2013}
-
-	bs, err := plotter.NewStackedArea(stackedAreaX)
-	if err != nil {
-		return nil, err
-	}
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0.02, 0.015, 0, 0, 0, 0, 0},
-		Color: plotutil.DefaultColors[0],
-		Label: "Beta",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0.48, 0.36, 0.34, 0.32, 0.32, 0.28},
-		Color: plotutil.DefaultColors[1],
-		Label: "Version 1.0",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0, 0.87, 1.4, 0.64, 0.32, 0.28},
-		Color: plotutil.DefaultColors[2],
-		Label: "Version 1.1",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0, 0, 1.26, 0.34, 0.12, 0.09},
-		Color: plotutil.DefaultColors[3],
-		Label: "Version 2.0",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0, 0, 0, 2.48, 2.68, 2.13},
-		Color: plotutil.DefaultColors[4],
-		Label: "Version 2.0.1",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0, 0, 0, 0, 1.32, 0.54},
-		Color: plotutil.DefaultColors[5],
-		Label: "Version 2.1",
-	})
-
-	bs.Add(plotter.YData{
-		Data:  []float64{0, 0, 0, 0, 0, 0.68, 5.67},
-		Color: plotutil.DefaultColors[6],
-		Label: "Version 3.0",
-	})
-
-	return bs, nil
 }
 
 func must(p plot.Plotter, err error) plot.Plotter {
