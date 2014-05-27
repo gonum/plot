@@ -8,6 +8,11 @@ import (
 	"fmt"
 )
 
+type combineXYs struct{ xs, ys plotter.Valuer }
+
+func (c combineXYs) Len() int                    { return c.xs.Len() }
+func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Value(i) }
+
 // AddStackedAreaPlots adds stacked area plot plotters to
 // a plot.
 // The variadic arguments must be either strings
@@ -19,11 +24,12 @@ import (
 //
 // If an error occurs then none of the plotters are added
 // to the plot, and the error is returned.
-func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs ...interface{}) error {
+func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
+
 	var names []string
 	name := ""
 
-	var xys []plotter.XYs
+	var xys []plotter.XYer
 
 	for _, v := range vs {
 		switch t := v.(type) {
@@ -31,16 +37,20 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 			name = t
 
 		case plotter.Valuer:
-			// Stack the data by adding the incoming data to the previous values
-			stackedData, err := plotter.CreateXYs(xs, t)
-			if err != nil {
-				return err
+			if xs.Len() != t.Len() {
+				return errors.New("X/Y length mismatch")
 			}
+
+			// Stack the data by adding the incoming data to the previous values
+			ys := make(plotter.Values, t.Len())
 			if 0 != len(xys) {
-				for i := range stackedData {
-					stackedData[i].Y += xys[len(xys)-1][i].Y
+				for i := 0; i < t.Len(); i++ {
+					_, y := xys[len(xys)-1].XY(i)
+					ys[i] = t.Value(i) + y
 				}
 			}
+
+			stackedData := combineXYs{xs: xs, ys: ys}
 
 			xys = append(xys, stackedData)
 
@@ -55,16 +65,6 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 	numPlots := len(xys)
 	if numPlots == 0 {
 		return errors.New("No data has been added")
-	}
-
-	if normalize {
-		for i := range xys[0] {
-			total := xys[len(xys)-1][i].Y
-			for _, xy := range xys {
-				xy[i].Y /= total
-				xy[i].Y *= 100.0
-			}
-		}
 	}
 
 	var ps []*plotter.Line
