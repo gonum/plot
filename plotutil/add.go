@@ -21,15 +21,17 @@ func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Va
 // before it.  If a plotter.Valuer is immediately
 // preceeded by a string then the string value is used to
 // label the legend.
+// Plots should be added in order of tallest to shortest,
+// because they will be drawn in the order they are added
+// (i.e. later plots will be painted over earlier plots).
 //
 // If an error occurs then none of the plotters are added
 // to the plot, and the error is returned.
 func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
-
-	var names []string
+	var ps []plot.Plotter
+	names := make(map[*plotter.Line]string)
 	name := ""
-
-	var xys []plotter.XYer
+	var i int
 
 	for _, v := range vs {
 		switch t := v.(type) {
@@ -41,50 +43,32 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 				return errors.New("X/Y length mismatch")
 			}
 
-			// Stack the data by adding the incoming data to the previous values
-			ys := make(plotter.Values, t.Len())
-			if 0 != len(xys) {
-				for i := 0; i < t.Len(); i++ {
-					_, y := xys[len(xys)-1].XY(i)
-					ys[i] = t.Value(i) + y
-				}
+			// Make a line plotter and set its style.
+			l, err := plotter.NewLine(combineXYs{xs: xs, ys: t})
+			if err != nil {
+				return err
 			}
 
-			stackedData := combineXYs{xs: xs, ys: ys}
+			l.LineStyle.Width = vg.Points(0)
+			color := Color(i)
+			i++
+			l.ShadeColor = &color
 
-			xys = append(xys, stackedData)
+			ps = append(ps, l)
 
-			names = append(names, name)
-			name = ""
+			if name != "" {
+				names[l] = name
+				name = ""
+			}
 
 		default:
 			panic(fmt.Sprintf("AddStackedAreaPlots handles strings and plotter.Valuers, got %T", t))
 		}
 	}
 
-	numPlots := len(xys)
-	if numPlots == 0 {
-		return errors.New("No data has been added")
-	}
-
-	var ps []*plotter.Line
-	for i := numPlots - 1; i >= 0; i-- {
-		// Make a line plotter and set its style.
-		l, err := plotter.NewLine(xys[i])
-		if err != nil {
-			return err
-		}
-
-		l.LineStyle.Width = vg.Points(0)
-		color := Color(i)
-		l.ShadeColor = &color
-
-		ps = append(ps, l)
-	}
-
-	for i, l := range ps {
-		plt.Add(l)
-		plt.Legend.Add(names[i], l)
+	plt.Add(ps...)
+	for p, n := range names {
+		plt.Legend.Add(n, p)
 	}
 
 	return nil

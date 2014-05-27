@@ -105,6 +105,17 @@ func Example_errpoints() *plot.Plot {
 	return plt
 }
 
+type stackValues struct{ vs []plotter.Values }
+
+func (n stackValues) Len() int { return n.vs[0].Len() }
+func (n stackValues) Value(i int) float64 {
+	sum := 0.0
+	for _, v := range n.vs {
+		sum += v.Value(i)
+	}
+	return sum
+}
+
 // An example of making a stacked area chart.
 func Example_stackedAreaChart() *plot.Plot {
 	p, err := plot.New()
@@ -119,24 +130,33 @@ func Example_stackedAreaChart() *plot.Plot {
 	p.Legend.Top = true
 	p.Legend.Left = true
 
-	saVals := []interface{}{
-		"Beta",
+	vals := []plotter.Values{
 		plotter.Values{0.02, 0.015, 0, 0, 0, 0, 0},
-		"Version 1.0",
 		plotter.Values{0, 0.48, 0.36, 0.34, 0.32, 0.32, 0.28},
-		"Version 1.1",
 		plotter.Values{0, 0, 0.87, 1.4, 0.64, 0.32, 0.28},
-		"Version 2.0",
 		plotter.Values{0, 0, 0, 1.26, 0.34, 0.12, 0.09},
-		"Version 2.0.1",
 		plotter.Values{0, 0, 0, 0, 2.48, 2.68, 2.13},
-		"Version 2.1",
 		plotter.Values{0, 0, 0, 0, 0, 1.32, 0.54},
-		"Version 3.0",
 		plotter.Values{0, 0, 0, 0, 0, 0.68, 5.67},
 	}
 
-	err = plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013}, saVals...)
+	err = plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013},
+		"Version 3.0",
+		stackValues{vs: vals[0:7]},
+		"Version 2.1",
+		stackValues{vs: vals[0:6]},
+		"Version 2.0.1",
+		stackValues{vs: vals[0:5]},
+		"Version 2.0",
+		stackValues{vs: vals[0:4]},
+		"Version 1.1",
+		stackValues{vs: vals[0:3]},
+		"Version 1.0",
+		stackValues{vs: vals[0:2]},
+		"Beta",
+		stackValues{vs: vals[0:1]},
+	)
+
 	if err != nil {
 		panic(err)
 	}
