@@ -893,6 +893,9 @@ func Example_stackedAreaChart() *plot.Plot {
 	p.X.Label.Text = "Date"
 	p.Y.Label.Text = "Users (in thousands)"
 
+	p.Legend.Top = true
+	p.Legend.Left = true
+
 	err = plotutil.AddStackedAreaPlots(p, false, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013}, saVals...)
 	if err != nil {
 		panic(err)
@@ -911,6 +914,9 @@ func Example_normalizedStackedAreaChart() *plot.Plot {
 	p.Title.Text = "Example: Software Version Comparison (Normalized)"
 	p.X.Label.Text = "Date"
 	p.Y.Label.Text = "Relative Proportion of Users (%)"
+
+	p.Legend.Top = true
+	p.Legend.Left = true
 
 	err = plotutil.AddStackedAreaPlots(p, true, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013}, saVals...)
 	if err != nil {

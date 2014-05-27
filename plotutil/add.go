@@ -23,7 +23,7 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 	var names []string
 	name := ""
 
-	xys := make([]plotter.XYs, 0)
+	var xys []plotter.XYs
 
 	for _, v := range vs {
 		switch t := v.(type) {
@@ -81,14 +81,11 @@ func AddStackedAreaPlots(plt *plot.Plot, normalize bool, xs plotter.Valuer, vs .
 
 		ps = append(ps, l)
 	}
-	
+
 	for i, l := range ps {
 		plt.Add(l)
 		plt.Legend.Add(names[i], l)
 	}
-
-	plt.Legend.Top = true
-	plt.Legend.Left = true
 
 	return nil
 }
