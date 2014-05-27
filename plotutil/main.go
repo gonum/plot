@@ -9,7 +9,62 @@ import (
 	"math/rand"
 )
 
+var examples = []struct {
+	name   string
+	mkplot func() *plot.Plot
+}{
+	{"example_errpoints", Example_errpoints},
+}
+
 func main() {
+	for _, ex := range examples {
+		drawEps(ex.name, ex.mkplot)
+		drawSvg(ex.name, ex.mkplot)
+		drawPng(ex.name, ex.mkplot)
+		drawTiff(ex.name, ex.mkplot)
+		drawJpg(ex.name, ex.mkplot)
+		drawPdf(ex.name, ex.mkplot)
+	}
+}
+
+func drawEps(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
+		panic(err)
+	}
+}
+
+func drawPdf(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
+		panic(err)
+	}
+}
+
+func drawSvg(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
+		panic(err)
+	}
+}
+
+func drawPng(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".png"); err != nil {
+		panic(err)
+	}
+}
+
+func drawTiff(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
+		panic(err)
+	}
+}
+
+func drawJpg(name string, mkplot func() *plot.Plot) {
+	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
+		panic(err)
+	}
+}
+
+// Example_errpoints draws some error points.
+func Example_errpoints() *plot.Plot {
 	// Get some random data.
 	n, m := 5, 10
 	pts := make([]plotter.XYer, n)
@@ -46,5 +101,5 @@ func main() {
 		panic(err)
 	}
 
-	plt.Save(4, 4, "errpoints.png")
+	return plt
 }
