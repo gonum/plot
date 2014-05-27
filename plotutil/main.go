@@ -14,6 +14,7 @@ var examples = []struct {
 	mkplot func() *plot.Plot
 }{
 	{"example_errpoints", Example_errpoints},
+	{"example_stackedAreaChart", Example_stackedAreaChart},
 }
 
 func main() {
@@ -102,4 +103,43 @@ func Example_errpoints() *plot.Plot {
 	}
 
 	return plt
+}
+
+// An example of making a stacked area chart.
+func Example_stackedAreaChart() *plot.Plot {
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+
+	p.Title.Text = "Example: Software Version Comparison"
+	p.X.Label.Text = "Date"
+	p.Y.Label.Text = "Users (in thousands)"
+
+	p.Legend.Top = true
+	p.Legend.Left = true
+
+	saVals := []interface{}{
+		"Beta",
+		plotter.Values{0.02, 0.015, 0, 0, 0, 0, 0},
+		"Version 1.0",
+		plotter.Values{0, 0.48, 0.36, 0.34, 0.32, 0.32, 0.28},
+		"Version 1.1",
+		plotter.Values{0, 0, 0.87, 1.4, 0.64, 0.32, 0.28},
+		"Version 2.0",
+		plotter.Values{0, 0, 0, 1.26, 0.34, 0.12, 0.09},
+		"Version 2.0.1",
+		plotter.Values{0, 0, 0, 0, 2.48, 2.68, 2.13},
+		"Version 2.1",
+		plotter.Values{0, 0, 0, 0, 0, 1.32, 0.54},
+		"Version 3.0",
+		plotter.Values{0, 0, 0, 0, 0, 0.68, 5.67},
+	}
+
+	err = plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013}, saVals...)
+	if err != nil {
+		panic(err)
+	}
+
+	return p
 }
