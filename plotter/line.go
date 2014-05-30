@@ -5,7 +5,10 @@
 package plotter
 
 import (
+	"image/color"
+
 	"code.google.com/p/plotinum/plot"
+	"code.google.com/p/plotinum/vg"
 )
 
 // Line implements the Plotter interface, drawing a line.
@@ -16,6 +19,9 @@ type Line struct {
 	// LineStyle is the style of the line connecting
 	// the points.
 	plot.LineStyle
+
+	// ShadeColor is the color of the shaded area.
+	ShadeColor *color.Color
 }
 
 // NewLine returns a Line that uses the default line style and
@@ -36,10 +42,33 @@ func NewLine(xys XYer) (*Line, error) {
 func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	ps := make([]plot.Point, len(pts.XYs))
+
+	if pts.ShadeColor != nil {
+		da.SetColor(*pts.ShadeColor)
+	}
+
+	minY := trY(plt.Y.Min)
+	var pa vg.Path
+
 	for i, p := range pts.XYs {
 		ps[i].X = trX(p.X)
 		ps[i].Y = trY(p.Y)
+
+		if pts.ShadeColor == nil {
+			continue
+		}
+
+		if i == 0 {
+			pa.Move(ps[i].X, minY)
+		}
+		
+		pa.Line(ps[i].X, ps[i].Y)
 	}
+
+	pa.Line(ps[len(pts.XYs)-1].X, minY)
+	pa.Close()
+	da.Fill(pa)
+
 	da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
 }
 
@@ -53,8 +82,21 @@ func (pts *Line) DataRange() (xmin, xmax, ymin, ymax float64) {
 // Thumbnail the thumbnail for the Line,
 // implementing the plot.Thumbnailer interface.
 func (pts *Line) Thumbnail(da *plot.DrawArea) {
-	y := da.Center().Y
-	da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
+	if pts.ShadeColor != nil {
+		points := []plot.Point{
+			{da.Min.X, da.Min.Y},
+			{da.Min.X, da.Max().Y},
+			{da.Max().X, da.Max().Y},
+			{da.Max().X, da.Min.Y},
+		}
+		poly := da.ClipPolygonY(points)
+		da.FillPolygon(*pts.ShadeColor, poly)
+
+		points = append(points, plot.Pt(da.Min.X, da.Min.Y))
+	} else {
+		y := da.Center().Y
+		da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
+	}
 }
 
 // NewLinePoints returns both a Line and a

@@ -4,8 +4,75 @@ import (
 	"code.google.com/p/plotinum/plot"
 	"code.google.com/p/plotinum/plotter"
 	"code.google.com/p/plotinum/vg"
+	"errors"
 	"fmt"
 )
+
+type combineXYs struct{ xs, ys plotter.Valuer }
+
+func (c combineXYs) Len() int                    { return c.xs.Len() }
+func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Value(i) }
+
+// AddStackedAreaPlots adds stacked area plot plotters to
+// a plot.
+// The variadic arguments must be either strings
+// or plotter.Valuers.  Each valuer adds a stacked area
+// plot to the plot above the stacked area plots added
+// before it.  If a plotter.Valuer is immediately
+// preceeded by a string then the string value is used to
+// label the legend.
+// Plots should be added in order of tallest to shortest,
+// because they will be drawn in the order they are added
+// (i.e. later plots will be painted over earlier plots).
+//
+// If an error occurs then none of the plotters are added
+// to the plot, and the error is returned.
+func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
+	var ps []plot.Plotter
+	names := make(map[*plotter.Line]string)
+	name := ""
+	var i int
+
+	for _, v := range vs {
+		switch t := v.(type) {
+		case string:
+			name = t
+
+		case plotter.Valuer:
+			if xs.Len() != t.Len() {
+				return errors.New("X/Y length mismatch")
+			}
+
+			// Make a line plotter and set its style.
+			l, err := plotter.NewLine(combineXYs{xs: xs, ys: t})
+			if err != nil {
+				return err
+			}
+
+			l.LineStyle.Width = vg.Points(0)
+			color := Color(i)
+			i++
+			l.ShadeColor = &color
+
+			ps = append(ps, l)
+
+			if name != "" {
+				names[l] = name
+				name = ""
+			}
+
+		default:
+			panic(fmt.Sprintf("AddStackedAreaPlots handles strings and plotter.Valuers, got %T", t))
+		}
+	}
+
+	plt.Add(ps...)
+	for p, n := range names {
+		plt.Legend.Add(n, p)
+	}
+
+	return nil
+}
 
 // AddBoxPlots adds box plot plotters to a plot and
 // sets the X axis of the plot to be nominal.
@@ -38,7 +105,7 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) error {
 			name = ""
 
 		default:
-			panic(fmt.Sprintf("AddScatters handles strings and plotter.XYers, got %T", t))
+			panic(fmt.Sprintf("AddBoxPlots handles strings and plotter.Valuers, got %T", t))
 		}
 	}
 	plt.Add(ps...)
