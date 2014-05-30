@@ -13,11 +13,10 @@ type combineXYs struct{ xs, ys plotter.Valuer }
 func (c combineXYs) Len() int                    { return c.xs.Len() }
 func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Value(i) }
 
-// AddStackedAreaPlots adds stacked area plot plotters to
-// a plot.
+// AddStackedAreaPlots adds stacked area plot plotters to a plot.
 // The variadic arguments must be either strings
 // or plotter.Valuers.  Each valuer adds a stacked area
-// plot to the plot above the stacked area plots added
+// plot to the plot below the stacked area plots added
 // before it.  If a plotter.Valuer is immediately
 // preceeded by a string then the string value is used to
 // label the legend.
