@@ -43,31 +43,23 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&da)
 	ps := make([]plot.Point, len(pts.XYs))
 
-	if pts.ShadeColor != nil {
-		da.SetColor(*pts.ShadeColor)
-	}
-
-	minY := trY(plt.Y.Min)
-	var pa vg.Path
-
 	for i, p := range pts.XYs {
 		ps[i].X = trX(p.X)
 		ps[i].Y = trY(p.Y)
-
-		if pts.ShadeColor == nil {
-			continue
-		}
-
-		if i == 0 {
-			pa.Move(ps[i].X, minY)
-		}
-		
-		pa.Line(ps[i].X, ps[i].Y)
 	}
 
-	pa.Line(ps[len(pts.XYs)-1].X, minY)
-	pa.Close()
-	da.Fill(pa)
+	if pts.ShadeColor != nil && len(ps) > 0 {
+		da.SetColor(*pts.ShadeColor)
+		minY := trY(plt.Y.Min)
+		var pa vg.Path
+		pa.Move(ps[0].X, minY)
+		for i := range pts.XYs {
+			pa.Line(ps[i].X, ps[i].Y)
+		}
+		pa.Line(ps[len(pts.XYs)-1].X, minY)
+		pa.Close()
+		da.Fill(pa)
+	}
 
 	da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
 }
