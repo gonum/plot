@@ -9,9 +9,6 @@ package vgimg
 
 import (
 	"bufio"
-	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/go.image/tiff"
-	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image"
 	"image/color"
@@ -19,6 +16,10 @@ import (
 	"image/jpeg"
 	"image/png"
 	"io"
+
+	"code.google.com/p/draw2d/draw2d"
+	"code.google.com/p/plotinum/vg"
+	"golang.org/x/image/tiff"
 )
 
 // dpi is the number of dots per inch.
