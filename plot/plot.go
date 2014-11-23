@@ -16,11 +16,6 @@
 package plot
 
 import (
-	"code.google.com/p/plotinum/vg"
-	"code.google.com/p/plotinum/vg/vgeps"
-	"code.google.com/p/plotinum/vg/vgimg"
-	"code.google.com/p/plotinum/vg/vgpdf"
-	"code.google.com/p/plotinum/vg/vgsvg"
 	"fmt"
 	"image/color"
 	"io"
@@ -28,6 +23,12 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"code.google.com/p/plotinum/vg"
+	"code.google.com/p/plotinum/vg/vgeps"
+	"code.google.com/p/plotinum/vg/vgimg"
+	"code.google.com/p/plotinum/vg/vgpdf"
+	"code.google.com/p/plotinum/vg/vgsvg"
 )
 
 const (
@@ -476,7 +477,8 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	if err != nil {
 		return err
 	}
-	defer f.Close()
-	_, err = c.WriteTo(f)
-	return err
+	if _, err = c.WriteTo(f); err != nil {
+		return err
+	}
+	return f.Close()
 }
