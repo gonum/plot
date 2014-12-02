@@ -53,13 +53,22 @@ func New(width, height vg.Length) *Canvas {
 // minimum point of the given image
 // should probably be 0,0.
 func NewImage(img draw.Image) *Canvas {
-	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
 	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
-	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
 	gc := draw2d.NewGraphicContext(img)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
+	return NewImageWithContext(img, gc)
+}
+
+// NewImageWithContext returns a new image canvas
+// that draws to the given image, using the given graphic context.
+// The minimum point of the given image
+// should probably be 0,0.
+func NewImageWithContext(img draw.Image, gc draw2d.GraphicContext) *Canvas {
+	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
+	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
+	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
 	c := &Canvas{
 		gc:    gc,
 		img:   img,
