@@ -31,8 +31,9 @@ import (
 	"code.google.com/p/plotinum/vg/vgsvg"
 )
 
-const (
-	defaultFont = "Times-Roman"
+var (
+	// DefaultFont is the name of the default font for plot text.
+	DefaultFont = "Times-Roman"
 )
 
 // Plot is the basic type representing a plot.
@@ -86,7 +87,7 @@ type DataRanger interface {
 // New returns a new plot with some reasonable
 // default settings.
 func New() (*Plot, error) {
-	titleFont, err := vg.MakeFont(defaultFont, 12)
+	titleFont, err := vg.MakeFont(DefaultFont, 12)
 	if err != nil {
 		return nil, err
 	}

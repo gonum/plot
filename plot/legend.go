@@ -69,7 +69,7 @@ type Thumbnailer interface {
 // makeLegend returns a legend with the default
 // parameter settings.
 func makeLegend() (Legend, error) {
-	font, err := vg.MakeFont(defaultFont, vg.Points(12))
+	font, err := vg.MakeFont(DefaultFont, vg.Points(12))
 	if err != nil {
 		return Legend{}, err
 	}
