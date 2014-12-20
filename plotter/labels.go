@@ -12,8 +12,8 @@ import (
 )
 
 var (
-	// DefaultFont is the default font name.
-	DefaultFont = "Times-Roman"
+	// DefaultFont is the default font for label text.
+	DefaultFont = plot.DefaultFont
 
 	// DefaultFontSize is the default font.
 	DefaultFontSize = vg.Points(10)
