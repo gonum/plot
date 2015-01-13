@@ -174,6 +174,13 @@ func (f *Font) Width(s string) Length {
 	return Points(float64(width)) * scale
 }
 
+// AddFont associates a truetype.Font with the given name.
+func AddFont(name string, font *truetype.Font) {
+	fontLock.RLock()
+	loadedFonts[name] = font
+	fontLock.RUnlock()
+}
+
 // getFont returns the truetype.Font for the given font name or an error.
 func getFont(name string) (*truetype.Font, error) {
 	fontLock.RLock()
