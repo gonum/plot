@@ -9,8 +9,9 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 type BarChart struct {
@@ -23,7 +24,7 @@ type BarChart struct {
 	Color color.Color
 
 	// LineStyle is the style of the outline of the bars.
-	plot.LineStyle
+	draw.LineStyle
 
 	// Offset is added to the x location of each bar.
 	// When the Offset is zero, the bars are drawn
@@ -87,13 +88,13 @@ func (b *BarChart) StackOn(on *BarChart) {
 }
 
 // Plot implements the plot.Plotter interface.
-func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 
 	for i, ht := range b.Values {
 		x := b.XMin + float64(i)
 		xmin := trX(float64(x))
-		if !da.ContainsX(xmin) {
+		if !c.ContainsX(xmin) {
 			continue
 		}
 		xmin = xmin - b.Width/2 + b.Offset
@@ -102,18 +103,18 @@ func (b *BarChart) Plot(da plot.DrawArea, plt *plot.Plot) {
 		ymin := trY(bottom)
 		ymax := trY(bottom + ht)
 
-		pts := []plot.Point{
+		pts := []draw.Point{
 			{xmin, ymin},
 			{xmin, ymax},
 			{xmax, ymax},
 			{xmax, ymin},
 		}
-		poly := da.ClipPolygonY(pts)
-		da.FillPolygon(b.Color, poly)
+		poly := c.ClipPolygonY(pts)
+		c.FillPolygon(b.Color, poly)
 
-		pts = append(pts, plot.Pt(xmin, ymin))
-		outline := da.ClipLinesY(pts)
-		da.StrokeLines(b.LineStyle, outline...)
+		pts = append(pts, draw.Point{xmin, ymin})
+		outline := c.ClipLinesY(pts)
+		c.StrokeLines(b.LineStyle, outline...)
 	}
 }
 
@@ -139,25 +140,25 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i := range b.Values {
 		x := b.XMin + float64(i)
 		boxes[i].X = plt.X.Norm(x)
-		boxes[i].Rect = plot.Rect{
-			Min:  plot.Point{X: b.Offset - b.Width/2},
-			Size: plot.Point{X: b.Width},
+		boxes[i].Rect = draw.Rect{
+			Min:  draw.Point{X: b.Offset - b.Width/2},
+			Size: draw.Point{X: b.Width},
 		}
 	}
 	return boxes
 }
 
-func (b *BarChart) Thumbnail(da *plot.DrawArea) {
-	pts := []plot.Point{
-		{da.Min.X, da.Min.Y},
-		{da.Min.X, da.Max().Y},
-		{da.Max().X, da.Max().Y},
-		{da.Max().X, da.Min.Y},
+func (b *BarChart) Thumbnail(c *draw.Canvas) {
+	pts := []draw.Point{
+		{c.Min.X, c.Min.Y},
+		{c.Min.X, c.Max().Y},
+		{c.Max().X, c.Max().Y},
+		{c.Max().X, c.Min.Y},
 	}
-	poly := da.ClipPolygonY(pts)
-	da.FillPolygon(b.Color, poly)
+	poly := c.ClipPolygonY(pts)
+	c.FillPolygon(b.Color, poly)
 
-	pts = append(pts, plot.Pt(da.Min.X, da.Min.Y))
-	outline := da.ClipLinesY(pts)
-	da.StrokeLines(b.LineStyle, outline...)
+	pts = append(pts, draw.Point{c.Min.X, c.Min.Y})
+	outline := c.ClipLinesY(pts)
+	c.StrokeLines(b.LineStyle, outline...)
 }

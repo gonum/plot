@@ -7,13 +7,14 @@ package plotter
 import (
 	"image/color"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 var (
 	// DefaultGridLineStyle is the default style for grid lines.
-	DefaultGridLineStyle = plot.LineStyle{
+	DefaultGridLineStyle = draw.LineStyle{
 		Color: color.Gray{128},
 		Width: vg.Points(0.25),
 	}
@@ -23,10 +24,10 @@ var (
 // a set of grid lines at the major tick marks.
 type Grid struct {
 	// Vertical is the style of the vertical lines.
-	Vertical plot.LineStyle
+	Vertical draw.LineStyle
 
 	// Horizontal is the style of the horizontal lines.
-	Horizontal plot.LineStyle
+	Horizontal draw.LineStyle
 }
 
 // NewGrid returns a new grid with both vertical and
@@ -39,29 +40,29 @@ func NewGrid() *Grid {
 }
 
 // Plot implements the plot.Plotter interface.
-func (g *Grid) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 
 	if g.Vertical.Color == nil {
 		goto horiz
 	}
-	for _, tk := range plt.X.Tick.Marker(plt.X.Min, plt.X.Max) {
+	for _, tk := range plt.X.Tick.Marker.Ticks(plt.X.Min, plt.X.Max) {
 		if tk.IsMinor() {
 			continue
 		}
 		x := trX(tk.Value)
-		da.StrokeLine2(g.Vertical, x, da.Min.Y, x, da.Min.Y+da.Size.Y)
+		c.StrokeLine2(g.Vertical, x, c.Min.Y, x, c.Min.Y+c.Size.Y)
 	}
 
 horiz:
 	if g.Horizontal.Color == nil {
 		return
 	}
-	for _, tk := range plt.Y.Tick.Marker(plt.Y.Min, plt.Y.Max) {
+	for _, tk := range plt.Y.Tick.Marker.Ticks(plt.Y.Min, plt.Y.Max) {
 		if tk.IsMinor() {
 			continue
 		}
 		y := trY(tk.Value)
-		da.StrokeLine2(g.Horizontal, da.Min.X, y, da.Min.X+da.Size.X, y)
+		c.StrokeLine2(g.Horizontal, c.Min.X, y, c.Min.X+c.Size.X, y)
 	}
 }

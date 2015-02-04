@@ -10,7 +10,22 @@ import (
 	"math"
 
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
+
+// Ticker creates Ticks in a specified range
+type Ticker interface {
+	// Ticks returns Ticks in a specified range
+	Ticks(min, max float64) []Tick
+}
+
+// Normalizer rescales values from the data coordinate system to the
+// normalized coordinate system.
+type Normalizer interface {
+	// Normalize transforms a value x in the data coordinate system to
+	// the normalized coordinate system.
+	Normalize(min, max, x float64) float64
+}
 
 // An Axis represents either a horizontal or vertical
 // axis of a plot.
@@ -24,11 +39,11 @@ type Axis struct {
 		Text string
 
 		// TextStyle is the style of the axis label text.
-		TextStyle
+		draw.TextStyle
 	}
 
 	// LineStyle is the style of the axis line.
-	LineStyle
+	draw.LineStyle
 
 	// Padding between the axis line and the data.  Having
 	// non-zero padding ensures that the data is never drawn
@@ -37,10 +52,10 @@ type Axis struct {
 
 	Tick struct {
 		// Label is the TextStyle on the tick labels.
-		Label TextStyle
+		Label draw.TextStyle
 
 		// LineStyle is the LineStyle of the tick lines.
-		LineStyle
+		draw.LineStyle
 
 		// Length is the length of a major tick mark.
 		// Minor tick marks are half of the length of major
@@ -50,13 +65,13 @@ type Axis struct {
 		// Marker returns the tick marks.  Any tick marks
 		// returned by the Marker function that are not in
 		// range of the axis are not drawn.
-		Marker func(min, max float64) []Tick
+		Marker Ticker
 	}
 
 	// Scale transforms a value given in the data coordinate system
 	// to the normalized coordinate system of the axis—its distance
 	// along the axis as a fraction of the axis range.
-	Scale func(min, max, x float64) float64
+	Scale Normalizer
 }
 
 // makeAxis returns a default Axis.
@@ -77,27 +92,27 @@ func makeAxis() (Axis, error) {
 	a := Axis{
 		Min: math.Inf(1),
 		Max: math.Inf(-1),
-		LineStyle: LineStyle{
+		LineStyle: draw.LineStyle{
 			Color: color.Black,
 			Width: vg.Points(0.5),
 		},
 		Padding: vg.Points(5),
-		Scale:   LinearScale,
+		Scale:   LinearScale{},
 	}
-	a.Label.TextStyle = TextStyle{
+	a.Label.TextStyle = draw.TextStyle{
 		Color: color.Black,
 		Font:  labelFont,
 	}
-	a.Tick.Label = TextStyle{
+	a.Tick.Label = draw.TextStyle{
 		Color: color.Black,
 		Font:  tickFont,
 	}
-	a.Tick.LineStyle = LineStyle{
+	a.Tick.LineStyle = draw.LineStyle{
 		Color: color.Black,
 		Width: vg.Points(0.5),
 	}
 	a.Tick.Length = vg.Points(8)
-	a.Tick.Marker = DefaultTicks
+	a.Tick.Marker = DefaultTicks{}
 
 	return a, nil
 }
@@ -122,13 +137,21 @@ func (a *Axis) sanitizeRange() {
 
 // LinearScale an be used as the value of an Axis.Scale function to
 // set the axis to a standard linear scale.
-func LinearScale(min, max, x float64) float64 {
+type LinearScale struct{}
+
+var _ Normalizer = LinearScale{}
+
+func (LinearScale) Normalize(min, max, x float64) float64 {
 	return (x - min) / (max - min)
 }
 
 // LocScale can be used as the value of an Axis.Scale function to
 // set the axis to a log scale.
-func LogScale(min, max, x float64) float64 {
+type LogScale struct{}
+
+var _ Normalizer = LogScale{}
+
+func (LogScale) Normalize(min, max, x float64) float64 {
 	logMin := log(min)
 	return (log(x) - logMin) / (log(max) - logMin)
 }
@@ -138,7 +161,7 @@ func LogScale(min, max, x float64) float64 {
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
 func (a *Axis) Norm(x float64) float64 {
-	return a.Scale(a.Min, a.Max, x)
+	return a.Scale.Normalize(a.Min, a.Max, x)
 }
 
 // drawTicks returns true if the tick marks should be drawn.
@@ -158,7 +181,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
+	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
@@ -169,22 +192,22 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	return
 }
 
-// draw draws the axis along the lower edge of a DrawArea.
-func (a *horizontalAxis) draw(da DrawArea) {
-	y := da.Min.Y
+// draw draws the axis along the lower edge of a draw.Canvas.
+func (a *horizontalAxis) draw(c draw.Canvas) {
+	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		da.FillText(a.Label.TextStyle, da.Center().X, y, -0.5, 0, a.Label.Text)
+		c.FillText(a.Label.TextStyle, c.Center().X, y, -0.5, 0, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
 
-	marks := a.Tick.Marker(a.Min, a.Max)
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
 	for _, t := range marks {
-		x := da.X(a.Norm(t.Value))
-		if !da.ContainsX(x) || t.IsMinor() {
+		x := c.X(a.Norm(t.Value))
+		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		da.FillText(a.Tick.Label, x, y, -0.5, 0, t.Label)
+		c.FillText(a.Tick.Label, x, y, -0.5, 0, t.Label)
 	}
 
 	if len(marks) > 0 {
@@ -196,29 +219,29 @@ func (a *horizontalAxis) draw(da DrawArea) {
 	if len(marks) > 0 && a.drawTicks() {
 		len := a.Tick.Length
 		for _, t := range marks {
-			x := da.X(a.Norm(t.Value))
-			if !da.ContainsX(x) {
+			x := c.X(a.Norm(t.Value))
+			if !c.ContainsX(x) {
 				continue
 			}
 			start := t.lengthOffset(len)
-			da.StrokeLine2(a.Tick.LineStyle, x, y+start, x, y+len)
+			c.StrokeLine2(a.Tick.LineStyle, x, y+start, x, y+len)
 		}
 		y += len
 	}
 
-	da.StrokeLine2(a.LineStyle, da.Min.X, y, da.Max().X, y)
+	c.StrokeLine2(a.LineStyle, c.Min.X, y, c.Max().X, y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
 func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker(a.Min, a.Max) {
+	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
 		}
 		w := a.Tick.Label.Width(t.Label)
 		box := GlyphBox{
 			X:    a.Norm(t.Value),
-			Rect: Rect{Point{X: -w / 2}, Point{X: w}},
+			Rect: draw.Rect{draw.Point{X: -w / 2}, draw.Point{X: w}},
 		}
 		boxes = append(boxes, box)
 	}
@@ -236,7 +259,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker(a.Min, a.Max); len(marks) > 0 {
+	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
@@ -250,28 +273,28 @@ func (a *verticalAxis) size() (w vg.Length) {
 	return
 }
 
-// draw draws the axis along the left side of a DrawArea.
-func (a *verticalAxis) draw(da DrawArea) {
-	x := da.Min.X
+// draw draws the axis along the left side of a draw.Canvas.
+func (a *verticalAxis) draw(c draw.Canvas) {
+	x := c.Min.X
 	if a.Label.Text != "" {
 		x += a.Label.Height(a.Label.Text)
-		da.Push()
-		da.Rotate(math.Pi / 2)
-		da.FillText(a.Label.TextStyle, da.Center().Y, -x, -0.5, 0, a.Label.Text)
-		da.Pop()
+		c.Push()
+		c.Rotate(math.Pi / 2)
+		c.FillText(a.Label.TextStyle, c.Center().Y, -x, -0.5, 0, a.Label.Text)
+		c.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
-	marks := a.Tick.Marker(a.Min, a.Max)
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
 	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
 	major := false
 	for _, t := range marks {
-		y := da.Y(a.Norm(t.Value))
-		if !da.ContainsY(y) || t.IsMinor() {
+		y := c.Y(a.Norm(t.Value))
+		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		da.FillText(a.Tick.Label, x, y, -1, -0.5, t.Label)
+		c.FillText(a.Tick.Label, x, y, -1, -0.5, t.Label)
 		major = true
 	}
 	if major {
@@ -280,28 +303,28 @@ func (a *verticalAxis) draw(da DrawArea) {
 	if a.drawTicks() && len(marks) > 0 {
 		len := a.Tick.Length
 		for _, t := range marks {
-			y := da.Y(a.Norm(t.Value))
-			if !da.ContainsY(y) {
+			y := c.Y(a.Norm(t.Value))
+			if !c.ContainsY(y) {
 				continue
 			}
 			start := t.lengthOffset(len)
-			da.StrokeLine2(a.Tick.LineStyle, x+start, y, x+len, y)
+			c.StrokeLine2(a.Tick.LineStyle, x+start, y, x+len, y)
 		}
 		x += len
 	}
-	da.StrokeLine2(a.LineStyle, x, da.Min.Y, x, da.Max().Y)
+	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max().Y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
 func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker(a.Min, a.Max) {
+	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
 		}
 		h := a.Tick.Label.Height(t.Label)
 		box := GlyphBox{
 			Y:    a.Norm(t.Value),
-			Rect: Rect{Point{Y: -h / 2}, Point{Y: h}},
+			Rect: draw.Rect{draw.Point{Y: -h / 2}, draw.Point{Y: h}},
 		}
 		boxes = append(boxes, box)
 	}
@@ -310,7 +333,12 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
 // it returns a resonable default set of tick marks.
-func DefaultTicks(min, max float64) (ticks []Tick) {
+type DefaultTicks struct{}
+
+var _ Ticker = DefaultTicks{}
+
+// Ticks returns Ticks in a specified range
+func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	const SuggestedTicks = 3
 	if max < min {
 		panic("illegal range")
@@ -370,7 +398,12 @@ func DefaultTicks(min, max float64) (ticks []Tick) {
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
 // it returns tick marks suitable for a log-scale axis.
-func LogTicks(min, max float64) []Tick {
+type LogTicks struct{}
+
+var _ Ticker = LogTicks{}
+
+// Ticks returns Ticks in a specified range
+func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 	if min <= 0 {
@@ -391,12 +424,15 @@ func LogTicks(min, max float64) []Tick {
 	return ticks
 }
 
-// ConstantTicks returns a function suitable for the Tick.Marker
-// field of an Axis.  This function returns the given set of ticks.
-func ConstantTicks(ts []Tick) func(float64, float64) []Tick {
-	return func(float64, float64) []Tick {
-		return ts
-	}
+// ConstantTicks is suitable for the Tick.Marker field of an Axis.
+// This function returns the given set of ticks.
+type ConstantTicks []Tick
+
+var _ Ticker = ConstantTicks{}
+
+// Ticks returns Ticks in a specified range
+func (ts ConstantTicks) Ticks(float64, float64) []Tick {
+	return ts
 }
 
 // A Tick is a single tick mark on an axis.
@@ -427,7 +463,7 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 }
 
 // tickLabelHeight returns height of the tick mark labels.
-func tickLabelHeight(sty TextStyle, ticks []Tick) vg.Length {
+func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
 	maxHeight := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {
@@ -442,7 +478,7 @@ func tickLabelHeight(sty TextStyle, ticks []Tick) vg.Length {
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
-func tickLabelWidth(sty TextStyle, ticks []Tick) vg.Length {
+func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {

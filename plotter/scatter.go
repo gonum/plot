@@ -5,7 +5,8 @@
 package plotter
 
 import (
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // Scatter implements the Plotter interface, drawing
@@ -16,7 +17,7 @@ type Scatter struct {
 
 	// GlyphStyle is the style of the glyphs drawn
 	// at each point.
-	plot.GlyphStyle
+	draw.GlyphStyle
 }
 
 // NewScatter returns a Scatter that uses the
@@ -34,10 +35,10 @@ func NewScatter(xys XYer) (*Scatter, error) {
 
 // Plot draws the Scatter, implementing the plot.Plotter
 // interface.
-func (pts *Scatter) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 	for _, p := range pts.XYs {
-		da.DrawGlyph(pts.GlyphStyle, plot.Pt(trX(p.X), trY(p.Y)))
+		c.DrawGlyph(pts.GlyphStyle, draw.Point{trX(p.X), trY(p.Y)})
 	}
 }
 
@@ -62,6 +63,6 @@ func (pts *Scatter) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 
 // Thumbnail the thumbnail for the Scatter,
 // implementing the plot.Thumbnailer interface.
-func (pts *Scatter) Thumbnail(da *plot.DrawArea) {
-	da.DrawGlyph(pts.GlyphStyle, da.Center())
+func (pts *Scatter) Thumbnail(c *draw.Canvas) {
+	c.DrawGlyph(pts.GlyphStyle, c.Center())
 }

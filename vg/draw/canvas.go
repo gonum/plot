@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plot
+package draw
 
 import (
 	"image/color"
@@ -12,10 +12,10 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
-// A DrawArea is a vector graphics canvas along with
+// A Canvas is a vector graphics canvas along with
 // an associated Rect defining a section of the canvas
 // to which drawing should take place.
-type DrawArea struct {
+type Canvas struct {
 	vg.Canvas
 	Rect
 }
@@ -58,28 +58,28 @@ type GlyphStyle struct {
 type GlyphDrawer interface {
 	// DrawGlyph draws the glyph at the given
 	// point, with the given color and radius.
-	DrawGlyph(*DrawArea, GlyphStyle, Point)
+	DrawGlyph(*Canvas, GlyphStyle, Point)
 }
 
 // DrawGlyph draws the given glyph to the draw
-// area.  If the point is not within the DrawArea
+// area.  If the point is not within the Canvas
 // or the sty.Shape is nil then nothing is drawn.
-func (da *DrawArea) DrawGlyph(sty GlyphStyle, pt Point) {
-	if sty.Shape == nil || !da.Contains(pt) {
+func (c *Canvas) DrawGlyph(sty GlyphStyle, pt Point) {
+	if sty.Shape == nil || !c.Contains(pt) {
 		return
 	}
-	da.SetColor(sty.Color)
-	sty.Shape.DrawGlyph(da, sty, pt)
+	c.SetColor(sty.Color)
+	sty.Shape.DrawGlyph(c, sty, pt)
 }
 
 // DrawGlyphNoClip draws the given glyph to the draw
 // area.  If the sty.Shape is nil then nothing is drawn.
-func (da *DrawArea) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
+func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
 	if sty.Shape == nil {
 		return
 	}
-	da.SetColor(sty.Color)
-	sty.Shape.DrawGlyph(da, sty, pt)
+	c.SetColor(sty.Color)
+	sty.Shape.DrawGlyph(c, sty, pt)
 }
 
 // Rect returns the rectangle surrounding this glyph,
@@ -92,25 +92,25 @@ func (g GlyphStyle) Rect() Rect {
 type CircleGlyph struct{}
 
 // DrawGlyph implements the GlyphDrawer interface.
-func (c CircleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 	var p vg.Path
 	p.Move(pt.X+sty.Radius, pt.Y)
 	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
 	p.Close()
-	da.Fill(p)
+	c.Fill(p)
 }
 
 // RingGlyph is a glyph that draws the outline of a circle.
 type RingGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (RingGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+func (RingGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	var p vg.Path
 	p.Move(pt.X+sty.Radius, pt.Y)
 	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
 	p.Close()
-	da.Stroke(p)
+	c.Stroke(p)
 }
 
 const (
@@ -123,8 +123,8 @@ const (
 type SquareGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
 	p.Move(pt.X-x, pt.Y-x)
@@ -132,14 +132,14 @@ func (SquareGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 	p.Line(pt.X+x, pt.Y+x)
 	p.Line(pt.X-x, pt.Y+x)
 	p.Close()
-	da.Stroke(p)
+	c.Stroke(p)
 }
 
 // BoxGlyph is a glyph that draws a filled square.
 type BoxGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (BoxGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
 	p.Move(pt.X-x, pt.Y-x)
@@ -147,114 +147,112 @@ func (BoxGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
 	p.Line(pt.X+x, pt.Y+x)
 	p.Line(pt.X-x, pt.Y+x)
 	p.Close()
-	da.Fill(p)
+	c.Fill(p)
 }
 
 // TriangleGlyph is a glyph that draws the outline of a triangle.
 type TriangleGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (TriangleGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
 	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
 	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
 	p.Close()
-	da.Stroke(p)
+	c.Stroke(p)
 }
 
 // PyramidGlyph is a glyph that draws a filled triangle.
 type PyramidGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (PyramidGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
+func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
 	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
 	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
 	p.Close()
-	da.Fill(p)
+	c.Fill(p)
 }
 
 // PlusGlyph is a glyph that draws a plus sign
 type PlusGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (PlusGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
 	p.Line(pt.X, pt.Y-r)
-	da.Stroke(p)
+	c.Stroke(p)
 	p = vg.Path{}
 	p.Move(pt.X-r, pt.Y)
 	p.Line(pt.X+r, pt.Y)
-	da.Stroke(p)
+	c.Stroke(p)
 }
 
 // CrossGlyph is a glyph that draws a big X.
 type CrossGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (CrossGlyph) DrawGlyph(da *DrawArea, sty GlyphStyle, pt Point) {
-	da.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
+func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius * cosπover4
 	var p vg.Path
 	p.Move(pt.X-r, pt.Y-r)
 	p.Line(pt.X+r, pt.Y+r)
-	da.Stroke(p)
+	c.Stroke(p)
 	p = vg.Path{}
 	p.Move(pt.X-r, pt.Y+r)
 	p.Line(pt.X+r, pt.Y-r)
-	da.Stroke(p)
+	c.Stroke(p)
 }
 
-// MakeDrawArea returns a new DrawArea for a canvas with a
-// Size method.
-func MakeDrawArea(c interface {
+// New returns a new (bounded) draw.Canvas.
+func New(c interface {
 	vg.Canvas
 	Size() (vg.Length, vg.Length)
-}) DrawArea {
+}) Canvas {
 	w, h := c.Size()
-	return MakeDrawAreaSize(c, w, h)
+	return NewCanvas(c, w, h)
 }
 
-// MakeDrawAreaSize returns a new DrawArea of the given
-// size for a canvas.
-func MakeDrawAreaSize(c vg.Canvas, w, h vg.Length) DrawArea {
-	return DrawArea{
+// NewCanvas returns a new (bounded) draw.Canvas of the given size.
+func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
+	return Canvas{
 		Canvas: c,
 		Rect:   Rect{Size: Point{w, h}},
 	}
 }
 
 // Center returns the center point of the area
-func (da *DrawArea) Center() Point {
+func (c *Canvas) Center() Point {
 	return Point{
-		X: (da.Max().X-da.Min.X)/2 + da.Min.X,
-		Y: (da.Max().Y-da.Min.Y)/2 + da.Min.Y,
+		X: (c.Max().X-c.Min.X)/2 + c.Min.X,
+		Y: (c.Max().Y-c.Min.Y)/2 + c.Min.Y,
 	}
 }
 
-// Contains returns true if the DrawArea contains the point.
-func (da *DrawArea) Contains(p Point) bool {
-	return da.ContainsX(p.X) && da.ContainsY(p.Y)
+// Contains returns true if the Canvas contains the point.
+func (c *Canvas) Contains(p Point) bool {
+	return c.ContainsX(p.X) && c.ContainsY(p.Y)
 }
 
-// Contains returns true if the DrawArea contains the
+// Contains returns true if the Canvas contains the
 // x coordinate.
-func (da *DrawArea) ContainsX(x vg.Length) bool {
-	return x <= da.Max().X+slop && x >= da.Min.X-slop
+func (c *Canvas) ContainsX(x vg.Length) bool {
+	return x <= c.Max().X+slop && x >= c.Min.X-slop
 }
 
-// ContainsY returns true if the DrawArea contains the
+// ContainsY returns true if the Canvas contains the
 // y coordinate.
-func (da *DrawArea) ContainsY(y vg.Length) bool {
-	return y <= da.Max().Y+slop && y >= da.Min.Y-slop
+func (c *Canvas) ContainsY(y vg.Length) bool {
+	return y <= c.Max().Y+slop && y >= c.Min.Y-slop
 }
 
 // X returns the value of x, given in the unit range,
@@ -262,8 +260,8 @@ func (da *DrawArea) ContainsY(y vg.Length) bool {
 // A value of 0, for example, will return the minimum
 // x value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) X(x float64) vg.Length {
-	return vg.Length(x)*(da.Max().X-da.Min.X) + da.Min.X
+func (c *Canvas) X(x float64) vg.Length {
+	return vg.Length(x)*(c.Max().X-c.Min.X) + c.Min.X
 }
 
 // Y returns the value of x, given in the unit range,
@@ -271,47 +269,47 @@ func (da *DrawArea) X(x float64) vg.Length {
 // A value of 0, for example, will return the minimum
 // y value of the draw area and a value of 1 will
 // return the maximum.
-func (da *DrawArea) Y(y float64) vg.Length {
-	return vg.Length(y)*(da.Max().Y-da.Min.Y) + da.Min.Y
+func (c *Canvas) Y(y float64) vg.Length {
+	return vg.Length(y)*(c.Max().Y-c.Min.Y) + c.Min.Y
 }
 
-// crop returns a new DrawArea corresponding to the receiver
+// Crop returns a new Canvas corresponding to the receiver
 // area with the given number of inches added to the minimum
-// and maximum x and y values of the DrawArea's Rect.
-func (da DrawArea) crop(minx, miny, maxx, maxy vg.Length) DrawArea {
+// and maximum x and y values of the Canvas's Rect.
+func (c Canvas) Crop(minx, miny, maxx, maxy vg.Length) Canvas {
 	minpt := Point{
-		X: da.Min.X + minx,
-		Y: da.Min.Y + miny,
+		X: c.Min.X + minx,
+		Y: c.Min.Y + miny,
 	}
 	sz := Point{
-		X: da.Max().X + maxx - minpt.X,
-		Y: da.Max().Y + maxy - minpt.Y,
+		X: c.Max().X + maxx - minpt.X,
+		Y: c.Max().Y + maxy - minpt.Y,
 	}
-	return DrawArea{
-		Canvas: vg.Canvas(da),
+	return Canvas{
+		Canvas: vg.Canvas(c),
 		Rect:   Rect{Min: minpt, Size: sz},
 	}
 }
 
 // SetLineStyle sets the current line style
-func (da *DrawArea) SetLineStyle(sty LineStyle) {
-	da.SetColor(sty.Color)
-	da.SetLineWidth(sty.Width)
+func (c *Canvas) SetLineStyle(sty LineStyle) {
+	c.SetColor(sty.Color)
+	c.SetLineWidth(sty.Width)
 	var dashDots []vg.Length
 	for _, dash := range sty.Dashes {
 		dashDots = append(dashDots, dash)
 	}
-	da.SetLineDash(dashDots, sty.DashOffs)
+	c.SetLineDash(dashDots, sty.DashOffs)
 }
 
 // StrokeLines draws a line connecting a set of points
-// in the given DrawArea.
-func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
+// in the given Canvas.
+func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]Point) {
 	if len(lines) == 0 {
 		return
 	}
 
-	da.SetLineStyle(sty)
+	c.SetLineStyle(sty)
 
 	for _, l := range lines {
 		if len(l) == 0 {
@@ -322,34 +320,34 @@ func (da *DrawArea) StrokeLines(sty LineStyle, lines ...[]Point) {
 		for _, pt := range l[1:] {
 			p.Line(pt.X, pt.Y)
 		}
-		da.Stroke(p)
+		c.Stroke(p)
 	}
 }
 
 // StrokeLine2 draws a line between two points in the given
-// DrawArea.
-func (da *DrawArea) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
-	da.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
+// Canvas.
+func (c *Canvas) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
+	c.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
 }
 
 // ClipLineXY returns a slice of lines that
 // represent the given line clipped in both
 // X and Y directions.
-func (da *DrawArea) ClipLinesXY(lines ...[]Point) [][]Point {
-	return da.ClipLinesY(da.ClipLinesX(lines...)...)
+func (c *Canvas) ClipLinesXY(lines ...[]Point) [][]Point {
+	return c.ClipLinesY(c.ClipLinesX(lines...)...)
 }
 
 // ClipLineX returns a slice of lines that
 // represent the given line clipped in the
 // X direction.
-func (da *DrawArea) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
+func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 	var lines1 [][]Point
 	for _, line := range lines {
-		ls := clipLine(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0}, line)
+		ls := clipLine(isLeft, Point{c.Max().X, c.Min.Y}, Point{-1, 0}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, line)
+		ls := clipLine(isRight, Point{c.Min.X, c.Min.Y}, Point{1, 0}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -358,14 +356,14 @@ func (da *DrawArea) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 // ClipLineY returns a slice of lines that
 // represent the given line clipped in the
 // Y direction.
-func (da *DrawArea) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
+func (c *Canvas) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
 	var lines1 [][]Point
 	for _, line := range lines {
-		ls := clipLine(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, line)
+		ls := clipLine(isAbove, Point{c.Min.X, c.Min.Y}, Point{0, -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1}, line)
+		ls := clipLine(isBelow, Point{c.Min.X, c.Max().Y}, Point{0, 1}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -405,42 +403,42 @@ func clipLine(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines 
 }
 
 // FillPolygon fills a polygon with the given color.
-func (da *DrawArea) FillPolygon(clr color.Color, pts []Point) {
+func (c *Canvas) FillPolygon(clr color.Color, pts []Point) {
 	if len(pts) == 0 {
 		return
 	}
 
-	da.SetColor(clr)
+	c.SetColor(clr)
 	var p vg.Path
 	p.Move(pts[0].X, pts[0].Y)
 	for _, pt := range pts[1:] {
 		p.Line(pt.X, pt.Y)
 	}
 	p.Close()
-	da.Fill(p)
+	c.Fill(p)
 }
 
 // ClipPolygonXY returns a slice of lines that
 // represent the given polygon clipped in both
 // X and Y directions.
-func (da *DrawArea) ClipPolygonXY(pts []Point) []Point {
-	return da.ClipPolygonY(da.ClipPolygonX(pts))
+func (c *Canvas) ClipPolygonXY(pts []Point) []Point {
+	return c.ClipPolygonY(c.ClipPolygonX(pts))
 }
 
 // ClipPolygonX returns a slice of lines that
 // represent the given polygon clipped in the
 // X direction.
-func (da *DrawArea) ClipPolygonX(pts []Point) []Point {
-	return clipPoly(isLeft, Point{da.Max().X, da.Min.Y}, Point{-1, 0},
-		clipPoly(isRight, Point{da.Min.X, da.Min.Y}, Point{1, 0}, pts))
+func (c *Canvas) ClipPolygonX(pts []Point) []Point {
+	return clipPoly(isLeft, Point{c.Max().X, c.Min.Y}, Point{-1, 0},
+		clipPoly(isRight, Point{c.Min.X, c.Min.Y}, Point{1, 0}, pts))
 }
 
 // ClipPolygonY returns a slice of lines that
 // represent the given polygon clipped in the
 // Y direction.
-func (da *DrawArea) ClipPolygonY(pts []Point) []Point {
-	return clipPoly(isBelow, Point{da.Min.X, da.Max().Y}, Point{0, 1},
-		clipPoly(isAbove, Point{da.Min.X, da.Min.Y}, Point{0, -1}, pts))
+func (c *Canvas) ClipPolygonY(pts []Point) []Point {
+	return clipPoly(isBelow, Point{c.Min.X, c.Max().Y}, Point{0, 1},
+		clipPoly(isAbove, Point{c.Min.X, c.Min.Y}, Point{0, -1}, pts))
 }
 
 // clipPoly performs clipping of a polygon by a single
@@ -504,13 +502,13 @@ func isect(p0, p1, clip, norm Point) Point {
 // The text is offset by its width times xalign and
 // its height times yalign.  x and y give the bottom
 // left corner of the text befor e it is offset.
-func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
+func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
 	}
 
-	da.SetColor(sty.Color)
+	c.SetColor(sty.Color)
 
 	ht := sty.Height(txt)
 	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
@@ -518,7 +516,7 @@ func (da *DrawArea) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float
 	for i, line := range strings.Split(txt, "\n") {
 		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
-		da.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
+		c.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
 	}
 }
 
@@ -566,17 +564,6 @@ func textNLines(txt string) int {
 	return n
 }
 
-// rectPath returns the path of a Rectangle specified by its
-// upper left corner, width and height.
-func rectPath(r Rect) (p vg.Path) {
-	p.Move(r.Min.X, r.Min.Y)
-	p.Line(r.Max().X, r.Min.Y)
-	p.Line(r.Max().X, r.Max().Y)
-	p.Line(r.Min.X, r.Max().Y)
-	p.Close()
-	return
-}
-
 // A Rect represents a Rectangular region of 2d space.
 type Rect struct {
 	Min, Size Point
@@ -590,17 +577,23 @@ func (r Rect) Max() Point {
 	}
 }
 
+// Path returns the path of a Rect specified by its
+// upper left corner, width and height.
+func (r Rect) Path() (p vg.Path) {
+	p.Move(r.Min.X, r.Min.Y)
+	p.Line(r.Max().X, r.Min.Y)
+	p.Line(r.Max().X, r.Max().Y)
+	p.Line(r.Min.X, r.Max().Y)
+	p.Close()
+	return
+}
+
 // A Point is a location in 2d space.
 //
 // Points are used for drawing, not for data.  For
 // data, see the XYer interface.
 type Point struct {
 	X, Y vg.Length
-}
-
-// Pt returns a point from x, y coordinates.
-func Pt(x, y vg.Length) Point {
-	return Point{X: x, Y: y}
 }
 
 // dot returns the dot product of two points.

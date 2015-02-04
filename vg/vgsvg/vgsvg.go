@@ -62,7 +62,9 @@ func New(w, h vg.Length) *Canvas {
 <svg width="%.*gin" height="%.*gin"
 	xmlns="http://www.w3.org/2000/svg" 
 	xmlns:xlink="http://www.w3.org/1999/xlink">`+"\n",
-		pr, w.Inches(), pr, h.Inches())
+		pr, w/vg.Inch,
+		pr, h/vg.Inch,
+	)
 
 	// Swap the origin to the bottom left.
 	// This must be matched with a </g> when saving,

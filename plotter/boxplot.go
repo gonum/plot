@@ -9,8 +9,9 @@ import (
 	"math"
 	"sort"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // fiveStatPlot contains the shared fields for quartile
@@ -61,17 +62,17 @@ type BoxPlot struct {
 	CapWidth vg.Length
 
 	// GlyphStyle is the style of the outside point glyphs.
-	GlyphStyle plot.GlyphStyle
+	GlyphStyle draw.GlyphStyle
 
 	// BoxStyle is the line style for the box.
-	BoxStyle plot.LineStyle
+	BoxStyle draw.LineStyle
 
 	// MedianStyle is the line style for the median line.
-	MedianStyle plot.LineStyle
+	MedianStyle draw.LineStyle
 
 	// WhiskerStyle is the line style used to draw the
 	// whiskers.
-	WhiskerStyle plot.LineStyle
+	WhiskerStyle draw.LineStyle
 }
 
 // NewBoxPlot returns a new BoxPlot that represents
@@ -105,7 +106,7 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) (*BoxPlot, error) {
 	b.GlyphStyle = DefaultGlyphStyle
 	b.BoxStyle = DefaultLineStyle
 	b.MedianStyle = DefaultLineStyle
-	b.WhiskerStyle = plot.LineStyle{
+	b.WhiskerStyle = draw.LineStyle{
 		Width:  vg.Points(0.5),
 		Dashes: []vg.Length{vg.Points(4), vg.Points(2)},
 	}
@@ -180,10 +181,10 @@ func median(vs Values) float64 {
 	return med
 }
 
-func (b *BoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 	x := trX(b.Location)
-	if !da.ContainsX(x) {
+	if !c.ContainsX(x) {
 		return
 	}
 	x += b.Offset
@@ -194,32 +195,32 @@ func (b *BoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	aLow := trY(b.AdjLow)
 	aHigh := trY(b.AdjHigh)
 
-	box := da.ClipLinesY([]plot.Point{
+	box := c.ClipLinesY([]draw.Point{
 		{x - b.Width/2, q1},
 		{x - b.Width/2, q3},
 		{x + b.Width/2, q3},
 		{x + b.Width/2, q1},
 		{x - b.Width/2 - b.BoxStyle.Width/2, q1},
 	})
-	da.StrokeLines(b.BoxStyle, box...)
+	c.StrokeLines(b.BoxStyle, box...)
 
-	medLine := da.ClipLinesY([]plot.Point{
+	medLine := c.ClipLinesY([]draw.Point{
 		{x - b.Width/2, med},
 		{x + b.Width/2, med},
 	})
-	da.StrokeLines(b.MedianStyle, medLine...)
+	c.StrokeLines(b.MedianStyle, medLine...)
 
 	cap := b.CapWidth / 2
-	whisks := da.ClipLinesY([]plot.Point{{x, q3}, {x, aHigh}},
-		[]plot.Point{{x - cap, aHigh}, {x + cap, aHigh}},
-		[]plot.Point{{x, q1}, {x, aLow}},
-		[]plot.Point{{x - cap, aLow}, {x + cap, aLow}})
-	da.StrokeLines(b.WhiskerStyle, whisks...)
+	whisks := c.ClipLinesY([]draw.Point{{x, q3}, {x, aHigh}},
+		[]draw.Point{{x - cap, aHigh}, {x + cap, aHigh}},
+		[]draw.Point{{x, q1}, {x, aLow}},
+		[]draw.Point{{x - cap, aLow}, {x + cap, aLow}})
+	c.StrokeLines(b.WhiskerStyle, whisks...)
 
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
-		if da.ContainsY(y) {
-			da.DrawGlyphNoClip(b.GlyphStyle, plot.Pt(x, y))
+		if c.ContainsY(y) {
+			c.DrawGlyphNoClip(b.GlyphStyle, draw.Point{x, y})
 		}
 	}
 }
@@ -243,9 +244,9 @@ func (b *BoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
-	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
-		Size: plot.Point{X: b.Width + b.BoxStyle.Width},
+	bs[len(bs)-1].Rect = draw.Rect{
+		Min:  draw.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
+		Size: draw.Point{X: b.Width + b.BoxStyle.Width},
 	}
 	return bs
 }
@@ -298,10 +299,10 @@ func MakeHorizBoxPlot(w vg.Length, loc float64, vs Valuer) (HorizBoxPlot, error)
 	return HorizBoxPlot{b}, err
 }
 
-func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (b HorizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 	y := trY(b.Location)
-	if !da.ContainsY(y) {
+	if !c.ContainsY(y) {
 		return
 	}
 	y += b.Offset
@@ -312,32 +313,32 @@ func (b HorizBoxPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
 	aLow := trX(b.AdjLow)
 	aHigh := trX(b.AdjHigh)
 
-	box := da.ClipLinesX([]plot.Point{
+	box := c.ClipLinesX([]draw.Point{
 		{q1, y - b.Width/2},
 		{q3, y - b.Width/2},
 		{q3, y + b.Width/2},
 		{q1, y + b.Width/2},
 		{q1, y - b.Width/2 - b.BoxStyle.Width/2},
 	})
-	da.StrokeLines(b.BoxStyle, box...)
+	c.StrokeLines(b.BoxStyle, box...)
 
-	medLine := da.ClipLinesX([]plot.Point{
+	medLine := c.ClipLinesX([]draw.Point{
 		{med, y - b.Width/2},
 		{med, y + b.Width/2},
 	})
-	da.StrokeLines(b.MedianStyle, medLine...)
+	c.StrokeLines(b.MedianStyle, medLine...)
 
 	cap := b.CapWidth / 2
-	whisks := da.ClipLinesX([]plot.Point{{q3, y}, {aHigh, y}},
-		[]plot.Point{{aHigh, y - cap}, {aHigh, y + cap}},
-		[]plot.Point{{q1, y}, {aLow, y}},
-		[]plot.Point{{aLow, y - cap}, {aLow, y + cap}})
-	da.StrokeLines(b.WhiskerStyle, whisks...)
+	whisks := c.ClipLinesX([]draw.Point{{q3, y}, {aHigh, y}},
+		[]draw.Point{{aHigh, y - cap}, {aHigh, y + cap}},
+		[]draw.Point{{q1, y}, {aLow, y}},
+		[]draw.Point{{aLow, y - cap}, {aLow, y + cap}})
+	c.StrokeLines(b.WhiskerStyle, whisks...)
 
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
-		if da.ContainsX(x) {
-			da.DrawGlyphNoClip(b.GlyphStyle, plot.Pt(x, y))
+		if c.ContainsX(x) {
+			c.DrawGlyphNoClip(b.GlyphStyle, draw.Point{x, y})
 		}
 	}
 }
@@ -361,9 +362,9 @@ func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
-	bs[len(bs)-1].Rect = plot.Rect{
-		Min:  plot.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
-		Size: plot.Point{Y: b.Width + b.BoxStyle.Width},
+	bs[len(bs)-1].Rect = draw.Rect{
+		Min:  draw.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
+		Size: draw.Point{Y: b.Width + b.BoxStyle.Width},
 	}
 	return bs
 }

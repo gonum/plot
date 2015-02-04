@@ -7,15 +7,16 @@ package plotter
 import (
 	"image/color"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // GlyphBoxes implements the Plotter interface, drawing
 // all of the glyph boxes of the plot.  This is intended for
 // debugging.
 type GlyphBoxes struct {
-	plot.LineStyle
+	draw.LineStyle
 }
 
 func NewGlyphBoxes() *GlyphBoxes {
@@ -25,11 +26,11 @@ func NewGlyphBoxes() *GlyphBoxes {
 	return g
 }
 
-func (g GlyphBoxes) Plot(da plot.DrawArea, plt *plot.Plot) {
+func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, b := range plt.GlyphBoxes(plt) {
-		x := da.X(b.X) + b.Rect.Min.X
-		y := da.Y(b.Y) + b.Rect.Min.Y
-		da.StrokeLines(g.LineStyle, []plot.Point{
+		x := c.X(b.X) + b.Rect.Min.X
+		y := c.Y(b.Y) + b.Rect.Min.Y
+		c.StrokeLines(g.LineStyle, []draw.Point{
 			{x, y},
 			{x + b.Rect.Size.X, y},
 			{x + b.Rect.Size.X, y + b.Rect.Size.Y},

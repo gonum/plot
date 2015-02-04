@@ -25,6 +25,7 @@ import (
 	"strings"
 
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 	"github.com/gonum/plot/vg/vgeps"
 	"github.com/gonum/plot/vg/vgimg"
 	"github.com/gonum/plot/vg/vgpdf"
@@ -49,7 +50,7 @@ type Plot struct {
 		// the top of the plot.
 		Padding vg.Length
 
-		TextStyle
+		draw.TextStyle
 	}
 
 	// BackgroundColor is the background color of the plot.
@@ -74,8 +75,8 @@ type Plot struct {
 // package, documented here:
 // http://godoc.org/github.com/gonum/plot/plotter
 type Plotter interface {
-	// Plot draws the data to a DrawArea.
-	Plot(DrawArea, *Plot)
+	// Plot draws the data to a draw.Canvas.
+	Plot(draw.Canvas, *Plot)
 }
 
 // DataRanger wraps the DataRange method.
@@ -109,7 +110,7 @@ func New() (*Plot, error) {
 		Y:               y,
 		Legend:          legend,
 	}
-	p.Title.TextStyle = TextStyle{
+	p.Title.TextStyle = draw.TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
 	}
@@ -139,22 +140,22 @@ func (p *Plot) Add(ps ...Plotter) {
 	p.plotters = append(p.plotters, ps...)
 }
 
-// Draw draws a plot to a DrawArea.
+// Draw draws a plot to a draw.Canvas.
 //
 // Plotters are drawn in the order in which they were
 // added to the plot.  Plotters that  implement the
 // GlyphBoxer interface will have their GlyphBoxes
 // taken into account when padding the plot so that
 // none of their glyphs are clipped.
-func (p *Plot) Draw(da DrawArea) {
+func (p *Plot) Draw(c draw.Canvas) {
 	if p.BackgroundColor != nil {
-		da.SetColor(p.BackgroundColor)
-		da.Fill(rectPath(da.Rect))
+		c.SetColor(p.BackgroundColor)
+		c.Fill(c.Rect.Path())
 	}
 	if p.Title.Text != "" {
-		da.FillText(p.Title.TextStyle, da.Center().X, da.Max().Y, -0.5, -1, p.Title.Text)
-		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
-		da.Size.Y -= p.Title.Padding
+		c.FillText(p.Title.TextStyle, c.Center().X, c.Max().Y, -0.5, -1, p.Title.Text)
+		c.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		c.Size.Y -= p.Title.Padding
 	}
 
 	p.X.sanitizeRange()
@@ -163,22 +164,22 @@ func (p *Plot) Draw(da DrawArea) {
 	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
-	x.draw(padX(p, da.crop(ywidth, 0, 0, 0)))
+	x.draw(padX(p, c.Crop(ywidth, 0, 0, 0)))
 	xheight := x.size()
-	y.draw(padY(p, da.crop(0, xheight, 0, 0)))
+	y.draw(padY(p, c.Crop(0, xheight, 0, 0)))
 
-	dataDa := padY(p, padX(p, da.crop(ywidth, xheight, 0, 0)))
+	dataC := padY(p, padX(p, c.Crop(ywidth, xheight, 0, 0)))
 	for _, data := range p.plotters {
-		data.Plot(dataDa, p)
+		data.Plot(dataC, p)
 	}
 
-	p.Legend.draw(da.crop(ywidth, 0, 0, 0).crop(0, xheight, 0, 0))
+	p.Legend.draw(c.Crop(ywidth, 0, 0, 0).Crop(0, xheight, 0, 0))
 }
 
-// DataDrawArea returns a new DrawArea that
+// DataCanvas returns a new draw.Canvas that
 // is the subset of the given draw area into which
 // the plot data will be drawn.
-func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
+func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	if p.Title.Text != "" {
 		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 		da.Size.Y -= p.Title.Padding
@@ -187,53 +188,53 @@ func (p *Plot) DataDrawArea(da DrawArea) DrawArea {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, da.crop(y.size(), x.size(), 0, 0)))
+	return padY(p, padX(p, da.Crop(y.size(), x.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
 // GlyphBoxes.  This is intended for debugging.
-func (p *Plot) DrawGlyphBoxes(da *DrawArea) {
-	da.SetColor(color.RGBA{R: 255, A: 255})
+func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
+	c.SetColor(color.RGBA{R: 255, A: 255})
 	for _, b := range p.GlyphBoxes(p) {
-		b.Rect.Min.X += da.X(b.X)
-		b.Rect.Min.Y += da.Y(b.Y)
-		da.Stroke(rectPath(b.Rect))
+		b.Rect.Min.X += c.X(b.X)
+		b.Rect.Min.Y += c.Y(b.Y)
+		c.Stroke(b.Rect.Path())
 	}
 }
 
-// padX returns a DrawArea that is padded horizontally
+// padX returns a draw.Canvas that is padded horizontally
 // so that glyphs will no be clipped.
-func padX(p *Plot, da DrawArea) DrawArea {
+func padX(p *Plot, c draw.Canvas) draw.Canvas {
 	glyphs := p.GlyphBoxes(p)
-	l := leftMost(&da, glyphs)
+	l := leftMost(&c, glyphs)
 	xAxis := horizontalAxis{p.X}
 	glyphs = append(glyphs, xAxis.GlyphBoxes(p)...)
-	r := rightMost(&da, glyphs)
+	r := rightMost(&c, glyphs)
 
-	minx := da.Min.X - l.Min.X
-	maxx := da.Max().X - (r.Min.X + r.Size.X)
+	minx := c.Min.X - l.Min.X
+	maxx := c.Max().X - (r.Min.X + r.Size.X)
 	lx := vg.Length(l.X)
 	rx := vg.Length(r.X)
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
-	return DrawArea{
-		Canvas: vg.Canvas(da),
-		Rect: Rect{
-			Min:  Point{X: n, Y: da.Min.Y},
-			Size: Point{X: m - n, Y: da.Size.Y},
+	return draw.Canvas{
+		Canvas: vg.Canvas(c),
+		Rect: draw.Rect{
+			Min:  draw.Point{X: n, Y: c.Min.Y},
+			Size: draw.Point{X: m - n, Y: c.Size.Y},
 		},
 	}
 }
 
 // rightMost returns the right-most GlyphBox.
-func rightMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
-	maxx := da.Max().X
+func rightMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
+	maxx := c.Max().X
 	r := GlyphBox{X: 1}
 	for _, b := range boxes {
 		if b.Size.X <= 0 {
 			continue
 		}
-		if x := da.X(b.X) + b.Min.X + b.Size.X; x > maxx && b.X <= 1 {
+		if x := c.X(b.X) + b.Min.X + b.Size.X; x > maxx && b.X <= 1 {
 			maxx = x
 			r = b
 		}
@@ -242,14 +243,14 @@ func rightMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 }
 
 // leftMost returns the left-most GlyphBox.
-func leftMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
-	minx := da.Min.X
+func leftMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
+	minx := c.Min.X
 	l := GlyphBox{}
 	for _, b := range boxes {
 		if b.Size.X <= 0 {
 			continue
 		}
-		if x := da.X(b.X) + b.Min.X; x < minx && b.X >= 0 {
+		if x := c.X(b.X) + b.Min.X; x < minx && b.X >= 0 {
 			minx = x
 			l = b
 		}
@@ -257,39 +258,39 @@ func leftMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 	return l
 }
 
-// padY returns a DrawArea that is padded vertically
+// padY returns a draw.Canvas that is padded vertically
 // so that glyphs will no be clipped.
-func padY(p *Plot, da DrawArea) DrawArea {
+func padY(p *Plot, c draw.Canvas) draw.Canvas {
 	glyphs := p.GlyphBoxes(p)
-	b := bottomMost(&da, glyphs)
+	b := bottomMost(&c, glyphs)
 	yAxis := verticalAxis{p.Y}
 	glyphs = append(glyphs, yAxis.GlyphBoxes(p)...)
-	t := topMost(&da, glyphs)
+	t := topMost(&c, glyphs)
 
-	miny := da.Min.Y - b.Min.Y
-	maxy := da.Max().Y - (t.Min.Y + t.Size.Y)
+	miny := c.Min.Y - b.Min.Y
+	maxy := c.Max().Y - (t.Min.Y + t.Size.Y)
 	by := vg.Length(b.Y)
 	ty := vg.Length(t.Y)
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
-	return DrawArea{
-		Canvas: vg.Canvas(da),
-		Rect: Rect{
-			Min:  Point{Y: n, X: da.Min.X},
-			Size: Point{Y: m - n, X: da.Size.X},
+	return draw.Canvas{
+		Canvas: vg.Canvas(c),
+		Rect: draw.Rect{
+			Min:  draw.Point{Y: n, X: c.Min.X},
+			Size: draw.Point{Y: m - n, X: c.Size.X},
 		},
 	}
 }
 
 // topMost returns the top-most GlyphBox.
-func topMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
-	maxy := da.Max().Y
+func topMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
+	maxy := c.Max().Y
 	t := GlyphBox{Y: 1}
 	for _, b := range boxes {
 		if b.Size.Y <= 0 {
 			continue
 		}
-		if y := da.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy && b.Y <= 1 {
+		if y := c.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy && b.Y <= 1 {
 			maxy = y
 			t = b
 		}
@@ -298,14 +299,14 @@ func topMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 }
 
 // bottomMost returns the bottom-most GlyphBox.
-func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
-	miny := da.Min.Y
+func bottomMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
+	miny := c.Min.Y
 	l := GlyphBox{}
 	for _, b := range boxes {
 		if b.Size.Y <= 0 {
 			continue
 		}
-		if y := da.Y(b.Y) + b.Min.Y; y < miny && b.Y >= 0 {
+		if y := c.Y(b.Y) + b.Min.Y; y < miny && b.Y >= 0 {
 			miny = y
 			l = b
 		}
@@ -317,9 +318,9 @@ func bottomMost(da *DrawArea, boxes []GlyphBox) GlyphBox {
 // from the x and y data coordinate system to
 // the draw coordinate system of the given
 // draw area.
-func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
-	x = func(x float64) vg.Length { return da.X(p.X.Norm(x)) }
-	y = func(y float64) vg.Length { return da.Y(p.Y.Norm(y)) }
+func (p *Plot) Transforms(c *draw.Canvas) (x, y func(float64) vg.Length) {
+	x = func(x float64) vg.Length { return c.X(p.X.Norm(x)) }
+	y = func(y float64) vg.Length { return c.Y(p.Y.Norm(y)) }
 	return
 }
 
@@ -327,7 +328,7 @@ func (p *Plot) Transforms(da *DrawArea) (x, y func(float64) vg.Length) {
 // It should be implemented by things that meet
 // the Plotter interface that draw glyphs so that
 // their glyphs are not clipped if drawn near the
-// edge of the DrawArea.
+// edge of the draw.Canvas.
 //
 // When computing padding, the plot ignores
 // GlyphBoxes as follows:
@@ -362,7 +363,7 @@ type GlyphBox struct {
 
 	// Rect is the offset of the glyph's minimum drawing
 	// point relative to the glyph location and its size.
-	Rect
+	draw.Rect
 }
 
 // GlyphBoxes returns the GlyphBoxes for all plot
@@ -443,7 +444,8 @@ func (p *Plot) NominalY(names ...string) {
 // by the extension.  Supported extensions are
 // .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(width, height float64, file string) (err error) {
-	w, h := vg.Inches(width), vg.Inches(height)
+	w := vg.Length(width) * vg.Inch
+	h := vg.Length(height) * vg.Inch
 	var c interface {
 		vg.Canvas
 		Size() (w, h vg.Length)
@@ -472,7 +474,7 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
 	}
-	p.Draw(MakeDrawArea(c))
+	p.Draw(draw.New(c))
 
 	f, err := os.Create(file)
 	if err != nil {

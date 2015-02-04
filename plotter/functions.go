@@ -5,7 +5,8 @@
 package plotter
 
 import (
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // Function implements the Plotter interface,
@@ -13,7 +14,7 @@ import (
 type Function struct {
 	F       func(float64) float64
 	Samples int
-	plot.LineStyle
+	draw.LineStyle
 }
 
 // NewFunction returns a Function that plots F using
@@ -28,23 +29,23 @@ func NewFunction(f func(float64) float64) *Function {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (f *Function) Plot(da plot.DrawArea, p *plot.Plot) {
-	trX, trY := p.Transforms(&da)
+func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
 
 	d := (p.X.Max - p.X.Min) / float64(f.Samples-1)
-	line := make([]plot.Point, f.Samples)
+	line := make([]draw.Point, f.Samples)
 	for i := range line {
 		x := p.X.Min + float64(i)*d
 		line[i].X = trX(x)
 		line[i].Y = trY(f.F(x))
 	}
-	da.StrokeLines(f.LineStyle, da.ClipLinesXY(line)...)
+	c.StrokeLines(f.LineStyle, c.ClipLinesXY(line)...)
 }
 
 // Thumbnail draws a line in the given style down the
 // center of a DrawArea as a thumbnail representation
 // of the LineStyle of the function.
-func (f Function) Thumbnail(da *plot.DrawArea) {
-	y := da.Center().Y
-	da.StrokeLine2(f.LineStyle, da.Min.X, y, da.Max().X, y)
+func (f Function) Thumbnail(c *draw.Canvas) {
+	y := c.Center().Y
+	c.StrokeLine2(f.LineStyle, c.Min.X, y, c.Max().X, y)
 }

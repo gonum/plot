@@ -14,8 +14,8 @@ package plotutil
 import (
 	"image/color"
 
-	"github.com/gonum/plot/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // DefaultColors is a set of colors used by the Color function.
@@ -58,22 +58,22 @@ func Color(i int) color.Color {
 
 // DefaultGlyphShapes is a set of GlyphDrawers used by
 // the Shape function.
-var DefaultGlyphShapes = []plot.GlyphDrawer{
-	plot.RingGlyph{},
-	plot.SquareGlyph{},
-	plot.TriangleGlyph{},
-	plot.CrossGlyph{},
-	plot.PlusGlyph{},
-	plot.CircleGlyph{},
-	plot.BoxGlyph{},
-	plot.PyramidGlyph{},
+var DefaultGlyphShapes = []draw.GlyphDrawer{
+	draw.RingGlyph{},
+	draw.SquareGlyph{},
+	draw.TriangleGlyph{},
+	draw.CrossGlyph{},
+	draw.PlusGlyph{},
+	draw.CircleGlyph{},
+	draw.BoxGlyph{},
+	draw.PyramidGlyph{},
 }
 
 // Shape returns the ith default glyph shape,
 // wrapping if i is less than zero or greater
 // than the max number of GlyphDrawers
 // in the DefaultGlyphShapes slice.
-func Shape(i int) plot.GlyphDrawer {
+func Shape(i int) draw.GlyphDrawer {
 	n := len(DefaultGlyphShapes)
 	if i < 0 {
 		return DefaultGlyphShapes[i%n+n]

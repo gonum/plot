@@ -13,9 +13,10 @@ import (
 	"math"
 	"math/rand"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 var examples = []struct {
@@ -151,7 +152,7 @@ func Example_functions() *plot.Plot {
 	p.Legend.Add("x^2", quad)
 	p.Legend.Add("2^x", exp)
 	p.Legend.Add("10*sin(x)+50", sin)
-	p.Legend.ThumbnailWidth = vg.Inches(0.5)
+	p.Legend.ThumbnailWidth = 0.5 * vg.Inch
 
 	p.X.Min = 0
 	p.X.Max = 10
@@ -623,7 +624,7 @@ func Example_points() *plot.Plot {
 		panic(err)
 	}
 	lpLine.Color = color.RGBA{G: 255, A: 255}
-	lpPoints.Shape = plot.CircleGlyph{}
+	lpPoints.Shape = draw.CircleGlyph{}
 	lpPoints.Color = color.RGBA{R: 255, A: 255}
 
 	p.Add(s, l, lpLine, lpPoints)
@@ -671,7 +672,7 @@ func Example_errBars() *plot.Plot {
 		panic(err)
 	}
 	scatter := must(plotter.NewScatter(data)).(*plotter.Scatter)
-	scatter.Shape = plot.CrossGlyph{}
+	scatter.Shape = draw.CrossGlyph{}
 	xerrs, err := plotter.NewXErrorBars(data)
 	if err != nil {
 		panic(err)

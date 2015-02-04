@@ -41,8 +41,8 @@ type Canvas struct {
 // the size specified  rounded up to the
 // nearest pixel.
 func New(width, height vg.Length) *Canvas {
-	w := width.Inches() * dpi
-	h := height.Inches() * dpi
+	w := width / vg.Inch * dpi
+	h := height / vg.Inch * dpi
 	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
 
 	return NewImage(img)
@@ -63,8 +63,8 @@ func NewImage(img draw.Image) *Canvas {
 	c := &Canvas{
 		gc:    gc,
 		img:   img,
-		w:     vg.Inches(w / dpi),
-		h:     vg.Inches(h / dpi),
+		w:     vg.Length(w/dpi) * vg.Inch,
+		h:     vg.Length(h/dpi) * vg.Inch,
 		color: []color.Color{color.Black},
 	}
 	vg.Initialize(c)

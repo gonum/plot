@@ -21,14 +21,14 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/gonum/plot/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 var (
 	// DefaultLineStyle is the default style for drawing
 	// lines.
-	DefaultLineStyle = plot.LineStyle{
+	DefaultLineStyle = draw.LineStyle{
 		Color:    color.Black,
 		Width:    vg.Points(1),
 		Dashes:   []vg.Length{},
@@ -37,10 +37,10 @@ var (
 
 	// DefaultGlyphStyle is the default style used
 	// for gyph marks.
-	DefaultGlyphStyle = plot.GlyphStyle{
+	DefaultGlyphStyle = draw.GlyphStyle{
 		Color:  color.Black,
 		Radius: vg.Points(2.5),
-		Shape:  plot.RingGlyph{},
+		Shape:  draw.RingGlyph{},
 	}
 )
 

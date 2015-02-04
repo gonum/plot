@@ -7,8 +7,9 @@ package plotter
 import (
 	"errors"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 var (
@@ -29,7 +30,7 @@ type Labels struct {
 	Labels []string
 
 	// TextStyle is the style of the label text.
-	plot.TextStyle
+	draw.TextStyle
 
 	// XAlign and YAlign are multiplied by the width
 	// and height of each label respectively and the
@@ -73,22 +74,22 @@ func NewLabels(d interface {
 	return &Labels{
 		XYs:       xys,
 		Labels:    strs,
-		TextStyle: plot.TextStyle{Font: fnt},
+		TextStyle: draw.TextStyle{Font: fnt},
 	}, nil
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (l *Labels) Plot(da plot.DrawArea, p *plot.Plot) {
-	trX, trY := p.Transforms(&da)
+func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
 	for i, label := range l.Labels {
 		x := trX(l.XYs[i].X)
 		y := trY(l.XYs[i].Y)
-		if !da.Contains(plot.Pt(x, y)) {
+		if !c.Contains(draw.Point{x, y}) {
 			continue
 		}
 		x += l.XOffset
 		y += l.YOffset
-		da.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+		c.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
 	}
 }
 

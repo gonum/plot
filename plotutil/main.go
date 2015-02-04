@@ -9,7 +9,7 @@ package main
 import (
 	"math/rand"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/plotutil"
 )

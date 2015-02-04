@@ -7,20 +7,21 @@ package plotter
 import (
 	"image/color"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 var (
 	// DefaultQuartMedianStyle is a fat dot.
-	DefaultQuartMedianStyle = plot.GlyphStyle{
+	DefaultQuartMedianStyle = draw.GlyphStyle{
 		Color:  color.Black,
 		Radius: vg.Points(1.5),
-		Shape:  plot.CircleGlyph{},
+		Shape:  draw.CircleGlyph{},
 	}
 
 	// DefaultQuartWhiskerStyle is a hairline.
-	DefaultQuartWhiskerStyle = plot.LineStyle{
+	DefaultQuartWhiskerStyle = draw.LineStyle{
 		Color:    color.Black,
 		Width:    vg.Points(0.5),
 		Dashes:   []vg.Length{},
@@ -42,11 +43,11 @@ type QuartPlot struct {
 	Offset vg.Length
 
 	// MedianStyle is the line style for the median point.
-	MedianStyle plot.GlyphStyle
+	MedianStyle draw.GlyphStyle
 
 	// WhiskerStyle is the line style used to draw the
 	// whiskers.
-	WhiskerStyle plot.LineStyle
+	WhiskerStyle draw.LineStyle
 }
 
 // NewQuartPlot returns a new QuartPlot that represents
@@ -74,32 +75,32 @@ func NewQuartPlot(loc float64, values Valuer) (*QuartPlot, error) {
 	return b, err
 }
 
-func (b *QuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 	x := trX(b.Location)
-	if !da.ContainsX(x) {
+	if !c.ContainsX(x) {
 		return
 	}
 	x += b.Offset
 
-	med := plot.Pt(x, trY(b.Median))
+	med := draw.Point{x, trY(b.Median)}
 	q1 := trY(b.Quartile1)
 	q3 := trY(b.Quartile3)
 	aLow := trY(b.AdjLow)
 	aHigh := trY(b.AdjHigh)
 
-	da.StrokeLine2(b.WhiskerStyle, x, aHigh, x, q3)
-	if da.ContainsY(med.Y) {
-		da.DrawGlyphNoClip(b.MedianStyle, med)
+	c.StrokeLine2(b.WhiskerStyle, x, aHigh, x, q3)
+	if c.ContainsY(med.Y) {
+		c.DrawGlyphNoClip(b.MedianStyle, med)
 	}
-	da.StrokeLine2(b.WhiskerStyle, x, aLow, x, q1)
+	c.StrokeLine2(b.WhiskerStyle, x, aLow, x, q1)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
-		if da.ContainsY(y) {
-			da.DrawGlyphNoClip(ostyle, plot.Pt(x, y))
+		if c.ContainsY(y) {
+			c.DrawGlyphNoClip(ostyle, draw.Point{x, y})
 		}
 	}
 }
@@ -179,32 +180,32 @@ func MakeHorizQuartPlot(loc float64, vs Valuer) (HorizQuartPlot, error) {
 	return HorizQuartPlot{q}, err
 }
 
-func (b HorizQuartPlot) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 	y := trY(b.Location)
-	if !da.ContainsY(y) {
+	if !c.ContainsY(y) {
 		return
 	}
 	y += b.Offset
 
-	med := plot.Pt(trX(b.Median), y)
+	med := draw.Point{trX(b.Median), y}
 	q1 := trX(b.Quartile1)
 	q3 := trX(b.Quartile3)
 	aLow := trX(b.AdjLow)
 	aHigh := trX(b.AdjHigh)
 
-	da.StrokeLine2(b.WhiskerStyle, aHigh, y, q3, y)
-	if da.ContainsX(med.X) {
-		da.DrawGlyphNoClip(b.MedianStyle, med)
+	c.StrokeLine2(b.WhiskerStyle, aHigh, y, q3, y)
+	if c.ContainsX(med.X) {
+		c.DrawGlyphNoClip(b.MedianStyle, med)
 	}
-	da.StrokeLine2(b.WhiskerStyle, aLow, y, q1, y)
+	c.StrokeLine2(b.WhiskerStyle, aLow, y, q1, y)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
-		if da.ContainsX(x) {
-			da.DrawGlyphNoClip(ostyle, plot.Pt(x, y))
+		if c.ContainsX(x) {
+			c.DrawGlyphNoClip(ostyle, draw.Point{x, y})
 		}
 	}
 }
