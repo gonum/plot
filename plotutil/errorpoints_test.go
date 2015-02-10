@@ -5,9 +5,10 @@
 package plotutil
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/plotter"
 	"math/rand"
+
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/plotter"
 )
 
 func ExampleErrorPoints() {

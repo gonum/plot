@@ -9,12 +9,13 @@ package vgsvg
 import (
 	"bufio"
 	"bytes"
-	"code.google.com/p/plotinum/vg"
 	"fmt"
-	svgo "github.com/ajstarks/svgo"
 	"image/color"
 	"io"
 	"math"
+
+	svgo "github.com/ajstarks/svgo"
+	"github.com/gonum/plot/vg"
 )
 
 const (

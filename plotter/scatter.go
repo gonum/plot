@@ -5,7 +5,7 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
+	"github.com/gonum/plot/plot"
 )
 
 // Scatter implements the Plotter interface, drawing

@@ -7,8 +7,8 @@ package plotter
 import (
 	"image/color"
 
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/vg"
 )
 
 // Line implements the Plotter interface, drawing a line.

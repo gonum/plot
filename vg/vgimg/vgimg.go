@@ -18,7 +18,7 @@ import (
 	"io"
 
 	"code.google.com/p/draw2d/draw2d"
-	"code.google.com/p/plotinum/vg"
+	"github.com/gonum/plot/vg"
 	"golang.org/x/image/tiff"
 )
 

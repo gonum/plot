@@ -5,10 +5,11 @@
 package plot
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"image/color"
 	"math"
 	"strings"
+
+	"github.com/gonum/plot/vg"
 )
 
 // A DrawArea is a vector graphics canvas along with

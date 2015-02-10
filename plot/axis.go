@@ -5,10 +5,11 @@
 package plot
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"math"
+
+	"github.com/gonum/plot/vg"
 )
 
 // An Axis represents either a horizontal or vertical

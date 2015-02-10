@@ -10,7 +10,7 @@ import (
 	"image/color"
 	"math"
 
-	"code.google.com/p/plotinum/plot"
+	"github.com/gonum/plot/plot"
 )
 
 // Histogram implements the Plotter interface,

@@ -12,9 +12,10 @@ This package is under active development so portions of it may change.
 package plotutil
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
 	"image/color"
+
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/vg"
 )
 
 // DefaultColors is a set of colors used by the Color function.

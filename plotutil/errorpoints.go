@@ -5,9 +5,10 @@
 package plotutil
 
 import (
-	"code.google.com/p/plotinum/plotter"
 	"math"
 	"sort"
+
+	"github.com/gonum/plot/plotter"
 )
 
 // ErrorPoints holds a set of x, y pairs along

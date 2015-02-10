@@ -5,11 +5,12 @@
 package plotutil
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/plotter"
-	"code.google.com/p/plotinum/vg"
 	"errors"
 	"fmt"
+
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/plotter"
+	"github.com/gonum/plot/vg"
 )
 
 type combineXYs struct{ xs, ys plotter.Valuer }

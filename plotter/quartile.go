@@ -5,10 +5,10 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
-
 	"image/color"
+
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/vg"
 )
 
 var (

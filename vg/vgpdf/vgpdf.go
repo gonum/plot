@@ -7,13 +7,14 @@
 package vgpdf
 
 import (
-	"bitbucket.org/zombiezen/gopdf/pdf"
 	"bufio"
-	"code.google.com/p/plotinum/vg"
 	"fmt"
 	"image/color"
 	"io"
 	"math"
+
+	"bitbucket.org/zombiezen/gopdf/pdf"
+	"github.com/gonum/plot/vg"
 )
 
 // Canvas implements the vg.Canvas interface,

@@ -5,8 +5,9 @@
 package plotter
 
 import (
-	"code.google.com/p/plotinum/vg"
 	"testing"
+
+	"github.com/gonum/plot/vg"
 )
 
 func TestBubblesRadius(t *testing.T) {

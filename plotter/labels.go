@@ -7,8 +7,8 @@ package plotter
 import (
 	"errors"
 
-	"code.google.com/p/plotinum/plot"
-	"code.google.com/p/plotinum/vg"
+	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot/vg"
 )
 
 var (
