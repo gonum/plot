@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The vgpdf implemens the vg.Canvas interface
+// Package vgpdf implements the vg.Canvas interface
 // using gopdf (bitbucket.org/zombiezen/gopdf/pdf).
 package vgpdf
 

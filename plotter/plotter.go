@@ -3,8 +3,8 @@
 // license that can be found in the LICENSE file.
 
 /*
-The plotter package defines a variety of standard Plotters for the
-Plotinum plot package.
+Package plotter defines a variety of standard Plotters for the
+plot package.
 
 Plotters use the primitives provided by the plot package to draw to
 the data area of a plot. This package provides some standard data

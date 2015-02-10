@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The vgsvg package uses svgo (github.com/ajstarks/svgo)
+// Package vgsvg uses svgo (github.com/ajstarks/svgo)
 // as a backend for vg.
 package vgsvg
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// vgimg implements the vg.Canvas interface using
+// Package vgimg implements the vg.Canvas interface using
 // draw2d (code.google.com/p/draw2d/draw2d)
 // as a backend to output raster images.
 package vgimg

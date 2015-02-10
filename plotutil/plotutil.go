@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-The plotutil package contains a small number of utilites for creating
+Package plotutil contains a small number of utilites for creating
 plots.
 
 

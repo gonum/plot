@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// plot provides an API for setting up plots, and primitives for
+// Package plot provides an API for setting up plots, and primitives for
 // drawing on plots.
 //
 // Plot is the basic type for creating a plot, setting the title, axis

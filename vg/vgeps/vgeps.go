@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// The vgeps implemens the vg.Canvas interface using
+// Package vgeps implements the vg.Canvas interface using
 // encapsulated postscript.
 package vgeps
 
