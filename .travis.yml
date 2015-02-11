@@ -9,7 +9,7 @@ go:
 
 env:
   global:
-   - secure: "ZxItEYtjI86c184sG1Eqqnv3f3o8qGK4hcElBFxh1haG4e7x+gzKWNziWJ9ZUCxNyZUlMzqCRv8+k74/BpR3n9j9+Wwf/I2x+sCPeCX/ac93+MKx37bkOdOciwrWXUy9Zebysu+n9i2dOvP2RCC8zJcr7gdEuqg1kRvHrwOzVBo="
+   - secure: "GYPf9iqbY/5YLmorhVxH2Q4Y8/kxF3MWxDau8Sb2QnineLAJZA2HKi4aWdZIoK8AMAJgXdHUC4Pw2jywp9nC2Q+TW1+57tp0uLLIdghuwif78oyqykhlt11ny+SUk5PAkqYmm+dCbA0kxShg1hFFfHGTTiDuWklTWomxGGICSPc="
 
 before_install:
  - if ! go get code.google.com/p/go.tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
