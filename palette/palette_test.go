@@ -49,18 +49,22 @@ func TestHeat(t *testing.T) {
 }
 
 func TestRadial(t *testing.T) {
-	if !reflect.DeepEqual(Radial(10, Cyan, Magenta, 1), palette{
+	rad := Radial(10, Cyan, Magenta, 1)
+	if !reflect.DeepEqual(rad, divergingPalette{
 		color.NRGBA{R: 0x7f, G: 0xff, B: 0xff, A: 0xff}, // "#80FFFFFF" Off by one compared to R.
 		color.NRGBA{R: 0x99, G: 0xff, B: 0xff, A: 0xff}, // "#99FFFFFF"
 		color.NRGBA{R: 0xb3, G: 0xff, B: 0xff, A: 0xff}, // "#B3FFFFFF"
 		color.NRGBA{R: 0xcc, G: 0xff, B: 0xff, A: 0xff}, // "#CCFFFFFF"
-		color.NRGBA{R: 0xe6, G: 0xff, B: 0xff, A: 0xff}, // "#E6FFFFFF"
-		color.NRGBA{R: 0xff, G: 0xe6, B: 0xff, A: 0xff}, // "#FFE6FFFF"
+		color.NRGBA{R: 0xe6, G: 0xff, B: 0xff, A: 0xff}, // "#E6FFFFFF" - middle low
+		color.NRGBA{R: 0xff, G: 0xe6, B: 0xff, A: 0xff}, // "#FFE6FFFF" - middle high
 		color.NRGBA{R: 0xff, G: 0xcc, B: 0xff, A: 0xff}, // "#FFCCFFFF"
 		color.NRGBA{R: 0xff, G: 0xb3, B: 0xff, A: 0xff}, // "#FFB3FFFF"
 		color.NRGBA{R: 0xff, G: 0x99, B: 0xff, A: 0xff}, // "#FF99FFFF"
 		color.NRGBA{R: 0xff, G: 0x7f, B: 0xff, A: 0xff}, // "#FF80FFFF" Off by one compared to R.
 	}) {
 		t.Error("Radial does not agree with R cm.colors (ish)")
+	}
+	if l, h := rad.CriticalIndex(); l != 4 || h != 5 {
+		t.Errorf("Radial(10...) gives unexpected critical index values: %d and %d", l, h)
 	}
 }

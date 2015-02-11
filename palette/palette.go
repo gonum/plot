@@ -19,6 +19,18 @@ type Palette interface {
 	Colors() []color.Color
 }
 
+// DivergingPalette is a collection of colors ordered into a palette with
+// a critical class or break in the middle of the color range.
+type DivergingPalette interface {
+	Palette
+
+	// CriticalIndex returns the indices of the lightest
+	// (median) color or colors in the DivergingPalette.
+	// The low and high index values will be equal when
+	// there is a single median color.
+	CriticalIndex() (low, high int)
+}
+
 // Hue represents a hue in HSV color space. Valid Hues are within [0, 1].
 type Hue float64
 
@@ -37,6 +49,15 @@ func (h Hue) Complement() Hue { return Hue(math.Mod(float64(h+0.5), 1)) }
 type palette []color.Color
 
 func (p palette) Colors() []color.Color { return p }
+
+type divergingPalette []color.Color
+
+func (p divergingPalette) Colors() []color.Color { return p }
+
+func (d divergingPalette) CriticalIndex() (low, high int) {
+	l := len(d)
+	return (l - 1) / 2, l / 2
+}
 
 // Rainbow returns a rainbow palette with the specified number of colors, saturation
 // value and alpha, and hues in the specified range.
@@ -82,8 +103,8 @@ func Heat(colors int, alpha float64) Palette {
 
 // Radial return a diverging palette across the specified range, through white and with
 // the specified alpha.
-func Radial(colors int, start, end Hue, alpha float64) Palette {
-	p := make(palette, colors)
+func Radial(colors int, start, end Hue, alpha float64) DivergingPalette {
+	p := make(divergingPalette, colors)
 	h := colors / 2
 	c := HSVA{S: 0.5, V: 1, A: alpha}
 	ds := 0.5 / float64(h)
