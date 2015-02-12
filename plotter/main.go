@@ -13,7 +13,9 @@ import (
 	"math"
 	"math/rand"
 
+	"github.com/gonum/matrix/mat64"
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
@@ -41,6 +43,7 @@ var examples = []struct {
 	{"example_histogram", Example_histogram},
 	{"example_barChart", Example_barChart},
 	{"example_stackedBarChart", Example_stackedBarChart},
+	{"example_heatMap", Example_heatMap},
 }
 
 func main() {
@@ -860,6 +863,49 @@ func Example_stackedBarChart() *plot.Plot {
 	p.Legend.Top = true
 	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
 		"Six", "Seven", "Eight", "Nine", "Ten")
+
+	return p
+}
+
+type unitGrid struct{ mat64.Matrix }
+
+func (g unitGrid) Dims() (c, r int)   { r, c = g.Matrix.Dims(); return c, r }
+func (g unitGrid) Z(c, r int) float64 { return g.Matrix.At(r, c) }
+func (g unitGrid) X(c int) float64 {
+	_, n := g.Matrix.Dims()
+	if c < 0 || c >= n {
+		panic("index out of range")
+	}
+	return float64(c)
+}
+func (g unitGrid) Y(r int) float64 {
+	m, _ := g.Matrix.Dims()
+	if r < 0 || r >= m {
+		panic("index out of range")
+	}
+	return float64(r)
+}
+
+func Example_heatMap() *plot.Plot {
+	m := unitGrid{mat64.NewDense(3, 4, []float64{
+		1, 2, 3, 4,
+		5, 6, 7, 8,
+		9, 10, 11, 12,
+	})}
+	h := plotter.NewHeatMap(m, palette.Heat(12, 1))
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.Title.Text = "Heat map"
+
+	p.Add(h)
+
+	p.X.Padding = 0
+	p.Y.Padding = 0
+	p.X.Max = 3.5
+	p.Y.Max = 2.5
 
 	return p
 }

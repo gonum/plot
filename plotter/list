@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+# Copyright ©2015 The gonum Authors. All rights reserved.
+# Use of this source code is governed by a BSD-style
+# license that can be found in the LICENSE file.
+
+cat $(go env GOROOT)/src/container/list/list.go \
+| gofmt -r 'New -> newList' \
+| gofmt -r 'List -> list' \
+| gofmt -r 'Element -> element' \
+| gofmt -r 'interface{} -> point' \
+| sed 's/package list/\npackage plotter/g' \
+> list.go
