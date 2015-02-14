@@ -140,9 +140,9 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i := range b.Values {
 		x := b.XMin + float64(i)
 		boxes[i].X = plt.X.Norm(x)
-		boxes[i].Rect = draw.Rect{
-			Min:  draw.Point{X: b.Offset - b.Width/2},
-			Size: draw.Point{X: b.Width},
+		boxes[i].Rectangle = draw.Rectangle{
+			Min: draw.Point{X: b.Offset - b.Width/2},
+			Max: draw.Point{X: b.Offset + b.Width/2},
 		}
 	}
 	return boxes
@@ -151,9 +151,9 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 func (b *BarChart) Thumbnail(c *draw.Canvas) {
 	pts := []draw.Point{
 		{c.Min.X, c.Min.Y},
-		{c.Min.X, c.Max().Y},
-		{c.Max().X, c.Max().Y},
-		{c.Max().X, c.Min.Y},
+		{c.Min.X, c.Max.Y},
+		{c.Max.X, c.Max.Y},
+		{c.Max.X, c.Min.Y},
 	}
 	poly := c.ClipPolygonY(pts)
 	c.FillPolygon(b.Color, poly)

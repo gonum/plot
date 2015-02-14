@@ -150,12 +150,12 @@ func (p *Plot) Add(ps ...Plotter) {
 func (p *Plot) Draw(c draw.Canvas) {
 	if p.BackgroundColor != nil {
 		c.SetColor(p.BackgroundColor)
-		c.Fill(c.Rect.Path())
+		c.Fill(c.Rectangle.Path())
 	}
 	if p.Title.Text != "" {
-		c.FillText(p.Title.TextStyle, c.Center().X, c.Max().Y, -0.5, -1, p.Title.Text)
-		c.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
-		c.Size.Y -= p.Title.Padding
+		c.FillText(p.Title.TextStyle, c.Center().X, c.Max.Y, -0.5, -1, p.Title.Text)
+		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		c.Max.Y -= p.Title.Padding
 	}
 
 	p.X.sanitizeRange()
@@ -181,8 +181,8 @@ func (p *Plot) Draw(c draw.Canvas) {
 // the plot data will be drawn.
 func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	if p.Title.Text != "" {
-		da.Size.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
-		da.Size.Y -= p.Title.Padding
+		da.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()
 	x := horizontalAxis{p.X}
@@ -196,9 +196,9 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
 	c.SetColor(color.RGBA{R: 255, A: 255})
 	for _, b := range p.GlyphBoxes(p) {
-		b.Rect.Min.X += c.X(b.X)
-		b.Rect.Min.Y += c.Y(b.Y)
-		c.Stroke(b.Rect.Path())
+		b.Rectangle.Min.X += c.X(b.X)
+		b.Rectangle.Min.Y += c.Y(b.Y)
+		c.Stroke(b.Rectangle.Path())
 	}
 }
 
@@ -212,29 +212,29 @@ func padX(p *Plot, c draw.Canvas) draw.Canvas {
 	r := rightMost(&c, glyphs)
 
 	minx := c.Min.X - l.Min.X
-	maxx := c.Max().X - (r.Min.X + r.Size.X)
+	maxx := c.Max.X - (r.Min.X + r.Size().X)
 	lx := vg.Length(l.X)
 	rx := vg.Length(r.X)
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
 	return draw.Canvas{
 		Canvas: vg.Canvas(c),
-		Rect: draw.Rect{
-			Min:  draw.Point{X: n, Y: c.Min.Y},
-			Size: draw.Point{X: m - n, Y: c.Size.Y},
+		Rectangle: draw.Rectangle{
+			Min: draw.Point{X: n, Y: c.Min.Y},
+			Max: draw.Point{X: m, Y: c.Max.Y},
 		},
 	}
 }
 
 // rightMost returns the right-most GlyphBox.
 func rightMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
-	maxx := c.Max().X
+	maxx := c.Max.X
 	r := GlyphBox{X: 1}
 	for _, b := range boxes {
-		if b.Size.X <= 0 {
+		if b.Size().X <= 0 {
 			continue
 		}
-		if x := c.X(b.X) + b.Min.X + b.Size.X; x > maxx && b.X <= 1 {
+		if x := c.X(b.X) + b.Min.X + b.Size().X; x > maxx && b.X <= 1 {
 			maxx = x
 			r = b
 		}
@@ -247,7 +247,7 @@ func leftMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
 	minx := c.Min.X
 	l := GlyphBox{}
 	for _, b := range boxes {
-		if b.Size.X <= 0 {
+		if b.Size().X <= 0 {
 			continue
 		}
 		if x := c.X(b.X) + b.Min.X; x < minx && b.X >= 0 {
@@ -268,29 +268,29 @@ func padY(p *Plot, c draw.Canvas) draw.Canvas {
 	t := topMost(&c, glyphs)
 
 	miny := c.Min.Y - b.Min.Y
-	maxy := c.Max().Y - (t.Min.Y + t.Size.Y)
+	maxy := c.Max.Y - (t.Min.Y + t.Size().Y)
 	by := vg.Length(b.Y)
 	ty := vg.Length(t.Y)
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
 	return draw.Canvas{
 		Canvas: vg.Canvas(c),
-		Rect: draw.Rect{
-			Min:  draw.Point{Y: n, X: c.Min.X},
-			Size: draw.Point{Y: m - n, X: c.Size.X},
+		Rectangle: draw.Rectangle{
+			Min: draw.Point{Y: n, X: c.Min.X},
+			Max: draw.Point{Y: m, X: c.Max.X},
 		},
 	}
 }
 
 // topMost returns the top-most GlyphBox.
 func topMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
-	maxy := c.Max().Y
+	maxy := c.Max.Y
 	t := GlyphBox{Y: 1}
 	for _, b := range boxes {
-		if b.Size.Y <= 0 {
+		if b.Size().Y <= 0 {
 			continue
 		}
-		if y := c.Y(b.Y) + b.Min.Y + b.Size.Y; y > maxy && b.Y <= 1 {
+		if y := c.Y(b.Y) + b.Min.Y + b.Size().Y; y > maxy && b.Y <= 1 {
 			maxy = y
 			t = b
 		}
@@ -303,7 +303,7 @@ func bottomMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
 	miny := c.Min.Y
 	l := GlyphBox{}
 	for _, b := range boxes {
-		if b.Size.Y <= 0 {
+		if b.Size().Y <= 0 {
 			continue
 		}
 		if y := c.Y(b.Y) + b.Min.Y; y < miny && b.Y >= 0 {
@@ -353,17 +353,17 @@ type GlyphBoxer interface {
 // A GlyphBox describes the location of a glyph
 // and the offset/size of its bounding box.
 //
-// If the Rect.Size.X is non-positive (<= 0) then
+// If the Rectangle.Size().X is non-positive (<= 0) then
 // the GlyphBox is ignored when computing the
 // horizontal padding, and likewise with
-// Rect.Size.Y and the vertical padding.
+// Rectangle.Size().Y and the vertical padding.
 type GlyphBox struct {
 	// The glyph location in normalized coordinates.
 	X, Y float64
 
-	// Rect is the offset of the glyph's minimum drawing
+	// Rectangle is the offset of the glyph's minimum drawing
 	// point relative to the glyph location and its size.
-	draw.Rect
+	draw.Rectangle
 }
 
 // GlyphBoxes returns the GlyphBoxes for all plot
@@ -375,10 +375,10 @@ func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 			continue
 		}
 		for _, b := range gb.GlyphBoxes(p) {
-			if b.Size.X > 0 && (b.X < 0 || b.X > 1) {
+			if b.Size().X > 0 && (b.X < 0 || b.X > 1) {
 				continue
 			}
-			if b.Size.Y > 0 && (b.Y < 0 || b.Y > 1) {
+			if b.Size().Y > 0 && (b.Y < 0 || b.Y > 1) {
 				continue
 			}
 			boxes = append(boxes, b)

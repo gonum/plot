@@ -78,9 +78,9 @@ func (pts *Line) Thumbnail(c *draw.Canvas) {
 	if pts.ShadeColor != nil {
 		points := []draw.Point{
 			{c.Min.X, c.Min.Y},
-			{c.Min.X, c.Max().Y},
-			{c.Max().X, c.Max().Y},
-			{c.Max().X, c.Min.Y},
+			{c.Min.X, c.Max.Y},
+			{c.Max.X, c.Max.Y},
+			{c.Max.X, c.Min.Y},
 		}
 		poly := c.ClipPolygonY(points)
 		c.FillPolygon(*pts.ShadeColor, poly)
@@ -88,7 +88,7 @@ func (pts *Line) Thumbnail(c *draw.Canvas) {
 		points = append(points, draw.Point{c.Min.X, c.Min.Y})
 	} else {
 		y := c.Center().Y
-		c.StrokeLine2(pts.LineStyle, c.Min.X, y, c.Max().X, y)
+		c.StrokeLine2(pts.LineStyle, c.Min.X, y, c.Max.X, y)
 	}
 }
 

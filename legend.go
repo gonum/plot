@@ -86,7 +86,7 @@ func (l *Legend) draw(c draw.Canvas) {
 	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
 	xalign := 0.0
 	if !l.Left {
-		iconx = c.Max().X - l.ThumbnailWidth
+		iconx = c.Max.X - l.ThumbnailWidth
 		textx = iconx - l.TextStyle.Width(" ")
 		xalign = -1
 	}
@@ -94,7 +94,7 @@ func (l *Legend) draw(c draw.Canvas) {
 	iconx += l.XOffs
 
 	enth := l.entryHeight()
-	y := c.Max().Y - enth
+	y := c.Max.Y - enth
 	if !l.Top {
 		y = c.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
 	}
@@ -102,9 +102,9 @@ func (l *Legend) draw(c draw.Canvas) {
 
 	icon := &draw.Canvas{
 		Canvas: c.Canvas,
-		Rect: draw.Rect{
-			Min:  draw.Point{iconx, y},
-			Size: draw.Point{l.ThumbnailWidth, enth},
+		Rectangle: draw.Rectangle{
+			Min: draw.Point{iconx, y},
+			Max: draw.Point{iconx + l.ThumbnailWidth, y + enth},
 		},
 	}
 	for _, e := range l.entries {

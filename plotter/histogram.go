@@ -124,9 +124,9 @@ func (h *Histogram) Normalize(sum float64) {
 // Thumbnail draws a rectangle in the given style of the histogram.
 func (h *Histogram) Thumbnail(c *draw.Canvas) {
 	ymin := c.Min.Y
-	ymax := c.Max().Y
+	ymax := c.Max.Y
 	xmin := c.Min.X
-	xmax := c.Max().X
+	xmax := c.Max.X
 
 	pts := []draw.Point{
 		{xmin, ymin},

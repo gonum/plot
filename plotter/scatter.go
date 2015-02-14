@@ -56,7 +56,7 @@ func (pts *Scatter) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i, p := range pts.XYs {
 		bs[i].X = plt.X.Norm(p.X)
 		bs[i].Y = plt.Y.Norm(p.Y)
-		bs[i].Rect = pts.GlyphStyle.Rect()
+		bs[i].Rectangle = pts.GlyphStyle.Rectangle()
 	}
 	return bs
 }

@@ -13,11 +13,11 @@ import (
 )
 
 // A Canvas is a vector graphics canvas along with
-// an associated Rect defining a section of the canvas
+// an associated Rectangle defining a section of the canvas
 // to which drawing should take place.
 type Canvas struct {
 	vg.Canvas
-	Rect
+	Rectangle
 }
 
 // TextStyle describes what text will look like.
@@ -82,10 +82,13 @@ func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
 	sty.Shape.DrawGlyph(c, sty, pt)
 }
 
-// Rect returns the rectangle surrounding this glyph,
+// Rectangle returns the rectangle surrounding this glyph,
 // assuming that it is drawn centered at 0,0
-func (g GlyphStyle) Rect() Rect {
-	return Rect{Point{-g.Radius, -g.Radius}, Point{g.Radius * 2, g.Radius * 2}}
+func (g GlyphStyle) Rectangle() Rectangle {
+	return Rectangle{
+		Min: Point{-g.Radius, -g.Radius},
+		Max: Point{+g.Radius, +g.Radius},
+	}
 }
 
 // CircleGlyph is a glyph that draws a solid circle.
@@ -226,15 +229,18 @@ func New(c interface {
 func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
-		Rect:   Rect{Size: Point{w, h}},
+		Rectangle: Rectangle{
+			Min: Point{-w / 2, -h / 2},
+			Max: Point{w / 2, h / 2},
+		},
 	}
 }
 
 // Center returns the center point of the area
 func (c *Canvas) Center() Point {
 	return Point{
-		X: (c.Max().X-c.Min.X)/2 + c.Min.X,
-		Y: (c.Max().Y-c.Min.Y)/2 + c.Min.Y,
+		X: (c.Max.X-c.Min.X)/2 + c.Min.X,
+		Y: (c.Max.Y-c.Min.Y)/2 + c.Min.Y,
 	}
 }
 
@@ -246,13 +252,13 @@ func (c *Canvas) Contains(p Point) bool {
 // Contains returns true if the Canvas contains the
 // x coordinate.
 func (c *Canvas) ContainsX(x vg.Length) bool {
-	return x <= c.Max().X+slop && x >= c.Min.X-slop
+	return x <= c.Max.X+slop && x >= c.Min.X-slop
 }
 
 // ContainsY returns true if the Canvas contains the
 // y coordinate.
 func (c *Canvas) ContainsY(y vg.Length) bool {
-	return y <= c.Max().Y+slop && y >= c.Min.Y-slop
+	return y <= c.Max.Y+slop && y >= c.Min.Y-slop
 }
 
 // X returns the value of x, given in the unit range,
@@ -261,7 +267,7 @@ func (c *Canvas) ContainsY(y vg.Length) bool {
 // x value of the draw area and a value of 1 will
 // return the maximum.
 func (c *Canvas) X(x float64) vg.Length {
-	return vg.Length(x)*(c.Max().X-c.Min.X) + c.Min.X
+	return vg.Length(x)*(c.Max.X-c.Min.X) + c.Min.X
 }
 
 // Y returns the value of x, given in the unit range,
@@ -270,24 +276,24 @@ func (c *Canvas) X(x float64) vg.Length {
 // y value of the draw area and a value of 1 will
 // return the maximum.
 func (c *Canvas) Y(y float64) vg.Length {
-	return vg.Length(y)*(c.Max().Y-c.Min.Y) + c.Min.Y
+	return vg.Length(y)*(c.Max.Y-c.Min.Y) + c.Min.Y
 }
 
 // Crop returns a new Canvas corresponding to the receiver
 // area with the given number of inches added to the minimum
-// and maximum x and y values of the Canvas's Rect.
+// and maximum x and y values of the Canvas's Rectangle.
 func (c Canvas) Crop(minx, miny, maxx, maxy vg.Length) Canvas {
 	minpt := Point{
 		X: c.Min.X + minx,
 		Y: c.Min.Y + miny,
 	}
-	sz := Point{
-		X: c.Max().X + maxx - minpt.X,
-		Y: c.Max().Y + maxy - minpt.Y,
+	maxpt := Point{
+		X: c.Max.X + maxx,
+		Y: c.Max.Y + maxy,
 	}
 	return Canvas{
-		Canvas: vg.Canvas(c),
-		Rect:   Rect{Min: minpt, Size: sz},
+		Canvas:    vg.Canvas(c),
+		Rectangle: Rectangle{Min: minpt, Max: maxpt},
 	}
 }
 
@@ -343,7 +349,7 @@ func (c *Canvas) ClipLinesXY(lines ...[]Point) [][]Point {
 func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 	var lines1 [][]Point
 	for _, line := range lines {
-		ls := clipLine(isLeft, Point{c.Max().X, c.Min.Y}, Point{-1, 0}, line)
+		ls := clipLine(isLeft, Point{c.Max.X, c.Min.Y}, Point{-1, 0}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
@@ -363,7 +369,7 @@ func (c *Canvas) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isBelow, Point{c.Min.X, c.Max().Y}, Point{0, 1}, line)
+		ls := clipLine(isBelow, Point{c.Min.X, c.Max.Y}, Point{0, 1}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -429,7 +435,7 @@ func (c *Canvas) ClipPolygonXY(pts []Point) []Point {
 // represent the given polygon clipped in the
 // X direction.
 func (c *Canvas) ClipPolygonX(pts []Point) []Point {
-	return clipPoly(isLeft, Point{c.Max().X, c.Min.Y}, Point{-1, 0},
+	return clipPoly(isLeft, Point{c.Max.X, c.Min.Y}, Point{-1, 0},
 		clipPoly(isRight, Point{c.Min.X, c.Min.Y}, Point{1, 0}, pts))
 }
 
@@ -437,7 +443,7 @@ func (c *Canvas) ClipPolygonX(pts []Point) []Point {
 // represent the given polygon clipped in the
 // Y direction.
 func (c *Canvas) ClipPolygonY(pts []Point) []Point {
-	return clipPoly(isBelow, Point{c.Min.X, c.Max().Y}, Point{0, 1},
+	return clipPoly(isBelow, Point{c.Min.X, c.Max.Y}, Point{0, 1},
 		clipPoly(isAbove, Point{c.Min.X, c.Min.Y}, Point{0, -1}, pts))
 }
 
@@ -543,10 +549,10 @@ func (sty TextStyle) Height(txt string) vg.Length {
 	return e.Height*vg.Length(nl-1) + e.Ascent
 }
 
-// Rect returns a rectangle giving the bounds of
+// Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at 0, 0
-func (sty TextStyle) Rect(txt string) Rect {
-	return Rect{Size: Point{sty.Width(txt), sty.Height(txt)}}
+func (sty TextStyle) Rectangle(txt string) Rectangle {
+	return Rectangle{Max: Point{sty.Width(txt), sty.Height(txt)}}
 }
 
 // textNLines returns the number of lines in the text.
@@ -564,26 +570,27 @@ func textNLines(txt string) int {
 	return n
 }
 
-// A Rect represents a Rectangular region of 2d space.
-type Rect struct {
-	Min, Size Point
+// A Rectangle represents a rectangular region of 2d space.
+type Rectangle struct {
+	Min Point
+	Max Point
 }
 
-// Max returns the maxmium x and y values of a Rect.
-func (r Rect) Max() Point {
+// Size returns the width and height of a Rectangle.
+func (r Rectangle) Size() Point {
 	return Point{
-		X: r.Min.X + r.Size.X,
-		Y: r.Min.Y + r.Size.Y,
+		X: r.Max.X - r.Min.X,
+		Y: r.Max.Y - r.Min.Y,
 	}
 }
 
 // Path returns the path of a Rect specified by its
 // upper left corner, width and height.
-func (r Rect) Path() (p vg.Path) {
+func (r Rectangle) Path() (p vg.Path) {
 	p.Move(r.Min.X, r.Min.Y)
-	p.Line(r.Max().X, r.Min.Y)
-	p.Line(r.Max().X, r.Max().Y)
-	p.Line(r.Min.X, r.Max().Y)
+	p.Line(r.Max.X, r.Min.Y)
+	p.Line(r.Max.X, r.Max.Y)
+	p.Line(r.Min.X, r.Max.Y)
 	p.Close()
 	return
 }

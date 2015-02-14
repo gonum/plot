@@ -47,5 +47,5 @@ func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
 // of the LineStyle of the function.
 func (f Function) Thumbnail(c *draw.Canvas) {
 	y := c.Center().Y
-	c.StrokeLine2(f.LineStyle, c.Min.X, y, c.Max().X, y)
+	c.StrokeLine2(f.LineStyle, c.Min.X, y, c.Max.X, y)
 }

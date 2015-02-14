@@ -108,10 +108,10 @@ func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
 		w := l.Width(label)
 		h := l.Height(label)
-		bs[i].Rect.Min.X = w*vg.Length(l.XAlign) + l.XOffset
-		bs[i].Rect.Min.Y = h*vg.Length(l.YAlign) + l.YOffset
-		bs[i].Rect.Size.X = w
-		bs[i].Rect.Size.Y = h
+		bs[i].Rectangle.Min.X = w*vg.Length(l.XAlign) + l.XOffset
+		bs[i].Rectangle.Min.Y = h*vg.Length(l.YAlign) + l.YOffset
+		bs[i].Rectangle.Max.X = w + w*vg.Length(l.XAlign) + l.XOffset
+		bs[i].Rectangle.Max.Y = h + h*vg.Length(l.YAlign) + l.YOffset
 	}
 	return bs
 }

@@ -108,9 +108,9 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		boxes[i].X = plt.X.Norm(d.X)
 		boxes[i].Y = plt.Y.Norm(d.Y)
 		r := bs.radius(d.Z)
-		boxes[i].Rect = draw.Rect{
-			Min:  draw.Point{-r, -r},
-			Size: draw.Point{2 * r, 2 * r},
+		boxes[i].Rectangle = draw.Rectangle{
+			Min: draw.Point{-r, -r},
+			Max: draw.Point{+r, +r},
 		}
 	}
 	return boxes

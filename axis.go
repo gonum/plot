@@ -229,7 +229,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		y += len
 	}
 
-	c.StrokeLine2(a.LineStyle, c.Min.X, y, c.Max().X, y)
+	c.StrokeLine2(a.LineStyle, c.Min.X, y, c.Max.X, y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
@@ -240,8 +240,8 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		w := a.Tick.Label.Width(t.Label)
 		box := GlyphBox{
-			X:    a.Norm(t.Value),
-			Rect: draw.Rect{draw.Point{X: -w / 2}, draw.Point{X: w}},
+			X:         a.Norm(t.Value),
+			Rectangle: draw.Rectangle{draw.Point{X: -w / 2}, draw.Point{X: w / 2}},
 		}
 		boxes = append(boxes, box)
 	}
@@ -312,7 +312,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		}
 		x += len
 	}
-	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max().Y)
+	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max.Y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
@@ -323,8 +323,8 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		h := a.Tick.Label.Height(t.Label)
 		box := GlyphBox{
-			Y:    a.Norm(t.Value),
-			Rect: draw.Rect{draw.Point{Y: -h / 2}, draw.Point{Y: h}},
+			Y:         a.Norm(t.Value),
+			Rectangle: draw.Rectangle{draw.Point{Y: -h / 2}, draw.Point{Y: h / 2}},
 		}
 		boxes = append(boxes, box)
 	}

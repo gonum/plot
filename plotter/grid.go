@@ -51,7 +51,7 @@ func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
 			continue
 		}
 		x := trX(tk.Value)
-		c.StrokeLine2(g.Vertical, x, c.Min.Y, x, c.Min.Y+c.Size.Y)
+		c.StrokeLine2(g.Vertical, x, c.Min.Y, x, c.Min.Y+c.Size().Y)
 	}
 
 horiz:
@@ -63,6 +63,6 @@ horiz:
 			continue
 		}
 		y := trY(tk.Value)
-		c.StrokeLine2(g.Horizontal, c.Min.X, y, c.Min.X+c.Size.X, y)
+		c.StrokeLine2(g.Horizontal, c.Min.X, y, c.Min.X+c.Size().X, y)
 	}
 }

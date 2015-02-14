@@ -122,13 +122,13 @@ func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Location)
 		bs[i].Y = plt.Y.Norm(b.Value(out))
-		bs[i].Rect = ostyle.Rect()
-		bs[i].Rect.Min.X += b.Offset
+		bs[i].Rectangle = ostyle.Rectangle()
+		bs[i].Rectangle.Min.X += b.Offset
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
-	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
-	bs[len(bs)-1].Rect.Min.X += b.Offset
+	bs[len(bs)-1].Rectangle = b.MedianStyle.Rectangle()
+	bs[len(bs)-1].Rectangle.Min.X += b.Offset
 	return bs
 }
 
@@ -227,13 +227,13 @@ func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Value(out))
 		bs[i].Y = plt.Y.Norm(b.Location)
-		bs[i].Rect = ostyle.Rect()
-		bs[i].Rect.Min.Y += b.Offset
+		bs[i].Rectangle = ostyle.Rectangle()
+		bs[i].Rectangle.Min.Y += b.Offset
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
-	bs[len(bs)-1].Rect = b.MedianStyle.Rect()
-	bs[len(bs)-1].Rect.Min.Y += b.Offset
+	bs[len(bs)-1].Rectangle = b.MedianStyle.Rectangle()
+	bs[len(bs)-1].Rectangle.Min.Y += b.Offset
 	return bs
 }
 

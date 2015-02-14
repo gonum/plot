@@ -202,9 +202,9 @@ func (h *HeatMap) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 			b = append(b, plot.GlyphBox{
 				X: plt.X.Norm(h.GridXYZ.X(i)),
 				Y: plt.Y.Norm(h.GridXYZ.Y(j)),
-				Rect: draw.Rect{
-					Min:  draw.Point{-5, -5},
-					Size: draw.Point{10, 10},
+				Rectangle: draw.Rectangle{
+					Min: draw.Point{-5, -5},
+					Max: draw.Point{+5, +5},
 				},
 			})
 		}

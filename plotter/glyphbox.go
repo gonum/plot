@@ -28,13 +28,13 @@ func NewGlyphBoxes() *GlyphBoxes {
 
 func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, b := range plt.GlyphBoxes(plt) {
-		x := c.X(b.X) + b.Rect.Min.X
-		y := c.Y(b.Y) + b.Rect.Min.Y
+		x := c.X(b.X) + b.Rectangle.Min.X
+		y := c.Y(b.Y) + b.Rectangle.Min.Y
 		c.StrokeLines(g.LineStyle, []draw.Point{
 			{x, y},
-			{x + b.Rect.Size.X, y},
-			{x + b.Rect.Size.X, y + b.Rect.Size.Y},
-			{x, y + b.Rect.Size.Y},
+			{x + b.Rectangle.Size().X, y},
+			{x + b.Rectangle.Size().X, y + b.Rectangle.Size().Y},
+			{x, y + b.Rectangle.Size().Y},
 			{x, y},
 		})
 	}

@@ -240,13 +240,13 @@ func (b *BoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Location)
 		bs[i].Y = plt.Y.Norm(b.Value(out))
-		bs[i].Rect = b.GlyphStyle.Rect()
+		bs[i].Rectangle = b.GlyphStyle.Rectangle()
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Location)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
-	bs[len(bs)-1].Rect = draw.Rect{
-		Min:  draw.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
-		Size: draw.Point{X: b.Width + b.BoxStyle.Width},
+	bs[len(bs)-1].Rectangle = draw.Rectangle{
+		Min: draw.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
+		Max: draw.Point{X: b.Offset + (b.Width/2 + b.BoxStyle.Width/2)},
 	}
 	return bs
 }
@@ -358,13 +358,13 @@ func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Value(out))
 		bs[i].Y = plt.Y.Norm(b.Location)
-		bs[i].Rect = b.GlyphStyle.Rect()
+		bs[i].Rectangle = b.GlyphStyle.Rectangle()
 	}
 	bs[len(bs)-1].X = plt.X.Norm(b.Median)
 	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
-	bs[len(bs)-1].Rect = draw.Rect{
-		Min:  draw.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
-		Size: draw.Point{Y: b.Width + b.BoxStyle.Width},
+	bs[len(bs)-1].Rectangle = draw.Rectangle{
+		Min: draw.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
+		Max: draw.Point{Y: b.Offset + (b.Width/2 + b.BoxStyle.Width/2)},
 	}
 	return bs
 }
