@@ -7,8 +7,9 @@ package plotter
 import (
 	"image/color"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // Line implements the Plotter interface, drawing a line.
@@ -18,7 +19,7 @@ type Line struct {
 
 	// LineStyle is the style of the line connecting
 	// the points.
-	plot.LineStyle
+	draw.LineStyle
 
 	// ShadeColor is the color of the shaded area.
 	ShadeColor *color.Color
@@ -39,9 +40,9 @@ func NewLine(xys XYer) (*Line, error) {
 
 // Plot draws the Line, implementing the plot.Plotter
 // interface.
-func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
-	ps := make([]plot.Point, len(pts.XYs))
+func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
+	ps := make([]draw.Point, len(pts.XYs))
 
 	for i, p := range pts.XYs {
 		ps[i].X = trX(p.X)
@@ -49,7 +50,7 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 	}
 
 	if pts.ShadeColor != nil && len(ps) > 0 {
-		da.SetColor(*pts.ShadeColor)
+		c.SetColor(*pts.ShadeColor)
 		minY := trY(plt.Y.Min)
 		var pa vg.Path
 		pa.Move(ps[0].X, minY)
@@ -58,10 +59,10 @@ func (pts *Line) Plot(da plot.DrawArea, plt *plot.Plot) {
 		}
 		pa.Line(ps[len(pts.XYs)-1].X, minY)
 		pa.Close()
-		da.Fill(pa)
+		c.Fill(pa)
 	}
 
-	da.StrokeLines(pts.LineStyle, da.ClipLinesXY(ps)...)
+	c.StrokeLines(pts.LineStyle, c.ClipLinesXY(ps)...)
 }
 
 // DataRange returns the minimum and maximum
@@ -73,21 +74,21 @@ func (pts *Line) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // Thumbnail the thumbnail for the Line,
 // implementing the plot.Thumbnailer interface.
-func (pts *Line) Thumbnail(da *plot.DrawArea) {
+func (pts *Line) Thumbnail(c *draw.Canvas) {
 	if pts.ShadeColor != nil {
-		points := []plot.Point{
-			{da.Min.X, da.Min.Y},
-			{da.Min.X, da.Max().Y},
-			{da.Max().X, da.Max().Y},
-			{da.Max().X, da.Min.Y},
+		points := []draw.Point{
+			{c.Min.X, c.Min.Y},
+			{c.Min.X, c.Max().Y},
+			{c.Max().X, c.Max().Y},
+			{c.Max().X, c.Min.Y},
 		}
-		poly := da.ClipPolygonY(points)
-		da.FillPolygon(*pts.ShadeColor, poly)
+		poly := c.ClipPolygonY(points)
+		c.FillPolygon(*pts.ShadeColor, poly)
 
-		points = append(points, plot.Pt(da.Min.X, da.Min.Y))
+		points = append(points, draw.Point{c.Min.X, c.Min.Y})
 	} else {
-		y := da.Center().Y
-		da.StrokeLine2(pts.LineStyle, da.Min.X, y, da.Max().X, y)
+		y := c.Center().Y
+		c.StrokeLine2(pts.LineStyle, c.Min.X, y, c.Max().X, y)
 	}
 }
 

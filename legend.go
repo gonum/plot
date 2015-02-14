@@ -6,6 +6,7 @@ package plot
 
 import (
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // A Legend gives a description of the meaning of different
@@ -15,7 +16,7 @@ import (
 type Legend struct {
 	// TextStyle is the style given to the legend
 	// entry texts.
-	TextStyle
+	draw.TextStyle
 
 	// Padding is the amount of padding to add
 	// betweeneach entry of the legend.  If Padding
@@ -63,7 +64,7 @@ type Thumbnailer interface {
 	// a legend entry.  The thumbnail will usually show
 	// a smaller representation of the style used
 	// to plot the corresponding data.
-	Thumbnail(da *DrawArea)
+	Thumbnail(c *draw.Canvas)
 }
 
 // makeLegend returns a legend with the default
@@ -75,17 +76,17 @@ func makeLegend() (Legend, error) {
 	}
 	return Legend{
 		ThumbnailWidth: vg.Points(20),
-		TextStyle:      TextStyle{Font: font},
+		TextStyle:      draw.TextStyle{Font: font},
 	}, nil
 }
 
-// draw draws the legend to the given DrawArea.
-func (l *Legend) draw(da DrawArea) {
-	iconx := da.Min.X
+// draw draws the legend to the given draw.Canvas.
+func (l *Legend) draw(c draw.Canvas) {
+	iconx := c.Min.X
 	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
 	xalign := 0.0
 	if !l.Left {
-		iconx = da.Max().X - l.ThumbnailWidth
+		iconx = c.Max().X - l.ThumbnailWidth
 		textx = iconx - l.TextStyle.Width(" ")
 		xalign = -1
 	}
@@ -93,22 +94,25 @@ func (l *Legend) draw(da DrawArea) {
 	iconx += l.XOffs
 
 	enth := l.entryHeight()
-	y := da.Max().Y - enth
+	y := c.Max().Y - enth
 	if !l.Top {
-		y = da.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
+		y = c.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
 	}
 	y += l.YOffs
 
-	icon := &DrawArea{
-		Canvas: da.Canvas,
-		Rect:   Rect{Min: Point{iconx, y}, Size: Point{l.ThumbnailWidth, enth}},
+	icon := &draw.Canvas{
+		Canvas: c.Canvas,
+		Rect: draw.Rect{
+			Min:  draw.Point{iconx, y},
+			Size: draw.Point{l.ThumbnailWidth, enth},
+		},
 	}
 	for _, e := range l.entries {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
 		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
-		da.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
+		c.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
 		icon.Min.Y -= enth + l.Padding
 	}
 }

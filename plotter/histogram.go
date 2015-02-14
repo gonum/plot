@@ -10,7 +10,8 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // Histogram implements the Plotter interface,
@@ -29,7 +30,7 @@ type Histogram struct {
 
 	// LineStyle is the style of the outline of each
 	// bar of the histogram.
-	plot.LineStyle
+	draw.LineStyle
 }
 
 // NewHistogram returns a new histogram
@@ -71,21 +72,21 @@ func (u unitYs) XY(i int) (float64, float64) {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (h *Histogram) Plot(da plot.DrawArea, p *plot.Plot) {
-	trX, trY := p.Transforms(&da)
+func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
 
 	for _, bin := range h.Bins {
-		pts := []plot.Point{
+		pts := []draw.Point{
 			{trX(bin.Min), trY(0)},
 			{trX(bin.Max), trY(0)},
 			{trX(bin.Max), trY(bin.Weight)},
 			{trX(bin.Min), trY(bin.Weight)},
 		}
 		if h.FillColor != nil {
-			da.FillPolygon(h.FillColor, da.ClipPolygonXY(pts))
+			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 		}
-		pts = append(pts, plot.Pt(trX(bin.Min), trY(0)))
-		da.StrokeLines(h.LineStyle, da.ClipLinesXY(pts)...)
+		pts = append(pts, draw.Point{trX(bin.Min), trY(0)})
+		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
 }
 
@@ -118,6 +119,26 @@ func (h *Histogram) Normalize(sum float64) {
 	for i := range h.Bins {
 		h.Bins[i].Weight *= sum / (h.Width * mass)
 	}
+}
+
+// Thumbnail draws a rectangle in the given style of the histogram.
+func (h *Histogram) Thumbnail(c *draw.Canvas) {
+	ymin := c.Min.Y
+	ymax := c.Max().Y
+	xmin := c.Min.X
+	xmax := c.Max().X
+
+	pts := []draw.Point{
+		{xmin, ymin},
+		{xmax, ymin},
+		{xmax, ymax},
+		{xmin, ymax},
+	}
+	if h.FillColor != nil {
+		c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
+	}
+	pts = append(pts, draw.Point{xmin, ymin})
+	c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 }
 
 // binPoints returns a slice containing the

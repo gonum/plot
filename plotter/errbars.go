@@ -7,8 +7,9 @@ package plotter
 import (
 	"math"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // DefaultCapWidth is the default width of error bar caps.
@@ -24,7 +25,7 @@ type YErrorBars struct {
 	YErrors
 
 	// LineStyle is the style used to draw the error bars.
-	plot.LineStyle
+	draw.LineStyle
 
 	// CapWidth is the width of the caps drawn at the top
 	// of each error bar.
@@ -62,26 +63,26 @@ func NewYErrorBars(yerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *YErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
-	trX, trY := p.Transforms(&da)
+func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
 	for i, err := range e.YErrors {
 		x := trX(e.XYs[i].X)
 		ylow := trY(e.XYs[i].Y - math.Abs(err.Low))
 		yhigh := trY(e.XYs[i].Y + math.Abs(err.High))
 
-		bar := da.ClipLinesY([]plot.Point{{x, ylow}, {x, yhigh}})
-		da.StrokeLines(e.LineStyle, bar...)
-		e.drawCap(&da, x, ylow)
-		e.drawCap(&da, x, yhigh)
+		bar := c.ClipLinesY([]draw.Point{{x, ylow}, {x, yhigh}})
+		c.StrokeLines(e.LineStyle, bar...)
+		e.drawCap(&c, x, ylow)
+		e.drawCap(&c, x, yhigh)
 	}
 }
 
 // drawCap draws the cap if it is not clipped.
-func (e *YErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Pt(x, y)) {
+func (e *YErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
+	if !c.Contains(draw.Point{x, y}) {
 		return
 	}
-	da.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
+	c.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
 }
 
 // DataRange implements the plot.DataRanger interface.
@@ -101,12 +102,12 @@ func (e *YErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
 func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	rect := plot.Rect{
-		Min: plot.Point{
+	rect := draw.Rect{
+		Min: draw.Point{
 			X: -e.CapWidth / 2,
 			Y: -e.LineStyle.Width / 2,
 		},
-		Size: plot.Point{
+		Size: draw.Point{
 			X: e.CapWidth,
 			Y: e.LineStyle.Width,
 		},
@@ -132,7 +133,7 @@ type XErrorBars struct {
 	XErrors
 
 	// LineStyle is the style used to draw the error bars.
-	plot.LineStyle
+	draw.LineStyle
 
 	// CapWidth is the width of the caps drawn at the top
 	// of each error bar.
@@ -170,26 +171,26 @@ func NewXErrorBars(xerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *XErrorBars) Plot(da plot.DrawArea, p *plot.Plot) {
-	trX, trY := p.Transforms(&da)
+func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
 	for i, err := range e.XErrors {
 		y := trY(e.XYs[i].Y)
 		xlow := trX(e.XYs[i].X - math.Abs(err.Low))
 		xhigh := trX(e.XYs[i].X + math.Abs(err.High))
 
-		bar := da.ClipLinesX([]plot.Point{{xlow, y}, {xhigh, y}})
-		da.StrokeLines(e.LineStyle, bar...)
-		e.drawCap(&da, xlow, y)
-		e.drawCap(&da, xhigh, y)
+		bar := c.ClipLinesX([]draw.Point{{xlow, y}, {xhigh, y}})
+		c.StrokeLines(e.LineStyle, bar...)
+		e.drawCap(&c, xlow, y)
+		e.drawCap(&c, xhigh, y)
 	}
 }
 
 // drawCap draws the cap if it is not clipped.
-func (e *XErrorBars) drawCap(da *plot.DrawArea, x, y vg.Length) {
-	if !da.Contains(plot.Pt(x, y)) {
+func (e *XErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
+	if !c.Contains(draw.Point{x, y}) {
 		return
 	}
-	da.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)
+	c.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)
 }
 
 // DataRange implements the plot.DataRanger interface.
@@ -209,12 +210,12 @@ func (e *XErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
 func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	rect := plot.Rect{
-		Min: plot.Point{
+	rect := draw.Rect{
+		Min: draw.Point{
 			X: -e.LineStyle.Width / 2,
 			Y: -e.CapWidth / 2,
 		},
-		Size: plot.Point{
+		Size: draw.Point{
 			X: e.LineStyle.Width,
 			Y: e.CapWidth,
 		},

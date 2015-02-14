@@ -9,8 +9,9 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/gonum/plot/plot"
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // Bubbles implements the Plotter interface, drawing
@@ -60,15 +61,15 @@ func NewBubbles(xyz XYZer, min, max vg.Length) (*Bubbles, error) {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&da)
+func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
+	trX, trY := plt.Transforms(&c)
 
-	da.SetColor(bs.Color)
+	c.SetColor(bs.Color)
 
 	for _, d := range bs.XYZs {
 		x := trX(d.X)
 		y := trY(d.Y)
-		if !da.Contains(plot.Pt(x, y)) {
+		if !c.Contains(draw.Point{x, y}) {
 			continue
 		}
 
@@ -79,7 +80,7 @@ func (bs *Bubbles) Plot(da plot.DrawArea, plt *plot.Plot) {
 		p.Move(x+rad, y)
 		p.Arc(x, y, rad, 0, 2*math.Pi)
 		p.Close()
-		da.Fill(p)
+		c.Fill(p)
 	}
 }
 
@@ -107,9 +108,9 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		boxes[i].X = plt.X.Norm(d.X)
 		boxes[i].Y = plt.Y.Norm(d.Y)
 		r := bs.radius(d.Z)
-		boxes[i].Rect = plot.Rect{
-			Min:  plot.Pt(-r, -r),
-			Size: plot.Pt(2*r, 2*r),
+		boxes[i].Rect = draw.Rect{
+			Min:  draw.Point{-r, -r},
+			Size: draw.Point{2 * r, 2 * r},
 		}
 	}
 	return boxes
