@@ -5,6 +5,8 @@
 package plotter
 
 import (
+	"flag"
+	"fmt"
 	"math"
 	"math/rand"
 	"reflect"
@@ -16,6 +18,8 @@ import (
 	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/vg"
 )
+
+var visualDebug = flag.Bool("visual", false, "output images for benchmarks and test data")
 
 type unitGrid struct{ mat64.Matrix }
 
@@ -36,29 +40,65 @@ func (g unitGrid) Y(r int) float64 {
 	return float64(r)
 }
 
-func TestComplexContours(t *testing.T) {
-	data := make([]float64, 6400)
-	for i := range data {
-		r := float64(i/80) - 40
-		c := float64(i%80) - 40
-
-		data[i] = rand.NormFloat64()*2 + math.Hypot(r, c)
+func TestHeatMapWithContour(t *testing.T) {
+	if !*visualDebug {
+		return
 	}
+	m := unitGrid{mat64.NewDense(3, 4, []float64{
+		2, 1, 4, 3,
+		6, 7, 2, 5,
+		9, 10, 11, 12,
+	})}
+	h := NewHeatMap(m, palette.Heat(12, 1))
 
-	m := unitGrid{mat64.NewDense(80, 80, data)}
-
-	levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
+	levels := []float64{1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5}
 	c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
+	c.LineStyles[0].Width *= 5
 
 	plt, _ := plot.New()
+
+	plt.Add(h)
 	plt.Add(c)
+	plt.Add(NewGlyphBoxes())
 
 	plt.X.Padding = 0
 	plt.Y.Padding = 0
-	plt.X.Max = 79.5
-	plt.Y.Max = 79.5
-	plt.Save(7, 7, "complex_contour.svg")
+	plt.X.Max = 3.5
+	plt.Y.Max = 2.5
+	plt.Save(7, 7, "heat.svg")
 }
+
+func TestComplexContours(t *testing.T) {
+	if !*visualDebug {
+		return
+	}
+	for _, n := range []float64{0, 1, 2, 4, 8, 16, 32} {
+		rand.Seed(0)
+		data := make([]float64, 6400)
+		for i := range data {
+			r := float64(i/80) - 40
+			c := float64(i%80) - 40
+
+			data[i] = rand.NormFloat64()*n + math.Hypot(r, c)
+		}
+
+		m := unitGrid{mat64.NewDense(80, 80, data)}
+
+		levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
+		c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
+
+		plt, _ := plot.New()
+		plt.Add(c)
+
+		plt.X.Padding = 0
+		plt.Y.Padding = 0
+		plt.X.Max = 79.5
+		plt.Y.Max = 79.5
+		plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
+	}
+}
+
+func unity(f float64) vg.Length { return vg.Length(f) }
 
 func BenchmarkComplexContour0(b *testing.B)  { complexContourBench(0, b) }
 func BenchmarkComplexContour1(b *testing.B)  { complexContourBench(1, b) }
@@ -83,8 +123,6 @@ func complexContourBench(noise float64, b *testing.B) {
 
 	levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
 
-	unity := func(f float64) vg.Length { return vg.Length(f) }
-
 	var p map[float64][]vg.Path
 
 	b.ResetTimer()
@@ -95,31 +133,6 @@ func complexContourBench(noise float64, b *testing.B) {
 	cp = p
 }
 
-func TestHeatMapWithContour(t *testing.T) {
-	m := unitGrid{mat64.NewDense(3, 4, []float64{
-		2, 1, 4, 3,
-		6, 7, 2, 5,
-		9, 10, 11, 12,
-	})}
-	h := NewHeatMap(m, palette.Heat(12, 1))
-
-	levels := []float64{1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5, 11.5}
-	c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
-	c.Width *= 5
-
-	plt, _ := plot.New()
-
-	plt.Add(h)
-	plt.Add(c)
-	plt.Add(NewGlyphBoxes())
-
-	plt.X.Padding = 0
-	plt.Y.Padding = 0
-	plt.X.Max = 3.5
-	plt.Y.Max = 2.5
-	plt.Save(7, 7, "heat.svg")
-}
-
 func TestContourPaths(t *testing.T) {
 	m := unitGrid{mat64.NewDense(3, 4, []float64{
 		2, 1, 4, 3,
@@ -128,8 +141,6 @@ func TestContourPaths(t *testing.T) {
 	})}
 
 	levels := []float64{1.5, 2.5, 3.5, 4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5}
-
-	unity := func(x float64) vg.Length { return vg.Length(x) }
 
 	var (
 		wantClosed = 2
@@ -372,53 +383,89 @@ var wantContours = map[float64][]vg.Path{
 	},
 }
 
-func TestExcise(t *testing.T) {
-	const elements = 10
+var loopTests = []struct {
+	c *contour
 
-	for i := 0; i < elements; i++ {
-		for j := 0; j < elements; j++ {
-			var (
-				l1 list
-				l2 *list
-				es []*element
-			)
-			for p := 0.0; p < elements; p++ {
-				es = append(es, l1.PushBack(point{p, p}))
+	want []*contour
+}{
+	{
+		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
+		want: []*contour{
+			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
+		},
+	},
+	{
+		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {4, 4}, {7, 7}, {8, 8}, {9, 9}}},
+		want: []*contour{
+			&contour{backward: path{{4, 4}}, forward: path{{5, 5}, {6, 6}, {4, 4}}},
+			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {7, 7}, {8, 8}, {9, 9}}},
+		},
+	},
+	{
+		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {3, 3}, {7, 7}, {1, 1}, {9, 9}}},
+		want: []*contour{
+			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {9, 9}}},
+			&contour{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {3, 3}}},
+			&contour{backward: path{{1, 1}}, forward: path{{2, 2}, {3, 3}, {7, 7}, {1, 1}}},
+		},
+	},
+	{
+		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {2, 2}, {7, 7}, {2, 2}, {9, 9}}},
+		want: []*contour{
+			&contour{backward: path{{2, 2}}, forward: path{{7, 7}, {2, 2}}},
+			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {9, 9}}},
+			&contour{backward: path{{2, 2}}, forward: path{{3, 3}, {4, 4}, {5, 5}, {2, 2}}},
+		},
+	},
+	{
+		// This test is a known failing case for exciseQuick.
+		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {3, 3}, {8, 8}, {9, 9}, {5, 5}, {10, 10}}},
+		want: []*contour{
+			&contour{backward: path{{5, 5}}, forward: path{{10, 10}}},
+			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}}},
+			&contour{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {6, 6}, {3, 3}}},
+			&contour{backward: path{{3, 3}}, forward: path{{8, 8}, {9, 9}, {5, 5}, {6, 6}, {3, 3}}},
+		},
+	},
+}
+
+func (c testContour) String() string {
+	var s string
+	for i, p := range c {
+		if i != 0 {
+			s += ", "
+		}
+		s += fmt.Sprintf("%v", append(p.backward.reverse(), p.forward...))
+		p.backward.reverse()
+	}
+	return s
+}
+
+func TestExciseLoops(t *testing.T) {
+	for _, quick := range []bool{true, false} {
+		for i, test := range loopTests {
+			gotSet := make(contourSet)
+			c := &contour{
+				backward: append(path(nil), test.c.backward...),
+				forward:  append(path(nil), test.c.forward...),
 			}
-			func() {
-				defer func() {
-					panicked := recover() != nil
-					if panicked != (j < i) {
-						t.Errorf("unexpected panic status for %d-%d: got:%t want:%t", i, j, panicked, j < i)
-					}
-				}()
-				l2 = l1.excise(es[i], es[j])
-			}()
-			if i <= j {
-				if l1.Len() != elements-(j-i+1) {
-					t.Errorf("unexpected l1 length: got:%d want:%d", l1.Len(), elements-(j-i+1))
-				}
-				if l2.Len() != j-i+1 {
-					t.Errorf("unexpected l2 length: got:%d want:%d", l2.Len(), j-i+1)
-				}
-
-				for k, e := 0, l1.Front(); e != nil; e = e.Next() {
-					if k == i {
-						k = j + 1
-					}
-					if e.Value != es[k].Value {
-						t.Errorf("unexpected value: got:%v want:%v", e.Value, es[k].Value)
-					}
-					k++
-				}
-
-				for k, e := i, l2.Front(); e != nil; e = e.Next() {
-					if e.Value != es[k].Value {
-						t.Errorf("unexpected value: got:%v want:%v", e.Value, es[k].Value)
-					}
-					k++
-				}
+			gotSet[c] = struct{}{}
+			c.exciseLoops(gotSet, quick)
+			var got []*contour
+			for c := range gotSet {
+				got = append(got, c)
+			}
+			sort.Sort(testContour(got))
+			if !reflect.DeepEqual(got, test.want) {
+				t.Errorf("unexpected loop excision result for %d quick=%t:\n\tgot:%v\n\twant:%v",
+					i, quick, testContour(got), testContour(test.want))
 			}
 		}
 	}
 }
+
+type testContour []*contour
+
+func (c testContour) Len() int           { return len(c) }
+func (c testContour) Less(i, j int) bool { return len(c[i].forward) < len(c[j].forward) }
+func (c testContour) Swap(i, j int)      { c[i], c[j] = c[j], c[i] }

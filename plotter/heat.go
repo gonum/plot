@@ -14,30 +14,33 @@ import (
 	"github.com/gonum/plot/vg/draw"
 )
 
-// GridFunc describes three dimensional data where the X and Y
+// GridXYZ describes three dimensional data where the X and Y
 // coordinates are arranged on a rectangular grid.
-type GridFunc interface {
+type GridXYZ interface {
 	// Dims returns the dimensions of the grid.
 	Dims() (c, r int)
 
-	// Z returns the value of a matrix element at (c, r).
-	// It will panic if c or r are out of bounds for the matrix.
+	// Z returns the value of a grid value at (c, r).
+	// It will panic if c or r are out of bounds for the grid.
 	Z(c, r int) float64
 
 	// X returns the coordinate for the column at the index x.
+	// It will panic if c is out of bounds for the grid.
 	X(c int) float64
+
 	// Y returns the coordinate for the row at the index r.
+	// It will panic if r is out of bounds for the grid.
 	Y(r int) float64
 }
 
 // HeatMap implements the Plotter interface, drawing
-// a heat map of the values in the GridFunc field. The
-// order of rows is from high index to low index down.
+// a heat map of the values in the GridXYZ field.
 type HeatMap struct {
-	GridFunc GridFunc
+	GridXYZ GridXYZ
 
 	// Palette is the color palette used to render
-	// the heat map.
+	// the heat map. Palette must not be nil or
+	// return a zero length []color.Color.
 	Palette palette.Palette
 
 	// Underflow and Overflow are colors used to fill
@@ -52,8 +55,10 @@ type HeatMap struct {
 }
 
 // NewHeatMap creates as new heat map plotter for the given data,
-// using the provided palette.
-func NewHeatMap(g GridFunc, p palette.Palette) *HeatMap {
+// using the provided palette. If g has Min and Max methods that return
+// a float, those returned values are used to set the respective HeatMap
+// fields.
+func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	var min, max float64
 	type minMaxer interface {
 		Min() float64
@@ -78,10 +83,10 @@ func NewHeatMap(g GridFunc, p palette.Palette) *HeatMap {
 	}
 
 	return &HeatMap{
-		GridFunc: g,
-		Palette:  p,
-		Min:      min,
-		Max:      max,
+		GridXYZ: g,
+		Palette: p,
+		Min:     min,
+		Max:     max,
 	}
 }
 
@@ -91,29 +96,30 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 	if len(pal) == 0 {
 		panic("heatmap: empty palette")
 	}
+	// ps scales the palette uniformly across the data range.
 	ps := float64(len(pal)-1) / (h.Max - h.Min)
 
 	trX, trY := plt.Transforms(&c)
 
 	var pa vg.Path
-	cols, rows := h.GridFunc.Dims()
+	cols, rows := h.GridXYZ.Dims()
 	for i := 0; i < cols; i++ {
 
 		var right, left float64
 		switch i {
 		case 0:
-			right = (h.GridFunc.X(i+1) - h.GridFunc.X(i)) / 2
+			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
 			left = -right
 		case cols - 1:
-			right = (h.GridFunc.X(i) - h.GridFunc.X(i-1)) / 2
+			right = (h.GridXYZ.X(i) - h.GridXYZ.X(i-1)) / 2
 			left = -right
 		default:
-			right = (h.GridFunc.X(i+1) - h.GridFunc.X(i)) / 2
-			left = -(h.GridFunc.X(i) - h.GridFunc.X(i-1)) / 2
+			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
+			left = -(h.GridXYZ.X(i) - h.GridXYZ.X(i-1)) / 2
 		}
 
 		for j := 0; j < rows; j++ {
-			v := h.GridFunc.Z(i, j)
+			v := h.GridXYZ.Z(i, j)
 			if math.IsNaN(v) || math.IsInf(v, 0) {
 				continue
 			}
@@ -123,18 +129,18 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			var up, down float64
 			switch j {
 			case 0:
-				up = (h.GridFunc.Y(j+1) - h.GridFunc.Y(j)) / 2
+				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
 				down = -up
 			case rows - 1:
-				up = (h.GridFunc.Y(j) - h.GridFunc.Y(j-1)) / 2
+				up = (h.GridXYZ.Y(j) - h.GridXYZ.Y(j-1)) / 2
 				down = -up
 			default:
-				up = (h.GridFunc.Y(j+1) - h.GridFunc.Y(j)) / 2
-				down = -(h.GridFunc.Y(j) - h.GridFunc.Y(j-1)) / 2
+				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
+				down = -(h.GridXYZ.Y(j) - h.GridXYZ.Y(j-1)) / 2
 			}
 
-			x, y := trX(h.GridFunc.X(i)+left), trY(h.GridFunc.Y(j)+down)
-			dx, dy := trX(h.GridFunc.X(i)+right), trY(h.GridFunc.Y(j)+up)
+			x, y := trX(h.GridXYZ.X(i)+left), trY(h.GridXYZ.Y(j)+down)
+			dx, dy := trX(h.GridXYZ.X(i)+right), trY(h.GridXYZ.Y(j)+up)
 
 			if !c.Contains(draw.Point{x, y}) || !c.Contains(draw.Point{dx, dy}) {
 				continue
@@ -153,7 +159,7 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			case v > h.Max:
 				col = h.Overflow
 			default:
-				col = pal[int((v-h.Min)*ps+0.5)]
+				col = pal[int((v-h.Min)*ps+0.5)] // Apply palette scaling.
 			}
 			if col != nil {
 				c.SetColor(col)
@@ -166,22 +172,22 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 // DataRange implements the DataRange method
 // of the plot.DataRanger interface.
 func (h *HeatMap) DataRange() (xmin, xmax, ymin, ymax float64) {
-	c, r := h.GridFunc.Dims()
+	c, r := h.GridXYZ.Dims()
 	switch c {
 	case 1: // Make a unit length when there is no neighbour.
 		xmax = 0.5
 		xmin = -0.5
 	default:
-		xmax = (3*h.GridFunc.X(c-1) - h.GridFunc.X(c-2)) / 2
-		xmin = (h.GridFunc.X(0) - h.GridFunc.X(1)) / 2
+		xmax = (3*h.GridXYZ.X(c-1) - h.GridXYZ.X(c-2)) / 2
+		xmin = (h.GridXYZ.X(0) - h.GridXYZ.X(1)) / 2
 	}
 	switch r {
 	case 1: // Make a unit length when there is no neighbour.
 		ymax = 0.5
 		ymin = -0.5
 	default:
-		ymax = (3*h.GridFunc.Y(r-1) - h.GridFunc.Y(r-2)) / 2
-		ymin = (h.GridFunc.Y(0) - h.GridFunc.Y(1)) / 2
+		ymax = (3*h.GridXYZ.Y(r-1) - h.GridXYZ.Y(r-2)) / 2
+		ymin = (h.GridXYZ.Y(0) - h.GridXYZ.Y(1)) / 2
 	}
 	return xmin, xmax, ymin, ymax
 }
@@ -189,13 +195,13 @@ func (h *HeatMap) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes implements the GlyphBoxes method
 // of the plot.GlyphBoxer interface.
 func (h *HeatMap) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	c, r := h.GridFunc.Dims()
+	c, r := h.GridXYZ.Dims()
 	b := make([]plot.GlyphBox, 0, r*c)
 	for i := 0; i < c; i++ {
 		for j := 0; j < r; j++ {
 			b = append(b, plot.GlyphBox{
-				X: plt.X.Norm(h.GridFunc.X(i)),
-				Y: plt.Y.Norm(h.GridFunc.Y(j)),
+				X: plt.X.Norm(h.GridXYZ.X(i)),
+				Y: plt.Y.Norm(h.GridXYZ.Y(j)),
 				Rect: draw.Rect{
 					Min:  draw.Point{-5, -5},
 					Size: draw.Point{10, 10},

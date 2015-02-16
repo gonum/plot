@@ -1,23 +1,27 @@
 #!/usr/bin/env bash
 
 cat >volcano_example.go <<EOF
-// Generated code do not edit. Run \`go generate\`.
+// Generated code do not edit. Run \`go generate volcano_example.go\`.
 
 // Copyright ©2015 The gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build ignore
+//go:generate ./volcano
 
-//go generate ./volcano
+//+build ignore
 
 package main
 
 import (
+	"image/color"
+
 	"github.com/gonum/matrix/mat64"
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/plotter"
+	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
 )
 
 type deciGrid struct{ mat64.Matrix }
@@ -45,6 +49,18 @@ func main() {
 		levels = append(levels, l)
 	}
 	c := plotter.NewContour(volcano, levels, palette.Rainbow(len(levels), (palette.Yellow+palette.Red)/2, palette.Blue, 1, 1, 1))
+	quarterStyle := draw.LineStyle{
+		Color:  color.Black,
+		Width:  vg.Points(0.5),
+		Dashes: []vg.Length{0.2, 0.4},
+	}
+	halfStyle := draw.LineStyle{
+		Color:  color.Black,
+		Width:  vg.Points(0.5),
+		Dashes: []vg.Length{5, 2, 1, 2},
+	}
+	c.LineStyles = append(c.LineStyles, quarterStyle, halfStyle, quarterStyle)
+
 	h := plotter.NewHeatMap(volcano, palette.Heat(len(levels)*2, 1))
 
 	p, err := plot.New()

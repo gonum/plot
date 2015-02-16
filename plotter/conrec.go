@@ -32,7 +32,7 @@ type conrecLine func(i, j int, l line, height float64)
 //
 // For full details of the algorithm, see the paper at
 // http://paulbourke.net/papers/conrec/
-func conrec(g GridFunc, heights []float64, fn conrecLine) {
+func conrec(g GridXYZ, heights []float64, fn conrecLine) {
 	var (
 		p1, p2 point
 
@@ -43,6 +43,31 @@ func conrec(g GridFunc, heights []float64, fn conrecLine) {
 		im = [4]int{0, 1, 1, 0}
 		jm = [4]int{0, 0, 1, 1}
 
+		// We differ from conrec.c in the assignment of a single value
+		// in cases (castab in conrec.c). The value of castab[1][1][1] is
+		// 3, but we set cases[1][1][1] to 0.
+		//
+		// axiom: When we have a section of the grid where all the
+		// Z values are equal, and equal to a contour height we would
+		// expect to have no internal segments to draw.
+		//
+		// This is covered by case g) in Paul Bourke's description of
+		// the CONREC algorithm (a triangle with three vertices the lie
+		// on the contour level). He says, "... case g above has no really
+		// satisfactory solution and fortunately will occur rarely with
+		// real arithmetic." and then goes on to show the following image:
+		//
+		// http://paulbourke.net/papers/conrec/conrec3.gif
+		//
+		// which shows case g) in the set where no edge is drawn, agreeing
+		// with our axiom above.
+		//
+		// However, in the iteration over sh at conrec.c +44, a triangle
+		// with all vertices on the plane is given sh = {0,0,0,0,0} and
+		// then when the switch at conrec.c +93 happens, castab resolves
+		// that to case 3 for all values of m.
+		//
+		// This is fixed by replacing castab/cases[1][1][1] with 0.
 		cases = [3][3][3]int{
 			{{0, 0, 8}, {0, 2, 5}, {7, 6, 9}},
 			{{0, 3, 4}, {1, 0, 1}, {4, 3, 0}},
