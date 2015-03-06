@@ -42,7 +42,7 @@ type Canvas struct {
 func New(width, height vg.Length, name string) (*Canvas, error) {
 	w := width / vg.Inch * dpi
 	h := height / vg.Inch * dpi
-	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
+	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 
 	return NewImage(img, name)
 }
@@ -69,7 +69,7 @@ func NewImage(img draw.Image, name string) (*Canvas, error) {
 	gc := draw2d.NewGraphicContextWithPainter(ximg, painter)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
-	gc.Translate(0, -h)
+	gc.Translate(+0.5*w, -0.5*h)
 
 	wid := ximg.XShowExtra(name, true)
 	go func() {

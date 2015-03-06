@@ -43,7 +43,7 @@ type Canvas struct {
 func New(width, height vg.Length) *Canvas {
 	w := width / vg.Inch * dpi
 	h := height / vg.Inch * dpi
-	img := image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5)))
+	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 
 	return NewImage(img)
 }
@@ -53,11 +53,12 @@ func New(width, height vg.Length) *Canvas {
 // minimum point of the given image
 // should probably be 0,0.
 func NewImage(img draw.Image) *Canvas {
+	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
 	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
 	gc := draw2d.NewGraphicContext(img)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
-	gc.Translate(0, -h)
+	gc.Translate(+0.5*w, -0.5*h)
 	return NewImageWithContext(img, gc)
 }
 
