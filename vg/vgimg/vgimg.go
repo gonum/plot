@@ -22,9 +22,6 @@ import (
 	"golang.org/x/image/tiff"
 )
 
-// dpi is the number of dots per inch.
-const dpi = 96
-
 // Canvas implements the vg.Canvas interface,
 // drawing to an image.Image using draw2d.
 type Canvas struct {
@@ -40,41 +37,44 @@ type Canvas struct {
 // New returns a new image canvas with
 // the size specified  rounded up to the
 // nearest pixel.
-func New(width, height vg.Length) *Canvas {
-	w := width / vg.Inch * dpi
-	h := height / vg.Inch * dpi
+// dpi is the number of dots per inch.
+func New(width, height vg.Length, dpi int) *Canvas {
+	w := width / vg.Inch * vg.Length(dpi)
+	h := height / vg.Inch * vg.Length(dpi)
 	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
 
-	return NewImage(img)
+	return NewImage(img, dpi)
 }
 
 // NewImage returns a new image canvas
 // that draws to the given image.  The
 // minimum point of the given image
 // should probably be 0,0.
-func NewImage(img draw.Image) *Canvas {
+// dpi is the number of dots per inch.
+func NewImage(img draw.Image, dpi int) *Canvas {
 	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
 	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
 	gc := draw2d.NewGraphicContext(img)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(+0.5*w, -0.5*h)
-	return NewImageWithContext(img, gc)
+	return NewImageWithContext(img, gc, dpi)
 }
 
 // NewImageWithContext returns a new image canvas
 // that draws to the given image, using the given graphic context.
 // The minimum point of the given image
 // should probably be 0,0.
-func NewImageWithContext(img draw.Image, gc draw2d.GraphicContext) *Canvas {
+// dpi is the number of dots per inch.
+func NewImageWithContext(img draw.Image, gc draw2d.GraphicContext, dpi int) *Canvas {
 	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
 	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
 	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
 	c := &Canvas{
 		gc:    gc,
 		img:   img,
-		w:     vg.Length(w/dpi) * vg.Inch,
-		h:     vg.Length(h/dpi) * vg.Inch,
+		w:     vg.Length(w/float64(dpi)) * vg.Inch,
+		h:     vg.Length(h/float64(dpi)) * vg.Inch,
 		color: []color.Color{color.Black},
 	}
 	vg.Initialize(c)
