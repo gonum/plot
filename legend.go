@@ -114,6 +114,7 @@ func (l *Legend) draw(c draw.Canvas) {
 		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
 		c.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
 		icon.Min.Y -= enth + l.Padding
+		icon.Max.Y -= enth + l.Padding
 	}
 }
 

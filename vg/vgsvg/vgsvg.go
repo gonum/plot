@@ -66,10 +66,10 @@ func New(w, h vg.Length) *Canvas {
 		pr, h/vg.Inch,
 	)
 
-	// Swap the origin to the bottom left.
+	// Swap the origin to the center.
 	// This must be matched with a </g> when saving,
 	// before the closing </svg>.
-	c.svg.Gtransform(fmt.Sprintf("scale(1, -1) translate(0, -%.*g)", pr, h.Dots(c)))
+	c.svg.Gtransform(fmt.Sprintf("scale(1, -1) translate(%.*g, -%.*g)", pr, w.Dots(c)/2, pr, h.Dots(c)/2))
 
 	vg.Initialize(c)
 	return c

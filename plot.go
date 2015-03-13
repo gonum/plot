@@ -457,19 +457,19 @@ func (p *Plot) Save(width, height float64, file string) (err error) {
 		c = vgeps.NewTitle(w, h, file)
 
 	case ".jpg", ".jpeg":
-		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
+		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h, 96)}
 
 	case ".pdf":
 		c = vgpdf.New(w, h)
 
 	case ".png":
-		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
+		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h, 96)}
 
 	case ".svg":
 		c = vgsvg.New(w, h)
 
 	case ".tiff":
-		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
+		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h, 96)}
 
 	default:
 		return fmt.Errorf("Unsupported file extension: %s", ext)
