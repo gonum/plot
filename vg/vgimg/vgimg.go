@@ -182,6 +182,7 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 		registeredFont[font.Name()] = true
 	}
 	c.gc.SetFontData(data)
+	c.gc.SetFontSize(font.Size.Points())
 	c.gc.Translate(x.Dots(c), y.Dots(c))
 	c.gc.Scale(1, -1)
 	c.gc.FillString(str)
