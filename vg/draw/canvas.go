@@ -230,8 +230,8 @@ func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
 		Rectangle: Rectangle{
-			Min: Point{-w / 2, -h / 2},
-			Max: Point{w / 2, h / 2},
+			Min: Point{0, 0},
+			Max: Point{w, h},
 		},
 	}
 }
