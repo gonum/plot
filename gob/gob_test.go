@@ -1,4 +1,8 @@
-package plot_test
+// Copyright ©2015 The gonum Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
+
+package gob_test
 
 import (
 	"bytes"
@@ -8,25 +12,16 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gonum/plot"
 	_ "github.com/gonum/plot/gob"
+
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
 
-// randomPoints returns some random x, y points.
-func randomPoints(n int) plotter.XYs {
-	pts := make(plotter.XYs, n)
-	for i := range pts {
-		if i == 0 {
-			pts[i].X = rand.Float64()
-		} else {
-			pts[i].X = pts[i-1].X + rand.Float64()
-		}
-		pts[i].Y = pts[i].X + rand.Float64()*1e4
-	}
-	return pts
+func init() {
+	gob.Register(commaTicks{})
 }
 
 func TestPersistency(t *testing.T) {
@@ -115,6 +110,20 @@ func TestPersistency(t *testing.T) {
 
 }
 
+// randomPoints returns some random x, y points.
+func randomPoints(n int) plotter.XYs {
+	pts := make(plotter.XYs, n)
+	for i := range pts {
+		if i == 0 {
+			pts[i].X = rand.Float64()
+		} else {
+			pts[i].X = pts[i-1].X + rand.Float64()
+		}
+		pts[i].Y = pts[i].X + rand.Float64()*1e4
+	}
+	return pts
+}
+
 // CommaTicks computes the default tick marks, but inserts commas
 // into the labels for the major tick marks.
 type commaTicks struct{}
@@ -148,8 +157,4 @@ func addCommas(s string) string {
 		s += string(rev[i])
 	}
 	return s
-}
-
-func init() {
-	gob.Register(commaTicks{})
 }
