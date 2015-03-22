@@ -81,7 +81,7 @@ func makeLegend() (Legend, error) {
 }
 
 // draw draws the legend to the given draw.Canvas.
-func (l *Legend) draw(c draw.Canvas) {
+func (l *Legend) Draw(c draw.Canvas) {
 	iconx := c.Min.X
 	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
 	xalign := 0.0
