@@ -347,3 +347,11 @@ func TestLegendAlignment(t *testing.T) {
 		t.Errorf("unexpected legend actions:\ngot:\n%s\nwant:\n%s", formatActions(got), formatActions(want))
 	}
 }
+
+func formatActions(actions []recorder.Action) string {
+	var buf bytes.Buffer
+	for _, a := range actions {
+		fmt.Fprintf(&buf, "\t%s\n", a.Call())
+	}
+	return buf.String()
+}
