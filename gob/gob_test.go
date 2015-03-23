@@ -7,11 +7,9 @@ package gob_test
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"image/color"
 	"math/rand"
 	"os"
-	"reflect"
 	"testing"
 
 	_ "github.com/gonum/plot/gob"
@@ -20,7 +18,6 @@ import (
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
-	"github.com/gonum/plot/vg/recorder"
 )
 
 func init() {
