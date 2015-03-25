@@ -439,13 +439,13 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Marker = ConstantTicks(ticks)
 }
 
-// Save saves the plot to an image file.  Width and height
-// are specified in inches, and the file format is determined
-// by the extension.  Supported extensions are
-// .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
-func (p *Plot) Save(width, height float64, file string) (err error) {
-	w := vg.Length(width) * vg.Inch
-	h := vg.Length(height) * vg.Inch
+// Save saves the plot to an image file.  The file format is determined
+// by the extension.
+//
+// Supported extensions are:
+//
+//  .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
+func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 	var c interface {
 		vg.Canvas
 		Size() (w, h vg.Length)
