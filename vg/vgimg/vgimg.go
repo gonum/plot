@@ -129,7 +129,7 @@ func (c *Canvas) Pop() {
 }
 
 func (c *Canvas) Stroke(p vg.Path) {
-	if c.width == 0 {
+	if c.width <= 0 {
 		return
 	}
 	c.outline(p)

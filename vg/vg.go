@@ -15,24 +15,25 @@ import (
 // graphics.  The origin is in the bottom left corner.
 type Canvas interface {
 	// SetLineWidth sets the width of stroked paths.
-	// If the width is set to 0 then stroked lines are
-	// not drawn.
+	// If the width is not positive then stroked lines
+	// are not drawn.
 	//
 	// The initial line width is 1 point.
 	SetLineWidth(Length)
 
 	// SetLineDash sets the dash pattern for lines.
-	// The first argument is the pattern (units on,
-	// units off, etc.) and the second argument
-	// is the initial offset into the pattern.
+	// The pattern slice specifies the lengths of
+	// alternating dashes and gaps, and the offset
+	// specifies the distance into the dash pattern
+	// to start the dash.
 	//
-	// The inital dash pattern is a solid line.
-	SetLineDash([]Length, Length)
+	// The initial dash pattern is a solid line.
+	SetLineDash(pattern []Length, offset Length)
 
 	// SetColor sets the current drawing color.
 	// Note that fill color and stroke color are
 	// the same so if you want different fill
-	// and stroke colorls then you must use two
+	// and stroke colors then you must use two
 	// separate calls to SetColor.
 	//
 	// The initial color is black.  If SetColor is
@@ -42,15 +43,15 @@ type Canvas interface {
 	// Rotate applies a rotation transform to the
 	// context.  The parameter is specified in
 	// radians.
-	Rotate(float64)
+	Rotate(rad float64)
 
 	// Translate applies a translational transform
 	// to the context.
-	Translate(Length, Length)
+	Translate(x, y Length)
 
 	// Scale applies a scaling transform to the
 	// context.
-	Scale(float64, float64)
+	Scale(x, y float64)
 
 	// Push saves the current line width, the
 	// current dash pattern, the current
@@ -71,7 +72,7 @@ type Canvas interface {
 
 	// FillString fills in text at the specified
 	// location using the given font.
-	FillString(Font, Length, Length, string)
+	FillString(f Font, x, y Length, text string)
 
 	// DPI returns the number of canvas dots in
 	// an inch.

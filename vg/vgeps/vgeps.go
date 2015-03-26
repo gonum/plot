@@ -136,7 +136,7 @@ func (e *Canvas) Pop() {
 }
 
 func (e *Canvas) Stroke(path vg.Path) {
-	if e.cur().width == 0 {
+	if e.cur().width <= 0 {
 		return
 	}
 	e.trace(path)

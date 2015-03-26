@@ -45,7 +45,7 @@ func (c *Canvas) Size() (w, h vg.Length) {
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.page.SetLineWidth(unit(w))
-	c.lineVisible = w != 0
+	c.lineVisible = w > 0
 }
 
 func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
