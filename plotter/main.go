@@ -10,10 +10,12 @@ package main
 import (
 	"fmt"
 	"image/color"
+	"log"
 	"math"
 	"math/rand"
 
 	"github.com/gonum/matrix/mat64"
+
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/plotter"
@@ -22,74 +24,47 @@ import (
 )
 
 var examples = []struct {
-	name   string
-	mkplot func() *plot.Plot
+	name string
+	p    *plot.Plot
 }{
-	{"example_logo", Example_logo},
-	{"example_functions", Example_functions},
-	{"example_boxPlots", Example_boxPlots},
-	{"example_groupedBoxPlots", Example_groupedBoxPlots},
-	{"example_groupedHorizontalBoxPlots", Example_groupedHorizontalBoxPlots},
-	{"example_quartPlots", Example_quartPlots},
-	{"example_groupedQuartPlots", Example_groupedQuartPlots},
-	{"example_groupedHorizontalQuartPlots", Example_groupedHorizontalQuartPlots},
-	{"example_verticalBoxPlots", Example_verticalBoxPlots},
-	{"example_verticalQuartPlots", Example_verticalQuartPlots},
-	{"example_horizontalBoxPlots", Example_horizontalBoxPlots},
-	{"example_horizontalQuartPlots", Example_horizontalQuartPlots},
-	{"example_points", Example_points},
-	{"example_errBars", Example_errBars},
-	{"example_bubbles", Example_bubbles},
-	{"example_histogram", Example_histogram},
-	{"example_barChart", Example_barChart},
-	{"example_stackedBarChart", Example_stackedBarChart},
-	{"example_heatMap", Example_heatMap},
+	{"example_logo", Example_logo()},
+	{"example_functions", Example_functions()},
+	{"example_boxPlots", Example_boxPlots()},
+	{"example_groupedBoxPlots", Example_groupedBoxPlots()},
+	{"example_groupedHorizontalBoxPlots", Example_groupedHorizontalBoxPlots()},
+	{"example_quartPlots", Example_quartPlots()},
+	{"example_groupedQuartPlots", Example_groupedQuartPlots()},
+	{"example_groupedHorizontalQuartPlots", Example_groupedHorizontalQuartPlots()},
+	{"example_verticalBoxPlots", Example_verticalBoxPlots()},
+	{"example_verticalQuartPlots", Example_verticalQuartPlots()},
+	{"example_horizontalBoxPlots", Example_horizontalBoxPlots()},
+	{"example_horizontalQuartPlots", Example_horizontalQuartPlots()},
+	{"example_points", Example_points()},
+	{"example_errBars", Example_errBars()},
+	{"example_bubbles", Example_bubbles()},
+	{"example_histogram", Example_histogram()},
+	{"example_barChart", Example_barChart()},
+	{"example_stackedBarChart", Example_stackedBarChart()},
+	{"example_heatMap", Example_heatMap()},
+}
+
+var formats = []string{
+	".eps",
+	".pdf",
+	".svg",
+	".png",
+	".tiff",
+	".jpg",
 }
 
 func main() {
 	for _, ex := range examples {
-		drawEps(ex.name, ex.mkplot)
-		drawSvg(ex.name, ex.mkplot)
-		drawPng(ex.name, ex.mkplot)
-		drawTiff(ex.name, ex.mkplot)
-		drawJpg(ex.name, ex.mkplot)
-		drawPdf(ex.name, ex.mkplot)
-	}
-}
-
-func drawEps(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".eps"); err != nil {
-		panic(err)
-	}
-}
-
-func drawPdf(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".pdf"); err != nil {
-		panic(err)
-	}
-}
-
-func drawSvg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".svg"); err != nil {
-		panic(err)
-	}
-}
-
-func drawPng(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".png"); err != nil {
-		panic(err)
-	}
-}
-
-func drawTiff(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".tiff"); err != nil {
-		panic(err)
-	}
-}
-
-func drawJpg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".jpg"); err != nil {
-		panic(err)
+		for _, f := range formats {
+			err := ex.p.Save(4*vg.Inch, 4*vg.Inch, ex.name+f)
+			if err != nil {
+				log.Fatalf("failed to save %s%s: %v", ex.name, f, err)
+			}
+		}
 	}
 }
 
