@@ -58,37 +58,37 @@ func main() {
 }
 
 func drawEps(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".eps"); err != nil {
 		panic(err)
 	}
 }
 
 func drawPdf(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".pdf"); err != nil {
 		panic(err)
 	}
 }
 
 func drawSvg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".svg"); err != nil {
 		panic(err)
 	}
 }
 
 func drawPng(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".png"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".png"); err != nil {
 		panic(err)
 	}
 }
 
 func drawTiff(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".tiff"); err != nil {
 		panic(err)
 	}
 }
 
 func drawJpg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
+	if err := mkplot().Save(4*vg.Inch, 4*vg.Inch, name+".jpg"); err != nil {
 		panic(err)
 	}
 }
