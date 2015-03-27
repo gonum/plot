@@ -217,10 +217,7 @@ func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 }
 
 // New returns a new (bounded) draw.Canvas.
-func New(c interface {
-	vg.Canvas
-	Size() (vg.Length, vg.Length)
-}) Canvas {
+func New(c vg.CanvasSizer) Canvas {
 	w, h := c.Size()
 	return NewCanvas(c, w, h)
 }

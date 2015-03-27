@@ -439,49 +439,71 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Marker = ConstantTicks(ticks)
 }
 
+// WriterTo returns an io.WriterTo that will write the plot as
+// the specified image format.
+//
+// Supported formats are:
+//
+//  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
+	var c interface {
+		vg.CanvasSizer
+		io.WriterTo
+	}
+	switch format {
+	case "eps":
+		c = vgeps.New(w, h)
+
+	case "jpg", "jpeg":
+		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
+
+	case "pdf":
+		c = vgpdf.New(w, h)
+
+	case "png":
+		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
+
+	case "svg":
+		c = vgsvg.New(w, h)
+
+	case "tif", "tiff":
+		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
+
+	default:
+		return nil, fmt.Errorf("unsupported format: %q", format)
+	}
+	p.Draw(draw.New(c))
+
+	return c, nil
+}
+
 // Save saves the plot to an image file.  The file format is determined
 // by the extension.
 //
 // Supported extensions are:
 //
-//  .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
+//  .eps, .jpg, .jpeg, .pdf, .png, .svg, .tif and .tiff.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
-	var c interface {
-		vg.Canvas
-		Size() (w, h vg.Length)
-		io.WriterTo
-	}
-	switch ext := strings.ToLower(filepath.Ext(file)); ext {
-
-	case ".eps":
-		c = vgeps.NewTitle(w, h, file)
-
-	case ".jpg", ".jpeg":
-		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
-
-	case ".pdf":
-		c = vgpdf.New(w, h)
-
-	case ".png":
-		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
-
-	case ".svg":
-		c = vgsvg.New(w, h)
-
-	case ".tiff":
-		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
-
-	default:
-		return fmt.Errorf("Unsupported file extension: %s", ext)
-	}
-	p.Draw(draw.New(c))
-
 	f, err := os.Create(file)
 	if err != nil {
 		return err
 	}
-	if _, err = c.WriteTo(f); err != nil {
+	defer func() {
+		e := f.Close()
+		if err == nil {
+			err = e
+		}
+	}()
+
+	format := strings.ToLower(filepath.Ext(file))
+	if len(format) != 0 {
+		format = format[1:]
+	}
+	c, err := p.WriterTo(w, h, format)
+	if err != nil {
 		return err
 	}
-	return f.Close()
+
+	_, err = c.WriteTo(f)
+	return err
 }

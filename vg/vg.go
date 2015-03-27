@@ -79,6 +79,12 @@ type Canvas interface {
 	DPI() float64
 }
 
+// CanvasSizer is a Canvas with a defined size.
+type CanvasSizer interface {
+	Canvas
+	Size() (x, y Length)
+}
+
 // Initialize sets all of the canvas's values to their
 // initial values.
 func Initialize(c Canvas) {
