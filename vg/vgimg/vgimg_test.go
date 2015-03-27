@@ -38,6 +38,8 @@ func TestIssue179(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	defer f.Close()
+
 	want, err := ioutil.ReadAll(f)
 	if err != nil {
 		t.Error(err)

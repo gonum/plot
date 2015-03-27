@@ -10,10 +10,12 @@ go:
 env:
   global:
    - secure: "GYPf9iqbY/5YLmorhVxH2Q4Y8/kxF3MWxDau8Sb2QnineLAJZA2HKi4aWdZIoK8AMAJgXdHUC4Pw2jywp9nC2Q+TW1+57tp0uLLIdghuwif78oyqykhlt11ny+SUk5PAkqYmm+dCbA0kxShg1hFFfHGTTiDuWklTWomxGGICSPc="
+   - DISPLAY: ":99.0"
 
 before_install:
  - if ! go get code.google.com/p/go.tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
  - go get github.com/mattn/goveralls
+ - sh -e /etc/init.d/xvfb start
 
 script:
  - go get -d -t -v ./...

@@ -4,8 +4,7 @@
 
 // +build !windows
 
-// The vgx11 package uses xgbutil (github.com/BurntSushi/xgbutil)
-// as a X11-display backend for vg.
+// Package vgx11 implements X-Window vg support.
 package vgx11
 
 import (
@@ -69,7 +68,7 @@ func NewImage(img draw.Image, name string) (*Canvas, error) {
 	gc := draw2d.NewGraphicContextWithPainter(ximg, painter)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
-	gc.Translate(+0.5*w, -0.5*h)
+	gc.Translate(0, -h)
 
 	wid := ximg.XShowExtra(name, true)
 	go func() {
