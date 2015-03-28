@@ -113,11 +113,7 @@ func TestLineWidth(t *testing.T) {
 }
 
 func lines(w vg.Length) (*plot.Plot, error) {
-	p, err := plot.New()
-	if err != nil {
-		return nil, err
-	}
-
+	p := plot.New()
 	pts := plotter.XYs{{0, 0}, {0, 1}, {1, 0}, {1, 1}}
 	line, err := plotter.NewLine(pts)
 	line.Width = w
