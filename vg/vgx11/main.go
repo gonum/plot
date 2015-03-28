@@ -20,11 +20,7 @@ import (
 func main() {
 	rand.Seed(int64(0))
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Plotutil example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
