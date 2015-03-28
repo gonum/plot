@@ -25,10 +25,7 @@ func ExampleErrorPoints() {
 		}
 	}
 
-	plt, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	plt := plot.New()
 
 	mean95, err := NewErrorPoints(MeanAndConf95, pts...)
 	if err != nil {

@@ -20,10 +20,8 @@ func TestIssue179(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	p, err := plot.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	p := plot.New()
+
 	p.Add(scatter)
 	p.HideAxes()
 

@@ -64,6 +64,9 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
+	// Errs is a list of encountered errors, if any
+	Errs Errors
+
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
 	plotters []Plotter
@@ -85,36 +88,70 @@ type DataRanger interface {
 	DataRange() (xmin, xmax, ymin, ymax float64)
 }
 
+// Errors is a list of errors.
+//
+// Do not modify directly the 'List' field.
+// 'List' is only exposed for persistency's sake.
+type Errors struct {
+	List []error
+}
+
+func (e Errors) Error() string {
+	n := e.Len()
+	if n == 0 {
+		return "<nil>"
+	}
+	str := make([]string, 0, n)
+	for i, err := range e.List {
+		str = append(str, fmt.Sprintf("#%d: %v", i+1, err))
+	}
+	return strings.Join(str, "\n")
+}
+
+// Append appends an error to the list of errors.
+// If err is nil, it is discarded.
+func (e *Errors) Append(err error) {
+	if err == nil {
+		return
+	}
+	e.List = append(e.List, err)
+}
+
+// Len returns the number of errors in the list.
+func (e Errors) Len() int {
+	return len(e.List)
+}
+
 // New returns a new plot with some reasonable
 // default settings.
-func New() (*Plot, error) {
+func New() *Plot {
+	var errs Errors
+
 	titleFont, err := vg.MakeFont(DefaultFont, 12)
-	if err != nil {
-		return nil, err
-	}
+	errs.Append(err)
+
 	x, err := makeAxis()
-	if err != nil {
-		return nil, err
-	}
+	errs.Append(err)
+
 	y, err := makeAxis()
-	if err != nil {
-		return nil, err
-	}
+	errs.Append(err)
+
 	legend, err := makeLegend()
-	if err != nil {
-		return nil, err
-	}
+	errs.Append(err)
+
 	p := &Plot{
 		BackgroundColor: color.White,
 		X:               x,
 		Y:               y,
 		Legend:          legend,
+		Errs:            errs,
 	}
 	p.Title.TextStyle = draw.TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
 	}
-	return p, nil
+
+	return p
 }
 
 // Add adds a Plotters to the plot.
@@ -446,6 +483,9 @@ func (p *Plot) NominalY(names ...string) {
 //
 //  .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
+	if p.Errs.Len() > 0 {
+		return p.Errs
+	}
 	var c interface {
 		vg.Canvas
 		Size() (w, h vg.Length)

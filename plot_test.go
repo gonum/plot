@@ -6,6 +6,7 @@ package plot_test
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"image/color"
 	"reflect"
@@ -210,4 +211,51 @@ func formatActions(actions []recorder.Action) string {
 		fmt.Fprintf(&buf, "\t%s\n", a.Call())
 	}
 	return buf.String()
+}
+
+func TestErrors(t *testing.T) {
+	for i, test := range []struct {
+		errs []error
+		want string
+		len  int
+	}{
+		{
+			errs: nil,
+			want: "<nil>",
+			len:  0,
+		},
+		{
+			errs: []error{},
+			want: "<nil>",
+			len:  0,
+		},
+		{
+			errs: []error{nil},
+			want: "<nil>",
+			len:  0,
+		},
+		{
+			errs: []error{nil, errors.New("err1"), nil},
+			want: "#1: err1",
+			len:  1,
+		},
+		{
+			errs: []error{nil, errors.New("err1"), nil, errors.New("err2"), nil},
+			want: "#1: err1\n#2: err2",
+			len:  2,
+		},
+	} {
+		var errs plot.Errors
+		for _, err := range test.errs {
+			errs.Append(err)
+		}
+
+		if errs.Len() != test.len {
+			t.Errorf("test #%d: len differ\ngot= %d\nwant=%q\n", i, errs.Len(), test.len)
+		}
+
+		if errs.Error() != test.want {
+			t.Errorf("test #%d: invalid Error()\ngot= %q\nwant=%q\n", i, errs.Error(), test.want)
+		}
+	}
 }
