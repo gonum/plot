@@ -77,7 +77,7 @@ func NewImage(img draw.Image, name string) (*Canvas, error) {
 	}()
 
 	c := &Canvas{
-		Canvas: vgimg.NewImageWithContext(img, gc),
+		Canvas: vgimg.NewWith(vgimg.UseImageWithContext(img, gc)),
 		x:      X,
 		ximg:   ximg,
 		wid:    wid,

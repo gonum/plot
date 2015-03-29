@@ -23,62 +23,142 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
-// dpi is the number of dots per inch.
-const dpi = 96
-
 // Canvas implements the vg.Canvas interface,
 // drawing to an image.Image using draw2d.
 type Canvas struct {
 	gc    draw2d.GraphicContext
-	img   image.Image
+	img   draw.Image
 	w, h  vg.Length
 	color []color.Color
+
+	// dpi is the number of dots per inch for this canvas.
+	dpi int
 
 	// width is the current line width.
 	width vg.Length
 }
 
-// New returns a new image canvas with
-// the size specified  rounded up to the
-// nearest pixel.
-func New(width, height vg.Length) *Canvas {
-	w := width / vg.Inch * dpi
-	h := height / vg.Inch * dpi
-	img := image.NewRGBA(image.Rect(0, 0, int(w), int(h)))
+const (
+	// DefaultDPI is the default number of dots per inch.
+	DefaultDPI = 96
 
-	return NewImage(img)
+	// DefaultWidth and DefaultHeight are the default canvas
+	// dimensions.
+	DefaultWidth  = 4 * vg.Inch
+	DefaultHeight = 4 * vg.Inch
+)
+
+// New returns a new image canvas.
+func New(w, h vg.Length) *Canvas {
+	return NewWith(UseWH(w, h))
 }
 
-// NewImage returns a new image canvas
-// that draws to the given image.  The
-// minimum point of the given image
-// should probably be 0,0.
-func NewImage(img draw.Image) *Canvas {
-	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
-	gc := draw2d.NewGraphicContext(img)
-	gc.SetDPI(dpi)
-	gc.Scale(1, -1)
-	gc.Translate(0, -h)
-	return NewImageWithContext(img, gc)
-}
-
-// NewImageWithContext returns a new image canvas
-// that draws to the given image, using the given graphic context.
-// The minimum point of the given image
-// should probably be 0,0.
-func NewImageWithContext(img draw.Image, gc draw2d.GraphicContext) *Canvas {
-	w := float64(img.Bounds().Max.X - img.Bounds().Min.X)
-	h := float64(img.Bounds().Max.Y - img.Bounds().Min.Y)
-	draw.Draw(img, img.Bounds(), image.White, image.ZP, draw.Src)
-	c := &Canvas{
-		gc:    gc,
-		img:   img,
-		w:     vg.Length(w/dpi) * vg.Inch,
-		h:     vg.Length(h/dpi) * vg.Inch,
-		color: []color.Color{color.Black},
+// NewWith returns a new image canvas created according to the specified
+// options. The currently accepted options are UseWH,
+// UseDPI, UseImage, and UseImageWithContext.
+// Each of the options specifies the size of the canvas (UseWH, UseImage),
+// the resolution of the canvas (UseDPI), or both (useImageWithContext).
+// If size or resolution are not specified, defaults are used.
+// It panics if size and resolution are overspecified (i.e., too many options are
+// passed).
+func NewWith(o ...option) *Canvas {
+	c := new(Canvas)
+	var g uint32
+	for _, opt := range o {
+		f := opt(c)
+		if g&f != 0 {
+			panic("incompatible options")
+		}
+		g |= f
 	}
+	if c.dpi == 0 {
+		c.dpi = DefaultDPI
+	}
+	if c.w == 0 { // h should also == 0.
+		if c.img == nil {
+			c.w = DefaultWidth
+			c.h = DefaultHeight
+		} else {
+			w := float64(c.img.Bounds().Max.X - c.img.Bounds().Min.X)
+			h := float64(c.img.Bounds().Max.Y - c.img.Bounds().Min.Y)
+			c.w = vg.Length(w/float64(c.dpi)) * vg.Inch
+			c.h = vg.Length(h/float64(c.dpi)) * vg.Inch
+		}
+	}
+	if c.img == nil {
+		w := c.w / vg.Inch * vg.Length(c.dpi)
+		h := c.h / vg.Inch * vg.Length(c.dpi)
+		c.img = draw.Image(image.NewRGBA(image.Rect(0, 0, int(w+0.5), int(h+0.5))))
+	}
+	if c.gc == nil {
+		h := float64(c.img.Bounds().Max.Y - c.img.Bounds().Min.Y)
+		c.gc = draw2d.NewGraphicContext(c.img)
+		c.gc.SetDPI(c.dpi)
+		c.gc.Scale(1, -1)
+		c.gc.Translate(0, -h)
+	}
+	draw.Draw(c.img, c.img.Bounds(), image.White, image.ZP, draw.Src)
+	c.color = []color.Color{color.Black}
 	vg.Initialize(c)
 	return c
+}
+
+// These constants are used to ensure that the options
+// used when initializing a canvas are compatible with
+// each other.
+const (
+	setsDPI = 1 << iota
+	setsSize
+)
+
+type option func(*Canvas) uint32
+
+// UseWH specifies the width and height of the canvas.
+// The size is rounded up to the nearest pixel.
+func UseWH(w, h vg.Length) option {
+	return func(c *Canvas) uint32 {
+		if w <= 0 || h <= 0 {
+			panic("w and h must both be > 0.")
+		}
+		c.w, c.h = w, h
+		return setsSize
+	}
+}
+
+// UseDPI sets the dots per inch of a canvas. It should only be
+// used as an option argument when initializing a new canvas.
+func UseDPI(dpi int) option {
+	if dpi <= 0 {
+		panic("DPI must be > 0.")
+	}
+	return func(c *Canvas) uint32 {
+		c.dpi = dpi
+		return setsDPI
+	}
+}
+
+// UseImage specifies an image to create
+// the canvas from. The
+// minimum point of the given image
+// should probably be 0,0.
+func UseImage(img draw.Image) option {
+	return func(c *Canvas) uint32 {
+		c.img = img
+		return setsSize
+	}
+}
+
+// UseImageWithContext specifies both an image
+// and a graphic context to create the canvas from.
+// The minimum point of the given image
+// should probably be 0,0.
+func UseImageWithContext(img draw.Image, gc draw2d.GraphicContext) option {
+	return func(c *Canvas) uint32 {
+		c.img = img
+		c.gc = gc
+		c.dpi = gc.GetDPI()
+		return setsDPI | setsSize
+	}
 }
 
 func (c *Canvas) Size() (w, h vg.Length) {
