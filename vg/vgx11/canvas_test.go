@@ -34,10 +34,7 @@ func TestIssue179(t *testing.T) {
 	if err != nil {
 		t.Fatalf("error: %v\n", err)
 	}
-	p, err := plot.New()
-	if err != nil {
-		t.Fatalf("error: %v\n", err)
-	}
+	p := plot.New()
 	p.Add(scatter)
 	p.HideAxes()
 

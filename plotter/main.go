@@ -70,10 +70,7 @@ func main() {
 
 // Draw the plotinum logo.
 func Example_logo() *plot.Plot {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 
 	plotter.DefaultLineStyle.Width = vg.Points(1)
 	plotter.DefaultGlyphStyle.Radius = vg.Points(3)
@@ -105,10 +102,7 @@ func Example_logo() *plot.Plot {
 
 // Example_functions draws some functions.
 func Example_functions() *plot.Plot {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Functions"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -152,10 +146,7 @@ func Example_boxPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -184,10 +175,7 @@ func Example_groupedBoxPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -220,10 +208,7 @@ func Example_groupedHorizontalBoxPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -253,10 +238,7 @@ func Example_quartPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Quartile Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -283,10 +265,7 @@ func Example_groupedQuartPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -317,10 +296,7 @@ func Example_groupedHorizontalQuartPlots() *plot.Plot {
 		expon[i] = rand.ExpFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -356,10 +332,7 @@ func Example_verticalBoxPlots() *plot.Plot {
 		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Box Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -408,10 +381,7 @@ func Example_verticalQuartPlots() *plot.Plot {
 		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Quart Plot"
 	p.Y.Label.Text = "plotter.Values"
 
@@ -478,10 +448,7 @@ func Example_horizontalBoxPlots() *plot.Plot {
 		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Horizontal Box Plot"
 	p.X.Label.Text = "plotter.Values"
 
@@ -532,10 +499,7 @@ func Example_horizontalQuartPlots() *plot.Plot {
 		expon[i].Label = fmt.Sprintf("%4.4f", expon[i].Value)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Horizontal Quartile Plot"
 	p.X.Label.Text = "plotter.Values"
 
@@ -579,10 +543,7 @@ func Example_points() *plot.Plot {
 	lineData := randomPoints(n)
 	linePointsData := randomPoints(n)
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -645,10 +606,7 @@ func Example_errBars() *plot.Plot {
 		XErrors: plotter.XErrors(randomError(n)),
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	scatter := must(plotter.NewScatter(data)).(*plotter.Scatter)
 	scatter.Shape = draw.CrossGlyph{}
 	xerrs, err := plotter.NewXErrorBars(data)
@@ -679,10 +637,7 @@ func Example_bubbles() *plot.Plot {
 	n := 10
 	bubbleData := randomTriples(n)
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Bubbles"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -722,10 +677,7 @@ func Example_histogram() *plot.Plot {
 		vals[i] = rand.NormFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Histogram"
 	h, err := plotter.NewHist(vals, 16)
 	if err != nil {
@@ -759,10 +711,7 @@ func Example_barChart() *plot.Plot {
 	groupC := plotter.Values{12, 28, 15, 21, 8}
 	groupD := plotter.Values{30, 42, 6, 9, 12}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Bar chart"
 	p.Y.Label.Text = "Heights"
 
@@ -805,10 +754,7 @@ func Example_stackedBarChart() *plot.Plot {
 	groupC := plotter.Values{12, 28, 15, 21, 8}
 	groupD := plotter.Values{30, 42, 6, 9, 12}
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Bar chart"
 	p.Y.Label.Text = "Heights"
 
@@ -869,10 +815,7 @@ func Example_heatMap() *plot.Plot {
 	})}
 	h := plotter.NewHeatMap(m, palette.Heat(12, 1))
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Heat map"
 
 	p.Add(h)

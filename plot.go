@@ -64,6 +64,9 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
+	// Err is the first encountered error, if any.
+	Err error
+
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
 	plotters []Plotter
@@ -87,34 +90,39 @@ type DataRanger interface {
 
 // New returns a new plot with some reasonable
 // default settings.
-func New() (*Plot, error) {
+func New() *Plot {
+	var errp error
+	setErr := func(err error) {
+		if err != nil && errp == nil {
+			errp = err
+		}
+	}
+
 	titleFont, err := vg.MakeFont(DefaultFont, 12)
-	if err != nil {
-		return nil, err
-	}
+	setErr(err)
+
 	x, err := makeAxis()
-	if err != nil {
-		return nil, err
-	}
+	setErr(err)
+
 	y, err := makeAxis()
-	if err != nil {
-		return nil, err
-	}
+	setErr(err)
+
 	legend, err := makeLegend()
-	if err != nil {
-		return nil, err
-	}
+	setErr(err)
+
 	p := &Plot{
 		BackgroundColor: color.White,
 		X:               x,
 		Y:               y,
 		Legend:          legend,
+		Err:             errp,
 	}
 	p.Title.TextStyle = draw.TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
 	}
-	return p, nil
+
+	return p
 }
 
 // Add adds a Plotters to the plot.
@@ -446,6 +454,9 @@ func (p *Plot) NominalY(names ...string) {
 //
 //  .eps, .jpg, .jpeg, .pdf, .png, .svg, and .tiff.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
+	if p.Err != nil {
+		return p.Err
+	}
 	var c interface {
 		vg.Canvas
 		Size() (w, h vg.Length)

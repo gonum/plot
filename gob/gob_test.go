@@ -32,11 +32,7 @@ func TestPersistency(t *testing.T) {
 	lineData := randomPoints(n)
 	linePointsData := randomPoints(n)
 
-	p, err := plot.New()
-	if err != nil {
-		t.Fatalf("error creating plot: %v\n", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Plot Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -49,14 +45,14 @@ func TestPersistency(t *testing.T) {
 	// Make a scatter plotter and set its style.
 	s, err := plotter.NewScatter(scatterData)
 	if err != nil {
-		panic(err)
+		t.Fatalf("error creating scatter plotter: %v\n", err)
 	}
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 
 	// Make a line plotter and set its style.
 	l, err := plotter.NewLine(lineData)
 	if err != nil {
-		panic(err)
+		t.Fatalf("error creating line plotter: %v\n", err)
 	}
 	l.LineStyle.Width = vg.Points(1)
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
@@ -65,7 +61,7 @@ func TestPersistency(t *testing.T) {
 	// Make a line plotter with points and set its style.
 	lpLine, lpPoints, err := plotter.NewLinePoints(linePointsData)
 	if err != nil {
-		panic(err)
+		t.Fatalf("error creating line-points plotter: %v\n", err)
 	}
 	lpLine.Color = color.RGBA{G: 255, A: 255}
 	lpPoints.Shape = draw.PyramidGlyph{}
