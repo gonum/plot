@@ -8,7 +8,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -18,11 +17,6 @@ import (
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
-	"github.com/gonum/plot/vg/vgeps"
-	"github.com/gonum/plot/vg/vgimg"
-	"github.com/gonum/plot/vg/vgpdf"
-	"github.com/gonum/plot/vg/vgsvg"
 )
 
 var generateTestData = flag.Bool("regen", false, "Uses the current state to regenerate the test data.")
@@ -51,42 +45,17 @@ func TestLineWidth(t *testing.T) {
 				log.Fatalf("failed to create plot for %v:%s: %v", w, typ, err)
 			}
 
-			var c interface {
-				vg.Canvas
-				Size() (w, h vg.Length)
-				io.WriterTo
+			c, err := p.WriterTo(width, height, typ)
+			if err != nil {
+				t.Fatalf("failed to render plot for %v:%s: %v", w, typ, err)
 			}
-
-			name := filepath.Join(".", "testdata", fmt.Sprintf("width_%v.%s", w, typ))
-			switch typ {
-			case "eps":
-				c = vgeps.NewTitle(width, height, name)
-
-			case "jpg":
-				c = vgimg.JpegCanvas{Canvas: vgimg.New(width, height)}
-
-			case "pdf":
-				c = vgpdf.New(width, height)
-
-			case "png":
-				c = vgimg.PngCanvas{Canvas: vgimg.New(width, height)}
-
-			case "svg":
-				c = vgsvg.New(width, height)
-
-			case "tiff":
-				c = vgimg.TiffCanvas{Canvas: vgimg.New(width, height)}
-
-			default:
-				panic("bad typ string: " + typ)
-			}
-
-			p.Draw(draw.New(c))
 
 			var buf bytes.Buffer
 			if _, err = c.WriteTo(&buf); err != nil {
 				t.Fatalf("failed to write plot for %v:%s: %v", w, typ, err)
 			}
+
+			name := filepath.Join(".", "testdata", fmt.Sprintf("width_%v.%s", w, typ))
 
 			// Recreate Golden images.
 			if *generateTestData {
