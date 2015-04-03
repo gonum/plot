@@ -18,6 +18,13 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
+// Register image format handler.
+func init() {
+	vg.Register("eps", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
+}
+
 type Canvas struct {
 	stk  []ctx
 	w, h vg.Length

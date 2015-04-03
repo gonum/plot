@@ -12,6 +12,11 @@ import (
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/plotutil"
+
+	_ "github.com/gonum/plot/vg/vgeps"
+	_ "github.com/gonum/plot/vg/vgimg"
+	_ "github.com/gonum/plot/vg/vgpdf"
+	_ "github.com/gonum/plot/vg/vgsvg"
 )
 
 var examples = []struct {

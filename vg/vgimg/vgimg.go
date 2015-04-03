@@ -22,6 +22,26 @@ import (
 	"golang.org/x/image/tiff"
 )
 
+// Register image format handlers.
+func init() {
+	newJPEG := func(w, h vg.Length) vg.CanvasWriterTo {
+		return JpegCanvas{Canvas: New(w, h)}
+	}
+	vg.Register("jpg", newJPEG)
+	vg.Register("jpeg", newJPEG)
+
+	newPNG := func(w, h vg.Length) vg.CanvasWriterTo {
+		return PngCanvas{Canvas: New(w, h)}
+	}
+	vg.Register("png", newPNG)
+
+	newTIFF := func(w, h vg.Length) vg.CanvasWriterTo {
+		return TiffCanvas{Canvas: New(w, h)}
+	}
+	vg.Register("tif", newTIFF)
+	vg.Register("tiff", newTIFF)
+}
+
 // dpi is the number of dots per inch.
 const dpi = 96
 
