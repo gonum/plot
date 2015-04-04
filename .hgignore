@@ -1,8 +1,0 @@
-syntax: glob
-*.svg
-*.png
-*.eps
-*.pdf
-*.jpg
-*.jpeg
-*.tiff
