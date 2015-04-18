@@ -17,6 +17,10 @@ before_install:
  - go get github.com/mattn/goveralls
  - sh -e /etc/init.d/xvfb start
 
+sudo: required
+install:
+    - sudo apt-get install -qq libxxf86vm-dev
+
 script:
  - go get -d -t -v ./...
  - go build -v ./...
