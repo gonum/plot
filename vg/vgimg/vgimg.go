@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package vgimg implements the vg.Canvas interface using
-// draw2d (code.google.com/p/draw2d/draw2d)
+// draw2d (github.com/llgcode/draw2d)
 // as a backend to output raster images.
 package vgimg
 
@@ -17,9 +17,10 @@ import (
 	"image/png"
 	"io"
 
-	"code.google.com/p/draw2d/draw2d"
-	"github.com/gonum/plot/vg"
+	"github.com/llgcode/draw2d"
 	"golang.org/x/image/tiff"
+
+	"github.com/gonum/plot/vg"
 )
 
 // dpi is the number of dots per inch.
