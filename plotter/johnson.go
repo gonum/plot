@@ -252,6 +252,9 @@ func (g graph) remove(paths [][]int) {
 // subgraph returns a subgraph of g induced by {s, s+1, ... , n}. The
 // subgraph is destructively generated in g.
 func (g graph) subgraph(s int) graph {
+	for u := range g[:s] {
+		g[u] = nil
+	}
 	for u, e := range g[s:] {
 		for v := range e {
 			if v < s {
