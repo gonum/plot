@@ -361,12 +361,7 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	val := math.Floor(min/majorDelta) * majorDelta
 	for val <= max {
 		if val >= min && val <= max {
-			round := float32(val)
-			if val < 1 && val > -1 {
-				round = float32(val + 1)
-				round -= 1
-			}
-			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", round)})
+			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", float32(val))})
 		}
 		if math.Nextafter(val, val+majorDelta) == val {
 			break
