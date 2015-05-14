@@ -17,9 +17,10 @@ import (
 	"image/png"
 	"io"
 
-	"code.google.com/p/draw2d/draw2d"
-	"github.com/gonum/plot/vg"
+	"github.com/llgcode/draw2d"
 	"golang.org/x/image/tiff"
+
+	"github.com/gonum/plot/vg"
 )
 
 // dpi is the number of dots per inch.
