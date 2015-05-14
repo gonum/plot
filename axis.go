@@ -5,13 +5,17 @@
 package plot
 
 import (
-	"fmt"
 	"image/color"
 	"math"
+	"strconv"
 
+	"github.com/gonum/floats"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
+
+// displayPrecision is a sane level of float precision for a plot.
+const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
@@ -359,14 +363,10 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
+	prec := maxInt(precisionOf(min), precisionOf(max))
 	for val <= max {
 		if val >= min && val <= max {
-			round := float32(val)
-			if val < 1 && val > -1 {
-				round = float32(val + 1)
-				round -= 1
-			}
-			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%g", round)})
+			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
 		}
 		if math.Nextafter(val, val+majorDelta) == val {
 			break
@@ -414,17 +414,18 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
+	prec := precisionOf(max)
 	for val < max*10 {
 		for i := 1; i < 10; i++ {
 			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
-				tick.Label = fmt.Sprintf("%g", float32(val)*float32(i))
+				tick.Label = formatFloatTick(val*float64(i), prec)
 			}
 			ticks = append(ticks, tick)
 		}
 		val *= 10
 	}
-	tick := Tick{Value: val, Label: fmt.Sprintf("%g", float32(val))}
+	tick := Tick{Value: val, Label: formatFloatTick(val, prec)}
 	ticks = append(ticks, tick)
 	return ticks
 }
@@ -502,4 +503,22 @@ func log(x float64) float64 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
 	return math.Log(x)
+}
+
+// formatFloatTick returns a g-formated string representation of v
+// to the specified precision.
+func formatFloatTick(v float64, prec int) string {
+	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
+}
+
+// precisionOf returns the precision needed to display x without e notation.
+func precisionOf(x float64) int {
+	return int(math.Max(math.Ceil(-math.Log10(x)), displayPrecision))
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
