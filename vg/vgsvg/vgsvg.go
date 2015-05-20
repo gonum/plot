@@ -18,6 +18,13 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
+// Register image format handler.
+func init() {
+	vg.Register("svg", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
+}
+
 const (
 	// inkscape, Chrome, FireFox, and gpicview all seem
 	// to use 90 dots-per-inch.  I can't find anywhere that

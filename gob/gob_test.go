@@ -18,6 +18,7 @@ import (
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
+	_ "github.com/gonum/plot/vg/vgimg"
 )
 
 func init() {

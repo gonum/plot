@@ -17,6 +17,13 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
+// Register image format handler.
+func init() {
+	vg.Register("pdf", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
+}
+
 // Canvas implements the vg.Canvas interface,
 // drawing to a PDF.
 type Canvas struct {

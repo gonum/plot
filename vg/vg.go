@@ -8,7 +8,10 @@
 package vg
 
 import (
+	"fmt"
 	"image/color"
+	"io"
+	"sync"
 )
 
 // A Canvas is the main drawing interface for 2D vector
@@ -83,6 +86,57 @@ type Canvas interface {
 type CanvasSizer interface {
 	Canvas
 	Size() (x, y Length)
+}
+
+// CanvasWriterTo wraps behavior required for writing
+// a Canvas representation to a concrete image.
+type CanvasWriterTo interface {
+	CanvasSizer
+	io.WriterTo
+}
+
+var (
+	formatLock sync.RWMutex
+	formats    = make(map[string]func(w, h Length) CanvasWriterTo)
+)
+
+// Register allows a format to be registered with the vg package.
+// Registered formats can be returned by NewCanvasWriterTo.
+// Register will panic if it is called twice with the same format
+// or if new is nil
+func Register(format string, new func(w, h Length) CanvasWriterTo) {
+	if new == nil {
+		panic("vg: Register new format function is nil")
+	}
+	formatLock.Lock()
+	defer formatLock.Unlock()
+	if _, ok := formats[format]; ok {
+		panic("vg: Register called twice for format " + format)
+	}
+	formats[format] = new
+}
+
+// Formats returns a slice of registered format names.
+func Formats() []string {
+	formatLock.RLock()
+	f := make([]string, 0, len(formats))
+	for k := range formats {
+		f = append(f, k)
+	}
+	formatLock.RUnlock()
+	return f
+}
+
+// NewCanvasWriterTo returns a concrete canvas type of the specified format
+// and size.
+func NewCanvasWriterTo(format string, width, height Length) (CanvasWriterTo, error) {
+	formatLock.RLock()
+	defer formatLock.RUnlock()
+	new, ok := formats[format]
+	if !ok {
+		return nil, fmt.Errorf("unsupported format: %q", format)
+	}
+	return new(width, height), nil
 }
 
 // Initialize sets all of the canvas's values to their

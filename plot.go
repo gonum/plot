@@ -16,7 +16,6 @@
 package plot
 
 import (
-	"fmt"
 	"image/color"
 	"io"
 	"math"
@@ -26,10 +25,6 @@ import (
 
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
-	"github.com/gonum/plot/vg/vgeps"
-	"github.com/gonum/plot/vg/vgimg"
-	"github.com/gonum/plot/vg/vgpdf"
-	"github.com/gonum/plot/vg/vgsvg"
 )
 
 var (
@@ -440,49 +435,23 @@ func (p *Plot) NominalY(names ...string) {
 }
 
 // WriterTo returns an io.WriterTo that will write the plot as
-// the specified image format.
-//
-// Supported formats are:
-//
-//  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+// the specified image format. Available formats can be queried
+// by calling vg.Formats. Formats may be added by calling
+// vg.Register.
 func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
-	var c interface {
-		vg.CanvasSizer
-		io.WriterTo
-	}
-	switch format {
-	case "eps":
-		c = vgeps.New(w, h)
-
-	case "jpg", "jpeg":
-		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
-
-	case "pdf":
-		c = vgpdf.New(w, h)
-
-	case "png":
-		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
-
-	case "svg":
-		c = vgsvg.New(w, h)
-
-	case "tif", "tiff":
-		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
-
-	default:
-		return nil, fmt.Errorf("unsupported format: %q", format)
+	var c vg.CanvasWriterTo
+	c, err := vg.NewCanvasWriterTo(format, w, h)
+	if err != nil {
+		return nil, err
 	}
 	p.Draw(draw.New(c))
 
 	return c, nil
 }
 
-// Save saves the plot to an image file.  The file format is determined
-// by the extension.
-//
-// Supported extensions are:
-//
-//  .eps, .jpg, .jpeg, .pdf, .png, .svg, .tif and .tiff.
+// Save saves the plot to an image file. The file format is determined
+// by the extension. Valid format extensions may be queried by calling
+// vg.Formats.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 	f, err := os.Create(file)
 	if err != nil {
