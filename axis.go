@@ -513,7 +513,7 @@ func formatFloatTick(v float64, prec int) string {
 
 // precisionOf returns the precision needed to display x without e notation.
 func precisionOf(x float64) int {
-	return int(math.Max(math.Ceil(-math.Log10(x)), displayPrecision))
+	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), displayPrecision))
 }
 
 func maxInt(a, b int) int {
