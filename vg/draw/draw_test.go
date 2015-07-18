@@ -16,8 +16,8 @@ func TestCrop(t *testing.T) {
 	}
 	r1 := recorder.New(96)
 	c1 := NewCanvas(r1, 6, 3)
-	c11 := c1.Crop(0, 0, -3, 0)
-	c12 := c1.Crop(3, 0, 0, 0)
+	c11 := Crop(c1, 0, -3, 0, 0)
+	c12 := Crop(c1, 3, 0, 0, 0)
 
 	r2 := recorder.New(96)
 	c2 := NewCanvas(r2, 6, 3)
@@ -54,5 +54,60 @@ func TestCrop(t *testing.T) {
 
 	if !reflect.DeepEqual(r1.Actions, r2.Actions) {
 		t.Errorf(str, r1.Actions, r2.Actions)
+	}
+}
+
+func TestTile(t *testing.T) {
+	r := recorder.New(96)
+	c := NewCanvas(r, 13, 7)
+	const (
+		rows = 2
+		cols = 3
+		pad  = 1
+	)
+	tiles := Tiles{
+		Rows: rows, Cols: cols,
+		PadTop: pad, PadBottom: pad,
+		PadRight: pad, PadLeft: pad,
+		PadX: pad, PadY: pad,
+	}
+	rectangles := [][]Rectangle{
+		{
+			Rectangle{
+				Min: Point{1, 4},
+				Max: Point{4, 6},
+			},
+			Rectangle{
+				Min: Point{5, 4},
+				Max: Point{8, 6},
+			},
+			Rectangle{
+				Min: Point{9, 4},
+				Max: Point{12, 6},
+			},
+		},
+		{
+			Rectangle{
+				Min: Point{1, 1},
+				Max: Point{4, 3},
+			},
+			Rectangle{
+				Min: Point{5, 1},
+				Max: Point{8, 3},
+			},
+			Rectangle{
+				Min: Point{9, 1},
+				Max: Point{12, 3},
+			},
+		},
+	}
+	for j := 0; j < rows; j++ {
+		for i := 0; i < cols; i++ {
+			str := "row %d col %d unexpected result: %+v != %+v"
+			tile := tiles.At(c, i, j)
+			if tile.Rectangle != rectangles[j][i] {
+				t.Errorf(str, j, i, tile.Rectangle, rectangles[j][i])
+			}
+		}
 	}
 }

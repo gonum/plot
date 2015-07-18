@@ -16,7 +16,6 @@
 package plot
 
 import (
-	"fmt"
 	"image/color"
 	"io"
 	"math"
@@ -26,10 +25,6 @@ import (
 
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
-	"github.com/gonum/plot/vg/vgeps"
-	"github.com/gonum/plot/vg/vgimg"
-	"github.com/gonum/plot/vg/vgpdf"
-	"github.com/gonum/plot/vg/vgsvg"
 )
 
 var (
@@ -164,16 +159,16 @@ func (p *Plot) Draw(c draw.Canvas) {
 	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
-	x.draw(padX(p, c.Crop(ywidth, 0, 0, 0)))
+	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
 	xheight := x.size()
-	y.draw(padY(p, c.Crop(0, xheight, 0, 0)))
+	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
 
-	dataC := padY(p, padX(p, c.Crop(ywidth, xheight, 0, 0)))
+	dataC := padY(p, padX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
 	for _, data := range p.plotters {
 		data.Plot(dataC, p)
 	}
 
-	p.Legend.draw(c.Crop(ywidth, 0, 0, 0).Crop(0, xheight, 0, 0))
+	p.Legend.draw(draw.Crop(draw.Crop(c, ywidth, 0, 0, 0), 0, 0, xheight, 0))
 }
 
 // DataCanvas returns a new draw.Canvas that
@@ -188,7 +183,7 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, da.Crop(y.size(), x.size(), 0, 0)))
+	return padY(p, padX(p, draw.Crop(da, y.size(), x.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
@@ -446,34 +441,11 @@ func (p *Plot) NominalY(names ...string) {
 //
 //  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
 func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
-	var c interface {
-		vg.CanvasSizer
-		io.WriterTo
-	}
-	switch format {
-	case "eps":
-		c = vgeps.New(w, h)
-
-	case "jpg", "jpeg":
-		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
-
-	case "pdf":
-		c = vgpdf.New(w, h)
-
-	case "png":
-		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
-
-	case "svg":
-		c = vgsvg.New(w, h)
-
-	case "tif", "tiff":
-		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
-
-	default:
-		return nil, fmt.Errorf("unsupported format: %q", format)
+	c, err := draw.NewFormattedCanvas(w, h, format)
+	if err != nil {
+		return nil, err
 	}
 	p.Draw(draw.New(c))
-
 	return c, nil
 }
 

@@ -5,11 +5,16 @@
 package draw
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"strings"
 
 	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/vgeps"
+	"github.com/gonum/plot/vg/vgimg"
+	"github.com/gonum/plot/vg/vgpdf"
+	"github.com/gonum/plot/vg/vgsvg"
 )
 
 // A Canvas is a vector graphics canvas along with
@@ -222,6 +227,39 @@ func New(c vg.CanvasSizer) Canvas {
 	return NewCanvas(c, w, h)
 }
 
+// NewFormattedCanvas creates a new vg.CanvasWriterTo with the specified
+// image format.
+//
+// Supported formats are:
+//
+//  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
+	var c vg.CanvasWriterTo
+	switch format {
+	case "eps":
+		c = vgeps.New(w, h)
+
+	case "jpg", "jpeg":
+		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
+
+	case "pdf":
+		c = vgpdf.New(w, h)
+
+	case "png":
+		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
+
+	case "svg":
+		c = vgsvg.New(w, h)
+
+	case "tif", "tiff":
+		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
+
+	default:
+		return nil, fmt.Errorf("unsupported format: %q", format)
+	}
+	return c, nil
+}
+
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
 func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
 	return Canvas{
@@ -246,7 +284,7 @@ func (c *Canvas) Contains(p Point) bool {
 	return c.ContainsX(p.X) && c.ContainsY(p.Y)
 }
 
-// Contains returns true if the Canvas contains the
+// ContainsX returns true if the Canvas contains the
 // x coordinate.
 func (c *Canvas) ContainsX(x vg.Length) bool {
 	return x <= c.Max.X+slop && x >= c.Min.X-slop
@@ -276,21 +314,57 @@ func (c *Canvas) Y(y float64) vg.Length {
 	return vg.Length(y)*(c.Max.Y-c.Min.Y) + c.Min.Y
 }
 
-// Crop returns a new Canvas corresponding to the receiver
-// area with the given number of inches added to the minimum
+// Crop returns a new Canvas corresponding to the Canvas
+// c with the given lengths added to the minimum
 // and maximum x and y values of the Canvas's Rectangle.
-func (c Canvas) Crop(minx, miny, maxx, maxy vg.Length) Canvas {
+// Note that cropping the right and top sides of the canvas
+// requires specifying negative values of right and top.
+func Crop(c Canvas, left, right, bottom, top vg.Length) Canvas {
 	minpt := Point{
-		X: c.Min.X + minx,
-		Y: c.Min.Y + miny,
+		X: c.Min.X + left,
+		Y: c.Min.Y + bottom,
 	}
 	maxpt := Point{
-		X: c.Max.X + maxx,
-		Y: c.Max.Y + maxy,
+		X: c.Max.X + right,
+		Y: c.Max.Y + top,
 	}
 	return Canvas{
-		Canvas:    vg.Canvas(c),
+		Canvas:    c,
 		Rectangle: Rectangle{Min: minpt, Max: maxpt},
+	}
+}
+
+// Tiles creates regular subcanvases from a Canvas.
+type Tiles struct {
+	// Cols and Rows specify the number of rows and columns of tiles.
+	Cols, Rows int
+	// PadTop, PadBottom, PadRight, and PadLeft specify the padding
+	// on the corresponding side of each tile.
+	PadTop, PadBottom, PadRight, PadLeft vg.Length
+	// PadX and PadY specify the padding between columns and rows
+	// of tiles respectively..
+	PadX, PadY vg.Length
+}
+
+// At returns the subcanvas within c that corresponds to the
+// tile at column x, row y.
+func (ts Tiles) At(c Canvas, x, y int) Canvas {
+	tileH := (c.Max.Y - c.Min.Y - ts.PadTop - ts.PadBottom -
+		vg.Length(ts.Rows-1)*ts.PadY) / vg.Length(ts.Rows)
+	tileW := (c.Max.X - c.Min.X - ts.PadLeft - ts.PadRight -
+		vg.Length(ts.Cols-1)*ts.PadX) / vg.Length(ts.Cols)
+
+	ymax := c.Max.Y - ts.PadTop - vg.Length(y)*(ts.PadY+tileH)
+	ymin := ymax - tileH
+	xmin := c.Min.X + ts.PadLeft + vg.Length(x)*(ts.PadX+tileW)
+	xmax := xmin + tileW
+
+	return Canvas{
+		Canvas: vg.Canvas(c),
+		Rectangle: Rectangle{
+			Min: Point{X: xmin, Y: ymin},
+			Max: Point{X: xmax, Y: ymax},
+		},
 	}
 }
 
@@ -333,14 +407,14 @@ func (c *Canvas) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
 	c.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
 }
 
-// ClipLineXY returns a slice of lines that
+// ClipLinesXY returns a slice of lines that
 // represent the given line clipped in both
 // X and Y directions.
 func (c *Canvas) ClipLinesXY(lines ...[]Point) [][]Point {
 	return c.ClipLinesY(c.ClipLinesX(lines...)...)
 }
 
-// ClipLineX returns a slice of lines that
+// ClipLinesX returns a slice of lines that
 // represent the given line clipped in the
 // X direction.
 func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
@@ -356,7 +430,7 @@ func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 	return
 }
 
-// ClipLineY returns a slice of lines that
+// ClipLinesY returns a slice of lines that
 // represent the given line clipped in the
 // Y direction.
 func (c *Canvas) ClipLinesY(lines ...[]Point) (clipped [][]Point) {

@@ -9,6 +9,7 @@ package vg
 
 import (
 	"image/color"
+	"io"
 )
 
 // A Canvas is the main drawing interface for 2D vector
@@ -83,6 +84,12 @@ type Canvas interface {
 type CanvasSizer interface {
 	Canvas
 	Size() (x, y Length)
+}
+
+// CanvasWriterTo is a CanvasSizer with a WriteTo method.
+type CanvasWriterTo interface {
+	CanvasSizer
+	io.WriterTo
 }
 
 // Initialize sets all of the canvas's values to their

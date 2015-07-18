@@ -13,6 +13,7 @@ import (
 	"log"
 	"math"
 	"math/rand"
+	"os"
 
 	"github.com/gonum/matrix/mat64"
 
@@ -49,21 +50,53 @@ var examples = []struct {
 }
 
 var formats = []string{
-	".eps",
-	".pdf",
-	".svg",
-	".png",
-	".tiff",
-	".jpg",
+	"eps",
+	"pdf",
+	"svg",
+	"png",
+	"tiff",
+	"jpg",
 }
 
 func main() {
-	for _, ex := range examples {
-		for _, f := range formats {
-			err := ex.p.Save(4*vg.Inch, 4*vg.Inch, ex.name+f)
-			if err != nil {
-				log.Fatalf("failed to save %s%s: %v", ex.name, f, err)
+	const (
+		p     = 1 * vg.Centimeter
+		nrows = 4
+		ncols = 5
+	)
+	for _, f := range formats {
+		c, err := draw.NewFormattedCanvas(10*ncols*vg.Centimeter,
+			10*nrows*vg.Centimeter, f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		dc := draw.New(c)
+		tiles := draw.Tiles{
+			Rows: nrows, Cols: ncols,
+			PadTop: p, PadBottom: p,
+			PadRight: p, PadLeft: p,
+			PadX: p, PadY: p,
+		}
+		ii := 0
+		for j := 0; j < nrows; j++ {
+			for i := 0; i < ncols; i++ {
+				if ii < len(examples) {
+					ex := examples[ii]
+					ex.p.Draw(tiles.At(dc, i, j))
+					if err != nil {
+						log.Fatalf("failed to draw tile for  %s.%s: %v", ex.name, f, err)
+					}
+					ii++
+				}
 			}
+		}
+		w, err := os.Create("examples." + f)
+		if err != nil {
+			log.Fatal(err)
+		}
+		_, err = c.WriteTo(w)
+		if err != nil {
+			log.Fatal(err)
 		}
 	}
 }
