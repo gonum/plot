@@ -17,8 +17,10 @@ import (
 	"image/png"
 	"io"
 
-	"github.com/llgcode/draw2d"
 	"golang.org/x/image/tiff"
+
+	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dimg"
 
 	"github.com/gonum/plot/vg"
 )
@@ -92,7 +94,7 @@ func NewWith(o ...option) *Canvas {
 	}
 	if c.gc == nil {
 		h := float64(c.img.Bounds().Max.Y - c.img.Bounds().Min.Y)
-		c.gc = draw2d.NewGraphicContext(c.img)
+		c.gc = draw2dimg.NewGraphicContext(c.img)
 		c.gc.SetDPI(c.dpi)
 		c.gc.Scale(1, -1)
 		c.gc.Translate(0, -h)

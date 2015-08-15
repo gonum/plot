@@ -16,7 +16,7 @@ import (
 	"github.com/BurntSushi/xgbutil/xevent"
 	"github.com/BurntSushi/xgbutil/xgraphics"
 	"github.com/BurntSushi/xgbutil/xwindow"
-	"github.com/llgcode/draw2d"
+	"github.com/llgcode/draw2d/draw2dimg"
 
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/vgimg"
@@ -66,7 +66,7 @@ func NewImage(img draw.Image, name string) (*Canvas, error) {
 		return nil, err
 	}
 	painter := NewPainter(ximg)
-	gc := draw2d.NewGraphicContextWithPainter(ximg, painter)
+	gc := draw2dimg.NewGraphicContextWithPainter(ximg, painter)
 	gc.SetDPI(dpi)
 	gc.Scale(1, -1)
 	gc.Translate(0, -h)
