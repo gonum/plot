@@ -28,8 +28,8 @@ import (
 	"image/color"
 	"image/draw"
 
-	"code.google.com/p/freetype-go/freetype/raster"
 	"github.com/BurntSushi/xgbutil/xgraphics"
+	"github.com/golang/freetype/raster"
 )
 
 type Painter struct {

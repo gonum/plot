@@ -4,7 +4,7 @@
 
 // Some of this code (namely the code for computing the
 // width of a string in a given font) was copied from
-// code.google.com/p/freetype-go/freetype/ which includes
+// github.com/golang/freetype/ which includes
 // the following copyright notice:
 // Copyright 2010 The Freetype-Go Authors. All rights reserved.
 
@@ -18,8 +18,8 @@ import (
 	"path/filepath"
 	"sync"
 
-	"code.google.com/p/freetype-go/freetype"
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 )
 
 const (
