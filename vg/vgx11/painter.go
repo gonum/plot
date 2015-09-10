@@ -28,8 +28,8 @@ import (
 	"image/color"
 	"image/draw"
 
-	"code.google.com/p/freetype-go/freetype/raster"
 	"github.com/BurntSushi/xgbutil/xgraphics"
+	"github.com/golang/freetype/raster"
 )
 
 type Painter struct {
@@ -61,7 +61,7 @@ func (r *Painter) Paint(ss []raster.Span, done bool) {
 			continue
 		}
 		// This code is similar to drawGlyphOver in $GOROOT/src/pkg/image/draw/draw.go.
-		ma := s.A >> 16
+		ma := s.Alpha >> 16
 		const m = 1<<16 - 1
 		i0 := (s.Y-r.Image.Rect.Min.Y)*r.Image.Stride + (s.X0-r.Image.Rect.Min.X)*4
 		i1 := i0 + (s.X1-s.X0)*4
