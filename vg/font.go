@@ -18,8 +18,10 @@ import (
 	"path/filepath"
 	"sync"
 
-	"code.google.com/p/freetype-go/freetype"
-	"code.google.com/p/freetype-go/freetype/truetype"
+	"golang.org/x/image/math/fixed"
+
+	"github.com/golang/freetype"
+	"github.com/golang/freetype/truetype"
 )
 
 const (
@@ -147,12 +149,12 @@ type FontExtents struct {
 
 // Extents returns the FontExtents for a font.
 func (f *Font) Extents() FontExtents {
-	bounds := f.font.Bounds(f.Font().FUnitsPerEm())
+	bounds := f.font.Bounds(fixed.Int26_6(f.Font().FUnitsPerEm()))
 	scale := f.Size / Points(float64(f.Font().FUnitsPerEm()))
 	return FontExtents{
-		Ascent:  Points(float64(bounds.YMax)) * scale,
-		Descent: Points(float64(bounds.YMin)) * scale,
-		Height:  Points(float64(bounds.YMax-bounds.YMin)) * scale,
+		Ascent:  Points(float64(bounds.Max.Y)) * scale,
+		Descent: Points(float64(bounds.Min.Y)) * scale,
+		Height:  Points(float64(bounds.Max.Y-bounds.Min.Y)) * scale,
 	}
 }
 
@@ -166,9 +168,9 @@ func (f *Font) Width(s string) Length {
 	for _, rune := range s {
 		index := f.font.Index(rune)
 		if hasPrev {
-			width += int(f.font.Kerning(f.font.FUnitsPerEm(), prev, index))
+			width += int(f.font.Kern(fixed.Int26_6(f.font.FUnitsPerEm()), prev, index))
 		}
-		width += int(f.font.HMetric(f.font.FUnitsPerEm(), index).AdvanceWidth)
+		width += int(f.font.HMetric(fixed.Int26_6(f.font.FUnitsPerEm()), index).AdvanceWidth)
 		prev, hasPrev = index, true
 	}
 	return Points(float64(width)) * scale
