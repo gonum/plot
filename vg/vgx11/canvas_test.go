@@ -26,6 +26,8 @@ func hasX11() bool {
 }
 
 func TestIssue179(t *testing.T) {
+	t.Skip("github.com/BurntSushi/xgbutil#30 issue not fixed")
+
 	if !hasX11() {
 		t.Skip("no X11 environment")
 	}
