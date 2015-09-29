@@ -14,13 +14,13 @@ func TestCrop(t *testing.T) {
 		Color: color.NRGBA{0, 20, 0, 123},
 		Width: 0.1 * vg.Inch,
 	}
-	r1 := recorder.New(96)
-	c1 := NewCanvas(r1, 6, 3)
+	var r1 recorder.Canvas
+	c1 := NewCanvas(&r1, 6, 3)
 	c11 := Crop(c1, 0, -3, 0, 0)
 	c12 := Crop(c1, 3, 0, 0, 0)
 
-	r2 := recorder.New(96)
-	c2 := NewCanvas(r2, 6, 3)
+	var r2 recorder.Canvas
+	c2 := NewCanvas(&r2, 6, 3)
 	c21 := Canvas{
 		Canvas: c2.Canvas,
 		Rectangle: Rectangle{
@@ -58,8 +58,8 @@ func TestCrop(t *testing.T) {
 }
 
 func TestTile(t *testing.T) {
-	r := recorder.New(96)
-	c := NewCanvas(r, 13, 7)
+	var r recorder.Canvas
+	c := NewCanvas(&r, 13, 7)
 	const (
 		rows = 2
 		cols = 3

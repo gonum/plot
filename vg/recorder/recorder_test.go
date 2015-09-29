@@ -13,7 +13,7 @@ import (
 )
 
 func TestRecorder(t *testing.T) {
-	rec := New(72)
+	var rec Canvas
 	rec.Actions = append(rec.Actions, &FillString{Font: "Times-Roman", Size: 12, X: 0, Y: 10, String: "Text"})
 	rec.Comment("End of preamble")
 	rec.Scale(1, 2)
@@ -24,7 +24,6 @@ func TestRecorder(t *testing.T) {
 	rec.Pop()
 	rec.Translate(3, 4)
 	rec.KeepCaller = false
-	rec.DPI()
 	rec.SetLineWidth(100)
 	rec.SetLineDash([]vg.Length{2, 5}, 6)
 	rec.SetColor(color.RGBA{R: 0x65, G: 0x23, B: 0xf2})
@@ -68,7 +67,6 @@ var want = []string{
 	`github.com/gonum/plot/vg/recorder/recorder_test.go:23 Push()`,
 	`github.com/gonum/plot/vg/recorder/recorder_test.go:24 Pop()`,
 	`github.com/gonum/plot/vg/recorder/recorder_test.go:25 Translate(3, 4)`,
-	`DPI()`,
 	`SetLineWidth(100)`,
 	`SetLineDash([]vg.Length{2, 5}, 6)`,
 	`SetColor(color.RGBA{R:0x65, G:0x23, B:0xf2, A:0x0})`,

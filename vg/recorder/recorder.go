@@ -17,9 +17,6 @@ var _ vg.Canvas = (*Canvas)(nil)
 
 // Canvas implements vg.Canvas operation serialization.
 type Canvas struct {
-	// Resolution holds the canvas resolution in DPI.
-	Resolution float64
-
 	// Actions holds a log of all methods called on
 	// the canvas.
 	Actions []Action
@@ -68,14 +65,6 @@ func (l callerLocation) String() string {
 	}
 	return fmt.Sprintf("%s:%d ", l.file, l.line)
 }
-
-// New returns a new Canvas with the specified resolution.
-func New(dpi float64) *Canvas { return &Canvas{Resolution: dpi} }
-
-// NewFrom returns a new Canvas from an existing vg.Canvas. vg.Canvas methods
-// called on the Canvas will also be passed to the provided backing
-// vg.Canvas. The Resolution field is set to the value returned by c.DPI.
-func NewFrom(c vg.Canvas) *Canvas { return &Canvas{Resolution: c.DPI(), c: c} }
 
 // Reset resets the Canvas to the base state.
 func (c *Canvas) Reset() {
@@ -412,31 +401,6 @@ func (a *FillString) Call() string {
 }
 
 func (a *FillString) callerLocation() *callerLocation {
-	return &a.l
-}
-
-// DPI corresponds to the vg.Canvas.DPI method.
-type DPI struct {
-	l callerLocation
-}
-
-// DPI implements the DPI method of the vg.Canvas interface.
-func (c *Canvas) DPI() float64 {
-	c.append(&DPI{})
-	return c.Resolution
-}
-
-// Call returns the method call that generated the action.
-func (a *DPI) Call() string {
-	return fmt.Sprintf("%sDPI()", a.l)
-}
-
-// ApplyTo applies the action to the given vg.Canvas.
-func (a *DPI) ApplyTo(c vg.Canvas) {
-	c.DPI()
-}
-
-func (a *DPI) callerLocation() *callerLocation {
 	return &a.l
 }
 

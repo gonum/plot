@@ -35,8 +35,8 @@ func TestLegendAlignment(t *testing.T) {
 		l.Add(n, b)
 	}
 
-	r := recorder.New(100)
-	c := draw.NewCanvas(r, 100, 100)
+	var r recorder.Canvas
+	c := draw.NewCanvas(&r, 100, 100)
 	l.Draw(draw.Canvas{
 		Canvas: c.Canvas,
 		Rectangle: draw.Rectangle{

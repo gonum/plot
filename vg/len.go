@@ -20,9 +20,9 @@ const (
 	Millimeter        = Centimeter / 10
 )
 
-// Dots returns the length in dots for the given Canvas.
-func (l Length) Dots(c Canvas) float64 {
-	return float64(l) / Inch.Points() * c.DPI()
+// Dots returns the length in dots for the given resolution.
+func (l Length) Dots(dpi float64) float64 {
+	return float64(l) / Inch.Points() * dpi
 }
 
 // Points returns the length in postscript points.

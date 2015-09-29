@@ -169,15 +169,15 @@ func (c *Canvas) Size() (w, h vg.Length) {
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
 	c.width = w
-	c.gc.SetLineWidth(w.Dots(c))
+	c.gc.SetLineWidth(w.Dots(c.DPI()))
 }
 
 func (c *Canvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 	dashes := make([]float64, len(ds))
 	for i, d := range ds {
-		dashes[i] = d.Dots(c)
+		dashes[i] = d.Dots(c.DPI())
 	}
-	c.gc.SetLineDash(dashes, offs.Dots(c))
+	c.gc.SetLineDash(dashes, offs.Dots(c.DPI()))
 }
 
 func (c *Canvas) SetColor(clr color.Color) {
@@ -194,7 +194,7 @@ func (c *Canvas) Rotate(t float64) {
 }
 
 func (c *Canvas) Translate(x, y vg.Length) {
-	c.gc.Translate(x.Dots(c), y.Dots(c))
+	c.gc.Translate(x.Dots(c.DPI()), y.Dots(c.DPI()))
 }
 
 func (c *Canvas) Scale(x, y float64) {
@@ -229,14 +229,14 @@ func (c *Canvas) outline(p vg.Path) {
 	for _, comp := range p {
 		switch comp.Type {
 		case vg.MoveComp:
-			c.gc.MoveTo(comp.X.Dots(c), comp.Y.Dots(c))
+			c.gc.MoveTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()))
 
 		case vg.LineComp:
-			c.gc.LineTo(comp.X.Dots(c), comp.Y.Dots(c))
+			c.gc.LineTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()))
 
 		case vg.ArcComp:
-			c.gc.ArcTo(comp.X.Dots(c), comp.Y.Dots(c),
-				comp.Radius.Dots(c), comp.Radius.Dots(c),
+			c.gc.ArcTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()),
+				comp.Radius.Dots(c.DPI()), comp.Radius.Dots(c.DPI()),
 				comp.Start, comp.Angle)
 
 		case vg.CloseComp:
@@ -266,7 +266,7 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 	}
 	c.gc.SetFontData(data)
 	c.gc.SetFontSize(font.Size.Points())
-	c.gc.Translate(x.Dots(c), y.Dots(c))
+	c.gc.Translate(x.Dots(c.DPI()), y.Dots(c.DPI()))
 	c.gc.Scale(1, -1)
 	c.gc.FillString(str)
 }

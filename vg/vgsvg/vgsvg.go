@@ -69,7 +69,7 @@ func New(w, h vg.Length) *Canvas {
 	// Swap the origin to the bottom left.
 	// This must be matched with a </g> when saving,
 	// before the closing </svg>.
-	c.svg.Gtransform(fmt.Sprintf("scale(1, -1) translate(0, -%.*g)", pr, h.Dots(c)))
+	c.svg.Gtransform(fmt.Sprintf("scale(1, -1) translate(0, -%.*g)", pr, h.Dots(c.DPI())))
 
 	vg.Initialize(c)
 	return c
@@ -103,7 +103,7 @@ func (c *Canvas) Rotate(rot float64) {
 }
 
 func (c *Canvas) Translate(x, y vg.Length) {
-	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, x.Dots(c), pr, y.Dots(c)))
+	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, x.Dots(c.DPI()), pr, y.Dots(c.DPI())))
 	c.cur().gEnds++
 }
 
@@ -126,16 +126,16 @@ func (c *Canvas) Pop() {
 }
 
 func (c *Canvas) Stroke(path vg.Path) {
-	if c.cur().lineWidth.Dots(c) <= 0 {
+	if c.cur().lineWidth.Dots(c.DPI()) <= 0 {
 		return
 	}
 	c.svg.Path(c.pathData(path),
 		style(elm("fill", "#000000", "none"),
 			elm("stroke", "none", colorString(c.cur().color)),
 			elm("stroke-opacity", "1", opacityString(c.cur().color)),
-			elm("stroke-width", "1", "%.*g", pr, c.cur().lineWidth.Dots(c)),
+			elm("stroke-width", "1", "%.*g", pr, c.cur().lineWidth.Dots(c.DPI())),
 			elm("stroke-dasharray", "none", dashArrayString(c)),
-			elm("stroke-dashoffset", "0", "%.*g", pr, c.cur().dashOffset.Dots(c))))
+			elm("stroke-dashoffset", "0", "%.*g", pr, c.cur().dashOffset.Dots(c.DPI()))))
 }
 
 func (c *Canvas) Fill(path vg.Path) {
@@ -150,17 +150,17 @@ func (c *Canvas) pathData(path vg.Path) string {
 	for _, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
-			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
-			x = comp.X.Dots(c)
-			y = comp.Y.Dots(c)
+			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.X.Dots(c.DPI()), pr, comp.Y.Dots(c.DPI()))
+			x = comp.X.Dots(c.DPI())
+			y = comp.Y.Dots(c.DPI())
 		case vg.LineComp:
-			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.X.Dots(c), pr, comp.Y.Dots(c))
-			x = comp.X.Dots(c)
-			y = comp.Y.Dots(c)
+			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.X.Dots(c.DPI()), pr, comp.Y.Dots(c.DPI()))
+			x = comp.X.Dots(c.DPI())
+			y = comp.Y.Dots(c.DPI())
 		case vg.ArcComp:
-			r := comp.Radius.Dots(c)
-			x0 := comp.X.Dots(c) + r*math.Cos(comp.Start)
-			y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start)
+			r := comp.Radius.Dots(c.DPI())
+			x0 := comp.X.Dots(c.DPI()) + r*math.Cos(comp.Start)
+			y0 := comp.Y.Dots(c.DPI()) + r*math.Sin(comp.Start)
 			if x0 != x || y0 != y {
 				fmt.Fprintf(buf, "L%.*g,%.*g", pr, x0, pr, y0)
 			}
@@ -192,11 +192,11 @@ func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 		panic("Impossible angle")
 	}
 
-	r := comp.Radius.Dots(c)
-	x0 := comp.X.Dots(c) + r*math.Cos(comp.Start+angle/2)
-	y0 := comp.Y.Dots(c) + r*math.Sin(comp.Start+angle/2)
-	x = comp.X.Dots(c) + r*math.Cos(comp.Start+angle)
-	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+angle)
+	r := comp.Radius.Dots(c.DPI())
+	x0 := comp.X.Dots(c.DPI()) + r*math.Cos(comp.Start+angle/2)
+	y0 := comp.Y.Dots(c.DPI()) + r*math.Sin(comp.Start+angle/2)
+	x = comp.X.Dots(c.DPI()) + r*math.Cos(comp.Start+angle)
+	y = comp.Y.Dots(c.DPI()) + r*math.Sin(comp.Start+angle)
 
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(angle/2), sweep(angle/2), pr, x0, pr, y0) //
@@ -218,9 +218,9 @@ func remainder(x, y float64) float64 {
 // less than a full circle, if it is greater then
 // circle should be used instead.
 func arc(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
-	r := comp.Radius.Dots(c)
-	x = comp.X.Dots(c) + r*math.Cos(comp.Start+comp.Angle)
-	y = comp.Y.Dots(c) + r*math.Sin(comp.Start+comp.Angle)
+	r := comp.Radius.Dots(c.DPI())
+	x = comp.X.Dots(c.DPI()) + r*math.Cos(comp.Start+comp.Angle)
+	y = comp.Y.Dots(c.DPI()) + r*math.Sin(comp.Start+comp.Angle)
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(comp.Angle), sweep(comp.Angle), pr, x, pr, y)
 	return
@@ -256,7 +256,7 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 		sty = "\n\t" + sty
 	}
 	fmt.Fprintf(c.buf, `<text x="%.*g" y="%.*g" transform="scale(1, -1)"%s>%s</text>`+"\n",
-		pr, x.Dots(c), pr, -y.Dots(c), sty, str)
+		pr, x.Dots(c.DPI()), pr, -y.Dots(c.DPI()), sty, str)
 }
 
 var (
@@ -357,7 +357,7 @@ func elm(key, def, f string, vls ...interface{}) string {
 func dashArrayString(c *Canvas) string {
 	str := ""
 	for i, d := range c.cur().dashArray {
-		str += fmt.Sprintf("%.*g", pr, d.Dots(c))
+		str += fmt.Sprintf("%.*g", pr, d.Dots(c.DPI()))
 		if i < len(c.cur().dashArray)-1 {
 			str += ","
 		}

@@ -74,10 +74,6 @@ type Canvas interface {
 	// FillString fills in text at the specified
 	// location using the given font.
 	FillString(f Font, x, y Length, text string)
-
-	// DPI returns the number of canvas dots in
-	// an inch.
-	DPI() float64
 }
 
 // CanvasSizer is a Canvas with a defined size.

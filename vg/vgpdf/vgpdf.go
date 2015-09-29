@@ -99,10 +99,6 @@ func (c *Canvas) FillString(fnt vg.Font, x, y vg.Length, str string) {
 	c.page.DrawText(t)
 }
 
-func (*Canvas) DPI() float64 {
-	return float64(pdf.Inch)
-}
-
 // pdfPath returns a pdf.Path from a vg.Path.
 func pdfPath(c *Canvas, path vg.Path) *pdf.Path {
 	p := new(pdf.Path)

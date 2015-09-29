@@ -53,8 +53,8 @@ func NewTitle(w, h vg.Length, title string) *Canvas {
 	c.buf.WriteString("%%Creator github.com/gonum/plot/vg/vgeps\n")
 	c.buf.WriteString("%%Title: " + title + "\n")
 	c.buf.WriteString(fmt.Sprintf("%%%%BoundingBox: 0 0 %.*g %.*g\n",
-		pr, w.Dots(c),
-		pr, h.Dots(c)))
+		pr, w.Dots(c.DPI()),
+		pr, h.Dots(c.DPI())))
 	c.buf.WriteString(fmt.Sprintf("%%%%CreationDate: %s\n", time.Now()))
 	c.buf.WriteString("%%Orientation: Portrait\n")
 	c.buf.WriteString("%%EndComments\n")
@@ -75,7 +75,7 @@ func (e *Canvas) cur() *ctx {
 func (e *Canvas) SetLineWidth(w vg.Length) {
 	if e.cur().width != w {
 		e.cur().width = w
-		fmt.Fprintf(e.buf, "%.*g setlinewidth\n", pr, w.Dots(e))
+		fmt.Fprintf(e.buf, "%.*g setlinewidth\n", pr, w.Dots(e.DPI()))
 	}
 }
 
@@ -92,10 +92,10 @@ func (e *Canvas) SetLineDash(dashes []vg.Length, o vg.Length) {
 		e.cur().offs = o
 		e.buf.WriteString("[")
 		for _, d := range dashes {
-			fmt.Fprintf(e.buf, " %.*g", pr, d.Dots(e))
+			fmt.Fprintf(e.buf, " %.*g", pr, d.Dots(e.DPI()))
 		}
 		e.buf.WriteString(" ] ")
-		fmt.Fprintf(e.buf, "%.*g setdash\n", pr, o.Dots(e))
+		fmt.Fprintf(e.buf, "%.*g setdash\n", pr, o.Dots(e.DPI()))
 	}
 }
 
@@ -118,7 +118,7 @@ func (e *Canvas) Rotate(r float64) {
 
 func (e *Canvas) Translate(x, y vg.Length) {
 	fmt.Fprintf(e.buf, "%.*g %.*g translate\n",
-		pr, x.Dots(e), pr, y.Dots(e))
+		pr, x.Dots(e.DPI()), pr, y.Dots(e.DPI()))
 }
 
 func (e *Canvas) Scale(x, y float64) {
@@ -180,7 +180,7 @@ func (e *Canvas) FillString(fnt vg.Font, x, y vg.Length, str string) {
 		fmt.Fprintf(e.buf, "/%s findfont %.*g scalefont setfont\n",
 			fnt.Name(), pr, fnt.Size)
 	}
-	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, x.Dots(e), pr, y.Dots(e))
+	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, x.Dots(e.DPI()), pr, y.Dots(e.DPI()))
 	fmt.Fprintf(e.buf, "(%s) show\n", str)
 }
 
