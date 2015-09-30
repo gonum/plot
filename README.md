@@ -1,4 +1,4 @@
-# Gonum Plot  [![Build Status](https://travis-ci.org/gonum/plot.svg?branch=master)](https://travis-ci.org/gonum/plot) [![Coverage Status](https://img.shields.io/coveralls/gonum/plot.svg)](https://coveralls.io/r/gonum/plot) [![GoDoc](https://godoc.org/github.com/gonum/plot?status.svg)](https://godoc.org/github.com/gonum/plot)
+# Gonum Plot  [![Build Status](https://travis-ci.org/gonum/plot.svg?branch=master)](https://travis-ci.org/gonum/plot) [![Coverage Status](https://coveralls.io/repos/gonum/plot/badge.svg?branch=master&service=github)](https://coveralls.io/github/gonum/plot?branch=master) [![GoDoc](https://godoc.org/github.com/gonum/plot?status.svg)](https://godoc.org/github.com/gonum/plot)
 
 `gonum/plot` is the new, official fork of code.google.com/p/plotinum.
 It provides an API for building and drawing plots in Go.
