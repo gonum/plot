@@ -48,10 +48,7 @@ type Labels struct {
 
 // NewLabels returns a new Labels using the DefaultFont and
 // the DefaultFontSize.
-func NewLabels(d interface {
-	XYer
-	Labeller
-}) (*Labels, error) {
+func NewLabels(d XYLabeller) (*Labels, error) {
 	xys, err := CopyXYs(d)
 	if err != nil {
 		return nil, err
@@ -84,7 +81,7 @@ func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 	for i, label := range l.Labels {
 		x := trX(l.XYs[i].X)
 		y := trY(l.XYs[i].Y)
-		if !c.Contains(draw.Point{x, y}) {
+		if !c.Contains(draw.Point{X: x, Y: y}) {
 			continue
 		}
 		x += l.XOffset
@@ -114,4 +111,22 @@ func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 		bs[i].Rectangle.Max.Y = h + h*vg.Length(l.YAlign) + l.YOffset
 	}
 	return bs
+}
+
+// XYLabeller combines the XYer and Labeller types.
+type XYLabeller interface {
+	XYer
+	Labeller
+}
+
+// XYLabels holds XY data with labels.
+// The ith label corresponds to the ith XY.
+type XYLabels struct {
+	XYs
+	Labels []string
+}
+
+// Label returns the label for point index i.
+func (l XYLabels) Label(i int) string {
+	return l.Labels[i]
 }
