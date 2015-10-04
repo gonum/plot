@@ -17,6 +17,9 @@ import (
 	"github.com/gonum/plot/vg"
 )
 
+// DPI is the nominal resolution of drawing in PDF.
+const DPI = 72
+
 // Canvas implements the vg.Canvas interface,
 // drawing to a PDF.
 type Canvas struct {

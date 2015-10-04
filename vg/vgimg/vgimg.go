@@ -41,7 +41,8 @@ type Canvas struct {
 }
 
 const (
-	// DefaultDPI is the default number of dots per inch.
+	// DefaultDPI is the default dot resolution for image
+	// drawing in dots per inch.
 	DefaultDPI = 96
 
 	// DefaultWidth and DefaultHeight are the default canvas
