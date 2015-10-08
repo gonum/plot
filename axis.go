@@ -134,8 +134,8 @@ func (a *Axis) sanitizeRange() {
 		a.Min, a.Max = a.Max, a.Min
 	}
 	if a.Min == a.Max {
-		a.Min -= 1
-		a.Max += 1
+		a.Min--
+		a.Max++
 	}
 }
 
@@ -145,16 +145,19 @@ type LinearScale struct{}
 
 var _ Normalizer = LinearScale{}
 
+// Normalize returns the fractional distance of x between min and max.
 func (LinearScale) Normalize(min, max, x float64) float64 {
 	return (x - min) / (max - min)
 }
 
-// LocScale can be used as the value of an Axis.Scale function to
+// LogScale can be used as the value of an Axis.Scale function to
 // set the axis to a log scale.
 type LogScale struct{}
 
 var _ Normalizer = LogScale{}
 
+// Normalize returns the fractional logarithmic distance of
+// x between min and max.
 func (LogScale) Normalize(min, max, x float64) float64 {
 	logMin := log(min)
 	return (log(x) - logMin) / (log(max) - logMin)
@@ -244,8 +247,9 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		w := a.Tick.Label.Width(t.Label)
 		box := GlyphBox{
-			X:         a.Norm(t.Value),
-			Rectangle: draw.Rectangle{draw.Point{X: -w / 2}, draw.Point{X: w / 2}},
+			X: a.Norm(t.Value),
+			Rectangle: draw.Rectangle{Min: draw.Point{X: -w / 2},
+				Max: draw.Point{X: w / 2}},
 		}
 		boxes = append(boxes, box)
 	}
@@ -327,8 +331,9 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		h := a.Tick.Label.Height(t.Label)
 		box := GlyphBox{
-			Y:         a.Norm(t.Value),
-			Rectangle: draw.Rectangle{draw.Point{Y: -h / 2}, draw.Point{Y: h / 2}},
+			Y: a.Norm(t.Value),
+			Rectangle: draw.Rectangle{Min: draw.Point{Y: -h / 2},
+				Max: draw.Point{Y: h / 2}},
 		}
 		boxes = append(boxes, box)
 	}

@@ -14,6 +14,8 @@ import (
 	"github.com/gonum/plot/vg/draw"
 )
 
+// A BarChart presents grouped data with rectangular bars
+// with lengths proportional to the data values.
 type BarChart struct {
 	Values
 
@@ -26,9 +28,9 @@ type BarChart struct {
 	// LineStyle is the style of the outline of the bars.
 	draw.LineStyle
 
-	// Offset is added to the x location of each bar.
+	// Offset is added to the X location of each bar.
 	// When the Offset is zero, the bars are drawn
-	// centered at their x location.
+	// centered at their X location.
 	Offset vg.Length
 
 	// XMin is the X location of the first bar.  XMin
@@ -36,6 +38,12 @@ type BarChart struct {
 	// down the X axis in order to make grouped
 	// bar charts.
 	XMin float64
+
+	// Horizontal dictates whether the bars should be in the vertical
+	// (default) or horizontal direction. If Horizontal is true, all
+	// X locations and distances referred to here will actually be Y
+	// locations and distances.
+	Horizontal bool
 
 	// stackedOn is the bar chart upon which
 	// this bar chart is stacked.
@@ -89,65 +97,111 @@ func (b *BarChart) StackOn(on *BarChart) {
 
 // Plot implements the plot.Plotter interface.
 func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+	var trCat, trVal func(float64) vg.Length
+	switch b.Horizontal {
+	case false:
+		trCat, trVal = plt.Transforms(&c)
+	case true:
+		trVal, trCat = plt.Transforms(&c)
+	}
 
 	for i, ht := range b.Values {
-		x := b.XMin + float64(i)
-		xmin := trX(float64(x))
-		if !c.ContainsX(xmin) {
-			continue
+		catVal := b.XMin + float64(i)
+		catMin := trCat(float64(catVal))
+		switch b.Horizontal {
+		case false:
+			if !c.ContainsX(catMin) {
+				continue
+			}
+		case true:
+			if !c.ContainsY(catMin) {
+				continue
+			}
 		}
-		xmin = xmin - b.Width/2 + b.Offset
-		xmax := xmin + b.Width
+		catMin = catMin - b.Width/2 + b.Offset
+		catMax := catMin + b.Width
 		bottom := b.stackedOn.BarHeight(i)
-		ymin := trY(bottom)
-		ymax := trY(bottom + ht)
+		valMin := trVal(bottom)
+		valMax := trVal(bottom + ht)
 
-		pts := []draw.Point{
-			{xmin, ymin},
-			{xmin, ymax},
-			{xmax, ymax},
-			{xmax, ymin},
+		var pts []draw.Point
+		var poly []draw.Point
+		switch b.Horizontal {
+		case false:
+			pts = []draw.Point{
+				{catMin, valMin},
+				{catMin, valMax},
+				{catMax, valMax},
+				{catMax, valMin},
+			}
+			poly = c.ClipPolygonY(pts)
+		case true:
+			pts = []draw.Point{
+				{valMin, catMin},
+				{valMin, catMax},
+				{valMax, catMax},
+				{valMax, catMin},
+			}
+			poly = c.ClipPolygonX(pts)
 		}
-		poly := c.ClipPolygonY(pts)
 		c.FillPolygon(b.Color, poly)
 
-		pts = append(pts, draw.Point{xmin, ymin})
-		outline := c.ClipLinesY(pts)
+		var outline [][]draw.Point
+		switch b.Horizontal {
+		case false:
+			pts = append(pts, draw.Point{X: catMin, Y: valMin})
+			outline = c.ClipLinesY(pts)
+		case true:
+			pts = append(pts, draw.Point{X: valMin, Y: catMin})
+			outline = c.ClipLinesX(pts)
+		}
 		c.StrokeLines(b.LineStyle, outline...)
 	}
 }
 
 // DataRange implements the plot.DataRanger interface.
 func (b *BarChart) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin = b.XMin
-	xmax = xmin + float64(len(b.Values)-1)
+	catMin := b.XMin
+	catMax := catMin + float64(len(b.Values)-1)
 
-	ymin = math.Inf(1)
-	ymax = math.Inf(-1)
-	for i, y := range b.Values {
-		ybot := b.stackedOn.BarHeight(i)
-		ytop := ybot + y
-		ymin = math.Min(ymin, math.Min(ybot, ytop))
-		ymax = math.Max(ymax, math.Max(ybot, ytop))
+	valMin := math.Inf(1)
+	valMax := math.Inf(-1)
+	for i, val := range b.Values {
+		valBot := b.stackedOn.BarHeight(i)
+		valTop := valBot + val
+		valMin = math.Min(valMin, math.Min(valBot, valTop))
+		valMax = math.Max(valMax, math.Max(valBot, valTop))
 	}
-	return
+	if !b.Horizontal {
+		return catMin, catMax, valMin, valMax
+	}
+	return valMin, valMax, catMin, catMax
 }
 
 // GlyphBoxes implements the GlyphBoxer interface.
 func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	boxes := make([]plot.GlyphBox, len(b.Values))
 	for i := range b.Values {
-		x := b.XMin + float64(i)
-		boxes[i].X = plt.X.Norm(x)
-		boxes[i].Rectangle = draw.Rectangle{
-			Min: draw.Point{X: b.Offset - b.Width/2},
-			Max: draw.Point{X: b.Offset + b.Width/2},
+		cat := b.XMin + float64(i)
+		switch b.Horizontal {
+		case false:
+			boxes[i].X = plt.X.Norm(cat)
+			boxes[i].Rectangle = draw.Rectangle{
+				Min: draw.Point{X: b.Offset - b.Width/2},
+				Max: draw.Point{X: b.Offset + b.Width/2},
+			}
+		case true:
+			boxes[i].Y = plt.Y.Norm(cat)
+			boxes[i].Rectangle = draw.Rectangle{
+				Min: draw.Point{Y: b.Offset - b.Width/2},
+				Max: draw.Point{Y: b.Offset + b.Width/2},
+			}
 		}
 	}
 	return boxes
 }
 
+// Thumbnail fulfills the plot.Thumbnailer interface.
 func (b *BarChart) Thumbnail(c *draw.Canvas) {
 	pts := []draw.Point{
 		{c.Min.X, c.Min.Y},
@@ -158,7 +212,7 @@ func (b *BarChart) Thumbnail(c *draw.Canvas) {
 	poly := c.ClipPolygonY(pts)
 	c.FillPolygon(b.Color, poly)
 
-	pts = append(pts, draw.Point{c.Min.X, c.Min.Y})
+	pts = append(pts, draw.Point{X: c.Min.X, Y: c.Min.Y})
 	outline := c.ClipLinesY(pts)
 	c.StrokeLines(b.LineStyle, outline...)
 }
