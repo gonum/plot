@@ -48,6 +48,10 @@ type QuartPlot struct {
 	// WhiskerStyle is the line style used to draw the
 	// whiskers.
 	WhiskerStyle draw.LineStyle
+
+	// Horizontal dictates whether the QuartPlot should be in the vertical
+	// (default) or horizontal direction.
+	Horizontal bool
 }
 
 // NewQuartPlot returns a new QuartPlot that represents
@@ -75,7 +79,14 @@ func NewQuartPlot(loc float64, values Valuer) (*QuartPlot, error) {
 	return b, err
 }
 
+// Plot draws the QuartPlot on Canvas c and Plot plt.
 func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+	if b.Horizontal {
+		b := &horizQuartPlot{b}
+		b.Plot(c, plt)
+		return
+	}
+
 	trX, trY := plt.Transforms(&c)
 	x := trX(b.Location)
 	if !c.ContainsX(x) {
@@ -83,7 +94,7 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	x += b.Offset
 
-	med := draw.Point{x, trY(b.Median)}
+	med := draw.Point{X: x, Y: trY(b.Median)}
 	q1 := trY(b.Quartile1)
 	q3 := trY(b.Quartile3)
 	aLow := trY(b.AdjLow)
@@ -100,7 +111,7 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
 		if c.ContainsY(y) {
-			c.DrawGlyphNoClip(ostyle, draw.Point{x, y})
+			c.DrawGlyphNoClip(ostyle, draw.Point{X: x, Y: y})
 		}
 	}
 }
@@ -109,12 +120,21 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 // and y values, implementing the plot.DataRanger
 // interface.
 func (b *QuartPlot) DataRange() (float64, float64, float64, float64) {
+	if b.Horizontal {
+		b := &horizQuartPlot{b}
+		return b.DataRange()
+	}
 	return b.Location, b.Location, b.Min, b.Max
 }
 
 // GlyphBoxes returns a slice of GlyphBoxes for the plot,
 // implementing the plot.GlyphBoxer interface.
 func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+	if b.Horizontal {
+		b := &horizQuartPlot{b}
+		return b.GlyphBoxes(plt)
+	}
+
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 
 	ostyle := b.MedianStyle
@@ -137,6 +157,10 @@ func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // labels are assumed to correspond to the
 // points used to create the plot.
 func (b *QuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
+	if b.Horizontal {
+		b := &horizQuartPlot{b}
+		return b.OutsideLabels(labels)
+	}
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
 		strs[i] = labels.Label(out)
@@ -168,19 +192,11 @@ func (o quartPlotOutsideLabels) Label(i int) string {
 	return o.labels[i]
 }
 
-// HorizQuartPlot is like a regular QuartPlot, however,
+// horizQuartPlot is like a regular QuartPlot, however,
 // it draws horizontally instead of Vertically.
-type HorizQuartPlot struct{ *QuartPlot }
+type horizQuartPlot struct{ *QuartPlot }
 
-// MakeHorizQuartPlot returns a HorizQuartPlot,
-// plotting the values in a horizontal plot
-// centered along a fixed location of the y axis.
-func MakeHorizQuartPlot(loc float64, vs Valuer) (HorizQuartPlot, error) {
-	q, err := NewQuartPlot(loc, vs)
-	return HorizQuartPlot{q}, err
-}
-
-func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
 	y := trY(b.Location)
 	if !c.ContainsY(y) {
@@ -188,7 +204,7 @@ func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	y += b.Offset
 
-	med := draw.Point{trX(b.Median), y}
+	med := draw.Point{X: trX(b.Median), Y: y}
 	q1 := trX(b.Quartile1)
 	q3 := trX(b.Quartile3)
 	aLow := trX(b.AdjLow)
@@ -205,7 +221,7 @@ func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
 		if c.ContainsX(x) {
-			c.DrawGlyphNoClip(ostyle, draw.Point{x, y})
+			c.DrawGlyphNoClip(ostyle, draw.Point{X: x, Y: y})
 		}
 	}
 }
@@ -213,13 +229,13 @@ func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 // DataRange returns the minimum and maximum x
 // and y values, implementing the plot.DataRanger
 // interface.
-func (b HorizQuartPlot) DataRange() (float64, float64, float64, float64) {
+func (b horizQuartPlot) DataRange() (float64, float64, float64, float64) {
 	return b.Min, b.Max, b.Location, b.Location
 }
 
 // GlyphBoxes returns a slice of GlyphBoxes for the plot,
 // implementing the plot.GlyphBoxer interface.
-func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b horizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 
 	ostyle := b.MedianStyle
@@ -241,7 +257,7 @@ func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // a label for each of the outside points.  The
 // labels are assumed to correspond to the
 // points used to create the plot.
-func (b *HorizQuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
+func (b *horizQuartPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	strs := make([]string, len(b.Outside))
 	for i, out := range b.Outside {
 		strs[i] = labels.Label(out)

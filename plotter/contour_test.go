@@ -73,7 +73,6 @@ func TestComplexContours(t *testing.T) {
 		return
 	}
 	for _, n := range []float64{0, 1, 2, 4, 8, 16, 32} {
-		rand.Seed(0)
 		data := make([]float64, 6400)
 		for i := range data {
 			r := float64(i/80) - 40

@@ -18,7 +18,7 @@ import (
 )
 
 func main() {
-	rand.Seed(int64(0))
+	rand.Seed(0) // The default random seed is 1.
 
 	p, err := plot.New()
 	if err != nil {

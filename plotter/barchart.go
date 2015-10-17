@@ -97,23 +97,19 @@ func (b *BarChart) StackOn(on *BarChart) {
 
 // Plot implements the plot.Plotter interface.
 func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
-	var trCat, trVal func(float64) vg.Length
-	switch b.Horizontal {
-	case false:
-		trCat, trVal = plt.Transforms(&c)
-	case true:
-		trVal, trCat = plt.Transforms(&c)
+	trCat, trVal := plt.Transforms(&c)
+	if b.Horizontal {
+		trCat, trVal = trVal, trCat
 	}
 
 	for i, ht := range b.Values {
 		catVal := b.XMin + float64(i)
 		catMin := trCat(float64(catVal))
-		switch b.Horizontal {
-		case false:
+		if !b.Horizontal {
 			if !c.ContainsX(catMin) {
 				continue
 			}
-		case true:
+		} else {
 			if !c.ContainsY(catMin) {
 				continue
 			}
@@ -126,8 +122,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 
 		var pts []draw.Point
 		var poly []draw.Point
-		switch b.Horizontal {
-		case false:
+		if !b.Horizontal {
 			pts = []draw.Point{
 				{catMin, valMin},
 				{catMin, valMax},
@@ -135,7 +130,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 				{catMax, valMin},
 			}
 			poly = c.ClipPolygonY(pts)
-		case true:
+		} else {
 			pts = []draw.Point{
 				{valMin, catMin},
 				{valMin, catMax},
@@ -147,11 +142,10 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		c.FillPolygon(b.Color, poly)
 
 		var outline [][]draw.Point
-		switch b.Horizontal {
-		case false:
+		if !b.Horizontal {
 			pts = append(pts, draw.Point{X: catMin, Y: valMin})
 			outline = c.ClipLinesY(pts)
-		case true:
+		} else {
 			pts = append(pts, draw.Point{X: valMin, Y: catMin})
 			outline = c.ClipLinesX(pts)
 		}
@@ -183,14 +177,13 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	boxes := make([]plot.GlyphBox, len(b.Values))
 	for i := range b.Values {
 		cat := b.XMin + float64(i)
-		switch b.Horizontal {
-		case false:
+		if !b.Horizontal {
 			boxes[i].X = plt.X.Norm(cat)
 			boxes[i].Rectangle = draw.Rectangle{
 				Min: draw.Point{X: b.Offset - b.Width/2},
 				Max: draw.Point{X: b.Offset + b.Width/2},
 			}
-		case true:
+		} else {
 			boxes[i].Y = plt.Y.Norm(cat)
 			boxes[i].Rectangle = draw.Rectangle{
 				Min: draw.Point{Y: b.Offset - b.Width/2},

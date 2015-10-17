@@ -26,7 +26,7 @@ func init() {
 
 func TestPersistency(t *testing.T) {
 	// Get some random points
-	rand.Seed(0)
+	rand.Seed(0) // The default random seed is 1.
 	n := 15
 	scatterData := randomPoints(n)
 	lineData := randomPoints(n)
