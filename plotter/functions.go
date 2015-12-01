@@ -5,6 +5,8 @@
 package plotter
 
 import (
+	"math"
+
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg/draw"
 )
@@ -39,7 +41,20 @@ func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
 		line[i].X = trX(x)
 		line[i].Y = trY(f.F(x))
 	}
-	c.StrokeLines(f.LineStyle, c.ClipLinesXY(line)...)
+
+	// For every continuous block of non-NaN Y values, stroke lines
+	for i := 0; i < len(line); i++ {
+		if !math.IsNaN(float64(line[i].Y)) {
+			j := i + 1
+			for ; j < len(line); j++ {
+				if math.IsNaN(float64(line[j].Y)) {
+					break
+				}
+			}
+			c.StrokeLines(f.LineStyle, c.ClipLinesXY(line[i:j])...)
+			i = j
+		}
+	}
 }
 
 // Thumbnail draws a line in the given style down the
