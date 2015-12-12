@@ -40,8 +40,8 @@ func NewLine(xys XYer) (*Line, error) {
 
 // Plot draws the Line, implementing the plot.Plotter
 // interface.
-func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot, x, y *plot.Axis) {
+	trX, trY := plt.Transforms(&c, x, y)
 	ps := make([]draw.Point, len(pts.XYs))
 
 	for i, p := range pts.XYs {
@@ -51,7 +51,7 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 
 	if pts.ShadeColor != nil && len(ps) > 0 {
 		c.SetColor(*pts.ShadeColor)
-		minY := trY(plt.Y.Min)
+		minY := trY(y.Min)
 		var pa vg.Path
 		pa.Move(ps[0].X, minY)
 		for i := range pts.XYs {

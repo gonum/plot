@@ -26,8 +26,8 @@ func NewGlyphBoxes() *GlyphBoxes {
 	return g
 }
 
-func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
-	for _, b := range plt.GlyphBoxes(plt) {
+func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	for _, b := range plt.GlyphBoxes(plt, xAxis, yAxis) {
 		x := c.X(b.X) + b.Rectangle.Min.X
 		y := c.Y(b.Y) + b.Rectangle.Min.Y
 		c.StrokeLines(g.LineStyle, []draw.Point{

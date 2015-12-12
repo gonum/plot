@@ -72,8 +72,8 @@ func (u unitYs) XY(i int) (float64, float64) {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
-	trX, trY := p.Transforms(&c)
+func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := p.Transforms(&c, xAxis, yAxis)
 
 	for _, bin := range h.Bins {
 		pts := []draw.Point{

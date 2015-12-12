@@ -75,8 +75,8 @@ func NewQuartPlot(loc float64, values Valuer) (*QuartPlot, error) {
 	return b, err
 }
 
-func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 	x := trX(b.Location)
 	if !c.ContainsX(x) {
 		return
@@ -114,19 +114,19 @@ func (b *QuartPlot) DataRange() (float64, float64, float64, float64) {
 
 // GlyphBoxes returns a slice of GlyphBoxes for the plot,
 // implementing the plot.GlyphBoxer interface.
-func (b *QuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b *QuartPlot) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for i, out := range b.Outside {
-		bs[i].X = plt.X.Norm(b.Location)
-		bs[i].Y = plt.Y.Norm(b.Value(out))
+		bs[i].X = x.Norm(b.Location)
+		bs[i].Y = y.Norm(b.Value(out))
 		bs[i].Rectangle = ostyle.Rectangle()
 		bs[i].Rectangle.Min.X += b.Offset
 	}
-	bs[len(bs)-1].X = plt.X.Norm(b.Location)
-	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
+	bs[len(bs)-1].X = x.Norm(b.Location)
+	bs[len(bs)-1].Y = y.Norm(b.Median)
 	bs[len(bs)-1].Rectangle = b.MedianStyle.Rectangle()
 	bs[len(bs)-1].Rectangle.Min.X += b.Offset
 	return bs
@@ -180,8 +180,8 @@ func MakeHorizQuartPlot(loc float64, vs Valuer) (HorizQuartPlot, error) {
 	return HorizQuartPlot{q}, err
 }
 
-func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (b HorizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 	y := trY(b.Location)
 	if !c.ContainsY(y) {
 		return
@@ -219,19 +219,19 @@ func (b HorizQuartPlot) DataRange() (float64, float64, float64, float64) {
 
 // GlyphBoxes returns a slice of GlyphBoxes for the plot,
 // implementing the plot.GlyphBoxer interface.
-func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b HorizQuartPlot) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 
 	ostyle := b.MedianStyle
 	ostyle.Radius = b.MedianStyle.Radius / 2
 	for i, out := range b.Outside {
-		bs[i].X = plt.X.Norm(b.Value(out))
-		bs[i].Y = plt.Y.Norm(b.Location)
+		bs[i].X = x.Norm(b.Value(out))
+		bs[i].Y = y.Norm(b.Location)
 		bs[i].Rectangle = ostyle.Rectangle()
 		bs[i].Rectangle.Min.Y += b.Offset
 	}
-	bs[len(bs)-1].X = plt.X.Norm(b.Median)
-	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
+	bs[len(bs)-1].X = x.Norm(b.Median)
+	bs[len(bs)-1].Y = y.Norm(b.Location)
 	bs[len(bs)-1].Rectangle = b.MedianStyle.Rectangle()
 	bs[len(bs)-1].Rectangle.Min.Y += b.Offset
 	return bs

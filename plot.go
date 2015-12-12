@@ -32,6 +32,11 @@ var (
 	DefaultFont = "Times-Roman"
 )
 
+type plotterAxis struct {
+	Plotter
+	yAxis int
+}
+
 // Plot is the basic type representing a plot.
 type Plot struct {
 	Title struct {
@@ -53,15 +58,16 @@ type Plot struct {
 	BackgroundColor color.Color
 
 	// X and Y are the horizontal and vertical axes
-	// of the plot respectively.
-	X, Y Axis
+	// of the plot respectively. Multiple Y axes are supported.
+	X  *Axis
+	Ys []*Axis
 
 	// Legend is the plot's legend.
 	Legend Legend
 
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
-	plotters []Plotter
+	plotters []plotterAxis
 }
 
 // Plotter is an interface that wraps the Plot method.
@@ -71,7 +77,7 @@ type Plot struct {
 // http://godoc.org/github.com/gonum/plot/plotter
 type Plotter interface {
 	// Plot draws the data to a draw.Canvas.
-	Plot(draw.Canvas, *Plot)
+	Plot(canvas draw.Canvas, plt *Plot, x, y *Axis)
 }
 
 // DataRanger wraps the DataRange method.
@@ -91,18 +97,19 @@ func New() (*Plot, error) {
 	if err != nil {
 		return nil, err
 	}
-	y, err := makeAxis()
+	yaxis, err := makeAxis()
 	if err != nil {
 		return nil, err
 	}
+	y := []*Axis{&yaxis}
 	legend, err := makeLegend()
 	if err != nil {
 		return nil, err
 	}
 	p := &Plot{
 		BackgroundColor: color.White,
-		X:               x,
-		Y:               y,
+		X:               &x,
+		Ys:              y,
 		Legend:          legend,
 	}
 	p.Title.TextStyle = draw.TextStyle{
@@ -110,6 +117,21 @@ func New() (*Plot, error) {
 		Font:  titleFont,
 	}
 	return p, nil
+}
+
+// Adds a new Y axis to the plot.
+//
+// Returns the index of the axis added.
+//
+// To use the added axis, plotters must be added to the plot using
+// plot.AddWithAxis(axisIndex, myPlotter).
+func (p *Plot) AddYAxis() (int, error) {
+	y, err := makeAxis()
+	if err != nil {
+		return -1, err
+	}
+	p.Ys = append(p.Ys, &y)
+	return len(p.Ys) - 1, nil
 }
 
 // Add adds a Plotters to the plot.
@@ -123,16 +145,20 @@ func New() (*Plot, error) {
 // order in which they were added to the plot.
 func (p *Plot) Add(ps ...Plotter) {
 	for _, d := range ps {
-		if x, ok := d.(DataRanger); ok {
-			xmin, xmax, ymin, ymax := x.DataRange()
-			p.X.Min = math.Min(p.X.Min, xmin)
-			p.X.Max = math.Max(p.X.Max, xmax)
-			p.Y.Min = math.Min(p.Y.Min, ymin)
-			p.Y.Max = math.Max(p.Y.Max, ymax)
-		}
+		p.AddWithAxis(0, d) // Use y-axis 0 by default.
 	}
+}
 
-	p.plotters = append(p.plotters, ps...)
+// Add a Plotter to the plot using the given y axis.
+func (p *Plot) AddWithAxis(yAxis int, d Plotter) {
+	if x, ok := d.(DataRanger); ok {
+		xmin, xmax, ymin, ymax := x.DataRange()
+		p.X.Min = math.Min(p.X.Min, xmin)
+		p.X.Max = math.Max(p.X.Max, xmax)
+		p.Ys[yAxis].Min = math.Min(p.Ys[yAxis].Min, ymin)
+		p.Ys[yAxis].Max = math.Max(p.Ys[yAxis].Max, ymax)
+	}
+	p.plotters = append(p.plotters, plotterAxis{Plotter: d, yAxis: yAxis})
 }
 
 // Draw draws a plot to a draw.Canvas.
@@ -154,18 +180,23 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 
 	p.X.sanitizeRange()
-	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
-	y := verticalAxis{p.Y}
-
-	ywidth := y.size()
-	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
+	x := horizontalAxis{*p.X}
 	xheight := x.size()
-	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
+
+	ywidth := vg.Length(0)
+	for _, pY := range p.Ys {
+		pY.sanitizeRange()
+		y := verticalAxis{*pY}
+
+		y.draw(padY(p, draw.Crop(c, ywidth, 0, xheight, 0)))
+		ywidth += y.size()
+	}
+
+	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
 
 	dataC := padY(p, padX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
 	for _, data := range p.plotters {
-		data.Plot(dataC, p)
+		data.Plotter.Plot(dataC, p, p.X, p.Ys[data.yAxis])
 	}
 
 	p.Legend.draw(draw.Crop(draw.Crop(c, ywidth, 0, 0, 0), 0, 0, xheight, 0))
@@ -180,17 +211,22 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()
-	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
-	y := verticalAxis{p.Y}
-	return padY(p, padX(p, draw.Crop(da, y.size(), x.size(), 0, 0)))
+	x := horizontalAxis{*p.X}
+
+	ywidth := vg.Length(0)
+	for _, pY := range p.Ys {
+		pY.sanitizeRange()
+		y := verticalAxis{*pY}
+		ywidth += y.size()
+	}
+	return padY(p, padX(p, draw.Crop(da, ywidth, x.size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
 // GlyphBoxes.  This is intended for debugging.
 func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
 	c.SetColor(color.RGBA{R: 255, A: 255})
-	for _, b := range p.GlyphBoxes(p) {
+	for _, b := range p.GlyphBoxes(p, nil, nil) {
 		b.Rectangle.Min.X += c.X(b.X)
 		b.Rectangle.Min.Y += c.Y(b.Y)
 		c.Stroke(b.Rectangle.Path())
@@ -200,10 +236,10 @@ func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
 // padX returns a draw.Canvas that is padded horizontally
 // so that glyphs will no be clipped.
 func padX(p *Plot, c draw.Canvas) draw.Canvas {
-	glyphs := p.GlyphBoxes(p)
+	glyphs := p.GlyphBoxes(p, nil, nil)
 	l := leftMost(&c, glyphs)
-	xAxis := horizontalAxis{p.X}
-	glyphs = append(glyphs, xAxis.GlyphBoxes(p)...)
+	xAxis := horizontalAxis{*p.X}
+	glyphs = append(glyphs, xAxis.GlyphBoxes(p, nil, nil)...)
 	r := rightMost(&c, glyphs)
 
 	minx := c.Min.X - l.Min.X
@@ -256,10 +292,12 @@ func leftMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
 // padY returns a draw.Canvas that is padded vertically
 // so that glyphs will no be clipped.
 func padY(p *Plot, c draw.Canvas) draw.Canvas {
-	glyphs := p.GlyphBoxes(p)
+	glyphs := p.GlyphBoxes(p, nil, nil)
 	b := bottomMost(&c, glyphs)
-	yAxis := verticalAxis{p.Y}
-	glyphs = append(glyphs, yAxis.GlyphBoxes(p)...)
+	for _, pY := range p.Ys {
+		yAxis := verticalAxis{*pY}
+		glyphs = append(glyphs, yAxis.GlyphBoxes(p, nil, nil)...)
+	}
 	t := topMost(&c, glyphs)
 
 	miny := c.Min.Y - b.Min.Y
@@ -313,9 +351,9 @@ func bottomMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
 // from the x and y data coordinate system to
 // the draw coordinate system of the given
 // draw area.
-func (p *Plot) Transforms(c *draw.Canvas) (x, y func(float64) vg.Length) {
-	x = func(x float64) vg.Length { return c.X(p.X.Norm(x)) }
-	y = func(y float64) vg.Length { return c.Y(p.Y.Norm(y)) }
+func (p *Plot) Transforms(c *draw.Canvas, xAxis, yAxis *Axis) (x, y func(float64) vg.Length) {
+	x = func(x float64) vg.Length { return c.X(xAxis.Norm(x)) }
+	y = func(y float64) vg.Length { return c.Y(yAxis.Norm(y)) }
 	return
 }
 
@@ -342,7 +380,7 @@ func (p *Plot) Transforms(c *draw.Canvas) (x, y func(float64) vg.Length) {
 // may be clipped in the Y direction (and do not
 // need padding).
 type GlyphBoxer interface {
-	GlyphBoxes(*Plot) []GlyphBox
+	GlyphBoxes(plt *Plot, x, y *Axis) []GlyphBox
 }
 
 // A GlyphBox describes the location of a glyph
@@ -363,13 +401,13 @@ type GlyphBox struct {
 
 // GlyphBoxes returns the GlyphBoxes for all plot
 // data that meet the GlyphBoxer interface.
-func (p *Plot) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (p *Plot) GlyphBoxes(*Plot, *Axis, *Axis) (boxes []GlyphBox) {
 	for _, d := range p.plotters {
-		gb, ok := d.(GlyphBoxer)
+		gb, ok := d.Plotter.(GlyphBoxer)
 		if !ok {
 			continue
 		}
-		for _, b := range gb.GlyphBoxes(p) {
+		for _, b := range gb.GlyphBoxes(p, p.X, p.Ys[d.yAxis]) {
 			if b.Size().X > 0 && (b.X < 0 || b.X > 1) {
 				continue
 			}
@@ -393,7 +431,7 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
 	p.X.Width = 0
-	p.Y.Padding = p.X.Tick.Label.Width(names[0]) / 2
+	p.Ys[len(p.Ys)-1].Padding = p.X.Tick.Label.Width(names[0]) / 2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
 		ticks[i] = Tick{float64(i), name}
@@ -408,11 +446,13 @@ func (p *Plot) HideX() {
 	p.X.Tick.Marker = ConstantTicks([]Tick{})
 }
 
-// HideY configures the Y axis so that it will not be drawn.
+// HideY configures the Y axes so that they will not be drawn.
 func (p *Plot) HideY() {
-	p.Y.Tick.Length = 0
-	p.Y.Width = 0
-	p.Y.Tick.Marker = ConstantTicks([]Tick{})
+	for _, pY := range p.Ys {
+		pY.Tick.Length = 0
+		pY.Width = 0
+		pY.Tick.Marker = ConstantTicks([]Tick{})
+	}
 }
 
 // HideAxes hides the X and Y axes.
@@ -421,17 +461,23 @@ func (p *Plot) HideAxes() {
 	p.HideY()
 }
 
-// NominalY is like NominalX, but for the Y axis.
-func (p *Plot) NominalY(names ...string) {
-	p.Y.Tick.Width = 0
-	p.Y.Tick.Length = 0
-	p.Y.Width = 0
-	p.X.Padding = p.Y.Tick.Label.Height(names[0]) / 2
+// NominalY is like NominalX, but for a Y axis.
+func (p *Plot) NominalY(yn int, names ...string) {
+	p.Ys[yn].Tick.Width = 0
+	p.Ys[yn].Tick.Length = 0
+	p.Ys[yn].Width = 0
+	// TODO: take the max of the first label height of all Y axes
+	pad := p.Ys[yn].Tick.Label.Height(names[0]) / 2
+
+	if pad > p.X.Padding {
+		p.X.Padding = pad
+	}
+
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
 		ticks[i] = Tick{float64(i), name}
 	}
-	p.Y.Tick.Marker = ConstantTicks(ticks)
+	p.Ys[yn].Tick.Marker = ConstantTicks(ticks)
 }
 
 // WriterTo returns an io.WriterTo that will write the plot as

@@ -35,8 +35,8 @@ func NewScatter(xys XYer) (*Scatter, error) {
 
 // Plot draws the Scatter, implementing the plot.Plotter
 // interface.
-func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 	for _, p := range pts.XYs {
 		c.DrawGlyph(pts.GlyphStyle, draw.Point{trX(p.X), trY(p.Y)})
 	}
@@ -51,11 +51,11 @@ func (pts *Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes returns a slice of plot.GlyphBoxes,
 // implementing the plot.GlyphBoxer interface.
-func (pts *Scatter) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (pts *Scatter) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(pts.XYs))
 	for i, p := range pts.XYs {
-		bs[i].X = plt.X.Norm(p.X)
-		bs[i].Y = plt.Y.Norm(p.Y)
+		bs[i].X = x.Norm(p.X)
+		bs[i].Y = y.Norm(p.Y)
 		bs[i].Rectangle = pts.GlyphStyle.Rectangle()
 	}
 	return bs
