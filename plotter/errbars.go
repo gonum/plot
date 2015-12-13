@@ -63,8 +63,8 @@ func NewYErrorBars(yerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
-	trX, trY := p.Transforms(&c)
+func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := p.Transforms(&c, xAxis, yAxis)
 	for i, err := range e.YErrors {
 		x := trX(e.XYs[i].X)
 		ylow := trY(e.XYs[i].Y - math.Abs(err.Low))
@@ -101,7 +101,7 @@ func (e *YErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 }
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
-func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (e *YErrorBars) GlyphBoxes(plt *plot.Plot, xAxis, yAxis *plot.Axis) []plot.GlyphBox {
 	rect := draw.Rectangle{
 		Min: draw.Point{
 			X: -e.CapWidth / 2,
@@ -114,11 +114,11 @@ func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	var bs []plot.GlyphBox
 	for i, err := range e.YErrors {
-		x := plt.X.Norm(e.XYs[i].X)
+		x := xAxis.Norm(e.XYs[i].X)
 		y := e.XYs[i].Y
 		bs = append(bs,
-			plot.GlyphBox{X: x, Y: plt.Y.Norm(y - err.Low), Rectangle: rect},
-			plot.GlyphBox{X: x, Y: plt.Y.Norm(y + err.High), Rectangle: rect})
+			plot.GlyphBox{X: x, Y: yAxis.Norm(y - err.Low), Rectangle: rect},
+			plot.GlyphBox{X: x, Y: yAxis.Norm(y + err.High), Rectangle: rect})
 	}
 	return bs
 }
@@ -171,8 +171,8 @@ func NewXErrorBars(xerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
-	trX, trY := p.Transforms(&c)
+func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := p.Transforms(&c, xAxis, yAxis)
 	for i, err := range e.XErrors {
 		y := trY(e.XYs[i].Y)
 		xlow := trX(e.XYs[i].X - math.Abs(err.Low))
@@ -209,7 +209,7 @@ func (e *XErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 }
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
-func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (e *XErrorBars) GlyphBoxes(plt *plot.Plot, xAxis, yAxis *plot.Axis) []plot.GlyphBox {
 	rect := draw.Rectangle{
 		Min: draw.Point{
 			X: -e.LineStyle.Width / 2,
@@ -223,10 +223,10 @@ func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	var bs []plot.GlyphBox
 	for i, err := range e.XErrors {
 		x := e.XYs[i].X
-		y := plt.Y.Norm(e.XYs[i].Y)
+		y := yAxis.Norm(e.XYs[i].Y)
 		bs = append(bs,
-			plot.GlyphBox{X: plt.X.Norm(x - err.Low), Y: y, Rectangle: rect},
-			plot.GlyphBox{X: plt.X.Norm(x + err.High), Y: y, Rectangle: rect})
+			plot.GlyphBox{X: xAxis.Norm(x - err.Low), Y: y, Rectangle: rect},
+			plot.GlyphBox{X: xAxis.Norm(x + err.High), Y: y, Rectangle: rect})
 	}
 	return bs
 }

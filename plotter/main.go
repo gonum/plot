@@ -47,6 +47,7 @@ var examples = []struct {
 	{"example_barChart", Example_barChart()},
 	{"example_stackedBarChart", Example_stackedBarChart()},
 	{"example_heatMap", Example_heatMap()},
+	{"example_multiYAxis", Example_multiYAxis()},
 }
 
 var formats = []string{
@@ -111,7 +112,7 @@ func Example_logo() *plot.Plot {
 	plotter.DefaultLineStyle.Width = vg.Points(1)
 	plotter.DefaultGlyphStyle.Radius = vg.Points(3)
 
-	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
+	p.Ys[0].Tick.Marker = plot.ConstantTicks([]plot.Tick{
 		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
 	})
 	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
@@ -144,7 +145,7 @@ func Example_functions() *plot.Plot {
 	}
 	p.Title.Text = "Functions"
 	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	p.Ys[0].Label.Text = "Y"
 
 	quad := plotter.NewFunction(func(x float64) float64 { return x * x })
 	quad.Color = color.RGBA{B: 255, A: 255}
@@ -167,8 +168,8 @@ func Example_functions() *plot.Plot {
 
 	p.X.Min = 0
 	p.X.Max = 10
-	p.Y.Min = 0
-	p.Y.Max = 100
+	p.Ys[0].Min = 0
+	p.Ys[0].Max = 100
 	return p
 }
 
@@ -190,7 +191,7 @@ func Example_boxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
 	p.Add(must(plotter.NewBoxPlot(vg.Points(20), 0, uniform)).(*plotter.BoxPlot),
@@ -222,7 +223,7 @@ func Example_groupedBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	w := vg.Points(20)
 	for x := 0.0; x < 3.0; x++ {
@@ -258,7 +259,7 @@ func Example_groupedHorizontalBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	w := vg.Points(20)
 	for y := 0.0; y < 3.0; y++ {
@@ -269,7 +270,7 @@ func Example_groupedHorizontalBoxPlots() *plot.Plot {
 		b2.Offset = w + vg.Points(3)
 		p.Add(b0, b1, b2)
 	}
-	p.NominalY("Group 0", "Group 1", "Group 2")
+	p.NominalY(0, "Group 0", "Group 1", "Group 2")
 	return p
 }
 
@@ -291,7 +292,7 @@ func Example_quartPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Quartile Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	p.Add(must(plotter.NewQuartPlot(0, uniform)).(*plotter.QuartPlot),
 		must(plotter.NewQuartPlot(1, normal)).(*plotter.QuartPlot),
@@ -321,7 +322,7 @@ func Example_groupedQuartPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	w := vg.Points(10)
 	for x := 0.0; x < 3.0; x++ {
@@ -355,7 +356,7 @@ func Example_groupedHorizontalQuartPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	w := vg.Points(10)
 	for x := 0.0; x < 3.0; x++ {
@@ -368,7 +369,7 @@ func Example_groupedHorizontalQuartPlots() *plot.Plot {
 	}
 	p.Add(plotter.NewGlyphBoxes())
 
-	p.NominalY("Group 0", "Group 1", "Group 2")
+	p.NominalY(0, "Group 0", "Group 1", "Group 2")
 	return p
 }
 
@@ -394,7 +395,7 @@ func Example_verticalBoxPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Box Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	// Make boxes for our data and add them to the plot.
 	uniBox := must(plotter.NewBoxPlot(vg.Points(20), 0, uniform)).(*plotter.BoxPlot)
@@ -446,7 +447,7 @@ func Example_verticalQuartPlots() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Quart Plot"
-	p.Y.Label.Text = "plotter.Values"
+	p.Ys[0].Label.Text = "plotter.Values"
 
 	uniBox := must(plotter.NewQuartPlot(0, uniform)).(*plotter.QuartPlot)
 	uniLabels, err := uniBox.OutsideLabels(uniform)
@@ -543,7 +544,7 @@ func Example_horizontalBoxPlots() *plot.Plot {
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
-	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
+	p.NominalY(0, "Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
 	return p
 }
@@ -597,7 +598,7 @@ func Example_horizontalQuartPlots() *plot.Plot {
 
 	// Set the Y axis of the plot to nominal with
 	// the given names for y=0, y=1 and y=2.
-	p.NominalY("Uniform\nDistribution", "Normal\nDistribution",
+	p.NominalY(0, "Uniform\nDistribution", "Normal\nDistribution",
 		"Exponential\nDistribution")
 	return p
 }
@@ -618,7 +619,7 @@ func Example_points() *plot.Plot {
 	}
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	p.Ys[0].Label.Text = "Y"
 	p.Add(plotter.NewGrid())
 
 	s := must(plotter.NewScatter(scatterData)).(*plotter.Scatter)
@@ -718,7 +719,7 @@ func Example_bubbles() *plot.Plot {
 	}
 	p.Title.Text = "Bubbles"
 	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	p.Ys[0].Label.Text = "Y"
 
 	bs, err := plotter.NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
 	if err != nil {
@@ -797,7 +798,7 @@ func Example_barChart() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Bar chart"
-	p.Y.Label.Text = "Heights"
+	p.Ys[0].Label.Text = "Heights"
 
 	w := vg.Points(8)
 
@@ -843,7 +844,7 @@ func Example_stackedBarChart() *plot.Plot {
 		panic(err)
 	}
 	p.Title.Text = "Bar chart"
-	p.Y.Label.Text = "Heights"
+	p.Ys[0].Label.Text = "Heights"
 
 	w := vg.Points(15)
 
@@ -911,9 +912,9 @@ func Example_heatMap() *plot.Plot {
 	p.Add(h)
 
 	p.X.Padding = 0
-	p.Y.Padding = 0
+	p.Ys[0].Padding = 0
 	p.X.Max = 3.5
-	p.Y.Max = 2.5
+	p.Ys[0].Max = 2.5
 
 	return p
 }
@@ -922,5 +923,43 @@ func must(p plot.Plotter, err error) plot.Plotter {
 	if err != nil {
 		panic(err)
 	}
+	return p
+}
+
+func Example_multiYAxis() *plot.Plot {
+	bars := plotter.Values{0.20, 0.35, 0.30, 0.35, 0.27}
+	scatterData := make(plotter.XYs, 5)
+	for i := range scatterData {
+		scatterData[i].X = float64(i)
+		scatterData[i].Y = rand.Float64() * 10
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		panic(err)
+	}
+	p.AddYAxis()
+	p.Title.Text = "Multi y axis"
+	p.Ys[0].Label.Text = "Heights"
+	p.Ys[1].Label.Text = "Scatter"
+
+	w := vg.Points(8)
+
+	b := must(plotter.NewBarChart(bars, w)).(*plotter.BarChart)
+	b.Color = color.RGBA{100, 200, 100, 255}
+
+	log.Printf("%#v", scatterData)
+	s := must(plotter.NewScatter(scatterData)).(*plotter.Scatter)
+	s.GlyphStyle.Shape = draw.CircleGlyph{}
+	s.GlyphStyle.Color = color.RGBA{R: 255, G: 0, B: 128, A: 255}
+	s.GlyphStyle.Radius = vg.Points(6)
+
+	p.NominalX("foo", "bar", "baz", "qux", "norf")
+	p.AddWithAxis(0, b)
+	p.AddWithAxis(1, s)
+	p.Legend.Add("A", b)
+	p.Legend.Add("B", s)
+	p.Legend.Top = true
+
 	return p
 }

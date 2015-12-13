@@ -76,8 +76,8 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
-	trX, trY := p.Transforms(&c)
+func (l *Labels) Plot(c draw.Canvas, p *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := p.Transforms(&c, xAxis, yAxis)
 	for i, label := range l.Labels {
 		x := trX(l.XYs[i].X)
 		y := trY(l.XYs[i].Y)
@@ -98,11 +98,11 @@ func (l *Labels) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of GlyphBoxes,
 // one for each of the labels, implementing the
 // plot.GlyphBoxer interface.
-func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
+func (l *Labels) GlyphBoxes(p *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(l.Labels))
 	for i, label := range l.Labels {
-		bs[i].X = p.X.Norm(l.XYs[i].X)
-		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
+		bs[i].X = x.Norm(l.XYs[i].X)
+		bs[i].Y = y.Norm(l.XYs[i].Y)
 		w := l.Width(label)
 		h := l.Height(label)
 		bs[i].Rectangle.Min.X = w*vg.Length(l.XAlign) + l.XOffset

@@ -62,9 +62,9 @@ func TestHeatMapWithContour(t *testing.T) {
 	plt.Add(NewGlyphBoxes())
 
 	plt.X.Padding = 0
-	plt.Y.Padding = 0
+	plt.Ys[0].Padding = 0
 	plt.X.Max = 3.5
-	plt.Y.Max = 2.5
+	plt.Ys[0].Max = 2.5
 	plt.Save(7, 7, "heat.svg")
 }
 
@@ -91,9 +91,9 @@ func TestComplexContours(t *testing.T) {
 		plt.Add(c)
 
 		plt.X.Padding = 0
-		plt.Y.Padding = 0
+		plt.Ys[0].Padding = 0
 		plt.X.Max = 79.5
-		plt.Y.Max = 79.5
+		plt.Ys[0].Max = 79.5
 		plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
 	}
 }

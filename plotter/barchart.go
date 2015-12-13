@@ -88,8 +88,8 @@ func (b *BarChart) StackOn(on *BarChart) {
 }
 
 // Plot implements the plot.Plotter interface.
-func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 
 	for i, ht := range b.Values {
 		x := b.XMin + float64(i)
@@ -135,11 +135,11 @@ func (b *BarChart) DataRange() (xmin, xmax, ymin, ymax float64) {
 }
 
 // GlyphBoxes implements the GlyphBoxer interface.
-func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b *BarChart) GlyphBoxes(plt *plot.Plot, xAxis, yAxis *plot.Axis) []plot.GlyphBox {
 	boxes := make([]plot.GlyphBox, len(b.Values))
 	for i := range b.Values {
 		x := b.XMin + float64(i)
-		boxes[i].X = plt.X.Norm(x)
+		boxes[i].X = xAxis.Norm(x)
 		boxes[i].Rectangle = draw.Rectangle{
 			Min: draw.Point{X: b.Offset - b.Width/2},
 			Max: draw.Point{X: b.Offset + b.Width/2},

@@ -29,8 +29,8 @@ func NewFunction(f func(float64) float64) *Function {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
-	trX, trY := p.Transforms(&c)
+func (f *Function) Plot(c draw.Canvas, p *plot.Plot, x, y *plot.Axis) {
+	trX, trY := p.Transforms(&c, x, y)
 
 	d := (p.X.Max - p.X.Min) / float64(f.Samples-1)
 	line := make([]draw.Point, f.Samples)

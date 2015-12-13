@@ -61,8 +61,8 @@ func NewBubbles(xyz XYZer, min, max vg.Length) (*Bubbles, error) {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 
 	c.SetColor(bs.Color)
 
@@ -102,11 +102,11 @@ func (bs *Bubbles) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the GlyphBoxes method
 // of the plot.GlyphBoxer interface.
-func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (bs *Bubbles) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	boxes := make([]plot.GlyphBox, len(bs.XYZs))
 	for i, d := range bs.XYZs {
-		boxes[i].X = plt.X.Norm(d.X)
-		boxes[i].Y = plt.Y.Norm(d.Y)
+		boxes[i].X = x.Norm(d.X)
+		boxes[i].Y = y.Norm(d.Y)
 		r := bs.radius(d.Z)
 		boxes[i].Rectangle = draw.Rectangle{
 			Min: draw.Point{-r, -r},

@@ -156,8 +156,8 @@ type LogScale struct{}
 var _ Normalizer = LogScale{}
 
 func (LogScale) Normalize(min, max, x float64) float64 {
-	logMin := log(min)
-	return (log(x) - logMin) / (log(max) - logMin)
+	logMin := logf(min)
+	return (logf(x) - logMin) / (logf(max) - logMin)
 }
 
 // Norm returns the value of x, given in the data coordinate
@@ -237,7 +237,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a *horizontalAxis) GlyphBoxes(*Plot, *Axis, *Axis) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -320,7 +320,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a *verticalAxis) GlyphBoxes(*Plot, *Axis, *Axis) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -498,7 +498,7 @@ func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
 	return maxWidth
 }
 
-func log(x float64) float64 {
+func logf(x float64) float64 {
 	if x <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}

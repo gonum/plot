@@ -91,7 +91,7 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
+func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
 	pal := h.Palette.Colors()
 	if len(pal) == 0 {
 		panic("heatmap: empty palette")
@@ -99,7 +99,7 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 	// ps scales the palette uniformly across the data range.
 	ps := float64(len(pal)-1) / (h.Max - h.Min)
 
-	trX, trY := plt.Transforms(&c)
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 
 	var pa vg.Path
 	cols, rows := h.GridXYZ.Dims()
@@ -194,14 +194,14 @@ func (h *HeatMap) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the GlyphBoxes method
 // of the plot.GlyphBoxer interface.
-func (h *HeatMap) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (h *HeatMap) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	c, r := h.GridXYZ.Dims()
 	b := make([]plot.GlyphBox, 0, r*c)
 	for i := 0; i < c; i++ {
 		for j := 0; j < r; j++ {
 			b = append(b, plot.GlyphBox{
-				X: plt.X.Norm(h.GridXYZ.X(i)),
-				Y: plt.Y.Norm(h.GridXYZ.Y(j)),
+				X: x.Norm(h.GridXYZ.X(i)),
+				Y: y.Norm(h.GridXYZ.Y(j)),
 				Rectangle: draw.Rectangle{
 					Min: draw.Point{-5, -5},
 					Max: draw.Point{+5, +5},

@@ -181,8 +181,8 @@ func median(vs Values) float64 {
 	return med
 }
 
-func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 	x := trX(b.Location)
 	if !c.ContainsX(x) {
 		return
@@ -235,15 +235,15 @@ func (b *BoxPlot) DataRange() (float64, float64, float64, float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot,
 // implementing the plot.GlyphBoxer interface
-func (b *BoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b *BoxPlot) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Location)
-		bs[i].Y = plt.Y.Norm(b.Value(out))
+		bs[i].Y = plt.Ys[0].Norm(b.Value(out))
 		bs[i].Rectangle = b.GlyphStyle.Rectangle()
 	}
-	bs[len(bs)-1].X = plt.X.Norm(b.Location)
-	bs[len(bs)-1].Y = plt.Y.Norm(b.Median)
+	bs[len(bs)-1].X = x.Norm(b.Location)
+	bs[len(bs)-1].Y = y.Norm(b.Median)
 	bs[len(bs)-1].Rectangle = draw.Rectangle{
 		Min: draw.Point{X: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
 		Max: draw.Point{X: b.Offset + (b.Width/2 + b.BoxStyle.Width/2)},
@@ -299,8 +299,8 @@ func MakeHorizBoxPlot(w vg.Length, loc float64, vs Valuer) (HorizBoxPlot, error)
 	return HorizBoxPlot{b}, err
 }
 
-func (b HorizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (b HorizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 	y := trY(b.Location)
 	if !c.ContainsY(y) {
 		return
@@ -353,15 +353,15 @@ func (b HorizBoxPlot) DataRange() (float64, float64, float64, float64) {
 // GlyphBoxes returns a slice of GlyphBoxes for the
 // points and for the median line of the boxplot,
 // implementing the plot.GlyphBoxer interface
-func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+func (b HorizBoxPlot) GlyphBoxes(plt *plot.Plot, x, y *plot.Axis) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(b.Outside)+1)
 	for i, out := range b.Outside {
 		bs[i].X = plt.X.Norm(b.Value(out))
-		bs[i].Y = plt.Y.Norm(b.Location)
+		bs[i].Y = plt.Ys[0].Norm(b.Location)
 		bs[i].Rectangle = b.GlyphStyle.Rectangle()
 	}
-	bs[len(bs)-1].X = plt.X.Norm(b.Median)
-	bs[len(bs)-1].Y = plt.Y.Norm(b.Location)
+	bs[len(bs)-1].X = x.Norm(b.Median)
+	bs[len(bs)-1].Y = y.Norm(b.Location)
 	bs[len(bs)-1].Rectangle = draw.Rectangle{
 		Min: draw.Point{Y: b.Offset - (b.Width/2 + b.BoxStyle.Width/2)},
 		Max: draw.Point{Y: b.Offset + (b.Width/2 + b.BoxStyle.Width/2)},

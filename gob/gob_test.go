@@ -39,10 +39,10 @@ func TestPersistency(t *testing.T) {
 
 	p.Title.Text = "Plot Example"
 	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	p.Ys[0].Label.Text = "Y"
 	// Use a custom tick marker function that computes the default
 	// tick marks and re-labels the major ticks with commas.
-	p.Y.Tick.Marker = commaTicks{}
+	p.Ys[0].Tick.Marker = commaTicks{}
 
 	// Draw a grid behind the data
 	p.Add(plotter.NewGrid())

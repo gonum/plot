@@ -40,13 +40,13 @@ func NewGrid() *Grid {
 }
 
 // Plot implements the plot.Plotter interface.
-func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
-	trX, trY := plt.Transforms(&c)
+func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot, xAxis, yAxis *plot.Axis) {
+	trX, trY := plt.Transforms(&c, xAxis, yAxis)
 
 	if g.Vertical.Color == nil {
 		goto horiz
 	}
-	for _, tk := range plt.X.Tick.Marker.Ticks(plt.X.Min, plt.X.Max) {
+	for _, tk := range xAxis.Tick.Marker.Ticks(xAxis.Min, xAxis.Max) {
 		if tk.IsMinor() {
 			continue
 		}
@@ -58,7 +58,7 @@ horiz:
 	if g.Horizontal.Color == nil {
 		return
 	}
-	for _, tk := range plt.Y.Tick.Marker.Ticks(plt.Y.Min, plt.Y.Max) {
+	for _, tk := range yAxis.Tick.Marker.Ticks(yAxis.Min, yAxis.Max) {
 		if tk.IsMinor() {
 			continue
 		}
