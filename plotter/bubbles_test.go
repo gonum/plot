@@ -5,8 +5,12 @@
 package plotter
 
 import (
+	"image/color"
+	"log"
+	"math/rand"
 	"testing"
 
+	"github.com/gonum/plot"
 	"github.com/gonum/plot/vg"
 )
 
@@ -39,4 +43,49 @@ func TestBubblesRadius(t *testing.T) {
 			t.Errorf("Got incorrect radius (%g) on %v", r, test)
 		}
 	}
+}
+
+func ExampleBubbles() {
+	// randomTriples returns some random x, y, z triples
+	// with some interesting kind of trend.
+	randomTriples := func(n int) XYZs {
+		data := make(XYZs, n)
+		for i := range data {
+			if i == 0 {
+				data[i].X = rand.Float64()
+			} else {
+				data[i].X = data[i-1].X + 2*rand.Float64()
+			}
+			data[i].Y = data[i].X + 10*rand.Float64()
+			data[i].Z = data[i].X
+		}
+		return data
+	}
+
+	n := 10
+	bubbleData := randomTriples(n)
+
+	p, err := plot.New()
+	if err != nil {
+		log.Panic(err)
+	}
+	p.Title.Text = "Bubbles"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+
+	bs, err := NewBubbles(bubbleData, vg.Points(1), vg.Points(20))
+	if err != nil {
+		log.Panic(err)
+	}
+	bs.Color = color.RGBA{R: 196, B: 128, A: 255}
+	p.Add(bs)
+
+	err = p.Save(200, 200, "testdata/bubbles.png")
+	if err != nil {
+		log.Panic(err)
+	}
+}
+
+func TestBubbles(t *testing.T) {
+	checkPlot(ExampleBubbles, t, "bubbles.png")
 }

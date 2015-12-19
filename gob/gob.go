@@ -25,7 +25,6 @@ func init() {
 	gob.Register(plotter.BarChart{})
 	gob.Register(plotter.Histogram{})
 	gob.Register(plotter.BoxPlot{})
-	gob.Register(plotter.HorizBoxPlot{})
 	gob.Register(plotter.Bubbles{})
 	gob.Register(plotter.YErrorBars{})
 	gob.Register(plotter.XErrorBars{})
@@ -35,7 +34,6 @@ func init() {
 	gob.Register(plotter.Labels{})
 	gob.Register(plotter.Line{})
 	gob.Register(plotter.QuartPlot{})
-	gob.Register(plotter.HorizQuartPlot{})
 	gob.Register(plotter.Scatter{})
 
 	// plotter.XYZer
