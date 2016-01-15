@@ -97,3 +97,68 @@ func lines(w vg.Length) (*plot.Plot, error) {
 
 	return p, nil
 }
+
+func TestParseLength(t *testing.T) {
+	for _, table := range []struct {
+		str  string
+		want vg.Length
+		err  error
+	}{
+		{
+			str:  "42.2cm",
+			want: 42.2 * vg.Centimeter,
+		},
+		{
+			str:  "42.2mm",
+			want: 42.2 * vg.Millimeter,
+		},
+		{
+			str:  "42.2in",
+			want: 42.2 * vg.Inch,
+		},
+		{
+			str:  "42.2pt",
+			want: 42.2,
+		},
+		{
+			str:  "42.2",
+			want: 42.2,
+		},
+		{
+			str: "999bottles",
+			err: fmt.Errorf(`strconv.ParseFloat: parsing "999bottles": invalid syntax`),
+		},
+		{
+			str:  "42inch",
+			want: 42 * vg.Inch,
+			err:  fmt.Errorf(`strconv.ParseFloat: parsing "42inch": invalid syntax`),
+		},
+	} {
+		v, err := vg.ParseLength(table.str)
+		if table.err != nil {
+			if err == nil {
+				t.Errorf("%s: expected an error (%v)\n",
+					table.str, table.err,
+				)
+			}
+			if table.err.Error() != err.Error() {
+				t.Errorf("%s: got error=%q. want=%q\n",
+					table.str, err.Error(), table.err.Error(),
+				)
+			}
+			continue
+		}
+		if err != nil {
+			t.Errorf("error setting flag.Value %q: %v\n",
+				table.str,
+				err,
+			)
+		}
+		if v != table.want {
+			t.Errorf("%s: incorrect value. got %v, want %v\n",
+				table.str,
+				float64(v), float64(table.want),
+			)
+		}
+	}
+}
