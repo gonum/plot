@@ -122,9 +122,9 @@ func makeAxis() (Axis, error) {
 	return a, nil
 }
 
-// sanitizeRange ensures that the range of the
+// SanitizeRange ensures that the range of the
 // axis makes sense.
-func (a *Axis) sanitizeRange() {
+func (a *Axis) SanitizeRange() {
 	if math.IsInf(a.Min, 0) {
 		a.Min = 0
 	}

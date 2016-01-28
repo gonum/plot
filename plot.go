@@ -153,9 +153,9 @@ func (p *Plot) Draw(c draw.Canvas) {
 		c.Max.Y -= p.Title.Padding
 	}
 
-	p.X.sanitizeRange()
+	p.X.SanitizeRange()
 	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
+	p.Y.SanitizeRange()
 	y := verticalAxis{p.Y}
 
 	ywidth := y.size()
@@ -179,9 +179,9 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 		da.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 		da.Max.Y -= p.Title.Padding
 	}
-	p.X.sanitizeRange()
+	p.X.SanitizeRange()
 	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
+	p.Y.SanitizeRange()
 	y := verticalAxis{p.Y}
 	return padY(p, padX(p, draw.Crop(da, y.size(), x.size(), 0, 0)))
 }
