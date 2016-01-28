@@ -121,6 +121,11 @@ func New() (*Plot, error) {
 	return p, nil
 }
 
+// Plotters returns the list of plotters attached to this Plot.
+func (p *Plot) Plotters() []Plotter {
+	return p.plotters
+}
+
 // Add adds a Plotters to the plot.
 //
 // If the plotters implements DataRanger then the
