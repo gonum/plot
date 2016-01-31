@@ -259,7 +259,9 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 
 	data, ok := fontMap[font.Name()]
 	if !ok {
-		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
+		data = draw2d.FontData{
+			Name: font.Name(),
+		}
 	}
 	if !registeredFont[font.Name()] {
 		draw2d.RegisterFont(data, font.Font())

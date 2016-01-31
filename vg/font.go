@@ -15,7 +15,9 @@ import (
 	"go/build"
 	"io/ioutil"
 	"os"
+	"path"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"golang.org/x/image/math/fixed"
@@ -194,7 +196,10 @@ func getFont(name string) (*truetype.Font, error) {
 
 	path, err := fontPath(name)
 	if err != nil {
-		return nil, err
+		path, err = absFontPath(name)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	file, err := os.Open(path)
@@ -218,6 +223,35 @@ func getFont(name string) (*truetype.Font, error) {
 	}
 
 	return font, err
+}
+
+func absFontPath(fontpath string) (string, error) {
+	ext := filepath.Ext(fontpath)
+	if ext == "" {
+		fontpath += ".ttf"
+	} else if ext != ".ttf" {
+		return "", errors.New("Only support font type ttf")
+	}
+
+	if filepath.IsAbs(fontpath) {
+		f, err := os.Open(fontpath)
+		if err != nil {
+			return "", err
+		}
+		f.Close()
+		return fontpath, nil
+	} else {
+		for _, d := range FontDirs {
+			p := filepath.Join(d, fontpath)
+			f, err := os.Open(p)
+			if err != nil {
+				continue
+			}
+			f.Close()
+			return p, nil
+		}
+		return "", errors.New("Failed to locate a font file " + fontpath)
+	}
 }
 
 // FontPath returns the path for a font name or an error if it is not found.
@@ -263,6 +297,15 @@ func initFontDirs() []string {
 
 	if len(dirs) == 0 {
 		dirs = []string{"./fonts"}
+	}
+
+	//add standard font dirs
+	home := os.Getenv("HOME")
+	switch runtime.GOOS {
+	case "darwin":
+		dirs = append(dirs, path.Join(home, "Library/Fonts"), "/Library/Fonts", "/System/Library/Fonts")
+	case "linux":
+		dirs = append(dirs, path.Join(home, ".fonts"), "/usr/share/fonts", "/usr/local/share/fonts")
 	}
 
 	return dirs
