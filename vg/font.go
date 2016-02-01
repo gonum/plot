@@ -234,20 +234,16 @@ func absFontPath(fontpath string) (string, error) {
 	}
 
 	if filepath.IsAbs(fontpath) {
-		f, err := os.Open(fontpath)
-		if err != nil {
+		if _, err := os.Lstat(fontpath); err != nil {
 			return "", err
 		}
-		f.Close()
 		return fontpath, nil
 	} else {
 		for _, d := range FontDirs {
 			p := filepath.Join(d, fontpath)
-			f, err := os.Open(p)
-			if err != nil {
+			if _, err := os.Lstat(p); err != nil {
 				continue
 			}
-			f.Close()
 			return p, nil
 		}
 		return "", errors.New("Failed to locate a font file " + fontpath)
