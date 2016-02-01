@@ -53,7 +53,7 @@ func TestRecorder(t *testing.T) {
 	replay.Reset()
 	rec.Actions = append(rec.Actions, &FillString{Font: "Foo", Size: 12, X: 0, Y: 10, String: "Bar"})
 	err = rec.ReplayOn(&replay)
-	if !strings.HasPrefix(err.Error(), "Unknown font: Foo.") {
+	if !strings.HasPrefix(err.Error(), "Failed to locate a font file Foo") {
 		t.Errorf("unexpected error: %v", err)
 	}
 }
