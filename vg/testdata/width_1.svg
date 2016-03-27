@@ -5,7 +5,6 @@
 	xmlns:xlink="http://www.w3.org/1999/xlink">
 <g transform="scale(1, -1) translate(0, -125)">
 <path d="M0,0L125,0L125,125L0,125Z" style="fill:#FFFFFF" />
-<<<<<<< HEAD
 <text x="67.24" y="-5.355" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">X label</text>
 <text x="50.888" y="-19.025" transform="scale(1, -1)"
@@ -16,28 +15,6 @@
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.6</text>
 <text x="109.37" y="-19.025" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.9</text>
-=======
-<g transform="rotate(0)">
-<text x="67.24" y="-5.355" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">X label</text>
-</g>
-<g transform="rotate(0)">
-<text x="50.888" y="-19.025" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0</text>
-</g>
-<g transform="rotate(0)">
-<text x="67.258" y="-19.025" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.3</text>
-</g>
-<g transform="rotate(0)">
-<text x="88.317" y="-19.025" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.6</text>
-</g>
-<g transform="rotate(0)">
-<text x="109.37" y="-19.025" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.9</text>
-</g>
->>>>>>> 4d511af... Add rotation to draw.TextStyle
 <path d="M54.013,29.625L54.013,39.625" style="fill:none;stroke:#000000;stroke-width:0.625" />
 <path d="M75.071,29.625L75.071,39.625" style="fill:none;stroke:#000000;stroke-width:0.625" />
 <path d="M96.129,29.625L96.129,39.625" style="fill:none;stroke:#000000;stroke-width:0.625" />
@@ -55,7 +32,6 @@
 <text x="63.724" y="12.72" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">Y label</text>
 </g>
-<<<<<<< HEAD
 <text x="27.45" y="-41.363" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0</text>
 <text x="18.075" y="-65.006" transform="scale(1, -1)"
@@ -64,24 +40,6 @@
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.6</text>
 <text x="18.075" y="-112.29" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.9</text>
-=======
-<g transform="rotate(0)">
-<text x="27.45" y="-41.363" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0</text>
-</g>
-<g transform="rotate(0)">
-<text x="18.075" y="-65.006" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.3</text>
-</g>
-<g transform="rotate(0)">
-<text x="18.075" y="-88.65" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.6</text>
-</g>
-<g transform="rotate(0)">
-<text x="18.075" y="-112.29" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0.9</text>
-</g>
->>>>>>> 4d511af... Add rotation to draw.TextStyle
 <path d="M36.825,46.188L46.825,46.188" style="fill:none;stroke:#000000;stroke-width:0.625" />
 <path d="M36.825,69.831L46.825,69.831" style="fill:none;stroke:#000000;stroke-width:0.625" />
 <path d="M36.825,93.475L46.825,93.475" style="fill:none;stroke:#000000;stroke-width:0.625" />
