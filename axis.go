@@ -42,7 +42,8 @@ type Axis struct {
 		// Text is the axis label string.
 		Text string
 
-		// TextStyle is the style of the axis label text.
+		// TextStyle is the style of the axis label text. For the vertical axis,
+		// 90 degrees of rotation will be added to the label text before drawing.
 		draw.TextStyle
 	}
 
@@ -82,7 +83,7 @@ type Axis struct {
 //
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
-func makeAxis() (Axis, error) {
+func makeAxis(vertical bool) (Axis, error) {
 	labelFont, err := vg.MakeFont(DefaultFont, vg.Points(12))
 	if err != nil {
 		return Axis{}, err
@@ -104,12 +105,25 @@ func makeAxis() (Axis, error) {
 		Scale:   LinearScale{},
 	}
 	a.Label.TextStyle = draw.TextStyle{
-		Color: color.Black,
-		Font:  labelFont,
+		Color:  color.Black,
+		Font:   labelFont,
+		XAlign: -0.5,
+		YAlign: 0,
 	}
-	a.Tick.Label = draw.TextStyle{
-		Color: color.Black,
-		Font:  tickFont,
+	if vertical {
+		a.Tick.Label = draw.TextStyle{
+			Color:  color.Black,
+			Font:   tickFont,
+			XAlign: -1,
+			YAlign: -0.5,
+		}
+	} else {
+		a.Tick.Label = draw.TextStyle{
+			Color:  color.Black,
+			Font:   tickFont,
+			XAlign: -0.5,
+			YAlign: 0,
+		}
 	}
 	a.Tick.LineStyle = draw.LineStyle{
 		Color: color.Black,
@@ -204,7 +218,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		c.FillText(a.Label.TextStyle, c.Center().X, y, -0.5, 0, a.Label.Text)
+		c.FillText(a.Label.TextStyle, c.Center().X, y, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
 
@@ -214,7 +228,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, x, y, -0.5, 0, t.Label)
+		c.FillText(a.Tick.Label, x, y, t.Label)
 	}
 
 	if len(marks) > 0 {
@@ -287,11 +301,10 @@ func (a *verticalAxis) size() (w vg.Length) {
 func (a *verticalAxis) draw(c draw.Canvas) {
 	x := c.Min.X
 	if a.Label.Text != "" {
+		sty := a.Label.TextStyle
+		sty.Rotation += math.Pi / 2
 		x += a.Label.Height(a.Label.Text)
-		c.Push()
-		c.Rotate(math.Pi / 2)
-		c.FillText(a.Label.TextStyle, c.Center().Y, -x, -0.5, 0, a.Label.Text)
-		c.Pop()
+		c.FillText(sty, x, c.Center().Y, a.Label.Text)
 		x += -a.Label.Font.Extents().Descent
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
@@ -304,7 +317,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, x, y, -1, -0.5, t.Label)
+		c.FillText(a.Tick.Label, x, y, t.Label)
 		major = true
 	}
 	if major {

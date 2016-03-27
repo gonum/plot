@@ -87,11 +87,11 @@ func New() (*Plot, error) {
 	if err != nil {
 		return nil, err
 	}
-	x, err := makeAxis()
+	x, err := makeAxis(false)
 	if err != nil {
 		return nil, err
 	}
-	y, err := makeAxis()
+	y, err := makeAxis(true)
 	if err != nil {
 		return nil, err
 	}
@@ -106,8 +106,10 @@ func New() (*Plot, error) {
 		Legend:          legend,
 	}
 	p.Title.TextStyle = draw.TextStyle{
-		Color: color.Black,
-		Font:  titleFont,
+		Color:  color.Black,
+		Font:   titleFont,
+		XAlign: -0.5,
+		YAlign: -1,
 	}
 	return p, nil
 }
@@ -148,7 +150,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 		c.Fill(c.Rectangle.Path())
 	}
 	if p.Title.Text != "" {
-		c.FillText(p.Title.TextStyle, c.Center().X, c.Max.Y, -0.5, -1, p.Title.Text)
+		c.FillText(p.Title.TextStyle, c.Center().X, c.Max.Y, p.Title.Text)
 		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 		c.Max.Y -= p.Title.Padding
 	}

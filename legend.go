@@ -83,12 +83,12 @@ func makeLegend() (Legend, error) {
 // draw draws the legend to the given draw.Canvas.
 func (l *Legend) draw(c draw.Canvas) {
 	iconx := c.Min.X
-	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
-	xalign := 0.0
+	sty := l.TextStyle
+	textx := iconx + l.ThumbnailWidth + sty.Width(" ")
 	if !l.Left {
 		iconx = c.Max.X - l.ThumbnailWidth
 		textx = iconx - l.TextStyle.Width(" ")
-		xalign = -1
+		sty.XAlign -= 1.
 	}
 	textx += l.XOffs
 	iconx += l.XOffs
@@ -111,8 +111,8 @@ func (l *Legend) draw(c draw.Canvas) {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
-		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
-		c.FillText(l.TextStyle, textx, icon.Min.Y+yoffs, xalign, 0, e.text)
+		yoffs := (enth - sty.Height(e.text)) / 2
+		c.FillText(sty, textx, icon.Min.Y+yoffs, e.text)
 		icon.Min.Y -= enth + l.Padding
 		icon.Max.Y -= enth + l.Padding
 	}

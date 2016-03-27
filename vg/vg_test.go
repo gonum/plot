@@ -94,6 +94,8 @@ func lines(w vg.Length) (*plot.Plot, error) {
 		return nil, err
 	}
 	p.Add(line)
+	p.X.Label.Text = "X label"
+	p.Y.Label.Text = "Y label"
 
 	return p, nil
 }
