@@ -32,6 +32,23 @@ type TextStyle struct {
 
 	// Font is the font description.
 	Font vg.Font
+
+	// Rotation is the text rotation in radians, counterclockwise from
+	// the default drawing direction.
+	Rotation float64
+
+	// XAlign and YAlign specify the alignment of the text.
+	// They are multiplied by the width
+	// and height of each label respectively and the
+	// added to the final location.  E.g., XAlign=-0.5
+	// and YAlign=-0.5 centers the label at the given
+	// X, Y location, and XAlign=0, YAlign=0 aligns
+	// the text to the left of the point, and XAlign=-1,
+	// YAlign=0 aligns the text to the right of the point.
+	// Alignment and rotation are interrelated:
+	// when (XAlign, YAlign) = (0.5,0.5), the text is rotated about its center,
+	// (0,0) causes the text to rotate around its bottom left corner, etc.
+	XAlign, YAlign float64
 }
 
 // LineStyle describes what a line will look like.
@@ -576,10 +593,8 @@ func isect(p0, p1, clip, norm Point) Point {
 }
 
 // FillText fills lines of text in the draw area.
-// The text is offset by its width times xalign and
-// its height times yalign.  x and y give the bottom
-// left corner of the text befor e it is offset.
-func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
+// x and y specify the location where the text is to be drawn.
+func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
@@ -587,13 +602,26 @@ func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64,
 
 	c.SetColor(sty.Color)
 
-	ht := sty.Height(txt)
-	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
+	if sty.Rotation != 0 {
+		c.Push()
+		c.Rotate(sty.Rotation)
+	}
+
+	cos := vg.Length(math.Cos(sty.Rotation))
+	sin := vg.Length(math.Sin(sty.Rotation))
+	x, y = y*sin+x*cos, y*cos-x*sin
+
 	nl := textNLines(txt)
+	ht := sty.Height(txt)
+	y += ht*vg.Length(sty.YAlign) - sty.Font.Extents().Ascent
 	for i, line := range strings.Split(txt, "\n") {
-		xoffs := vg.Length(xalign) * sty.Font.Width(line)
+		xoffs := vg.Length(sty.XAlign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
 		c.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
+	}
+
+	if sty.Rotation != 0 {
+		c.Pop()
 	}
 }
 

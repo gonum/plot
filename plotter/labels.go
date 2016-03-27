@@ -32,15 +32,6 @@ type Labels struct {
 	// TextStyle is the style of the label text.
 	draw.TextStyle
 
-	// XAlign and YAlign are multiplied by the width
-	// and height of each label respectively and the
-	// added to the final location.  E.g., XAlign=-0.5
-	// and YAlign=-0.5 centers the label at the given
-	// X, Y location, and XAlign=0, YAlign=0 aligns
-	// the text to the left of the point, and XAlign=-1,
-	// YAlign=0 aligns the text to the right of the point.
-	XAlign, YAlign float64
-
 	// XOffset and YOffset are added directly to the final
 	// label X and Y location respectively.
 	XOffset, YOffset vg.Length
@@ -86,7 +77,7 @@ func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 		}
 		x += l.XOffset
 		y += l.YOffset
-		c.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+		c.FillText(l.TextStyle, x, y, label)
 	}
 }
 
