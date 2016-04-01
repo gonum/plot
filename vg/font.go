@@ -22,6 +22,7 @@ import (
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
+	"github.com/gonum/plot/vg/fonts"
 )
 
 const (
@@ -37,23 +38,23 @@ var (
 	// Fonts that are not keys of this map are not supported.
 	FontMap = map[string]string{
 
-		// At the moment, we use fonts from GNU's freefont
-		// project.
+		// We use fonts from RedHat's Liberation project:
+		//  https://fedorahosted.org/liberation-fonts/
 
-		"Courier":             "NimbusMonL-Regu",
-		"Courier-Bold":        "NimbusMonL-Bold",
-		"Courier-Oblique":     "NimbusMonL-ReguObli",
-		"Courier-BoldOblique": "NimbusMonL-BoldObli",
+		"Courier":             "LiberationMono-Regular",
+		"Courier-Bold":        "LiberationMono-Bold",
+		"Courier-Oblique":     "LiberationMono-Italic",
+		"Courier-BoldOblique": "LiberationMono-BoldItalic",
 
-		"Helvetica":             "NimbusSanL-Regu",
-		"Helvetica-Bold":        "NimbusSanL-Bold",
-		"Helvetica-Oblique":     "NimbusSanL-ReguItal",
-		"Helvetica-BoldOblique": "NimbusSanL-BoldItal",
+		"Helvetica":             "LiberationSans-Regular",
+		"Helvetica-Bold":        "LiberationSans-Bold",
+		"Helvetica-Oblique":     "LiberationSans-Italic",
+		"Helvetica-BoldOblique": "LiberationSans-BoldItalic",
 
-		"Times-Roman":      "NimbusRomNo9L-Regu",
-		"Times-Bold":       "NimbusRomNo9L-Medi",
-		"Times-Italic":     "NimbusRomNo9L-ReguItal",
-		"Times-BoldItalic": "NimbusRomNo9L-MediItal",
+		"Times-Roman":      "LiberationSerif-Regular",
+		"Times-Bold":       "LiberationSerif-Bold",
+		"Times-Italic":     "LiberationSerif-Italic",
+		"Times-BoldItalic": "LiberationSerif-BoldItalic",
 	}
 
 	// loadedFonts is indexed by a font name and it
@@ -192,20 +193,9 @@ func getFont(name string) (*truetype.Font, error) {
 		return f, nil
 	}
 
-	path, err := fontPath(name)
+	bytes, err := fontData(name)
 	if err != nil {
 		return nil, err
-	}
-
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, errors.New("Failed to open font file: " + err.Error())
-	}
-	defer file.Close()
-
-	bytes, err := ioutil.ReadAll(file)
-	if err != nil {
-		return nil, errors.New("Failed to read font file: " + err.Error())
 	}
 
 	font, err := freetype.ParseFont(bytes)
@@ -220,22 +210,28 @@ func getFont(name string) (*truetype.Font, error) {
 	return font, err
 }
 
-// FontPath returns the path for a font name or an error if it is not found.
-func fontPath(name string) (string, error) {
+// fontData returns the []byte data for a font name or an error if it is not found.
+func fontData(name string) ([]byte, error) {
 	fname, err := fontFile(name)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	for _, d := range FontDirs {
 		p := filepath.Join(d, fname)
-		if _, err := os.Stat(p); err != nil {
+		data, err := ioutil.ReadFile(p)
+		if err != nil {
 			continue
 		}
-		return p, nil
+		return data, nil
 	}
 
-	return "", errors.New("Failed to locate a font file " + fname + " for font name " + name)
+	data, err := fonts.Asset(fname)
+	if err == nil {
+		return data, nil
+	}
+
+	return nil, errors.New("vg: failed to locate a font file " + fname + " for font name " + name)
 }
 
 // FontDirs is a slice of directories searched for font data files.

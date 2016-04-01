@@ -19,7 +19,8 @@ import (
 )
 
 func TestLegendAlignment(t *testing.T) {
-	font, err := vg.MakeFont(plot.DefaultFont, 10.822510822510822) // This font size gives an entry height of 10.
+	const fontSize = 10.189054726368159 // This font size gives an entry height of 10.
+	font, err := vg.MakeFont(plot.DefaultFont, fontSize)
 	if err != nil {
 		t.Fatalf("failed to create font: %v", err)
 	}
@@ -82,9 +83,9 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
-			Size:   10.822510822510822,
-			X:      69.48051948051948,
-			Y:      30.82251082251082,
+			Size:   fontSize,
+			X:      70.09452736318407,
+			Y:      30.18905472636816,
 			String: "A",
 		},
 		&recorder.SetColor{
@@ -118,9 +119,9 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
-			Size:   10.822510822510822,
-			X:      70.07575757575758,
-			Y:      20.82251082251082,
+			Size:   fontSize,
+			X:      70.65671641791045,
+			Y:      20.18905472636816,
 			String: "B",
 		},
 		&recorder.SetColor{
@@ -156,9 +157,9 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
-			Size:   10.822510822510822,
-			X:      70.07575757575758,
-			Y:      10.822510822510822,
+			Size:   fontSize,
+			X:      70.65671641791045,
+			Y:      10.189054726368159,
 			String: "C",
 		},
 		&recorder.SetColor{
@@ -192,9 +193,9 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
-			Size:   10.822510822510822,
-			X:      69.48051948051948,
-			Y:      0.8225108225108215,
+			Size:   fontSize,
+			X:      70.09452736318407,
+			Y:      0.189054726368159,
 			String: "D",
 		},
 	}
