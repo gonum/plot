@@ -73,14 +73,12 @@ func (s GnuplotStyle) DrawPlot(p *plot.Plot, c draw.Canvas) {
 		c.Fill(c.Rectangle.Path())
 	}
 
-	{
-		xpad := p.X.Padding
-		ypad := p.Y.Padding
-		defer func() {
-			p.X.Padding = xpad
-			p.Y.Padding = ypad
-		}()
-	}
+	xpad := p.X.Padding
+	ypad := p.Y.Padding
+	defer func() {
+		p.X.Padding = xpad
+		p.Y.Padding = ypad
+	}()
 
 	p.X.Padding = 0
 	p.Y.Padding = 0
