@@ -8,15 +8,18 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"image"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
 
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
+	"rsc.io/pdf"
 )
 
 var generateTestData = flag.Bool("regen", false, "Uses the current state to regenerate the test data.")
@@ -65,20 +68,88 @@ func TestLineWidth(t *testing.T) {
 				}
 			}
 
-			f, err := os.Open(name)
-			if err != nil {
-				t.Fatalf("failed to open test image: %v", err)
-			}
-			want, err := ioutil.ReadAll(f)
-			if err != nil {
-				t.Fatalf("failed to read test image: %v", err)
-			}
-			f.Close()
-			if !bytes.Equal(buf.Bytes(), want) {
-				t.Errorf("image mismatch for %v:%s", w, typ)
+			switch typ {
+			case "svg":
+				want, err := ioutil.ReadFile(name)
+				if err != nil {
+					t.Fatalf("failed to read test image: %v", err)
+				}
+
+				if !bytes.Equal(buf.Bytes(), want) {
+					t.Errorf("image mismatch for %v:%s", w, typ)
+				}
+
+			case "pdf":
+				f, err := os.Open(name)
+				if err != nil {
+					t.Fatalf("failed to open test image: %v", err)
+				}
+				defer f.Close()
+				fi, err := f.Stat()
+				if err != nil {
+					t.Fatalf("failed to retrieve test image infos: %v", err)
+				}
+				want, err := pdf.NewReader(f, fi.Size())
+				if err != nil {
+					t.Fatalf("failed to decode test image (typ=%s): %v", typ, err)
+				}
+
+				r := bytes.NewReader(buf.Bytes())
+				// TODO(sbinet): bytes.Reader.Size was introduced only after go-1.4
+				// use that if/when we drop go-1.4 bwd compat.
+				sz := int64(len(buf.Bytes()))
+				got, err := pdf.NewReader(r, sz)
+				if err != nil {
+					t.Fatalf("failed to decode image (typ=%s): %v", typ, err)
+				}
+
+				if !cmpPdf(got, want) {
+					t.Errorf("image mismatch for %v:%s", w, typ)
+				}
+
+			default:
+				f, err := os.Open(name)
+				if err != nil {
+					t.Fatalf("failed to open test image: %v", err)
+				}
+				defer f.Close()
+
+				want, _, err := image.Decode(f)
+				if err != nil {
+					t.Fatalf("failed to read test image (typ=%s): %v", typ, err)
+				}
+
+				got, _, err := image.Decode(&buf)
+				if err != nil {
+					t.Fatalf("failed to decode image (typ=%s): %v", typ, err)
+				}
+
+				if !reflect.DeepEqual(got, want) {
+					t.Errorf("image mismatch for %v:%s", w, typ)
+				}
 			}
 		}
 	}
+}
+
+func cmpPdf(pdf1, pdf2 *pdf.Reader) bool {
+	n1 := pdf1.NumPage()
+	n2 := pdf2.NumPage()
+	if n1 != n2 {
+		return false
+	}
+
+	for i := 1; i <= n1; i++ {
+		p1 := pdf1.Page(i).Content()
+		p2 := pdf2.Page(i).Content()
+		if !reflect.DeepEqual(p1, p2) {
+			return false
+		}
+	}
+
+	t1 := pdf1.Trailer().String()
+	t2 := pdf2.Trailer().String()
+	return t1 == t2
 }
 
 func lines(w vg.Length) (*plot.Plot, error) {
