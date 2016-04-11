@@ -33,9 +33,9 @@ type Canvas interface {
 
 	// SetColor sets the current drawing color.
 	// Note that fill color and stroke color are
-	// the same so if you want different fill
-	// and stroke colors then you must use two
-	// separate calls to SetColor.
+	// the same, so if you want different fill
+	// and stroke colors then you must set a color,
+	// draw fills, set a new color and then draw lines.
 	//
 	// The initial color is black.  If SetColor is
 	// called with a nil color then black is used.
