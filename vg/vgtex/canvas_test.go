@@ -34,7 +34,7 @@ func Example() {
 
 	c := NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
 	p.Draw(draw.New(c))
-	c.FillString(p.Title.Font, 2.5*vg.Centimeter, 2.5*vg.Centimeter, "x")
+	c.FillString(p.Title.Font, vg.Point{2.5 * vg.Centimeter, 2.5 * vg.Centimeter}, "x")
 
 	f, err := os.Create("testdata/scatter.tex")
 	if err != nil {

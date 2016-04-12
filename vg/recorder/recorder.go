@@ -218,24 +218,24 @@ func (a *Rotate) callerLocation() *callerLocation {
 
 // Translate corresponds to the vg.Canvas.Translate method.
 type Translate struct {
-	X, Y vg.Length
+	Point vg.Point
 
 	l callerLocation
 }
 
 // Translate implements the Translate method of the vg.Canvas interface.
-func (c *Canvas) Translate(x, y vg.Length) {
-	c.append(&Translate{X: x, Y: y})
+func (c *Canvas) Translate(pt vg.Point) {
+	c.append(&Translate{Point: pt})
 }
 
 // Call returns the method call that generated the action.
 func (a *Translate) Call() string {
-	return fmt.Sprintf("%sTranslate(%v, %v)", a.l, a.X, a.Y)
+	return fmt.Sprintf("%sTranslate(%v, %v)", a.l, a.Point.X, a.Point.Y)
 }
 
 // ApplyTo applies the action to the given vg.Canvas.
 func (a *Translate) ApplyTo(c vg.Canvas) {
-	c.Translate(a.X, a.Y)
+	c.Translate(a.Point)
 }
 
 func (a *Translate) callerLocation() *callerLocation {
@@ -372,7 +372,7 @@ func (a *Fill) callerLocation() *callerLocation {
 type FillString struct {
 	Font   string
 	Size   vg.Length
-	X, Y   vg.Length
+	Point  vg.Point
 	String string
 
 	l callerLocation
@@ -381,23 +381,23 @@ type FillString struct {
 }
 
 // FillString implements the FillString method of the vg.Canvas interface.
-func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	c.append(&FillString{
-		Font: font.Name(),
-		Size: font.Size,
-		X:    x, Y: y,
+		Font:   font.Name(),
+		Size:   font.Size,
+		Point:  pt,
 		String: str,
 	})
 }
 
 // ApplyTo applies the action to the given vg.Canvas.
 func (a *FillString) ApplyTo(c vg.Canvas) {
-	c.FillString(a.fonts[fontID{name: a.Font, size: a.Size}], a.X, a.Y, a.String)
+	c.FillString(a.fonts[fontID{name: a.Font, size: a.Size}], a.Point, a.String)
 }
 
 // Call returns the pseudo method call that generated the action.
 func (a *FillString) Call() string {
-	return fmt.Sprintf("%sFillString(%q, %v, %v, %v, %q)", a.l, a.Font, a.Size, a.X, a.Y, a.String)
+	return fmt.Sprintf("%sFillString(%q, %v, %v, %v, %q)", a.l, a.Font, a.Size, a.Point.X, a.Point.Y, a.String)
 }
 
 func (a *FillString) callerLocation() *callerLocation {

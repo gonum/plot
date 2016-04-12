@@ -102,8 +102,8 @@ type CircleGlyph struct{}
 // DrawGlyph implements the GlyphDrawer interface.
 func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	var p vg.Path
-	p.Move(pt.X+sty.Radius, pt.Y)
-	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+	p.Move(vg.Point{X: pt.X + sty.Radius, Y: pt.Y})
+	p.Arc(pt, sty.Radius, 0, 2*math.Pi)
 	p.Close()
 	c.Fill(p)
 }
@@ -115,8 +115,8 @@ type RingGlyph struct{}
 func (RingGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	var p vg.Path
-	p.Move(pt.X+sty.Radius, pt.Y)
-	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
+	p.Move(vg.Point{X: pt.X + sty.Radius, Y: pt.Y})
+	p.Arc(pt, sty.Radius, 0, 2*math.Pi)
 	p.Close()
 	c.Stroke(p)
 }
@@ -135,10 +135,10 @@ func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
-	p.Move(pt.X-x, pt.Y-x)
-	p.Line(pt.X+x, pt.Y-x)
-	p.Line(pt.X+x, pt.Y+x)
-	p.Line(pt.X-x, pt.Y+x)
+	p.Move(vg.Point{X: pt.X - x, Y: pt.Y - x})
+	p.Line(vg.Point{X: pt.X + x, Y: pt.Y - x})
+	p.Line(vg.Point{X: pt.X + x, Y: pt.Y + x})
+	p.Line(vg.Point{X: pt.X - x, Y: pt.Y + x})
 	p.Close()
 	c.Stroke(p)
 }
@@ -150,10 +150,10 @@ type BoxGlyph struct{}
 func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
-	p.Move(pt.X-x, pt.Y-x)
-	p.Line(pt.X+x, pt.Y-x)
-	p.Line(pt.X+x, pt.Y+x)
-	p.Line(pt.X-x, pt.Y+x)
+	p.Move(vg.Point{X: pt.X - x, Y: pt.Y - x})
+	p.Line(vg.Point{X: pt.X + x, Y: pt.Y - x})
+	p.Line(vg.Point{X: pt.X + x, Y: pt.Y + x})
+	p.Line(vg.Point{X: pt.X - x, Y: pt.Y + x})
 	p.Close()
 	c.Fill(p)
 }
@@ -166,9 +166,9 @@ func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
-	p.Move(pt.X, pt.Y+r)
-	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
-	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
+	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
+	p.Line(vg.Point{X: pt.X - r*cosπover6, Y: pt.Y - r*sinπover6})
+	p.Line(vg.Point{X: pt.X + r*cosπover6, Y: pt.Y - r*sinπover6})
 	p.Close()
 	c.Stroke(p)
 }
@@ -180,9 +180,9 @@ type PyramidGlyph struct{}
 func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
-	p.Move(pt.X, pt.Y+r)
-	p.Line(pt.X-r*cosπover6, pt.Y-r*sinπover6)
-	p.Line(pt.X+r*cosπover6, pt.Y-r*sinπover6)
+	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
+	p.Line(vg.Point{X: pt.X - r*cosπover6, Y: pt.Y - r*sinπover6})
+	p.Line(vg.Point{X: pt.X + r*cosπover6, Y: pt.Y - r*sinπover6})
 	p.Close()
 	c.Fill(p)
 }
@@ -195,12 +195,12 @@ func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius
 	var p vg.Path
-	p.Move(pt.X, pt.Y+r)
-	p.Line(pt.X, pt.Y-r)
+	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
+	p.Line(vg.Point{X: pt.X, Y: pt.Y - r})
 	c.Stroke(p)
 	p = vg.Path{}
-	p.Move(pt.X-r, pt.Y)
-	p.Line(pt.X+r, pt.Y)
+	p.Move(vg.Point{X: pt.X - r, Y: pt.Y})
+	p.Line(vg.Point{X: pt.X + r, Y: pt.Y})
 	c.Stroke(p)
 }
 
@@ -212,12 +212,12 @@ func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius * cosπover4
 	var p vg.Path
-	p.Move(pt.X-r, pt.Y-r)
-	p.Line(pt.X+r, pt.Y+r)
+	p.Move(vg.Point{X: pt.X - r, Y: pt.Y - r})
+	p.Line(vg.Point{X: pt.X + r, Y: pt.Y + r})
 	c.Stroke(p)
 	p = vg.Path{}
-	p.Move(pt.X-r, pt.Y+r)
-	p.Line(pt.X+r, pt.Y-r)
+	p.Move(vg.Point{X: pt.X - r, Y: pt.Y + r})
+	p.Line(vg.Point{X: pt.X + r, Y: pt.Y - r})
 	c.Stroke(p)
 }
 
@@ -393,9 +393,9 @@ func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]vg.Point) {
 			continue
 		}
 		var p vg.Path
-		p.Move(l[0].X, l[0].Y)
+		p.Move(l[0])
 		for _, pt := range l[1:] {
-			p.Line(pt.X, pt.Y)
+			p.Line(pt)
 		}
 		c.Stroke(p)
 	}
@@ -487,9 +487,9 @@ func (c *Canvas) FillPolygon(clr color.Color, pts []vg.Point) {
 
 	c.SetColor(clr)
 	var p vg.Path
-	p.Move(pts[0].X, pts[0].Y)
+	p.Move(pts[0])
 	for _, pt := range pts[1:] {
-		p.Line(pt.X, pt.Y)
+		p.Line(pt)
 	}
 	p.Close()
 	c.Fill(p)
@@ -593,7 +593,7 @@ func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64,
 	for i, line := range strings.Split(txt, "\n") {
 		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
-		c.FillString(sty.Font, x+xoffs, y+n*sty.Font.Size, line)
+		c.FillString(sty.Font, vg.Point{X: x + xoffs, Y: y + n*sty.Font.Size}, line)
 	}
 }
 

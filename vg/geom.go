@@ -49,10 +49,10 @@ func (r Rectangle) Size() Point {
 // Path returns the path of a Rect specified by its
 // upper left corner, width and height.
 func (r Rectangle) Path() (p Path) {
-	p.Move(r.Min.X, r.Min.Y)
-	p.Line(r.Max.X, r.Min.Y)
-	p.Line(r.Max.X, r.Max.Y)
-	p.Line(r.Min.X, r.Max.Y)
+	p.Move(r.Min)
+	p.Line(Point{X: r.Max.X, Y: r.Min.Y})
+	p.Line(r.Max)
+	p.Line(Point{X: r.Min.X, Y: r.Max.Y})
 	p.Close()
 	return
 }

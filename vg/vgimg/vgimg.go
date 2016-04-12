@@ -194,8 +194,8 @@ func (c *Canvas) Rotate(t float64) {
 	c.gc.Rotate(t)
 }
 
-func (c *Canvas) Translate(x, y vg.Length) {
-	c.gc.Translate(x.Dots(c.DPI()), y.Dots(c.DPI()))
+func (c *Canvas) Translate(pt vg.Point) {
+	c.gc.Translate(pt.X.Dots(c.DPI()), pt.Y.Dots(c.DPI()))
 }
 
 func (c *Canvas) Scale(x, y float64) {
@@ -230,13 +230,13 @@ func (c *Canvas) outline(p vg.Path) {
 	for _, comp := range p {
 		switch comp.Type {
 		case vg.MoveComp:
-			c.gc.MoveTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()))
+			c.gc.MoveTo(comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()))
 
 		case vg.LineComp:
-			c.gc.LineTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()))
+			c.gc.LineTo(comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()))
 
 		case vg.ArcComp:
-			c.gc.ArcTo(comp.X.Dots(c.DPI()), comp.Y.Dots(c.DPI()),
+			c.gc.ArcTo(comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()),
 				comp.Radius.Dots(c.DPI()), comp.Radius.Dots(c.DPI()),
 				comp.Start, comp.Angle)
 
@@ -253,7 +253,7 @@ func (c *Canvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
 
-func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	c.gc.Save()
 	defer c.gc.Restore()
 
@@ -267,7 +267,7 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 	}
 	c.gc.SetFontData(data)
 	c.gc.SetFontSize(font.Size.Points())
-	c.gc.Translate(x.Dots(c.DPI()), y.Dots(c.DPI()))
+	c.gc.Translate(pt.X.Dots(c.DPI()), pt.Y.Dots(c.DPI()))
 	c.gc.Scale(1, -1)
 	c.gc.FillString(str)
 }

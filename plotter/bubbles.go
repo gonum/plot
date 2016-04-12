@@ -69,7 +69,8 @@ func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, d := range bs.XYZs {
 		x := trX(d.X)
 		y := trY(d.Y)
-		if !c.Contains(vg.Point{x, y}) {
+		pt := vg.Point{x, y}
+		if !c.Contains(pt) {
 			continue
 		}
 
@@ -77,8 +78,8 @@ func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
 
 		// draw a circle centered at x, y
 		var p vg.Path
-		p.Move(x+rad, y)
-		p.Arc(x, y, rad, 0, 2*math.Pi)
+		p.Move(vg.Point{X: x + rad, Y: y})
+		p.Arc(pt, rad, 0, 2*math.Pi)
 		p.Close()
 		c.Fill(p)
 	}

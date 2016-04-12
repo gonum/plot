@@ -219,12 +219,14 @@ func (h *Contour) naivePlot(c draw.Canvas, plt *plot.Plot) {
 		x1, y1 := trX(l.p1.X), trY(l.p1.Y)
 		x2, y2 := trX(l.p2.X), trY(l.p2.Y)
 
-		if !c.Contains(vg.Point{x1, y1}) || !c.Contains(vg.Point{x2, y2}) {
+		pt1 := vg.Point{x1, y1}
+		pt2 := vg.Point{x2, y2}
+		if !c.Contains(pt1) || !c.Contains(pt2) {
 			return
 		}
 
-		pa.Move(x1, y1)
-		pa.Line(x2, y2)
+		pa.Move(pt1)
+		pa.Line(pt2)
 		pa.Close()
 
 		style := h.LineStyles[levelMap[z]%len(h.LineStyles)]
@@ -278,7 +280,7 @@ func (h *Contour) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 func isLoop(p vg.Path) bool {
 	s := p[0]
 	e := p[len(p)-1]
-	return s.X == e.X && s.Y == e.Y
+	return s.Pos == e.Pos
 }
 
 // contourPaths returns a collection of vg.Paths describing contour lines based
@@ -404,13 +406,13 @@ func newContour(l line, z float64) *contour {
 func (c *contour) path(trX, trY func(float64) vg.Length) vg.Path {
 	var pa vg.Path
 	p := c.front()
-	pa.Move(trX(p.X), trY(p.Y))
+	pa.Move(vg.Point{trX(p.X), trY(p.Y)})
 	for i := len(c.backward) - 2; i >= 0; i-- {
 		p = c.backward[i]
-		pa.Line(trX(p.X), trY(p.Y))
+		pa.Line(vg.Point{trX(p.X), trY(p.Y)})
 	}
 	for _, p := range c.forward {
-		pa.Line(trX(p.X), trY(p.Y))
+		pa.Line(vg.Point{trX(p.X), trY(p.Y)})
 	}
 
 	return pa

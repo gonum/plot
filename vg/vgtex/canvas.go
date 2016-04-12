@@ -113,8 +113,8 @@ func (c *Canvas) Rotate(rad float64) {
 }
 
 // Translate implements the vg.Canvas.Translate method.
-func (c *Canvas) Translate(x, y vg.Length) {
-	c.wtex(`\pgftransformshift{\pgfpoint{%gpt}{%gpt}}`, x, y)
+func (c *Canvas) Translate(pt vg.Point) {
+	c.wtex(`\pgftransformshift{\pgfpoint{%gpt}{%gpt}}`, pt.X, pt.Y)
 }
 
 // Scale implements the vg.Canvas.Scale method.
@@ -156,10 +156,10 @@ func (c *Canvas) Fill(p vg.Path) {
 }
 
 // FillString implements the vg.Canvas.FillString method.
-func (c *Canvas) FillString(f vg.Font, x, y vg.Length, text string) {
+func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
 	c.wcolor()
-	x += 0.5 * f.Width(text)
-	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{%s}`, x, y, text)
+	pt.X += 0.5 * f.Width(text)
+	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{%s}`, pt.X, pt.Y, text)
 }
 
 func (c *Canvas) indent(s string) string {
@@ -219,9 +219,9 @@ func (c *Canvas) wpath(p vg.Path) {
 	for _, comp := range p {
 		switch comp.Type {
 		case vg.MoveComp:
-			c.wtex(`\pgfpathmoveto{\pgfpoint{%gpt}{%gpt}}`, comp.X, comp.Y)
+			c.wtex(`\pgfpathmoveto{\pgfpoint{%gpt}{%gpt}}`, comp.Pos.X, comp.Pos.Y)
 		case vg.LineComp:
-			c.wtex(`\pgflineto{\pgfpoint{%gpt}{%gpt}}`, comp.X, comp.Y)
+			c.wtex(`\pgflineto{\pgfpoint{%gpt}{%gpt}}`, comp.Pos.X, comp.Pos.Y)
 		case vg.ArcComp:
 			start := comp.Start * degPerRadian
 			angle := comp.Angle * degPerRadian

@@ -119,9 +119,9 @@ func (e *Canvas) Rotate(r float64) {
 	fmt.Fprintf(e.buf, "%.*g rotate\n", pr, r*180/math.Pi)
 }
 
-func (e *Canvas) Translate(x, y vg.Length) {
+func (e *Canvas) Translate(pt vg.Point) {
 	fmt.Fprintf(e.buf, "%.*g %.*g translate\n",
-		pr, x.Dots(DPI), pr, y.Dots(DPI))
+		pr, pt.X.Dots(DPI), pr, pt.Y.Dots(DPI))
 }
 
 func (e *Canvas) Scale(x, y float64) {
@@ -156,16 +156,16 @@ func (e *Canvas) trace(path vg.Path) {
 	for _, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
-			fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, comp.X, pr, comp.Y)
+			fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, comp.Pos.X, pr, comp.Pos.Y)
 		case vg.LineComp:
-			fmt.Fprintf(e.buf, "%.*g %.*g lineto\n", pr, comp.X, pr, comp.Y)
+			fmt.Fprintf(e.buf, "%.*g %.*g lineto\n", pr, comp.Pos.X, pr, comp.Pos.Y)
 		case vg.ArcComp:
 			end := comp.Start + comp.Angle
 			arcOp := "arc"
 			if comp.Angle < 0 {
 				arcOp = "arcn"
 			}
-			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %s\n", pr, comp.X, pr, comp.Y,
+			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %s\n", pr, comp.Pos.X, pr, comp.Pos.Y,
 				pr, comp.Radius, pr, comp.Start*180/math.Pi, pr,
 				end*180/math.Pi, arcOp)
 		case vg.CloseComp:
@@ -176,14 +176,14 @@ func (e *Canvas) trace(path vg.Path) {
 	}
 }
 
-func (e *Canvas) FillString(fnt vg.Font, x, y vg.Length, str string) {
+func (e *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	if e.cur().font != fnt.Name() || e.cur().fsize != fnt.Size {
 		e.cur().font = fnt.Name()
 		e.cur().fsize = fnt.Size
 		fmt.Fprintf(e.buf, "/%s findfont %.*g scalefont setfont\n",
 			fnt.Name(), pr, fnt.Size)
 	}
-	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, x.Dots(DPI), pr, y.Dots(DPI))
+	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, pt.X.Dots(DPI), pr, pt.Y.Dots(DPI))
 	fmt.Fprintf(e.buf, "(%s) show\n", str)
 }
 

@@ -48,7 +48,7 @@ type Canvas interface {
 
 	// Translate applies a translational transform
 	// to the context.
-	Translate(x, y Length)
+	Translate(pt Point)
 
 	// Scale applies a scaling transform to the
 	// context.
@@ -73,7 +73,7 @@ type Canvas interface {
 
 	// FillString fills in text at the specified
 	// location using the given font.
-	FillString(f Font, x, y Length, text string)
+	FillString(f Font, pt Point, text string)
 }
 
 // CanvasSizer is a Canvas with a defined size.
@@ -100,24 +100,23 @@ type Path []PathComp
 
 // Move moves the current location of the path to
 // the given point.
-func (p *Path) Move(x, y Length) {
-	*p = append(*p, PathComp{Type: MoveComp, X: x, Y: y})
+func (p *Path) Move(pt Point) {
+	*p = append(*p, PathComp{Type: MoveComp, Pos: pt})
 }
 
 // Line draws a line from the current point to the
 // given point.
-func (p *Path) Line(x, y Length) {
-	*p = append(*p, PathComp{Type: LineComp, X: x, Y: y})
+func (p *Path) Line(pt Point) {
+	*p = append(*p, PathComp{Type: LineComp, Pos: pt})
 }
 
 // Arc adds an arc to the path defined by the center
 // point of the arc's circle, the radius of the circle
 // and the start and sweep angles.
-func (p *Path) Arc(x, y, rad Length, s, a float64) {
+func (p *Path) Arc(pt Point, rad Length, s, a float64) {
 	*p = append(*p, PathComp{
 		Type:   ArcComp,
-		X:      x,
-		Y:      y,
+		Pos:    pt,
 		Radius: rad,
 		Start:  s,
 		Angle:  a,
@@ -147,11 +146,11 @@ type PathComp struct {
 	// be meaningless.
 	Type int
 
-	// The X and Y fields are used as the destination
-	// of a MoveComp or LineComp and are the center
-	// point of an ArcComp.  They are not used in
+	// The Pos field is used as the destination
+	// of a MoveComp or LineComp and is the center
+	// point of an ArcComp.  It is not used in
 	// the CloseComp.
-	X, Y Length
+	Pos Point
 
 	// Radius is only used for ArcComps, it is
 	// the radius of the circle defining the arc.

@@ -53,11 +53,11 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 		c.SetColor(*pts.ShadeColor)
 		minY := trY(plt.Y.Min)
 		var pa vg.Path
-		pa.Move(ps[0].X, minY)
+		pa.Move(vg.Point{ps[0].X, minY})
 		for i := range pts.XYs {
-			pa.Line(ps[i].X, ps[i].Y)
+			pa.Line(ps[i])
 		}
-		pa.Line(ps[len(pts.XYs)-1].X, minY)
+		pa.Line(vg.Point{ps[len(pts.XYs)-1].X, minY})
 		pa.Close()
 		c.Fill(pa)
 	}

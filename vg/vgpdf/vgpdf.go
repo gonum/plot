@@ -68,8 +68,8 @@ func (c *Canvas) Rotate(r float64) {
 	c.page.Rotate(float32(r))
 }
 
-func (c *Canvas) Translate(x vg.Length, y vg.Length) {
-	c.page.Translate(unit(x), unit(y))
+func (c *Canvas) Translate(pt vg.Point) {
+	c.page.Translate(unit(pt.X), unit(pt.Y))
 }
 
 func (c *Canvas) Scale(x float64, y float64) {
@@ -94,10 +94,10 @@ func (c *Canvas) Fill(p vg.Path) {
 	c.page.Fill(pdfPath(c, p))
 }
 
-func (c *Canvas) FillString(fnt vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	t := new(pdf.Text)
 	t.SetFont(fnt.Name(), unit(fnt.Size))
-	t.NextLineOffset(unit(x), unit(y))
+	t.NextLineOffset(unit(pt.X), unit(pt.Y))
 	t.Text(str)
 	c.page.DrawText(t)
 }
@@ -108,9 +108,9 @@ func pdfPath(c *Canvas, path vg.Path) *pdf.Path {
 	for _, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
-			p.Move(pdfPoint(comp.X, comp.Y))
+			p.Move(pdfPoint(comp.Pos.X, comp.Pos.Y))
 		case vg.LineComp:
-			p.Line(pdfPoint(comp.X, comp.Y))
+			p.Line(pdfPoint(comp.Pos.X, comp.Pos.Y))
 		case vg.ArcComp:
 			arc(p, comp)
 		case vg.CloseComp:
@@ -128,8 +128,8 @@ func pdfPath(c *Canvas, path vg.Path) *pdf.Path {
 // This is from:
 // 	http://hansmuller-flex.blogspot.com/2011/04/approximating-circular-arc-with-cubic.html
 func arc(p *pdf.Path, comp vg.PathComp) {
-	x0 := comp.X + comp.Radius*vg.Length(math.Cos(comp.Start))
-	y0 := comp.Y + comp.Radius*vg.Length(math.Sin(comp.Start))
+	x0 := comp.Pos.X + comp.Radius*vg.Length(math.Cos(comp.Start))
+	y0 := comp.Pos.Y + comp.Radius*vg.Length(math.Sin(comp.Start))
 	p.Line(pdfPoint(x0, y0))
 
 	a1 := comp.Start
@@ -147,7 +147,7 @@ func arc(p *pdf.Path, comp vg.PathComp) {
 
 	for left > epsilon {
 		a2 := a1 + sign*math.Min(math.Pi/2, left)
-		partialArc(p, comp.X, comp.Y, comp.Radius, a1, a2)
+		partialArc(p, comp.Pos.X, comp.Pos.Y, comp.Radius, a1, a2)
 		left -= math.Abs(a2 - a1)
 		a1 = a2
 	}

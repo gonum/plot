@@ -57,10 +57,10 @@ func TestLegendAlignment(t *testing.T) {
 		},
 		&recorder.Fill{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 30},
-				{Type: vg.LineComp, X: 80, Y: 40},
-				{Type: vg.LineComp, X: 100, Y: 40},
-				{Type: vg.LineComp, X: 100, Y: 30},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 40}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 40}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 30}},
 				{Type: vg.CloseComp},
 			},
 		},
@@ -73,19 +73,18 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetLineDash{},
 		&recorder.Stroke{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 30},
-				{Type: vg.LineComp, X: 80, Y: 40},
-				{Type: vg.LineComp, X: 100, Y: 40},
-				{Type: vg.LineComp, X: 100, Y: 30},
-				{Type: vg.LineComp, X: 80, Y: 30},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 40}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 40}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 30}},
 			},
 		},
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			X:      70.09452736318407,
-			Y:      30.18905472636816,
+			Point:  vg.Point{X: 70.09452736318407, Y: 30.18905472636816},
 			String: "A",
 		},
 		&recorder.SetColor{
@@ -93,10 +92,10 @@ func TestLegendAlignment(t *testing.T) {
 		},
 		&recorder.Fill{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 20},
-				{Type: vg.LineComp, X: 80, Y: 30},
-				{Type: vg.LineComp, X: 100, Y: 30},
-				{Type: vg.LineComp, X: 100, Y: 20},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 20}},
 				{Type: vg.CloseComp},
 			},
 		},
@@ -109,19 +108,18 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetLineDash{},
 		&recorder.Stroke{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 20},
-				{Type: vg.LineComp, X: 80, Y: 30},
-				{Type: vg.LineComp, X: 100, Y: 30},
-				{Type: vg.LineComp, X: 100, Y: 20},
-				{Type: vg.LineComp, X: 80, Y: 20},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 30}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 20}},
 			},
 		},
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			X:      70.65671641791045,
-			Y:      20.18905472636816,
+			Point:  vg.Point{X: 70.65671641791045, Y: 20.18905472636816},
 			String: "B",
 		},
 		&recorder.SetColor{
@@ -131,10 +129,10 @@ func TestLegendAlignment(t *testing.T) {
 		},
 		&recorder.Fill{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 10},
-				{Type: vg.LineComp, X: 80, Y: 20},
-				{Type: vg.LineComp, X: 100, Y: 20},
-				{Type: vg.LineComp, X: 100, Y: 10},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 10}},
 				{Type: vg.CloseComp},
 			},
 		},
@@ -147,19 +145,18 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetLineDash{},
 		&recorder.Stroke{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 10},
-				{Type: vg.LineComp, X: 80, Y: 20},
-				{Type: vg.LineComp, X: 100, Y: 20},
-				{Type: vg.LineComp, X: 100, Y: 10},
-				{Type: vg.LineComp, X: 80, Y: 10},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 20}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 10}},
 			},
 		},
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			X:      70.65671641791045,
-			Y:      10.189054726368159,
+			Point:  vg.Point{X: 70.65671641791045, Y: 10.189054726368159},
 			String: "C",
 		},
 		&recorder.SetColor{
@@ -167,10 +164,10 @@ func TestLegendAlignment(t *testing.T) {
 		},
 		&recorder.Fill{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 0},
-				{Type: vg.LineComp, X: 80, Y: 10},
-				{Type: vg.LineComp, X: 100, Y: 10},
-				{Type: vg.LineComp, X: 100, Y: 0},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 0}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 0}},
 				{Type: vg.CloseComp},
 			},
 		},
@@ -183,19 +180,18 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.SetLineDash{},
 		&recorder.Stroke{
 			Path: vg.Path{
-				{Type: vg.MoveComp, X: 80, Y: 0},
-				{Type: vg.LineComp, X: 80, Y: 10},
-				{Type: vg.LineComp, X: 100, Y: 10},
-				{Type: vg.LineComp, X: 100, Y: 0},
-				{Type: vg.LineComp, X: 80, Y: 0},
+				{Type: vg.MoveComp, Pos: vg.Point{X: 80, Y: 0}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 10}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 100, Y: 0}},
+				{Type: vg.LineComp, Pos: vg.Point{X: 80, Y: 0}},
 			},
 		},
 		&recorder.SetColor{},
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			X:      70.09452736318407,
-			Y:      0.189054726368159,
+			Point:  vg.Point{X: 70.09452736318407, Y: 0.189054726368159},
 			String: "D",
 		},
 	}

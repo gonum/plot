@@ -146,10 +146,10 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 				continue
 			}
 
-			pa.Move(x, y)
-			pa.Line(dx, y)
-			pa.Line(dx, dy)
-			pa.Line(x, dy)
+			pa.Move(vg.Point{x, y})
+			pa.Line(vg.Point{dx, y})
+			pa.Line(vg.Point{dx, dy})
+			pa.Line(vg.Point{x, dy})
 			pa.Close()
 
 			var col color.Color

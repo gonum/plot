@@ -100,8 +100,8 @@ func (c *Canvas) Rotate(rot float64) {
 	c.cur().gEnds++
 }
 
-func (c *Canvas) Translate(x, y vg.Length) {
-	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, x.Dots(DPI), pr, y.Dots(DPI)))
+func (c *Canvas) Translate(pt vg.Point) {
+	c.svg.Gtransform(fmt.Sprintf("translate(%.*g, %.*g)", pr, pt.X.Dots(DPI), pr, pt.Y.Dots(DPI)))
 	c.cur().gEnds++
 }
 
@@ -148,17 +148,17 @@ func (c *Canvas) pathData(path vg.Path) string {
 	for _, comp := range path {
 		switch comp.Type {
 		case vg.MoveComp:
-			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.X.Dots(DPI), pr, comp.Y.Dots(DPI))
-			x = comp.X.Dots(DPI)
-			y = comp.Y.Dots(DPI)
+			fmt.Fprintf(buf, "M%.*g,%.*g", pr, comp.Pos.X.Dots(DPI), pr, comp.Pos.Y.Dots(DPI))
+			x = comp.Pos.X.Dots(DPI)
+			y = comp.Pos.Y.Dots(DPI)
 		case vg.LineComp:
-			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.X.Dots(DPI), pr, comp.Y.Dots(DPI))
-			x = comp.X.Dots(DPI)
-			y = comp.Y.Dots(DPI)
+			fmt.Fprintf(buf, "L%.*g,%.*g", pr, comp.Pos.X.Dots(DPI), pr, comp.Pos.Y.Dots(DPI))
+			x = comp.Pos.X.Dots(DPI)
+			y = comp.Pos.Y.Dots(DPI)
 		case vg.ArcComp:
 			r := comp.Radius.Dots(DPI)
-			x0 := comp.X.Dots(DPI) + r*math.Cos(comp.Start)
-			y0 := comp.Y.Dots(DPI) + r*math.Sin(comp.Start)
+			x0 := comp.Pos.X.Dots(DPI) + r*math.Cos(comp.Start)
+			y0 := comp.Pos.Y.Dots(DPI) + r*math.Sin(comp.Start)
 			if x0 != x || y0 != y {
 				fmt.Fprintf(buf, "L%.*g,%.*g", pr, x0, pr, y0)
 			}
@@ -191,10 +191,10 @@ func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 	}
 
 	r := comp.Radius.Dots(DPI)
-	x0 := comp.X.Dots(DPI) + r*math.Cos(comp.Start+angle/2)
-	y0 := comp.Y.Dots(DPI) + r*math.Sin(comp.Start+angle/2)
-	x = comp.X.Dots(DPI) + r*math.Cos(comp.Start+angle)
-	y = comp.Y.Dots(DPI) + r*math.Sin(comp.Start+angle)
+	x0 := comp.Pos.X.Dots(DPI) + r*math.Cos(comp.Start+angle/2)
+	y0 := comp.Pos.Y.Dots(DPI) + r*math.Sin(comp.Start+angle/2)
+	x = comp.Pos.X.Dots(DPI) + r*math.Cos(comp.Start+angle)
+	y = comp.Pos.Y.Dots(DPI) + r*math.Sin(comp.Start+angle)
 
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(angle/2), sweep(angle/2), pr, x0, pr, y0) //
@@ -217,8 +217,8 @@ func remainder(x, y float64) float64 {
 // circle should be used instead.
 func arc(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 	r := comp.Radius.Dots(DPI)
-	x = comp.X.Dots(DPI) + r*math.Cos(comp.Start+comp.Angle)
-	y = comp.Y.Dots(DPI) + r*math.Sin(comp.Start+comp.Angle)
+	x = comp.Pos.X.Dots(DPI) + r*math.Cos(comp.Start+comp.Angle)
+	y = comp.Pos.Y.Dots(DPI) + r*math.Sin(comp.Start+comp.Angle)
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(comp.Angle), sweep(comp.Angle), pr, x, pr, y)
 	return
@@ -242,7 +242,7 @@ func large(a float64) int {
 	return 0
 }
 
-func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
+func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	fontStr, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Unknown font: %s", font.Name()))
@@ -254,7 +254,7 @@ func (c *Canvas) FillString(font vg.Font, x, y vg.Length, str string) {
 		sty = "\n\t" + sty
 	}
 	fmt.Fprintf(c.buf, `<text x="%.*g" y="%.*g" transform="scale(1, -1)"%s>%s</text>`+"\n",
-		pr, x.Dots(DPI), pr, -y.Dots(DPI), sty, str)
+		pr, pt.X.Dots(DPI), pr, -pt.Y.Dots(DPI), sty, str)
 }
 
 var (
