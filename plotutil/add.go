@@ -18,6 +18,11 @@ type combineXYs struct{ xs, ys plotter.Valuer }
 func (c combineXYs) Len() int                    { return c.xs.Len() }
 func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Value(i) }
 
+type item struct {
+	name  string
+	value plot.Thumbnailer
+}
+
 // AddStackedAreaPlots adds stacked area plot plotters to a plot.
 // The variadic arguments must be either strings
 // or plotter.Valuers.  Each valuer adds a stacked area
@@ -33,7 +38,7 @@ func (c combineXYs) XY(i int) (float64, float64) { return c.xs.Value(i), c.ys.Va
 // to the plot, and the error is returned.
 func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) error {
 	var ps []plot.Plotter
-	names := make(map[*plotter.Line]string)
+	var names []item
 	name := ""
 	var i int
 
@@ -61,7 +66,7 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 			ps = append(ps, l)
 
 			if name != "" {
-				names[l] = name
+				names = append(names, item{name: name, value: l})
 				name = ""
 			}
 
@@ -71,8 +76,8 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 	}
 
 	plt.Add(ps...)
-	for p, n := range names {
-		plt.Legend.Add(n, p)
+	for _, v := range names {
+		plt.Legend.Add(v.name, v.value)
 	}
 
 	return nil
@@ -130,7 +135,7 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) error {
 // to the plot, and the error is returned.
 func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 	var ps []plot.Plotter
-	names := make(map[*plotter.Scatter]string)
+	var items []item
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -148,7 +153,7 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 			i++
 			ps = append(ps, s)
 			if name != "" {
-				names[s] = name
+				items = append(items, item{name: name, value: s})
 				name = ""
 			}
 
@@ -157,8 +162,8 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 		}
 	}
 	plt.Add(ps...)
-	for p, n := range names {
-		plt.Legend.Add(n, p)
+	for _, v := range items {
+		plt.Legend.Add(v.name, v.value)
 	}
 	return nil
 }
@@ -176,7 +181,7 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 // to the plot, and the error is returned.
 func AddLines(plt *plot.Plot, vs ...interface{}) error {
 	var ps []plot.Plotter
-	names := make(map[*plotter.Line]string)
+	var items []item
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -194,7 +199,7 @@ func AddLines(plt *plot.Plot, vs ...interface{}) error {
 			i++
 			ps = append(ps, l)
 			if name != "" {
-				names[l] = name
+				items = append(items, item{name: name, value: l})
 				name = ""
 			}
 
@@ -203,8 +208,8 @@ func AddLines(plt *plot.Plot, vs ...interface{}) error {
 		}
 	}
 	plt.Add(ps...)
-	for p, n := range names {
-		plt.Legend.Add(n, p)
+	for _, v := range items {
+		plt.Legend.Add(v.name, v.value)
 	}
 	return nil
 }
@@ -222,7 +227,11 @@ func AddLines(plt *plot.Plot, vs ...interface{}) error {
 // to the plot, and the error is returned.
 func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
 	var ps []plot.Plotter
-	names := make(map[[2]plot.Thumbnailer]string)
+	type item struct {
+		name  string
+		value [2]plot.Thumbnailer
+	}
+	var items []item
 	name := ""
 	var i int
 	for _, v := range vs {
@@ -242,7 +251,7 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
 			i++
 			ps = append(ps, l, s)
 			if name != "" {
-				names[[2]plot.Thumbnailer{l, s}] = name
+				items = append(items, item{name: name, value: [2]plot.Thumbnailer{l, s}})
 				name = ""
 			}
 
@@ -251,8 +260,9 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
 		}
 	}
 	plt.Add(ps...)
-	for ps, n := range names {
-		plt.Legend.Add(n, ps[0], ps[1])
+	for _, item := range items {
+		v := item.value[:]
+		plt.Legend.Add(item.name, v[0], v[1])
 	}
 	return nil
 }
