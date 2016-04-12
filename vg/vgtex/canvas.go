@@ -262,7 +262,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	if c.document {
-		nn, err = w.Write([]byte(defaultFooter))
+		nn, err = b.Write([]byte(defaultFooter))
 		n += int64(nn)
 		if err != nil {
 			return n, err
