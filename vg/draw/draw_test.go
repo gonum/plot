@@ -23,16 +23,16 @@ func TestCrop(t *testing.T) {
 	c2 := NewCanvas(&r2, 6, 3)
 	c21 := Canvas{
 		Canvas: c2.Canvas,
-		Rectangle: Rectangle{
-			Min: Point{0, 0},
-			Max: Point{3, 3},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{0, 0},
+			Max: vg.Point{3, 3},
 		},
 	}
 	c22 := Canvas{
 		Canvas: c2.Canvas,
-		Rectangle: Rectangle{
-			Min: Point{3, 0},
-			Max: Point{6, 3},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{3, 0},
+			Max: vg.Point{6, 3},
 		},
 	}
 	str := "unexpected result: %+v != %+v"
@@ -71,33 +71,33 @@ func TestTile(t *testing.T) {
 		PadRight: pad, PadLeft: pad,
 		PadX: pad, PadY: pad,
 	}
-	rectangles := [][]Rectangle{
+	rectangles := [][]vg.Rectangle{
 		{
-			Rectangle{
-				Min: Point{1, 4},
-				Max: Point{4, 6},
+			vg.Rectangle{
+				Min: vg.Point{1, 4},
+				Max: vg.Point{4, 6},
 			},
-			Rectangle{
-				Min: Point{5, 4},
-				Max: Point{8, 6},
+			vg.Rectangle{
+				Min: vg.Point{5, 4},
+				Max: vg.Point{8, 6},
 			},
-			Rectangle{
-				Min: Point{9, 4},
-				Max: Point{12, 6},
+			vg.Rectangle{
+				Min: vg.Point{9, 4},
+				Max: vg.Point{12, 6},
 			},
 		},
 		{
-			Rectangle{
-				Min: Point{1, 1},
-				Max: Point{4, 3},
+			vg.Rectangle{
+				Min: vg.Point{1, 1},
+				Max: vg.Point{4, 3},
 			},
-			Rectangle{
-				Min: Point{5, 1},
-				Max: Point{8, 3},
+			vg.Rectangle{
+				Min: vg.Point{5, 1},
+				Max: vg.Point{8, 3},
 			},
-			Rectangle{
-				Min: Point{9, 1},
-				Max: Point{12, 3},
+			vg.Rectangle{
+				Min: vg.Point{9, 1},
+				Max: vg.Point{12, 3},
 			},
 		},
 	}

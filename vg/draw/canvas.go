@@ -22,7 +22,7 @@ import (
 // to which drawing should take place.
 type Canvas struct {
 	vg.Canvas
-	Rectangle
+	vg.Rectangle
 }
 
 // TextStyle describes what text will look like.
@@ -63,13 +63,13 @@ type GlyphStyle struct {
 type GlyphDrawer interface {
 	// DrawGlyph draws the glyph at the given
 	// point, with the given color and radius.
-	DrawGlyph(*Canvas, GlyphStyle, Point)
+	DrawGlyph(*Canvas, GlyphStyle, vg.Point)
 }
 
 // DrawGlyph draws the given glyph to the draw
 // area.  If the point is not within the Canvas
 // or the sty.Shape is nil then nothing is drawn.
-func (c *Canvas) DrawGlyph(sty GlyphStyle, pt Point) {
+func (c *Canvas) DrawGlyph(sty GlyphStyle, pt vg.Point) {
 	if sty.Shape == nil || !c.Contains(pt) {
 		return
 	}
@@ -79,7 +79,7 @@ func (c *Canvas) DrawGlyph(sty GlyphStyle, pt Point) {
 
 // DrawGlyphNoClip draws the given glyph to the draw
 // area.  If the sty.Shape is nil then nothing is drawn.
-func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
+func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt vg.Point) {
 	if sty.Shape == nil {
 		return
 	}
@@ -89,10 +89,10 @@ func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt Point) {
 
 // Rectangle returns the rectangle surrounding this glyph,
 // assuming that it is drawn centered at 0,0
-func (g GlyphStyle) Rectangle() Rectangle {
-	return Rectangle{
-		Min: Point{-g.Radius, -g.Radius},
-		Max: Point{+g.Radius, +g.Radius},
+func (g GlyphStyle) Rectangle() vg.Rectangle {
+	return vg.Rectangle{
+		Min: vg.Point{-g.Radius, -g.Radius},
+		Max: vg.Point{+g.Radius, +g.Radius},
 	}
 }
 
@@ -100,7 +100,7 @@ func (g GlyphStyle) Rectangle() Rectangle {
 type CircleGlyph struct{}
 
 // DrawGlyph implements the GlyphDrawer interface.
-func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	var p vg.Path
 	p.Move(pt.X+sty.Radius, pt.Y)
 	p.Arc(pt.X, pt.Y, sty.Radius, 0, 2*math.Pi)
@@ -112,7 +112,7 @@ func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type RingGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (RingGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (RingGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	var p vg.Path
 	p.Move(pt.X+sty.Radius, pt.Y)
@@ -131,7 +131,7 @@ const (
 type SquareGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
@@ -147,7 +147,7 @@ func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type BoxGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
 	var p vg.Path
 	p.Move(pt.X-x, pt.Y-x)
@@ -162,7 +162,7 @@ func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type TriangleGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
@@ -177,7 +177,7 @@ func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type PyramidGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
 	var p vg.Path
 	p.Move(pt.X, pt.Y+r)
@@ -191,7 +191,7 @@ func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type PlusGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius
 	var p vg.Path
@@ -208,7 +208,7 @@ func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
 type CrossGlyph struct{}
 
 // DrawGlyph implements the Glyph interface.
-func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt Point) {
+func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius * cosπover4
 	var p vg.Path
@@ -264,23 +264,23 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
-		Rectangle: Rectangle{
-			Min: Point{0, 0},
-			Max: Point{w, h},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{0, 0},
+			Max: vg.Point{w, h},
 		},
 	}
 }
 
 // Center returns the center point of the area
-func (c *Canvas) Center() Point {
-	return Point{
+func (c *Canvas) Center() vg.Point {
+	return vg.Point{
 		X: (c.Max.X-c.Min.X)/2 + c.Min.X,
 		Y: (c.Max.Y-c.Min.Y)/2 + c.Min.Y,
 	}
 }
 
 // Contains returns true if the Canvas contains the point.
-func (c *Canvas) Contains(p Point) bool {
+func (c *Canvas) Contains(p vg.Point) bool {
 	return c.ContainsX(p.X) && c.ContainsY(p.Y)
 }
 
@@ -320,17 +320,17 @@ func (c *Canvas) Y(y float64) vg.Length {
 // Note that cropping the right and top sides of the canvas
 // requires specifying negative values of right and top.
 func Crop(c Canvas, left, right, bottom, top vg.Length) Canvas {
-	minpt := Point{
+	minpt := vg.Point{
 		X: c.Min.X + left,
 		Y: c.Min.Y + bottom,
 	}
-	maxpt := Point{
+	maxpt := vg.Point{
 		X: c.Max.X + right,
 		Y: c.Max.Y + top,
 	}
 	return Canvas{
 		Canvas:    c,
-		Rectangle: Rectangle{Min: minpt, Max: maxpt},
+		Rectangle: vg.Rectangle{Min: minpt, Max: maxpt},
 	}
 }
 
@@ -361,9 +361,9 @@ func (ts Tiles) At(c Canvas, x, y int) Canvas {
 
 	return Canvas{
 		Canvas: vg.Canvas(c),
-		Rectangle: Rectangle{
-			Min: Point{X: xmin, Y: ymin},
-			Max: Point{X: xmax, Y: ymax},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{X: xmin, Y: ymin},
+			Max: vg.Point{X: xmax, Y: ymax},
 		},
 	}
 }
@@ -381,7 +381,7 @@ func (c *Canvas) SetLineStyle(sty LineStyle) {
 
 // StrokeLines draws a line connecting a set of points
 // in the given Canvas.
-func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]Point) {
+func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]vg.Point) {
 	if len(lines) == 0 {
 		return
 	}
@@ -404,27 +404,27 @@ func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]Point) {
 // StrokeLine2 draws a line between two points in the given
 // Canvas.
 func (c *Canvas) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
-	c.StrokeLines(sty, []Point{{x0, y0}, {x1, y1}})
+	c.StrokeLines(sty, []vg.Point{{x0, y0}, {x1, y1}})
 }
 
 // ClipLinesXY returns a slice of lines that
 // represent the given line clipped in both
 // X and Y directions.
-func (c *Canvas) ClipLinesXY(lines ...[]Point) [][]Point {
+func (c *Canvas) ClipLinesXY(lines ...[]vg.Point) [][]vg.Point {
 	return c.ClipLinesY(c.ClipLinesX(lines...)...)
 }
 
 // ClipLinesX returns a slice of lines that
 // represent the given line clipped in the
 // X direction.
-func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
-	var lines1 [][]Point
+func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
+	var lines1 [][]vg.Point
 	for _, line := range lines {
-		ls := clipLine(isLeft, Point{c.Max.X, c.Min.Y}, Point{-1, 0}, line)
+		ls := clipLine(isLeft, vg.Point{c.Max.X, c.Min.Y}, vg.Point{-1, 0}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isRight, Point{c.Min.X, c.Min.Y}, Point{1, 0}, line)
+		ls := clipLine(isRight, vg.Point{c.Min.X, c.Min.Y}, vg.Point{1, 0}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -433,14 +433,14 @@ func (c *Canvas) ClipLinesX(lines ...[]Point) (clipped [][]Point) {
 // ClipLinesY returns a slice of lines that
 // represent the given line clipped in the
 // Y direction.
-func (c *Canvas) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
-	var lines1 [][]Point
+func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
+	var lines1 [][]vg.Point
 	for _, line := range lines {
-		ls := clipLine(isAbove, Point{c.Min.X, c.Min.Y}, Point{0, -1}, line)
+		ls := clipLine(isAbove, vg.Point{c.Min.X, c.Min.Y}, vg.Point{0, -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isBelow, Point{c.Min.X, c.Max.Y}, Point{0, 1}, line)
+		ls := clipLine(isBelow, vg.Point{c.Min.X, c.Max.Y}, vg.Point{0, 1}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -449,8 +449,8 @@ func (c *Canvas) ClipLinesY(lines ...[]Point) (clipped [][]Point) {
 // clipLine performs clipping of a line by a single
 // clipping line specified by the norm, clip point,
 // and in function.
-func clipLine(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines [][]Point) {
-	var l []Point
+func clipLine(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Point) (lines [][]vg.Point) {
+	var l []vg.Point
 	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
@@ -461,7 +461,7 @@ func clipLine(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines 
 		case curIn && !nextIn:
 			l = append(l, cur, isect(cur, next, clip, norm))
 			lines = append(lines, l)
-			l = []Point{}
+			l = []vg.Point{}
 
 		case !curIn && !nextIn:
 			// do nothing
@@ -480,7 +480,7 @@ func clipLine(in func(Point, Point) bool, clip, norm Point, pts []Point) (lines 
 }
 
 // FillPolygon fills a polygon with the given color.
-func (c *Canvas) FillPolygon(clr color.Color, pts []Point) {
+func (c *Canvas) FillPolygon(clr color.Color, pts []vg.Point) {
 	if len(pts) == 0 {
 		return
 	}
@@ -498,30 +498,30 @@ func (c *Canvas) FillPolygon(clr color.Color, pts []Point) {
 // ClipPolygonXY returns a slice of lines that
 // represent the given polygon clipped in both
 // X and Y directions.
-func (c *Canvas) ClipPolygonXY(pts []Point) []Point {
+func (c *Canvas) ClipPolygonXY(pts []vg.Point) []vg.Point {
 	return c.ClipPolygonY(c.ClipPolygonX(pts))
 }
 
 // ClipPolygonX returns a slice of lines that
 // represent the given polygon clipped in the
 // X direction.
-func (c *Canvas) ClipPolygonX(pts []Point) []Point {
-	return clipPoly(isLeft, Point{c.Max.X, c.Min.Y}, Point{-1, 0},
-		clipPoly(isRight, Point{c.Min.X, c.Min.Y}, Point{1, 0}, pts))
+func (c *Canvas) ClipPolygonX(pts []vg.Point) []vg.Point {
+	return clipPoly(isLeft, vg.Point{c.Max.X, c.Min.Y}, vg.Point{-1, 0},
+		clipPoly(isRight, vg.Point{c.Min.X, c.Min.Y}, vg.Point{1, 0}, pts))
 }
 
 // ClipPolygonY returns a slice of lines that
 // represent the given polygon clipped in the
 // Y direction.
-func (c *Canvas) ClipPolygonY(pts []Point) []Point {
-	return clipPoly(isBelow, Point{c.Min.X, c.Max.Y}, Point{0, 1},
-		clipPoly(isAbove, Point{c.Min.X, c.Min.Y}, Point{0, -1}, pts))
+func (c *Canvas) ClipPolygonY(pts []vg.Point) []vg.Point {
+	return clipPoly(isBelow, vg.Point{c.Min.X, c.Max.Y}, vg.Point{0, 1},
+		clipPoly(isAbove, vg.Point{c.Min.X, c.Min.Y}, vg.Point{0, -1}, pts))
 }
 
 // clipPoly performs clipping of a polygon by a single
 // clipping line specified by the norm, clip point,
 // and in function.
-func clipPoly(in func(Point, Point) bool, clip, norm Point, pts []Point) (clipped []Point) {
+func clipPoly(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Point) (clipped []vg.Point) {
 	for i := 0; i < len(pts); i++ {
 		j := i + 1
 		if i == len(pts)-1 {
@@ -549,30 +549,30 @@ func clipPoly(in func(Point, Point) bool, clip, norm Point, pts []Point) (clippe
 // slop is some slop for floating point equality
 const slop = 3e-8 // ≈ √1⁻¹⁵
 
-func isLeft(p, clip Point) bool {
+func isLeft(p, clip vg.Point) bool {
 	return p.X <= clip.X+slop
 }
 
-func isRight(p, clip Point) bool {
+func isRight(p, clip vg.Point) bool {
 	return p.X >= clip.X-slop
 }
 
-func isBelow(p, clip Point) bool {
+func isBelow(p, clip vg.Point) bool {
 	return p.Y <= clip.Y+slop
 }
 
-func isAbove(p, clip Point) bool {
+func isAbove(p, clip vg.Point) bool {
 	return p.Y >= clip.Y-slop
 }
 
 // isect returns the intersection of a line p0→p1 with the
 // clipping line specified by the clip point and normal.
-func isect(p0, p1, clip, norm Point) Point {
+func isect(p0, p1, clip, norm vg.Point) vg.Point {
 	// t = (norm · (p0 - clip)) / (norm · (p0 - p1))
-	t := p0.minus(clip).dot(norm) / p0.minus(p1).dot(norm)
+	t := p0.Sub(clip).Dot(norm) / p0.Sub(p1).Dot(norm)
 
 	// p = p0 + t*(p1 - p0)
-	return p1.minus(p0).scale(t).plus(p0)
+	return p1.Sub(p0).Scale(t).Add(p0)
 }
 
 // FillText fills lines of text in the draw area.
@@ -622,8 +622,8 @@ func (sty TextStyle) Height(txt string) vg.Length {
 
 // Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at 0, 0
-func (sty TextStyle) Rectangle(txt string) Rectangle {
-	return Rectangle{Max: Point{sty.Width(txt), sty.Height(txt)}}
+func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
+	return vg.Rectangle{Max: vg.Point{sty.Width(txt), sty.Height(txt)}}
 }
 
 // textNLines returns the number of lines in the text.
@@ -639,57 +639,4 @@ func textNLines(txt string) int {
 		}
 	}
 	return n
-}
-
-// A Rectangle represents a rectangular region of 2d space.
-type Rectangle struct {
-	Min Point
-	Max Point
-}
-
-// Size returns the width and height of a Rectangle.
-func (r Rectangle) Size() Point {
-	return Point{
-		X: r.Max.X - r.Min.X,
-		Y: r.Max.Y - r.Min.Y,
-	}
-}
-
-// Path returns the path of a Rect specified by its
-// upper left corner, width and height.
-func (r Rectangle) Path() (p vg.Path) {
-	p.Move(r.Min.X, r.Min.Y)
-	p.Line(r.Max.X, r.Min.Y)
-	p.Line(r.Max.X, r.Max.Y)
-	p.Line(r.Min.X, r.Max.Y)
-	p.Close()
-	return
-}
-
-// A Point is a location in 2d space.
-//
-// Points are used for drawing, not for data.  For
-// data, see the XYer interface.
-type Point struct {
-	X, Y vg.Length
-}
-
-// dot returns the dot product of two points.
-func (p Point) dot(q Point) vg.Length {
-	return p.X*q.X + p.Y*q.Y
-}
-
-// plus returns the component-wise sum of two points.
-func (p Point) plus(q Point) Point {
-	return Point{p.X + q.X, p.Y + q.Y}
-}
-
-// minus returns the component-wise difference of two points.
-func (p Point) minus(q Point) Point {
-	return Point{p.X - q.X, p.Y - q.Y}
-}
-
-// scale returns the component-wise product of a point and a scalar.
-func (p Point) scale(s vg.Length) Point {
-	return Point{p.X * s, p.Y * s}
 }

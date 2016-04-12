@@ -40,9 +40,9 @@ func TestLegendAlignment(t *testing.T) {
 	c := draw.NewCanvas(&r, 100, 100)
 	l.Draw(draw.Canvas{
 		Canvas: c.Canvas,
-		Rectangle: draw.Rectangle{
-			Min: draw.Point{0, 0},
-			Max: draw.Point{100, 100},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{0, 0},
+			Max: vg.Point{100, 100},
 		},
 	})
 

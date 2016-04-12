@@ -69,7 +69,7 @@ func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, d := range bs.XYZs {
 		x := trX(d.X)
 		y := trY(d.Y)
-		if !c.Contains(draw.Point{x, y}) {
+		if !c.Contains(vg.Point{x, y}) {
 			continue
 		}
 
@@ -108,9 +108,9 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		boxes[i].X = plt.X.Norm(d.X)
 		boxes[i].Y = plt.Y.Norm(d.Y)
 		r := bs.radius(d.Z)
-		boxes[i].Rectangle = draw.Rectangle{
-			Min: draw.Point{-r, -r},
-			Max: draw.Point{+r, +r},
+		boxes[i].Rectangle = vg.Rectangle{
+			Min: vg.Point{-r, -r},
+			Max: vg.Point{+r, +r},
 		}
 	}
 	return boxes

@@ -219,7 +219,7 @@ func (h *Contour) naivePlot(c draw.Canvas, plt *plot.Plot) {
 		x1, y1 := trX(l.p1.X), trY(l.p1.Y)
 		x2, y2 := trX(l.p2.X), trY(l.p2.Y)
 
-		if !c.Contains(draw.Point{x1, y1}) || !c.Contains(draw.Point{x2, y2}) {
+		if !c.Contains(vg.Point{x1, y1}) || !c.Contains(vg.Point{x2, y2}) {
 			return
 		}
 
@@ -264,9 +264,9 @@ func (h *Contour) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 			b = append(b, plot.GlyphBox{
 				X: plt.X.Norm(h.GridXYZ.X(i)),
 				Y: plt.Y.Norm(h.GridXYZ.Y(j)),
-				Rectangle: draw.Rectangle{
-					Min: draw.Point{-2.5, -2.5},
-					Max: draw.Point{+2.5, +2.5},
+				Rectangle: vg.Rectangle{
+					Min: vg.Point{-2.5, -2.5},
+					Max: vg.Point{+2.5, +2.5},
 				},
 			})
 		}

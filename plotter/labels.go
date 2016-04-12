@@ -81,7 +81,7 @@ func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 	for i, label := range l.Labels {
 		x := trX(l.XYs[i].X)
 		y := trY(l.XYs[i].Y)
-		if !c.Contains(draw.Point{X: x, Y: y}) {
+		if !c.Contains(vg.Point{X: x, Y: y}) {
 			continue
 		}
 		x += l.XOffset

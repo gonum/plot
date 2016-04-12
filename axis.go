@@ -249,9 +249,9 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		w := a.Tick.Label.Width(t.Label)
 		box := GlyphBox{
 			X: a.Norm(t.Value),
-			Rectangle: draw.Rectangle{
-				Min: draw.Point{X: -w / 2},
-				Max: draw.Point{X: w / 2},
+			Rectangle: vg.Rectangle{
+				Min: vg.Point{X: -w / 2},
+				Max: vg.Point{X: w / 2},
 			},
 		}
 		boxes = append(boxes, box)
@@ -335,9 +335,9 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		h := a.Tick.Label.Height(t.Label)
 		box := GlyphBox{
 			Y: a.Norm(t.Value),
-			Rectangle: draw.Rectangle{
-				Min: draw.Point{Y: -h / 2},
-				Max: draw.Point{Y: h / 2},
+			Rectangle: vg.Rectangle{
+				Min: vg.Point{Y: -h / 2},
+				Max: vg.Point{Y: h / 2},
 			},
 		}
 		boxes = append(boxes, box)

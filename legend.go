@@ -102,9 +102,9 @@ func (l *Legend) draw(c draw.Canvas) {
 
 	icon := &draw.Canvas{
 		Canvas: c.Canvas,
-		Rectangle: draw.Rectangle{
-			Min: draw.Point{iconx, y},
-			Max: draw.Point{iconx + l.ThumbnailWidth, y + enth},
+		Rectangle: vg.Rectangle{
+			Min: vg.Point{iconx, y},
+			Max: vg.Point{iconx + l.ThumbnailWidth, y + enth},
 		},
 	}
 	for _, e := range l.entries {

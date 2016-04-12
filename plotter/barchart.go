@@ -120,10 +120,10 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		valMin := trVal(bottom)
 		valMax := trVal(bottom + ht)
 
-		var pts []draw.Point
-		var poly []draw.Point
+		var pts []vg.Point
+		var poly []vg.Point
 		if !b.Horizontal {
-			pts = []draw.Point{
+			pts = []vg.Point{
 				{catMin, valMin},
 				{catMin, valMax},
 				{catMax, valMax},
@@ -131,7 +131,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 			}
 			poly = c.ClipPolygonY(pts)
 		} else {
-			pts = []draw.Point{
+			pts = []vg.Point{
 				{valMin, catMin},
 				{valMin, catMax},
 				{valMax, catMax},
@@ -141,12 +141,12 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		}
 		c.FillPolygon(b.Color, poly)
 
-		var outline [][]draw.Point
+		var outline [][]vg.Point
 		if !b.Horizontal {
-			pts = append(pts, draw.Point{X: catMin, Y: valMin})
+			pts = append(pts, vg.Point{X: catMin, Y: valMin})
 			outline = c.ClipLinesY(pts)
 		} else {
-			pts = append(pts, draw.Point{X: valMin, Y: catMin})
+			pts = append(pts, vg.Point{X: valMin, Y: catMin})
 			outline = c.ClipLinesX(pts)
 		}
 		c.StrokeLines(b.LineStyle, outline...)
@@ -179,15 +179,15 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		cat := b.XMin + float64(i)
 		if !b.Horizontal {
 			boxes[i].X = plt.X.Norm(cat)
-			boxes[i].Rectangle = draw.Rectangle{
-				Min: draw.Point{X: b.Offset - b.Width/2},
-				Max: draw.Point{X: b.Offset + b.Width/2},
+			boxes[i].Rectangle = vg.Rectangle{
+				Min: vg.Point{X: b.Offset - b.Width/2},
+				Max: vg.Point{X: b.Offset + b.Width/2},
 			}
 		} else {
 			boxes[i].Y = plt.Y.Norm(cat)
-			boxes[i].Rectangle = draw.Rectangle{
-				Min: draw.Point{Y: b.Offset - b.Width/2},
-				Max: draw.Point{Y: b.Offset + b.Width/2},
+			boxes[i].Rectangle = vg.Rectangle{
+				Min: vg.Point{Y: b.Offset - b.Width/2},
+				Max: vg.Point{Y: b.Offset + b.Width/2},
 			}
 		}
 	}
@@ -196,7 +196,7 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 
 // Thumbnail fulfills the plot.Thumbnailer interface.
 func (b *BarChart) Thumbnail(c *draw.Canvas) {
-	pts := []draw.Point{
+	pts := []vg.Point{
 		{c.Min.X, c.Min.Y},
 		{c.Min.X, c.Max.Y},
 		{c.Max.X, c.Max.Y},
@@ -205,7 +205,7 @@ func (b *BarChart) Thumbnail(c *draw.Canvas) {
 	poly := c.ClipPolygonY(pts)
 	c.FillPolygon(b.Color, poly)
 
-	pts = append(pts, draw.Point{X: c.Min.X, Y: c.Min.Y})
+	pts = append(pts, vg.Point{X: c.Min.X, Y: c.Min.Y})
 	outline := c.ClipLinesY(pts)
 	c.StrokeLines(b.LineStyle, outline...)
 }

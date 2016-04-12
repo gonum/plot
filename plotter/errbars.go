@@ -70,7 +70,7 @@ func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 		ylow := trY(e.XYs[i].Y - math.Abs(err.Low))
 		yhigh := trY(e.XYs[i].Y + math.Abs(err.High))
 
-		bar := c.ClipLinesY([]draw.Point{{x, ylow}, {x, yhigh}})
+		bar := c.ClipLinesY([]vg.Point{{x, ylow}, {x, yhigh}})
 		c.StrokeLines(e.LineStyle, bar...)
 		e.drawCap(&c, x, ylow)
 		e.drawCap(&c, x, yhigh)
@@ -79,7 +79,7 @@ func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *YErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
-	if !c.Contains(draw.Point{x, y}) {
+	if !c.Contains(vg.Point{x, y}) {
 		return
 	}
 	c.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
@@ -102,12 +102,12 @@ func (e *YErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
 func (e *YErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	rect := draw.Rectangle{
-		Min: draw.Point{
+	rect := vg.Rectangle{
+		Min: vg.Point{
 			X: -e.CapWidth / 2,
 			Y: -e.LineStyle.Width / 2,
 		},
-		Max: draw.Point{
+		Max: vg.Point{
 			X: +e.CapWidth / 2,
 			Y: +e.LineStyle.Width / 2,
 		},
@@ -178,7 +178,7 @@ func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 		xlow := trX(e.XYs[i].X - math.Abs(err.Low))
 		xhigh := trX(e.XYs[i].X + math.Abs(err.High))
 
-		bar := c.ClipLinesX([]draw.Point{{xlow, y}, {xhigh, y}})
+		bar := c.ClipLinesX([]vg.Point{{xlow, y}, {xhigh, y}})
 		c.StrokeLines(e.LineStyle, bar...)
 		e.drawCap(&c, xlow, y)
 		e.drawCap(&c, xhigh, y)
@@ -187,7 +187,7 @@ func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *XErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
-	if !c.Contains(draw.Point{x, y}) {
+	if !c.Contains(vg.Point{x, y}) {
 		return
 	}
 	c.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)
@@ -210,12 +210,12 @@ func (e *XErrorBars) DataRange() (xmin, xmax, ymin, ymax float64) {
 
 // GlyphBoxes implements the plot.GlyphBoxer interface.
 func (e *XErrorBars) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
-	rect := draw.Rectangle{
-		Min: draw.Point{
+	rect := vg.Rectangle{
+		Min: vg.Point{
 			X: -e.LineStyle.Width / 2,
 			Y: -e.CapWidth / 2,
 		},
-		Max: draw.Point{
+		Max: vg.Point{
 			X: +e.LineStyle.Width / 2,
 			Y: +e.CapWidth / 2,
 		},

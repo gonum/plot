@@ -94,7 +94,7 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	x += b.Offset
 
-	med := draw.Point{X: x, Y: trY(b.Median)}
+	med := vg.Point{X: x, Y: trY(b.Median)}
 	q1 := trY(b.Quartile1)
 	q3 := trY(b.Quartile3)
 	aLow := trY(b.AdjLow)
@@ -111,7 +111,7 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, out := range b.Outside {
 		y := trY(b.Value(out))
 		if c.ContainsY(y) {
-			c.DrawGlyphNoClip(ostyle, draw.Point{X: x, Y: y})
+			c.DrawGlyphNoClip(ostyle, vg.Point{X: x, Y: y})
 		}
 	}
 }
@@ -204,7 +204,7 @@ func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	y += b.Offset
 
-	med := draw.Point{X: trX(b.Median), Y: y}
+	med := vg.Point{X: trX(b.Median), Y: y}
 	q1 := trX(b.Quartile1)
 	q3 := trX(b.Quartile3)
 	aLow := trX(b.AdjLow)
@@ -221,7 +221,7 @@ func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, out := range b.Outside {
 		x := trX(b.Value(out))
 		if c.ContainsX(x) {
-			c.DrawGlyphNoClip(ostyle, draw.Point{X: x, Y: y})
+			c.DrawGlyphNoClip(ostyle, vg.Point{X: x, Y: y})
 		}
 	}
 }

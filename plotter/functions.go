@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
 
@@ -33,7 +34,7 @@ func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 
 	d := (p.X.Max - p.X.Min) / float64(f.Samples-1)
-	line := make([]draw.Point, f.Samples)
+	line := make([]vg.Point, f.Samples)
 	for i := range line {
 		x := p.X.Min + float64(i)*d
 		line[i].X = trX(x)

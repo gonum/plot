@@ -11,6 +11,7 @@ import (
 	"math"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
 
@@ -76,7 +77,7 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 
 	for _, bin := range h.Bins {
-		pts := []draw.Point{
+		pts := []vg.Point{
 			{trX(bin.Min), trY(0)},
 			{trX(bin.Max), trY(0)},
 			{trX(bin.Max), trY(bin.Weight)},
@@ -85,7 +86,7 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 		if h.FillColor != nil {
 			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 		}
-		pts = append(pts, draw.Point{trX(bin.Min), trY(0)})
+		pts = append(pts, vg.Point{trX(bin.Min), trY(0)})
 		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
 }
@@ -128,7 +129,7 @@ func (h *Histogram) Thumbnail(c *draw.Canvas) {
 	xmin := c.Min.X
 	xmax := c.Max.X
 
-	pts := []draw.Point{
+	pts := []vg.Point{
 		{xmin, ymin},
 		{xmax, ymin},
 		{xmax, ymax},
@@ -137,7 +138,7 @@ func (h *Histogram) Thumbnail(c *draw.Canvas) {
 	if h.FillColor != nil {
 		c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 	}
-	pts = append(pts, draw.Point{xmin, ymin})
+	pts = append(pts, vg.Point{xmin, ymin})
 	c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 }
 

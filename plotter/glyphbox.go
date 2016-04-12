@@ -30,7 +30,7 @@ func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
 	for _, b := range plt.GlyphBoxes(plt) {
 		x := c.X(b.X) + b.Rectangle.Min.X
 		y := c.Y(b.Y) + b.Rectangle.Min.Y
-		c.StrokeLines(g.LineStyle, []draw.Point{
+		c.StrokeLines(g.LineStyle, []vg.Point{
 			{x, y},
 			{x + b.Rectangle.Size().X, y},
 			{x + b.Rectangle.Size().X, y + b.Rectangle.Size().Y},

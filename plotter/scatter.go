@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
 
@@ -38,7 +39,7 @@ func NewScatter(xys XYer) (*Scatter, error) {
 func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
 	for _, p := range pts.XYs {
-		c.DrawGlyph(pts.GlyphStyle, draw.Point{trX(p.X), trY(p.Y)})
+		c.DrawGlyph(pts.GlyphStyle, vg.Point{trX(p.X), trY(p.Y)})
 	}
 }
 

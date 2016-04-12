@@ -42,7 +42,7 @@ func NewLine(xys XYer) (*Line, error) {
 // interface.
 func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
-	ps := make([]draw.Point, len(pts.XYs))
+	ps := make([]vg.Point, len(pts.XYs))
 
 	for i, p := range pts.XYs {
 		ps[i].X = trX(p.X)
@@ -76,7 +76,7 @@ func (pts *Line) DataRange() (xmin, xmax, ymin, ymax float64) {
 // implementing the plot.Thumbnailer interface.
 func (pts *Line) Thumbnail(c *draw.Canvas) {
 	if pts.ShadeColor != nil {
-		points := []draw.Point{
+		points := []vg.Point{
 			{c.Min.X, c.Min.Y},
 			{c.Min.X, c.Max.Y},
 			{c.Max.X, c.Max.Y},
@@ -85,7 +85,7 @@ func (pts *Line) Thumbnail(c *draw.Canvas) {
 		poly := c.ClipPolygonY(points)
 		c.FillPolygon(*pts.ShadeColor, poly)
 
-		points = append(points, draw.Point{c.Min.X, c.Min.Y})
+		points = append(points, vg.Point{c.Min.X, c.Min.Y})
 	} else {
 		y := c.Center().Y
 		c.StrokeLine2(pts.LineStyle, c.Min.X, y, c.Max.X, y)
