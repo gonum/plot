@@ -283,62 +283,62 @@ var (
 	// draw2d.
 	fontMap = map[string]draw2d.FontData{
 		"Courier": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilyMono,
 			Style:  draw2d.FontStyleNormal,
 		},
 		"Courier-Bold": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilyMono,
 			Style:  draw2d.FontStyleBold,
 		},
 		"Courier-Oblique": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilyMono,
 			Style:  draw2d.FontStyleItalic,
 		},
 		"Courier-BoldOblique": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilyMono,
 			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},
 		"Helvetica": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySans,
 			Style:  draw2d.FontStyleNormal,
 		},
 		"Helvetica-Bold": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySans,
 			Style:  draw2d.FontStyleBold,
 		},
 		"Helvetica-Oblique": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySans,
 			Style:  draw2d.FontStyleItalic,
 		},
 		"Helvetica-BoldOblique": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySans,
 			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},
 		"Times-Roman": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySerif,
 			Style:  draw2d.FontStyleNormal,
 		},
 		"Times-Bold": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySerif,
 			Style:  draw2d.FontStyleBold,
 		},
 		"Times-Italic": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySerif,
 			Style:  draw2d.FontStyleItalic,
 		},
 		"Times-BoldItalic": draw2d.FontData{
-			Name:   "Nimbus",
+			Name:   "Liberation",
 			Family: draw2d.FontFamilySerif,
 			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
 		},

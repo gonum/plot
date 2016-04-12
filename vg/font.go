@@ -100,7 +100,7 @@ type Font struct {
 // the FontDirs slice for a directory containing the relevant font
 // file.  The font file name is name mapped by FontMap with the
 // .ttf extension.  For example, the font file for the font name
-// Courier is NimbusMonL-Regu.ttf.
+// Courier is LiberationMono-Regular.ttf.
 func MakeFont(name string, size Length) (font Font, err error) {
 	font.Size = size
 	font.name = name
