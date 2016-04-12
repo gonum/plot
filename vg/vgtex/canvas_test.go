@@ -5,6 +5,8 @@
 package vgtex
 
 import (
+	"bytes"
+	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -47,4 +49,19 @@ func Example() {
 
 func TestTexCanvas(t *testing.T) {
 	Example()
+	fname := "testdata/scatter.tex"
+	got, err := ioutil.ReadFile(fname)
+	if err != nil {
+		t.Fatalf("error reading test file: %v\n", err)
+	}
+
+	refname := "testdata/scatter_golden.tex"
+	want, err := ioutil.ReadFile(refname)
+	if err != nil {
+		t.Fatalf("error reading ref file: %v\n", err)
+	}
+
+	if !bytes.Equal(got, want) {
+		t.Fatalf("test file [%s] and ref file [%s] differ", fname, refname)
+	}
 }
