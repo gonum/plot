@@ -244,7 +244,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	)
 	b := bufio.NewWriter(w)
 	if c.document {
-		nn, err = w.Write([]byte(defaultHeader))
+		nn, err = b.Write([]byte(defaultHeader))
 		n += int64(nn)
 		if err != nil {
 			return n, err
