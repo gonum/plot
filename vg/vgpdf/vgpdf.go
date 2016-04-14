@@ -9,6 +9,7 @@ package vgpdf
 import (
 	"bufio"
 	"fmt"
+	"image"
 	"image/color"
 	"io"
 	"math"
@@ -100,6 +101,15 @@ func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	t.NextLineOffset(unit(pt.X), unit(pt.Y))
 	t.Text(str)
 	c.page.DrawText(t)
+}
+
+// DrawImage implements the vg.Canvas.DrawImage method.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	r := pdf.Rectangle{
+		Min: pdfPoint(rect.Min.X, rect.Min.Y),
+		Max: pdfPoint(rect.Max.X, rect.Max.Y),
+	}
+	c.page.DrawImage(img, r)
 }
 
 // pdfPath returns a pdf.Path from a vg.Path.

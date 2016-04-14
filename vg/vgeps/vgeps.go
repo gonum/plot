@@ -10,6 +10,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"image"
 	"image/color"
 	"io"
 	"math"
@@ -185,6 +186,12 @@ func (e *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	}
 	fmt.Fprintf(e.buf, "%.*g %.*g moveto\n", pr, pt.X.Dots(DPI), pr, pt.Y.Dots(DPI))
 	fmt.Fprintf(e.buf, "(%s) show\n", str)
+}
+
+// DrawImage implements the vg.Canvas.DrawImage method.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	// FIXME: https://github.com/gonum/plot/issues/271
+	panic("vgeps: DrawImage not implemented")
 }
 
 // WriteTo writes the canvas to an io.Writer.

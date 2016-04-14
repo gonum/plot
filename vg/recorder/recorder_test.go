@@ -5,6 +5,7 @@
 package recorder
 
 import (
+	"image"
 	"image/color"
 	"strings"
 	"testing"
@@ -28,6 +29,7 @@ func TestRecorder(t *testing.T) {
 	rec.SetLineDash([]vg.Length{2, 5}, 6)
 	rec.SetColor(color.RGBA{R: 0x65, G: 0x23, B: 0xf2})
 	rec.Fill(vg.Path{{Type: vg.MoveComp, Pos: vg.Point{X: 3, Y: 4}}, {Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 3}}, {Type: vg.CloseComp}})
+	rec.DrawImage(vg.Rectangle{vg.Point{0, 0}, vg.Point{10, 10}}, img)
 	if len(rec.Actions) != len(want) {
 		t.Fatalf("unexpected number of actions recorded: got:%d want:%d", len(rec.Actions), len(want))
 	}
@@ -58,17 +60,20 @@ func TestRecorder(t *testing.T) {
 	}
 }
 
+var img image.Image = image.NewGray(image.Rect(0, 0, 20, 20))
+
 var want = []string{
 	`FillString("Times-Roman", 12, 0, 10, "Text")`,
 	`Comment("End of preamble")`,
 	`Scale(1, 2)`,
 	`Rotate(0.72)`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:22 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Radius:0, Start:0, Angle:0}})`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:23 Push()`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:24 Pop()`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:25 Translate(3, 4)`,
+	`github.com/gonum/plot/vg/recorder/recorder_test.go:23 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Radius:0, Start:0, Angle:0}})`,
+	`github.com/gonum/plot/vg/recorder/recorder_test.go:24 Push()`,
+	`github.com/gonum/plot/vg/recorder/recorder_test.go:25 Pop()`,
+	`github.com/gonum/plot/vg/recorder/recorder_test.go:26 Translate(3, 4)`,
 	`SetLineWidth(100)`,
 	`SetLineDash([]vg.Length{2, 5}, 6)`,
 	`SetColor(color.RGBA{R:0x65, G:0x23, B:0xf2, A:0x0})`,
 	`Fill(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Radius:0, Start:0, Angle:0}, vg.PathComp{Type:1, Pos:vg.Point{X:2, Y:3}, Radius:0, Start:0, Angle:0}, vg.PathComp{Type:3, Pos:vg.Point{X:0, Y:0}, Radius:0, Start:0, Angle:0}})`,
+	`DrawImage(vg.Rectangle{Min:vg.Point{X:0, Y:0}, Max:vg.Point{X:10, Y:10}}, {image.Rectangle{Min:image.Point{X:0, Y:0}, Max:image.Point{X:20, Y:20}}, IMAGE:iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAAAAACo4kLRAAAAFElEQVR4nGJiwAJGBQeVICAAAP//JBgAKeMueQ8AAAAASUVORK5CYII=})`,
 }

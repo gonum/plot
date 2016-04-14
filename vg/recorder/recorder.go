@@ -6,8 +6,12 @@
 package recorder
 
 import (
+	"bytes"
+	"encoding/base64"
 	"fmt"
+	"image"
 	"image/color"
+	"image/png"
 	"runtime"
 
 	"github.com/gonum/plot/vg"
@@ -401,6 +405,42 @@ func (a *FillString) Call() string {
 }
 
 func (a *FillString) callerLocation() *callerLocation {
+	return &a.l
+}
+
+// DrawImage corresponds to the vg.Canvas.DrawImage method
+type DrawImage struct {
+	Rectangle vg.Rectangle
+	Image     image.Image
+
+	l callerLocation
+}
+
+// DrawImage implements the DrawImage method of the vg.Canvas interface.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	c.append(&DrawImage{
+		Rectangle: rect,
+		Image:     img,
+	})
+}
+
+// ApplyTo applies the action to the given vg.Canvas.
+func (a *DrawImage) ApplyTo(c vg.Canvas) {
+	c.DrawImage(a.Rectangle, a.Image)
+}
+
+// Call returns the pseudo method call that generated the action.
+func (a *DrawImage) Call() string {
+	var buf bytes.Buffer
+	err := png.Encode(&buf, a.Image)
+	if err != nil {
+		panic(fmt.Errorf("recorder: error encoding image to PNG: %v", err))
+	}
+	b64 := base64.StdEncoding.EncodeToString(buf.Bytes())
+	return fmt.Sprintf("%sDrawImage(%#v, {%#v, IMAGE:%s})", a.l, a.Rectangle, a.Image.Bounds(), b64)
+}
+
+func (a *DrawImage) callerLocation() *callerLocation {
 	return &a.l
 }
 

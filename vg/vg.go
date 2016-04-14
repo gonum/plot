@@ -8,6 +8,7 @@
 package vg
 
 import (
+	"image"
 	"image/color"
 	"io"
 )
@@ -74,6 +75,10 @@ type Canvas interface {
 	// FillString fills in text at the specified
 	// location using the given font.
 	FillString(f Font, pt Point, text string)
+
+	// DrawImage draws the image, scaled to fit
+	// the destination rectangle.
+	DrawImage(rect Rectangle, img image.Image)
 }
 
 // CanvasSizer is a Canvas with a defined size.

@@ -9,8 +9,11 @@ package vgsvg
 import (
 	"bufio"
 	"bytes"
+	"encoding/base64"
 	"fmt"
+	"image"
 	"image/color"
+	"image/png"
 	"io"
 	"math"
 
@@ -255,6 +258,35 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	}
 	fmt.Fprintf(c.buf, `<text x="%.*g" y="%.*g" transform="scale(1, -1)"%s>%s</text>`+"\n",
 		pr, pt.X.Dots(DPI), pr, -pt.Y.Dots(DPI), sty, str)
+}
+
+// DrawImage implements the vg.Canvas.DrawImage method.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	buf := new(bytes.Buffer)
+	err := png.Encode(buf, img)
+	if err != nil {
+		panic(fmt.Errorf("vgsvg: error encoding image to PNG: %v\n", err))
+	}
+	str := "data:image/jpg;base64," + base64.StdEncoding.EncodeToString(buf.Bytes())
+	rsz := rect.Size()
+	min := rect.Min
+	var (
+		width  = rsz.X.Dots(DPI)
+		height = rsz.Y.Dots(DPI)
+		xmin   = min.X.Dots(DPI)
+		ymin   = min.Y.Dots(DPI)
+	)
+	fmt.Fprintf(
+		c.buf,
+		`<image x="%v" y="%v" width="%v" height="%v" xlink:href="%s" %s />`+"\n",
+		xmin,
+		-ymin-height,
+		width,
+		height,
+		str,
+		// invert y so image is not upside-down
+		`transform="scale(1, -1)"`,
+	)
 }
 
 var (

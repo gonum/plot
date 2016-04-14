@@ -13,10 +13,14 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"image"
 	"image/color"
+	"image/png"
 	"io"
 	"math"
+	"os"
 	"strings"
+	"time"
 
 	"github.com/gonum/plot/vg"
 )
@@ -42,6 +46,7 @@ type Canvas struct {
 	// If document is true, Canvas.WriteTo will generate a standalone
 	// .tex file that can be fed to, e.g., pdflatex.
 	document bool
+	id       int64 // id is a unique identifier for this canvas
 }
 
 type context struct {
@@ -68,6 +73,7 @@ func newCanvas(w, h vg.Length, document bool) *Canvas {
 		w:        w,
 		h:        h,
 		document: document,
+		id:       time.Now().UnixNano(),
 	}
 	if !document {
 		c.wtex(`%%%% gonum/plot created for LaTeX/pgf`)
@@ -160,6 +166,31 @@ func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
 	c.wcolor()
 	pt.X += 0.5 * f.Width(text)
 	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{%s}`, pt.X, pt.Y, text)
+}
+
+// DrawImage implements the vg.Canvas.DrawImage method.
+// DrawImage will first save the image inside a PNG file and have the
+// generated LaTeX reference that file.
+// The file name will be "gonum-pgf-image-<canvas-id>-<time.Now()>.png
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	fname := fmt.Sprintf("gonum-pgf-image-%v-%v.png", c.id, time.Now().UnixNano())
+	f, err := os.Create(fname)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+	err = png.Encode(f, img)
+	if err != nil {
+		panic(fmt.Errorf("vgtex: error encoding image to PNG: %v", err))
+	}
+
+	var (
+		xmin   = rect.Min.X
+		ymin   = rect.Min.Y
+		width  = rect.Size().X
+		height = rect.Size().Y
+	)
+	c.wtex(`\pgftext[base,left,at=\pgfpoint{%gpt}{%gpt}]{\pgfimage[height=%gpt,width=%gpt]{%s}}`, xmin, ymin, height, width, fname)
 }
 
 func (c *Canvas) indent(s string) string {

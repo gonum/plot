@@ -272,6 +272,27 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	c.gc.FillString(str)
 }
 
+// DrawImage implements the vg.Canvas.DrawImage method.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	var (
+		dpi    = c.DPI()
+		min    = rect.Min
+		xmin   = min.X.Dots(dpi)
+		ymin   = min.Y.Dots(dpi)
+		rsz    = rect.Size()
+		width  = rsz.X.Dots(dpi)
+		height = rsz.Y.Dots(dpi)
+		dx     = float64(img.Bounds().Dx())
+		dy     = float64(img.Bounds().Dy())
+	)
+	c.gc.Save()
+	c.gc.Scale(1, -1)
+	c.gc.Translate(xmin, -ymin-height)
+	c.gc.Scale(width/dx, height/dy)
+	c.gc.DrawImage(img)
+	c.gc.Restore()
+}
+
 var (
 	// RegisteredFont contains the set of font names
 	// that have already been registered with draw2d.
