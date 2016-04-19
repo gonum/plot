@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"math"
 	"strconv"
+	"time"
 
 	"github.com/gonum/floats"
 	"github.com/gonum/plot/vg"
@@ -448,6 +449,41 @@ var _ Ticker = ConstantTicks{}
 // Ticks returns Ticks in a specified range
 func (ts ConstantTicks) Ticks(float64, float64) []Tick {
 	return ts
+}
+
+// UnixTimeTicks is suitable for axes representing time values.
+// UnixTimeTicks expects values in Unix time seconds.
+type UnixTimeTicks struct {
+	// Ticker is used to generate a set of ticks.
+	// If nil, DefaultTicks will be used.
+	Ticker Ticker
+
+	// Format is the textual representation of the time value.
+	// If empty, time.RFC3339 will be used
+	Format string
+}
+
+var _ Ticker = UnixTimeTicks{}
+
+// Ticks implements plot.Ticker.
+func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
+	if utt.Ticker == nil {
+		utt.Ticker = DefaultTicks{}
+	}
+	if utt.Format == "" {
+		utt.Format = time.RFC3339
+	}
+
+	ticks := utt.Ticker.Ticks(min, max)
+	for i := range ticks {
+		tick := &ticks[i]
+		if tick.Label == "" {
+			continue
+		}
+		t := time.Unix(int64(tick.Value), 0)
+		tick.Label = t.Format(utt.Format)
+	}
+	return ticks
 }
 
 // A Tick is a single tick mark on an axis.
