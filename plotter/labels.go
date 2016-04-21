@@ -79,14 +79,11 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 	for i, label := range l.Labels {
-		x := trX(l.XYs[i].X)
-		y := trY(l.XYs[i].Y)
-		if !c.Contains(vg.Point{X: x, Y: y}) {
+		pt := vg.Point{trX(l.XYs[i].X), trY(l.XYs[i].Y)}
+		if !c.Contains(pt) {
 			continue
 		}
-		x += l.XOffset
-		y += l.YOffset
-		c.FillText(l.TextStyle, x, y, l.XAlign, l.YAlign, label)
+		c.FillText(l.TextStyle, pt.Add(vg.Point{l.XOffset, l.YOffset}), l.XAlign, l.YAlign, label)
 	}
 }
 

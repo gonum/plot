@@ -205,7 +205,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		c.FillText(a.Label.TextStyle, c.Center().X, y, -0.5, 0, a.Label.Text)
+		c.FillText(a.Label.TextStyle, vg.Point{c.Center().X, y}, -0.5, 0, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
 
@@ -215,7 +215,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, x, y, -0.5, 0, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{x, y}, -0.5, 0, t.Label)
 	}
 
 	if len(marks) > 0 {
@@ -291,7 +291,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		x += a.Label.Height(a.Label.Text)
 		c.Push()
 		c.Rotate(math.Pi / 2)
-		c.FillText(a.Label.TextStyle, c.Center().Y, -x, -0.5, 0, a.Label.Text)
+		c.FillText(a.Label.TextStyle, vg.Point{c.Center().Y, -x}, -0.5, 0, a.Label.Text)
 		c.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
@@ -305,7 +305,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, x, y, -1, -0.5, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{x, y}, -1, -0.5, t.Label)
 		major = true
 	}
 	if major {

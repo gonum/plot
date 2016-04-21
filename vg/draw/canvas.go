@@ -579,7 +579,7 @@ func isect(p0, p1, clip, norm vg.Point) vg.Point {
 // The text is offset by its width times xalign and
 // its height times yalign.  x and y give the bottom
 // left corner of the text befor e it is offset.
-func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64, txt string) {
+func (c *Canvas) FillText(sty TextStyle, pt vg.Point, xalign, yalign float64, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
@@ -588,12 +588,12 @@ func (c *Canvas) FillText(sty TextStyle, x, y vg.Length, xalign, yalign float64,
 	c.SetColor(sty.Color)
 
 	ht := sty.Height(txt)
-	y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
+	pt.Y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
 	nl := textNLines(txt)
 	for i, line := range strings.Split(txt, "\n") {
 		xoffs := vg.Length(xalign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
-		c.FillString(sty.Font, vg.Point{X: x + xoffs, Y: y + n*sty.Font.Size}, line)
+		c.FillString(sty.Font, pt.Add(vg.Point{X: xoffs, Y: n * sty.Font.Size}), line)
 	}
 }
 
