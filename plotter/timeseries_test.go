@@ -16,10 +16,6 @@ import (
 	"github.com/gonum/plot/vg/draw"
 )
 
-var (
-	location = time.FixedZone("Europe/Paris", 42)
-)
-
 // Example_timeSeries draws a time series.
 func Example_timeSeries() {
 	// randomPoints returns some random x, y points
@@ -35,7 +31,7 @@ func Example_timeSeries() {
 		)
 		pts := make(XYs, n)
 		for i := range pts {
-			date := time.Date(2007+i, month, day, hour, min, sec, nsec, location).Unix()
+			date := time.Date(2007+i, month, day, hour, min, sec, nsec, time.UTC).Unix()
 			pts[i].X = float64(date)
 			pts[i].Y = float64(pts[i].X+10*rand.Float64()) * 1e-9
 		}
@@ -50,7 +46,12 @@ func Example_timeSeries() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Time Series"
-	p.X.Tick.Marker = plot.UnixTimeTicks{Format: "2006-01-02"}
+	p.X.Tick.Marker = plot.UnixTimeTicks{
+		Format: "2006-01-02",
+		Convert: func(v float64) time.Time {
+			return time.Unix(int64(v), 0).UTC()
+		},
+	}
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"
 	p.Add(NewGrid())
 

@@ -461,6 +461,10 @@ type UnixTimeTicks struct {
 	// Format is the textual representation of the time value.
 	// If empty, time.RFC3339 will be used
 	Format string
+
+	// Convert takes a float64 value and converts it into a time.Time.
+	// If nil, time.Unix will be used.
+	Convert func(float64) time.Time
 }
 
 var _ Ticker = UnixTimeTicks{}
@@ -473,6 +477,11 @@ func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
 	if utt.Format == "" {
 		utt.Format = time.RFC3339
 	}
+	if utt.Convert == nil {
+		utt.Convert = func(v float64) time.Time {
+			return time.Unix(int64(v), 0)
+		}
+	}
 
 	ticks := utt.Ticker.Ticks(min, max)
 	for i := range ticks {
@@ -480,7 +489,7 @@ func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
 		if tick.Label == "" {
 			continue
 		}
-		t := time.Unix(int64(tick.Value), 0)
+		t := utt.Convert(tick.Value)
 		tick.Label = t.Format(utt.Format)
 	}
 	return ticks
