@@ -16,6 +16,10 @@ import (
 	"github.com/gonum/plot/vg/draw"
 )
 
+var (
+	location = time.FixedZone("Europe/Paris", 42)
+)
+
 // Example_timeSeries draws a time series.
 func Example_timeSeries() {
 	// randomPoints returns some random x, y points
@@ -31,7 +35,7 @@ func Example_timeSeries() {
 		)
 		pts := make(XYs, n)
 		for i := range pts {
-			date := time.Date(2007+i, month, day, hour, min, sec, nsec, time.UTC).Unix()
+			date := time.Date(2007+i, month, day, hour, min, sec, nsec, location).Unix()
 			pts[i].X = float64(date)
 			pts[i].Y = float64(pts[i].X+10*rand.Float64()) * 1e-9
 		}
