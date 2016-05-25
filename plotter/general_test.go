@@ -5,7 +5,6 @@
 package plotter
 
 import (
-	"bytes"
 	"flag"
 	"io/ioutil"
 	"log"
@@ -16,6 +15,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -66,8 +66,15 @@ func checkPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
 			t.Errorf("Failed to read golden file %s: %s", golden, err)
 			continue
 		}
-		if !bytes.Equal(got, want) {
+		typ := filepath.Ext(path)[1:] // remove the dot in e.g. ".pdf"
+		ok, err := cmpimg.Equal(typ, got, want)
+		if err != nil {
+			t.Errorf("failed to compare image for %s: %v\n", path, err)
+			continue
+		}
+		if !ok {
 			t.Errorf("image mismatch for %s\n", path)
+			continue
 		}
 	}
 }
