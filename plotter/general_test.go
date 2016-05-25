@@ -21,30 +21,31 @@ import (
 
 var generateTestData = flag.Bool("regen", false, "Uses the current state to regenerate the test data.")
 
+func goldenPath(path string) string {
+	ext := filepath.Ext(path)
+	noext := strings.TrimSuffix(path, ext)
+	return noext + "_golden" + ext
+}
+
 // checkPlot checks a generated plot against a previously created reference.
 // If generateTestData = true, it regereates the reference.
-func checkPlot(ExampleFunc func(), t *testing.T, paths ...string) {
+func checkPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
+	paths := make([]string, len(filenames))
+	for i, fn := range filenames {
+		paths[i] = filepath.Join("testdata", fn)
+	}
+
 	if *generateTestData {
 		// Recreate Golden images and exit.
 		ExampleFunc()
+		for _, path := range paths {
+			golden := goldenPath(path)
+			_ = os.Remove(golden)
+			if err := os.Rename(path, golden); err != nil {
+				t.Fatal(err)
+			}
+		}
 		return
-	}
-
-	want := make([][]byte, len(paths))
-	// Read Golden Images before overwriting them.
-	for i, path := range paths {
-		f, err := os.Open(filepath.Join("testdata", path))
-		if err != nil {
-			t.Fatal(err)
-		}
-		want[i], err = ioutil.ReadAll(f)
-		if err != nil {
-			t.Fatal(err)
-		}
-		err = f.Close()
-		if err != nil {
-			t.Fatal(err)
-		}
 	}
 
 	rand.Seed(1)
@@ -53,45 +54,20 @@ func checkPlot(ExampleFunc func(), t *testing.T, paths ...string) {
 
 	// Read the images we've just generated and check them against the
 	// Golden Images.
-	for i, path := range paths {
-		errored := false
-		f, err := os.Open(filepath.Join("testdata", path))
+	for _, path := range paths {
+		got, err := ioutil.ReadFile(path)
 		if err != nil {
-			t.Error(err)
-			errored = true
+			t.Errorf("Failed to read %s: %s", path, err)
+			continue
 		}
-		have, err := ioutil.ReadAll(f)
+		golden := goldenPath(path)
+		want, err := ioutil.ReadFile(golden)
 		if err != nil {
-			t.Error(err)
-			errored = true
+			t.Errorf("Failed to read golden file %s: %s", golden, err)
+			continue
 		}
-		err = f.Close()
-		if err != nil {
-			t.Error(err)
-			errored = true
-		}
-		if !bytes.Equal(have, want[i]) {
+		if !bytes.Equal(got, want) {
 			t.Errorf("image mismatch for %s\n", path)
-			errored = true
-		}
-		if errored {
-			// If there has been an error, write out the golden image for inspection.
-			ext := filepath.Ext(path)
-			noext := strings.TrimSuffix(path, ext)
-			goldenPath := noext + "_golden" + ext
-			f, err := os.Create(filepath.Join("testdata", goldenPath))
-			if err != nil {
-				t.Fatal(err)
-			}
-			_, err = f.Write(want[i])
-			if err != nil {
-				t.Fatal(err)
-			}
-			err = f.Close()
-			if err != nil {
-				t.Fatal(err)
-			}
-			t.Logf("golden image has been written out as %s", goldenPath)
 		}
 	}
 }
