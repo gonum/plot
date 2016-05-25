@@ -75,11 +75,11 @@ func checkPlot(ExampleFunc func(), t *testing.T, paths ...string) {
 			errored = true
 		}
 		if errored {
-			// If there has been an error, write out the golden image for inspection.
-			ext := filepath.Ext(path)
-			noext := strings.TrimSuffix(path, ext)
-			goldenPath := noext + "_golden" + ext
-			f, err := os.Create(filepath.Join("testdata", goldenPath))
+			// If there has been an error, write the golden image back to where it
+			// was originally and write the new image to a different file for comparison.
+
+			// Write golden image back to original location.
+			f, err = os.Create(filepath.Join("testdata", path))
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -91,7 +91,24 @@ func checkPlot(ExampleFunc func(), t *testing.T, paths ...string) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			t.Logf("golden image has been written out as %s", goldenPath)
+
+			// Write out errored image for comparison.
+			ext := filepath.Ext(path)
+			noext := strings.TrimSuffix(path, ext)
+			erroredPath := noext + "_errored" + ext
+			f, err := os.Create(filepath.Join("testdata", erroredPath))
+			if err != nil {
+				t.Fatal(err)
+			}
+			_, err = f.Write(have)
+			if err != nil {
+				t.Fatal(err)
+			}
+			err = f.Close()
+			if err != nil {
+				t.Fatal(err)
+			}
+			t.Logf("the new (errored) image has been written out as %s", erroredPath)
 		}
 	}
 }
