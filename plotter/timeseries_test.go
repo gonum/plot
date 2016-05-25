@@ -18,6 +18,13 @@ import (
 
 // Example_timeSeries draws a time series.
 func Example_timeSeries() {
+
+	// xticks defines how we convert and display time.Time values.
+	xticks := plot.TimeTicks{
+		Format:    "2006-01-02\n15:04",
+		Converter: plot.UnixTimeConverter{},
+	}
+
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
 	randomPoints := func(n int) XYs {
@@ -31,8 +38,8 @@ func Example_timeSeries() {
 		)
 		pts := make(XYs, n)
 		for i := range pts {
-			date := time.Date(2007+i, month, day, hour, min, sec, nsec, time.UTC).Unix()
-			pts[i].X = float64(date)
+			date := time.Date(2007+i, month, day, hour, min, sec, nsec, time.UTC)
+			pts[i].X = xticks.Converter.MarshalTime(date)
 			pts[i].Y = float64(pts[i].X+10*rand.Float64()) * 1e-9
 		}
 		return pts
@@ -46,12 +53,7 @@ func Example_timeSeries() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Time Series"
-	p.X.Tick.Marker = plot.UnixTimeTicks{
-		Format: "2006-01-02",
-		Convert: func(v float64) time.Time {
-			return time.Unix(int64(v), 0).UTC()
-		},
-	}
+	p.X.Tick.Marker = xticks
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"
 	p.Add(NewGrid())
 

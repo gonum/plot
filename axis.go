@@ -451,9 +451,9 @@ func (ts ConstantTicks) Ticks(float64, float64) []Tick {
 	return ts
 }
 
-// UnixTimeTicks is suitable for axes representing time values.
-// UnixTimeTicks expects values in Unix time seconds.
-type UnixTimeTicks struct {
+// TimeTicks is suitable for axes representing time values.
+// By default, TimeTicks expects values in (UTC) Unix time seconds.
+type TimeTicks struct {
 	// Ticker is used to generate a set of ticks.
 	// If nil, DefaultTicks will be used.
 	Ticker Ticker
@@ -462,37 +462,57 @@ type UnixTimeTicks struct {
 	// If empty, time.RFC3339 will be used
 	Format string
 
-	// Convert takes a float64 value and converts it into a time.Time.
-	// If nil, time.Unix will be used.
-	Convert func(float64) time.Time
+	// Converter takes a float64 value and converts it into a time.Time.
+	// If nil, UnixTimeConverter will be used.
+	Converter TimeFloatConverter
 }
 
-var _ Ticker = UnixTimeTicks{}
+var _ Ticker = TimeTicks{}
 
 // Ticks implements plot.Ticker.
-func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
-	if utt.Ticker == nil {
-		utt.Ticker = DefaultTicks{}
+func (tt TimeTicks) Ticks(min, max float64) []Tick {
+	if tt.Ticker == nil {
+		tt.Ticker = DefaultTicks{}
 	}
-	if utt.Format == "" {
-		utt.Format = time.RFC3339
+	if tt.Format == "" {
+		tt.Format = time.RFC3339
 	}
-	if utt.Convert == nil {
-		utt.Convert = func(v float64) time.Time {
-			return time.Unix(int64(v), 0)
-		}
+	if tt.Converter == nil {
+		tt.Converter = UnixTimeConverter{}
 	}
 
-	ticks := utt.Ticker.Ticks(min, max)
+	ticks := tt.Ticker.Ticks(min, max)
 	for i := range ticks {
 		tick := &ticks[i]
 		if tick.Label == "" {
 			continue
 		}
-		t := utt.Convert(tick.Value)
-		tick.Label = t.Format(utt.Format)
+		t := tt.Converter.UnmarshalTime(tick.Value)
+		tick.Label = t.Format(tt.Format)
 	}
 	return ticks
+}
+
+// TimeFloatConverter converts back and forth a time.Time value into
+// a float64.
+type TimeFloatConverter interface {
+	MarshalTime(t time.Time) float64
+	UnmarshalTime(float64) time.Time
+}
+
+// UnixTimeConverter converts a time.Time value into the float64 representation
+// of Unix time, using the UTC time location.
+type UnixTimeConverter struct{}
+
+// MarshalTime implements TimeFloatConverter.
+func (UnixTimeConverter) MarshalTime(t time.Time) float64 {
+	v := t.UTC().Unix()
+	return float64(v)
+}
+
+// UnmarshalTime implements TimeFloatConverter.
+func (UnixTimeConverter) UnmarshalTime(v float64) time.Time {
+	return time.Unix(int64(v), 0).UTC()
 }
 
 // A Tick is a single tick mark on an axis.
