@@ -16,6 +16,7 @@ func init() {
 	gob.Register(plot.ConstantTicks{})
 	gob.Register(plot.DefaultTicks{})
 	gob.Register(plot.LogTicks{})
+	gob.Register(plot.FloatLabeler{})
 
 	// plot.Normalizer
 	gob.Register(plot.LinearScale{})

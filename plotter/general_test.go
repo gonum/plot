@@ -82,11 +82,11 @@ func Example() {
 	DefaultLineStyle.Width = vg.Points(1)
 	DefaultGlyphStyle.Radius = vg.Points(3)
 
-	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	p.Y.Tick.Ticker = plot.ConstantTicks([]plot.Tick{
+		{0, false}, {0.25, true}, {0.5, false}, {0.75, true}, {1, false},
 	})
-	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+	p.X.Tick.Ticker = plot.ConstantTicks([]plot.Tick{
+		{0, false}, {0.25, true}, {0.5, false}, {0.75, true}, {1, false},
 	})
 
 	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
