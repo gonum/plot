@@ -7,9 +7,13 @@ package cmpimg
 
 import (
 	"bytes"
+	"fmt"
 	"image"
+	_ "image/jpeg"
+	_ "image/png"
 	"reflect"
 
+	_ "golang.org/x/image/tiff"
 	"rsc.io/pdf"
 )
 
@@ -21,6 +25,9 @@ import (
 func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 	switch typ {
 	case "svg":
+		return bytes.Equal(raw1, raw2), nil
+
+	case "eps":
 		return bytes.Equal(raw1, raw2), nil
 
 	case "pdf":
@@ -44,7 +51,7 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 
 		return cmpPdf(pdf1, pdf2), nil
 
-	default:
+	case "jpeg", "jpg", "png", "tiff":
 		v1, _, err := image.Decode(bytes.NewReader(raw1))
 		if err != nil {
 			return false, err
@@ -54,6 +61,9 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 			return false, err
 		}
 		return reflect.DeepEqual(v1, v2), nil
+
+	default:
+		return false, fmt.Errorf("cmpimg: unknown image type %q", typ)
 	}
 }
 
