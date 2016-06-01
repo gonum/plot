@@ -18,8 +18,8 @@ import (
 )
 
 // Equal takes the raw representation of two images, raw1 and raw2,
-// together with the underlying image type ("pdf", "svg", ...), and returns
-// whether the two images are equal or not.
+// together with the underlying image type ("eps", "jpeg", "jpg", "pdf", "png", "svg", "tiff"),
+// and returns whether the two images are equal or not.
 //
 // Equal may return an error if the decoding of the raw image somehow failed.
 func Equal(typ string, raw1, raw2 []byte) (bool, error) {
