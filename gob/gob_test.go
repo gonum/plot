@@ -42,7 +42,7 @@ func TestPersistency(t *testing.T) {
 	p.Y.Label.Text = "Y"
 	// Use a custom tick marker function that computes the default
 	// tick marks and re-labels the major ticks with commas.
-	p.Y.Tick.Marker = commaTicks{}
+	// TODO: p.Y.Tick.Labeler = commaTicks{}
 
 	// Draw a grid behind the data
 	p.Add(plotter.NewGrid())
@@ -130,12 +130,13 @@ type commaTicks struct{}
 
 func (commaTicks) Ticks(min, max float64) []plot.Tick {
 	tks := plot.DefaultTicks{}.Ticks(min, max)
-	for i, t := range tks {
-		if t.Label == "" { // Skip minor ticks, they are fine.
-			continue
-		}
-		tks[i].Label = addCommas(t.Label)
-	}
+	// TODO
+	// for i, t := range tks {
+	// 	if t.Label == "" { // Skip minor ticks, they are fine.
+	// 		continue
+	// 	}
+	// 	tks[i].Label = addCommas(t.Label)
+	// }
 	return tks
 }
 

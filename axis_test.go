@@ -10,7 +10,8 @@ import (
 )
 
 func TestAxisSmallTick(t *testing.T) {
-	d := DefaultTicks{}
+	dt := DefaultTicks{}
+	fl := FloatLabeler{}
 	for _, test := range []struct {
 		Min, Max float64
 		Labels   []string
@@ -36,12 +37,13 @@ func TestAxisSmallTick(t *testing.T) {
 			Labels: []string{"4.8e+307", "5.2e+307", "5.6e+307"},
 		},
 	} {
-		ticks := d.Ticks(test.Min, test.Max)
+		ticks := dt.Ticks(test.Min, test.Max)
+		labels := fl.Labels(ticks)
 		var count int
-		for _, tick := range ticks {
-			if tick.Label != "" {
-				if test.Labels[count] != tick.Label {
-					t.Error("Ticks mismatch: Want", test.Labels[count], ", got", tick.Label)
+		for _, lbl := range labels {
+			if lbl != "" {
+				if test.Labels[count] != lbl {
+					t.Error("Ticks mismatch: Want", test.Labels[count], ", got", lbl)
 				}
 				count++
 			}

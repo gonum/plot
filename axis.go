@@ -24,6 +24,11 @@ type Ticker interface {
 	Ticks(min, max float64) []Tick
 }
 
+// Labeler creates lables from Ticks
+type Labeler interface {
+	Labels(ticks []Tick) []string
+}
+
 // Normalizer rescales values from the data coordinate system to the
 // normalized coordinate system.
 type Normalizer interface {
@@ -67,10 +72,14 @@ type Axis struct {
 		// tick marks.
 		Length vg.Length
 
-		// Marker returns the tick marks.  Any tick marks
+		// Ticker returns the tick marks.  Any tick marks
 		// returned by the Marker function that are not in
 		// range of the axis are not drawn.
-		Marker Ticker
+		Ticker
+
+		// Labeler is used to create tick labels from ticks created by
+		// Ticker
+		Labeler
 	}
 
 	// Scale transforms a value given in the data coordinate system
@@ -117,7 +126,8 @@ func makeAxis() (Axis, error) {
 		Width: vg.Points(0.5),
 	}
 	a.Tick.Length = vg.Points(8)
-	a.Tick.Marker = DefaultTicks{}
+	a.Tick.Ticker = DefaultTicks{}
+	a.Tick.Labeler = FloatLabeler{}
 
 	return a, nil
 }
@@ -183,17 +193,22 @@ type horizontalAxis struct {
 	Axis
 }
 
+func tickLabels(a Axis) []string {
+	ticks := a.Tick.Ticker.Ticks(a.Min, a.Max)
+	return a.Tick.Labeler.Labels(ticks)
+}
+
 // size returns the height of the axis.
 func (a *horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" {
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
+	if labels := tickLabels(a.Axis); len(labels) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
-		h += tickLabelHeight(a.Tick.Label, marks)
+		h += tickLabelHeight(a.Tick.Label, labels)
 	}
 	h += a.Width / 2
 	h += a.Padding
@@ -209,24 +224,25 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		y += a.Label.Height(a.Label.Text)
 	}
 
-	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	for _, t := range marks {
+	ticks := a.Tick.Ticker.Ticks(a.Min, a.Max)
+	labels := a.Tick.Labeler.Labels(ticks)
+	for i, t := range ticks {
 		x := c.X(a.Norm(t.Value))
-		if !c.ContainsX(x) || t.IsMinor() {
+		if !c.ContainsX(x) || labels[i] == "" {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{x, y}, -0.5, 0, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{x, y}, -0.5, 0, labels[i])
 	}
 
-	if len(marks) > 0 {
-		y += tickLabelHeight(a.Tick.Label, marks)
+	if len(labels) > 0 {
+		y += tickLabelHeight(a.Tick.Label, labels)
 	} else {
 		y += a.Width / 2
 	}
 
-	if len(marks) > 0 && a.drawTicks() {
+	if len(ticks) > 0 && a.drawTicks() {
 		len := a.Tick.Length
-		for _, t := range marks {
+		for _, t := range ticks {
 			x := c.X(a.Norm(t.Value))
 			if !c.ContainsX(x) {
 				continue
@@ -242,11 +258,13 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
 func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
-		if t.IsMinor() {
+	ticks := a.Tick.Ticker.Ticks(a.Min, a.Max)
+	labels := a.Tick.Labeler.Labels(ticks)
+	for i, t := range ticks {
+		if labels[i] == "" {
 			continue
 		}
-		w := a.Tick.Label.Width(t.Label)
+		w := a.Tick.Label.Width(labels[i])
 		box := GlyphBox{
 			X: a.Norm(t.Value),
 			Rectangle: vg.Rectangle{
@@ -270,8 +288,9 @@ func (a *verticalAxis) size() (w vg.Length) {
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
-		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
+
+	if labels := tickLabels(a.Axis); len(labels) > 0 {
+		if lwidth := tickLabelWidth(a.Tick.Label, labels); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
 		}
@@ -295,25 +314,26 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		c.Pop()
 		x += -a.Label.Font.Extents().Descent
 	}
-	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
+	ticks := a.Tick.Ticker.Ticks(a.Min, a.Max)
+	labels := a.Tick.Labeler.Labels(ticks)
+	if w := tickLabelWidth(a.Tick.Label, labels); len(labels) > 0 && w > 0 {
 		x += w
 	}
 	major := false
-	for _, t := range marks {
+	for i, t := range ticks {
 		y := c.Y(a.Norm(t.Value))
-		if !c.ContainsY(y) || t.IsMinor() {
+		if !c.ContainsY(y) || labels[i] == "" {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{x, y}, -1, -0.5, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{x, y}, -1, -0.5, labels[i])
 		major = true
 	}
 	if major {
 		x += a.Tick.Label.Width(" ")
 	}
-	if a.drawTicks() && len(marks) > 0 {
+	if a.drawTicks() && len(ticks) > 0 {
 		len := a.Tick.Length
-		for _, t := range marks {
+		for _, t := range ticks {
 			y := c.Y(a.Norm(t.Value))
 			if !c.ContainsY(y) {
 				continue
@@ -328,11 +348,13 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
 func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
-		if t.IsMinor() {
+	ticks := a.Tick.Ticker.Ticks(a.Min, a.Max)
+	labels := a.Tick.Labeler.Labels(ticks)
+	for i, t := range ticks {
+		if labels[i] == "" {
 			continue
 		}
-		h := a.Tick.Label.Height(t.Label)
+		h := a.Tick.Label.Height(labels[i])
 		box := GlyphBox{
 			Y: a.Norm(t.Value),
 			Rectangle: vg.Rectangle{
@@ -373,10 +395,9 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-	prec := maxInt(precisionOf(min), precisionOf(max))
 	for val <= max {
 		if val >= min && val <= max {
-			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
+			ticks = append(ticks, Tick{Value: val, Minor: false})
 		}
 		if math.Nextafter(val, val+majorDelta) == val {
 			break
@@ -401,7 +422,7 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 			}
 		}
 		if val >= min && val <= max && !found {
-			ticks = append(ticks, Tick{Value: val})
+			ticks = append(ticks, Tick{Value: val, Minor: true})
 		}
 		if math.Nextafter(val, val+minorDelta) == val {
 			break
@@ -424,18 +445,14 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
-	prec := precisionOf(max)
 	for val < max*10 {
 		for i := 1; i < 10; i++ {
-			tick := Tick{Value: val * float64(i)}
-			if i == 1 {
-				tick.Label = formatFloatTick(val*float64(i), prec)
-			}
+			tick := Tick{Value: val * float64(i), Minor: i != 1}
 			ticks = append(ticks, tick)
 		}
 		val *= 10
 	}
-	tick := Tick{Value: val, Label: formatFloatTick(val, prec)}
+	tick := Tick{Value: val, Minor: false}
 	ticks = append(ticks, tick)
 	return ticks
 }
@@ -451,39 +468,71 @@ func (ts ConstantTicks) Ticks(float64, float64) []Tick {
 	return ts
 }
 
-// UnixTimeTicks is suitable for axes representing time values.
-// UnixTimeTicks expects values in Unix time seconds.
-type UnixTimeTicks struct {
-	// Ticker is used to generate a set of ticks.
-	// If nil, DefaultTicks will be used.
-	Ticker Ticker
+type ConstantLabels []string
 
+var _ Labeler = ConstantLabels{}
+
+func (tl ConstantLabels) Labels(tick []Tick) []string {
+	return tl
+}
+
+// FloatLabeler creates labels for float tick values
+type FloatLabeler struct {
+	// Prec is a precison. Calculated automatically based on min/max values if 0.
+	Prec int
+}
+
+var _ Labeler = FloatLabeler{}
+
+func (fl FloatLabeler) Labels(ticks []Tick) []string {
+	labels := make([]string, len(ticks))
+	prec := fl.Prec
+	if prec == 0 && len(ticks) > 0 {
+		min := ticks[0].Value
+		max := ticks[len(ticks)-1].Value
+		prec = maxInt(precisionOf(min), precisionOf(max))
+	}
+	for i, tick := range ticks {
+		if !tick.Minor {
+			labels[i] = formatFloatTick(tick.Value, prec)
+		}
+	}
+	return labels
+}
+
+// UnixTimeLabeler is suitable for axes representing time values.
+// UnixTimeLabeler expects values in Unix time seconds.
+type UnixTimeLabeler struct {
 	// Format is the textual representation of the time value.
 	// If empty, time.RFC3339 will be used
 	Format string
+
+	// Location is used for formatting
+	Location *time.Location
 }
 
-var _ Ticker = UnixTimeTicks{}
+var _ Labeler = UnixTimeLabeler{}
 
 // Ticks implements plot.Ticker.
-func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
-	if utt.Ticker == nil {
-		utt.Ticker = DefaultTicks{}
-	}
-	if utt.Format == "" {
-		utt.Format = time.RFC3339
+func (utt UnixTimeLabeler) Labels(ticks []Tick) []string {
+	format := utt.Format
+	if format == "" {
+		format = time.RFC3339
 	}
 
-	ticks := utt.Ticker.Ticks(min, max)
-	for i := range ticks {
-		tick := &ticks[i]
-		if tick.Label == "" {
-			continue
-		}
-		t := time.Unix(int64(tick.Value), 0)
-		tick.Label = t.Format(utt.Format)
+	loc := utt.Location
+	if loc == nil {
+		loc = time.UTC
 	}
-	return ticks
+
+	labels := make([]string, len(ticks))
+	for i, tick := range ticks {
+		if !tick.Minor {
+			t := time.Unix(int64(tick.Value), 0).In(loc)
+			labels[i] = t.Format(format)
+		}
+	}
+	return labels
 }
 
 // A Tick is a single tick mark on an axis.
@@ -491,15 +540,7 @@ type Tick struct {
 	// Value is the data value marked by this Tick.
 	Value float64
 
-	// Label is the text to display at the tick mark.
-	// If Label is an empty string then this is a minor
-	// tick mark.
-	Label string
-}
-
-// IsMinor returns true if this is a minor tick mark.
-func (t Tick) IsMinor() bool {
-	return t.Label == ""
+	Minor bool
 }
 
 // lengthOffset returns an offset that should be added to the
@@ -507,20 +548,20 @@ func (t Tick) IsMinor() bool {
 // the line for a minor tick mark must be shifted by half of
 // the length.
 func (t Tick) lengthOffset(len vg.Length) vg.Length {
-	if t.IsMinor() {
+	if t.Minor {
 		return len / 2
 	}
 	return 0
 }
 
 // tickLabelHeight returns height of the tick mark labels.
-func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
+func tickLabelHeight(sty draw.TextStyle, labels []string) vg.Length {
 	maxHeight := vg.Length(0)
-	for _, t := range ticks {
-		if t.IsMinor() {
+	for _, lbl := range labels {
+		if lbl == "" {
 			continue
 		}
-		h := sty.Height(t.Label)
+		h := sty.Height(lbl)
 		if h > maxHeight {
 			maxHeight = h
 		}
@@ -529,13 +570,13 @@ func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
-func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
+func tickLabelWidth(sty draw.TextStyle, labels []string) vg.Length {
 	maxWidth := vg.Length(0)
-	for _, t := range ticks {
-		if t.IsMinor() {
+	for _, lbl := range labels {
+		if lbl == "" {
 			continue
 		}
-		w := sty.Width(t.Label)
+		w := sty.Width(lbl)
 		if w > maxWidth {
 			maxWidth = w
 		}

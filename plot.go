@@ -395,24 +395,27 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Width = 0
 	p.Y.Padding = p.X.Tick.Label.Width(names[0]) / 2
 	ticks := make([]Tick, len(names))
-	for i, name := range names {
-		ticks[i] = Tick{float64(i), name}
+	for i := range names {
+		ticks[i] = Tick{float64(i), false}
 	}
-	p.X.Tick.Marker = ConstantTicks(ticks)
+	p.X.Tick.Ticker = ConstantTicks(ticks)
+	p.X.Tick.Labeler = ConstantLabels(names)
 }
 
 // HideX configures the X axis so that it will not be drawn.
 func (p *Plot) HideX() {
 	p.X.Tick.Length = 0
 	p.X.Width = 0
-	p.X.Tick.Marker = ConstantTicks([]Tick{})
+	p.X.Tick.Ticker = ConstantTicks([]Tick{})
+	p.X.Tick.Labeler = ConstantLabels([]string{})
 }
 
 // HideY configures the Y axis so that it will not be drawn.
 func (p *Plot) HideY() {
 	p.Y.Tick.Length = 0
 	p.Y.Width = 0
-	p.Y.Tick.Marker = ConstantTicks([]Tick{})
+	p.Y.Tick.Ticker = ConstantTicks([]Tick{})
+	p.X.Tick.Labeler = ConstantLabels([]string{})
 }
 
 // HideAxes hides the X and Y axes.
@@ -428,10 +431,11 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Width = 0
 	p.X.Padding = p.Y.Tick.Label.Height(names[0]) / 2
 	ticks := make([]Tick, len(names))
-	for i, name := range names {
-		ticks[i] = Tick{float64(i), name}
+	for i := range names {
+		ticks[i] = Tick{float64(i), false}
 	}
-	p.Y.Tick.Marker = ConstantTicks(ticks)
+	p.Y.Tick.Ticker = ConstantTicks(ticks)
+	p.Y.Tick.Labeler = ConstantLabels(names)
 }
 
 // WriterTo returns an io.WriterTo that will write the plot as

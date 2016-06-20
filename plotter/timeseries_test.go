@@ -46,7 +46,7 @@ func Example_timeSeries() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Time Series"
-	p.X.Tick.Marker = plot.UnixTimeTicks{Format: "2006-01-02"}
+	p.X.Tick.Labeler = plot.UnixTimeLabeler{Format: "2006-01-02"}
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"
 	p.Add(NewGrid())
 
