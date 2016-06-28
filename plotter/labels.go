@@ -29,17 +29,9 @@ type Labels struct {
 	// to each point.
 	Labels []string
 
-	// TextStyle is the style of the label text.
-	draw.TextStyle
-
-	// XAlign and YAlign are multiplied by the width
-	// and height of each label respectively and the
-	// added to the final location.  E.g., XAlign=-0.5
-	// and YAlign=-0.5 centers the label at the given
-	// X, Y location, and XAlign=0, YAlign=0 aligns
-	// the text to the left of the point, and XAlign=-1,
-	// YAlign=0 aligns the text to the right of the point.
-	XAlign, YAlign float64
+	// TextStyle is the style of the label text. Each label
+	// can have a different text style.
+	TextStyle []draw.TextStyle
 
 	// XOffset and YOffset are added directly to the final
 	// label X and Y location respectively.
@@ -68,10 +60,15 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 		return nil, err
 	}
 
+	styles := make([]draw.TextStyle, d.Len())
+	for i := range styles {
+		styles[i] = draw.TextStyle{Font: fnt}
+	}
+
 	return &Labels{
 		XYs:       xys,
 		Labels:    strs,
-		TextStyle: draw.TextStyle{Font: fnt},
+		TextStyle: styles,
 	}, nil
 }
 
@@ -79,11 +76,13 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 	for i, label := range l.Labels {
-		pt := vg.Point{trX(l.XYs[i].X), trY(l.XYs[i].Y)}
+		pt := vg.Point{X: trX(l.XYs[i].X), Y: trY(l.XYs[i].Y)}
 		if !c.Contains(pt) {
 			continue
 		}
-		c.FillText(l.TextStyle, pt.Add(vg.Point{l.XOffset, l.YOffset}), l.XAlign, l.YAlign, label)
+		pt.X += l.XOffset
+		pt.Y += l.YOffset
+		c.FillText(l.TextStyle[i], pt, label)
 	}
 }
 
@@ -100,12 +99,8 @@ func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 	for i, label := range l.Labels {
 		bs[i].X = p.X.Norm(l.XYs[i].X)
 		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
-		w := l.Width(label)
-		h := l.Height(label)
-		bs[i].Rectangle.Min.X = w*vg.Length(l.XAlign) + l.XOffset
-		bs[i].Rectangle.Min.Y = h*vg.Length(l.YAlign) + l.YOffset
-		bs[i].Rectangle.Max.X = w + w*vg.Length(l.XAlign) + l.XOffset
-		bs[i].Rectangle.Max.Y = h + h*vg.Length(l.YAlign) + l.YOffset
+		sty := l.TextStyle[i]
+		bs[i].Rectangle = sty.Rectangle(label)
 	}
 	return bs
 }

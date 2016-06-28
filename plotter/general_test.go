@@ -8,7 +8,6 @@ import (
 	"flag"
 	"io/ioutil"
 	"log"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"strings"
@@ -48,7 +47,6 @@ func checkPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
 		return
 	}
 
-	rand.Seed(1)
 	// Overwrite the Golden Images.
 	ExampleFunc()
 

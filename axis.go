@@ -44,6 +44,9 @@ type Axis struct {
 		Text string
 
 		// TextStyle is the style of the axis label text.
+		// For the vertical axis, one quarter turn
+		// counterclockwise will be added to the label
+		// text before drawing.
 		draw.TextStyle
 	}
 
@@ -83,7 +86,7 @@ type Axis struct {
 //
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
-func makeAxis() (Axis, error) {
+func makeAxis(orientation bool) (Axis, error) {
 	labelFont, err := vg.MakeFont(DefaultFont, vg.Points(12))
 	if err != nil {
 		return Axis{}, err
@@ -105,12 +108,20 @@ func makeAxis() (Axis, error) {
 		Scale:   LinearScale{},
 	}
 	a.Label.TextStyle = draw.TextStyle{
-		Color: color.Black,
-		Font:  labelFont,
+		Color:  color.Black,
+		Font:   labelFont,
+		XAlign: draw.XCenter,
+		YAlign: draw.YBottom,
+	}
+	var xalign, yalign = draw.XCenter, draw.YTop
+	if orientation == vertical {
+		xalign, yalign = draw.XRight, draw.YCenter
 	}
 	a.Tick.Label = draw.TextStyle{
-		Color: color.Black,
-		Font:  tickFont,
+		Color:  color.Black,
+		Font:   tickFont,
+		XAlign: xalign,
+		YAlign: yalign,
 	}
 	a.Tick.LineStyle = draw.LineStyle{
 		Color: color.Black,
@@ -205,21 +216,22 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
-		c.FillText(a.Label.TextStyle, vg.Point{c.Center().X, y}, -0.5, 0, a.Label.Text)
+		c.FillText(a.Label.TextStyle, vg.Point{X: c.Center().X, Y: y}, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
 	for _, t := range marks {
 		x := c.X(a.Norm(t.Value))
 		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{x, y}, -0.5, 0, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + ticklabelheight}, t.Label)
 	}
 
 	if len(marks) > 0 {
-		y += tickLabelHeight(a.Tick.Label, marks)
+		y += ticklabelheight
 	} else {
 		y += a.Width / 2
 	}
@@ -288,11 +300,10 @@ func (a *verticalAxis) size() (w vg.Length) {
 func (a *verticalAxis) draw(c draw.Canvas) {
 	x := c.Min.X
 	if a.Label.Text != "" {
+		sty := a.Label.TextStyle
+		sty.Rotation += math.Pi / 2
 		x += a.Label.Height(a.Label.Text)
-		c.Push()
-		c.Rotate(math.Pi / 2)
-		c.FillText(a.Label.TextStyle, vg.Point{c.Center().Y, -x}, -0.5, 0, a.Label.Text)
-		c.Pop()
+		c.FillText(sty, vg.Point{X: x, Y: c.Center().Y}, a.Label.Text)
 		x += -a.Label.Font.Extents().Descent
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
@@ -305,7 +316,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{x, y}, -1, -0.5, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y}, t.Label)
 		major = true
 	}
 	if major {
@@ -520,7 +531,8 @@ func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
 		if t.IsMinor() {
 			continue
 		}
-		h := sty.Height(t.Label)
+		r := sty.Rectangle(t.Label)
+		h := r.Max.Y - r.Min.Y
 		if h > maxHeight {
 			maxHeight = h
 		}
@@ -535,7 +547,8 @@ func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
 		if t.IsMinor() {
 			continue
 		}
-		w := sty.Width(t.Label)
+		r := sty.Rectangle(t.Label)
+		w := r.Max.X - r.Min.X
 		if w > maxWidth {
 			maxWidth = w
 		}

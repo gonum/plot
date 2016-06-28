@@ -12,6 +12,8 @@ import (
 )
 
 func ExampleErrorPoints() {
+	rnd := rand.New(rand.NewSource(1))
+
 	// Get some random data.
 	n, m := 5, 10
 	pts := make([]plotter.XYer, n)
@@ -20,8 +22,8 @@ func ExampleErrorPoints() {
 		pts[i] = xys
 		center := float64(i)
 		for j := range xys {
-			xys[j].X = center + (rand.Float64() - 0.5)
-			xys[j].Y = center + (rand.Float64() - 0.5)
+			xys[j].X = center + (rnd.Float64() - 0.5)
+			xys[j].Y = center + (rnd.Float64() - 0.5)
 		}
 	}
 

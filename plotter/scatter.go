@@ -39,7 +39,7 @@ func NewScatter(xys XYer) (*Scatter, error) {
 func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
 	for _, p := range pts.XYs {
-		c.DrawGlyph(pts.GlyphStyle, vg.Point{trX(p.X), trY(p.Y)})
+		c.DrawGlyph(pts.GlyphStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
 	}
 }
 

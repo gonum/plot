@@ -53,11 +53,11 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 		c.SetColor(*pts.ShadeColor)
 		minY := trY(plt.Y.Min)
 		var pa vg.Path
-		pa.Move(vg.Point{ps[0].X, minY})
+		pa.Move(vg.Point{X: ps[0].X, Y: minY})
 		for i := range pts.XYs {
 			pa.Line(ps[i])
 		}
-		pa.Line(vg.Point{ps[len(pts.XYs)-1].X, minY})
+		pa.Line(vg.Point{X: ps[len(pts.XYs)-1].X, Y: minY})
 		pa.Close()
 		c.Fill(pa)
 	}
@@ -85,7 +85,7 @@ func (pts *Line) Thumbnail(c *draw.Canvas) {
 		poly := c.ClipPolygonY(points)
 		c.FillPolygon(*pts.ShadeColor, poly)
 
-		points = append(points, vg.Point{c.Min.X, c.Min.Y})
+		points = append(points, vg.Point{X: c.Min.X, Y: c.Min.Y})
 	} else {
 		y := c.Center().Y
 		c.StrokeLine2(pts.LineStyle, c.Min.X, y, c.Max.X, y)

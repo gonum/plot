@@ -2,7 +2,8 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// package cmpimg compares the raw representation of images taking into account idiosyncracies related to their underlying format (SVG, PDF, PNG, ...)
+// Package cmpimg compares the raw representation of images taking into account
+// idiosyncracies related to their underlying format (SVG, PDF, PNG, ...).
 package cmpimg
 
 import (

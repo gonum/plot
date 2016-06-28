@@ -32,11 +32,11 @@ type YErrorBars struct {
 	CapWidth vg.Length
 }
 
-// Returns a new YErrorBars plotter, or an error on failure. The error values
-// from the YErrorer interface are interpreted as relative to the corresponding
-// Y value. The errors for a given Y value are computed by taking the absolute
-// value of the error returned by the YErrorer and subtracting the first and
-// adding the second to the Y value.
+// NewYErrorBars returns a new YErrorBars plotter, or an error on failure.
+// The error values from the YErrorer interface are interpreted as relative
+// to the corresponding Y value. The errors for a given Y value are computed
+// by taking the absolute value of the error returned by the YErrorer
+// and subtracting the first and adding the second to the Y value.
 func NewYErrorBars(yerrs interface {
 	XYer
 	YErrorer
@@ -79,7 +79,7 @@ func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *YErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
-	if !c.Contains(vg.Point{x, y}) {
+	if !c.Contains(vg.Point{X: x, Y: y}) {
 		return
 	}
 	c.StrokeLine2(e.LineStyle, x-e.CapWidth/2, y, x+e.CapWidth/2, y)
@@ -187,7 +187,7 @@ func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 
 // drawCap draws the cap if it is not clipped.
 func (e *XErrorBars) drawCap(c *draw.Canvas, x, y vg.Length) {
-	if !c.Contains(vg.Point{x, y}) {
+	if !c.Contains(vg.Point{X: x, Y: y}) {
 		return
 	}
 	c.StrokeLine2(e.LineStyle, x, y-e.CapWidth/2, x, y+e.CapWidth/2)

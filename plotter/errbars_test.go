@@ -15,11 +15,13 @@ import (
 
 // ExampleErrors draws points and error bars.
 func ExampleErrors() {
+	rnd := rand.New(rand.NewSource(1))
+
 	randomError := func(n int) Errors {
 		err := make(Errors, n)
 		for i := range err {
-			err[i].Low = rand.Float64()
-			err[i].High = rand.Float64()
+			err[i].Low = rnd.Float64()
+			err[i].High = rnd.Float64()
 		}
 		return err
 	}
@@ -29,11 +31,11 @@ func ExampleErrors() {
 		pts := make(XYs, n)
 		for i := range pts {
 			if i == 0 {
-				pts[i].X = rand.Float64()
+				pts[i].X = rnd.Float64()
 			} else {
-				pts[i].X = pts[i-1].X + rand.Float64()
+				pts[i].X = pts[i-1].X + rnd.Float64()
 			}
-			pts[i].Y = pts[i].X + 10*rand.Float64()
+			pts[i].Y = pts[i].X + 10*rnd.Float64()
 		}
 		return pts
 	}

@@ -86,7 +86,7 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 		if h.FillColor != nil {
 			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 		}
-		pts = append(pts, vg.Point{trX(bin.Min), trY(0)})
+		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(0)})
 		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
 }
@@ -138,7 +138,7 @@ func (h *Histogram) Thumbnail(c *draw.Canvas) {
 	if h.FillColor != nil {
 		c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 	}
-	pts = append(pts, vg.Point{xmin, ymin})
+	pts = append(pts, vg.Point{X: xmin, Y: ymin})
 	c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 }
 

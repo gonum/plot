@@ -41,8 +41,8 @@ func TestLegendAlignment(t *testing.T) {
 	l.Draw(draw.Canvas{
 		Canvas: c.Canvas,
 		Rectangle: vg.Rectangle{
-			Min: vg.Point{0, 0},
-			Max: vg.Point{100, 100},
+			Min: vg.Point{X: 0, Y: 0},
+			Max: vg.Point{X: 100, Y: 100},
 		},
 	})
 
@@ -198,6 +198,7 @@ func TestLegendAlignment(t *testing.T) {
 
 	if !reflect.DeepEqual(got, want) {
 		t.Errorf("unexpected legend actions:\ngot:\n%s\nwant:\n%s", formatActions(got), formatActions(want))
+		t.Errorf("First diff:\n%s", printFirstDiff(got, want))
 	}
 }
 
@@ -205,6 +206,26 @@ func formatActions(actions []recorder.Action) string {
 	var buf bytes.Buffer
 	for _, a := range actions {
 		fmt.Fprintf(&buf, "\t%s\n", a.Call())
+	}
+	return buf.String()
+}
+
+// printFirstDiff prints the first line that is different between two actions.
+func printFirstDiff(got, want []recorder.Action) string {
+	var buf bytes.Buffer
+	for i, g := range got {
+		if i >= len(want) {
+			fmt.Fprintf(&buf, "line %d:\n\tgot: %s\n\twant is empty", i, g.Call())
+			break
+		}
+		w := want[i]
+		if w.Call() != g.Call() {
+			fmt.Fprintf(&buf, "line %d:\n\tgot: %s\n\twant: %s", i, g.Call(), w.Call())
+			break
+		}
+	}
+	if len(want) > len(got) {
+		fmt.Fprintf(&buf, "line %d:\n\twant: %s\n\tgot is empty", len(got), want[len(got)].Call())
 	}
 	return buf.String()
 }

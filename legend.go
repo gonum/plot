@@ -83,12 +83,12 @@ func makeLegend() (Legend, error) {
 // draw draws the legend to the given draw.Canvas.
 func (l *Legend) draw(c draw.Canvas) {
 	iconx := c.Min.X
-	textx := iconx + l.ThumbnailWidth + l.TextStyle.Width(" ")
-	xalign := 0.0
+	sty := l.TextStyle
+	textx := iconx + l.ThumbnailWidth + sty.Rectangle(" ").Max.X
 	if !l.Left {
 		iconx = c.Max.X - l.ThumbnailWidth
-		textx = iconx - l.TextStyle.Width(" ")
-		xalign = -1
+		textx = iconx - l.TextStyle.Rectangle(" ").Max.X
+		sty.XAlign--
 	}
 	textx += l.XOffs
 	iconx += l.XOffs
@@ -103,16 +103,16 @@ func (l *Legend) draw(c draw.Canvas) {
 	icon := &draw.Canvas{
 		Canvas: c.Canvas,
 		Rectangle: vg.Rectangle{
-			Min: vg.Point{iconx, y},
-			Max: vg.Point{iconx + l.ThumbnailWidth, y + enth},
+			Min: vg.Point{X: iconx, Y: y},
+			Max: vg.Point{X: iconx + l.ThumbnailWidth, Y: y + enth},
 		},
 	}
 	for _, e := range l.entries {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
-		yoffs := (enth - l.TextStyle.Height(e.text)) / 2
-		c.FillText(l.TextStyle, vg.Point{textx, icon.Min.Y + yoffs}, xalign, 0, e.text)
+		yoffs := (enth - sty.Rectangle(e.text).Max.Y) / 2
+		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
 		icon.Min.Y -= enth + l.Padding
 		icon.Max.Y -= enth + l.Padding
 	}
@@ -122,7 +122,7 @@ func (l *Legend) draw(c draw.Canvas) {
 // entry text.
 func (l *Legend) entryHeight() (height vg.Length) {
 	for _, e := range l.entries {
-		if h := l.TextStyle.Height(e.text); h > height {
+		if h := l.TextStyle.Rectangle(e.text).Max.Y; h > height {
 			height = h
 		}
 	}

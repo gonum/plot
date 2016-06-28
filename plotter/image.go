@@ -53,8 +53,8 @@ func (img *Image) Plot(c draw.Canvas, p *plot.Plot) {
 	xmax := trX(img.xmax)
 	ymax := trY(img.ymax)
 	rect := vg.Rectangle{
-		Min: vg.Point{xmin, ymin},
-		Max: vg.Point{xmax, ymax},
+		Min: vg.Point{X: xmin, Y: ymin},
+		Max: vg.Point{X: xmax, Y: ymax},
 	}
 	c.DrawImage(rect, img.img)
 }

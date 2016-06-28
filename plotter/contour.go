@@ -219,8 +219,8 @@ func (h *Contour) naivePlot(c draw.Canvas, plt *plot.Plot) {
 		x1, y1 := trX(l.p1.X), trY(l.p1.Y)
 		x2, y2 := trX(l.p2.X), trY(l.p2.Y)
 
-		pt1 := vg.Point{x1, y1}
-		pt2 := vg.Point{x2, y2}
+		pt1 := vg.Point{X: x1, Y: y1}
+		pt2 := vg.Point{X: x2, Y: y2}
 		if !c.Contains(pt1) || !c.Contains(pt2) {
 			return
 		}
@@ -267,8 +267,8 @@ func (h *Contour) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 				X: plt.X.Norm(h.GridXYZ.X(i)),
 				Y: plt.Y.Norm(h.GridXYZ.Y(j)),
 				Rectangle: vg.Rectangle{
-					Min: vg.Point{-2.5, -2.5},
-					Max: vg.Point{+2.5, +2.5},
+					Min: vg.Point{X: -2.5, Y: -2.5},
+					Max: vg.Point{X: +2.5, Y: +2.5},
 				},
 			})
 		}
@@ -406,13 +406,13 @@ func newContour(l line, z float64) *contour {
 func (c *contour) path(trX, trY func(float64) vg.Length) vg.Path {
 	var pa vg.Path
 	p := c.front()
-	pa.Move(vg.Point{trX(p.X), trY(p.Y)})
+	pa.Move(vg.Point{X: trX(p.X), Y: trY(p.Y)})
 	for i := len(c.backward) - 2; i >= 0; i-- {
 		p = c.backward[i]
-		pa.Line(vg.Point{trX(p.X), trY(p.Y)})
+		pa.Line(vg.Point{X: trX(p.X), Y: trY(p.Y)})
 	}
 	for _, p := range c.forward {
-		pa.Line(vg.Point{trX(p.X), trY(p.Y)})
+		pa.Line(vg.Point{X: trX(p.X), Y: trY(p.Y)})
 	}
 
 	return pa

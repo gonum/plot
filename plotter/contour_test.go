@@ -69,6 +69,8 @@ func TestHeatMapWithContour(t *testing.T) {
 }
 
 func TestComplexContours(t *testing.T) {
+	rnd := rand.New(rand.NewSource(1))
+
 	if !*visualDebug {
 		return
 	}
@@ -78,7 +80,7 @@ func TestComplexContours(t *testing.T) {
 			r := float64(i/80) - 40
 			c := float64(i%80) - 40
 
-			data[i] = rand.NormFloat64()*n + math.Hypot(r, c)
+			data[i] = rnd.NormFloat64()*n + math.Hypot(r, c)
 		}
 
 		m := unitGrid{mat64.NewDense(80, 80, data)}
@@ -110,12 +112,14 @@ func BenchmarkComplexContour32(b *testing.B) { complexContourBench(32, b) }
 var cp map[float64][]vg.Path
 
 func complexContourBench(noise float64, b *testing.B) {
+	rnd := rand.New(rand.NewSource(1))
+
 	data := make([]float64, 6400)
 	for i := range data {
 		r := float64(i/80) - 40
 		c := float64(i%80) - 40
 
-		data[i] = rand.NormFloat64()*noise + math.Hypot(r, c)
+		data[i] = rnd.NormFloat64()*noise + math.Hypot(r, c)
 	}
 
 	m := unitGrid{mat64.NewDense(80, 80, data)}

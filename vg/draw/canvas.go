@@ -32,7 +32,43 @@ type TextStyle struct {
 
 	// Font is the font description.
 	Font vg.Font
+
+	// Rotation is the text rotation in radians, performed around the axis
+	// defined by XAlign and YAlign.
+	Rotation float64
+
+	// XAlign and YAlign specify the alignment of the text.
+	XAlign XAlignment
+	YAlign YAlignment
 }
+
+// XAlignment specifies text alignment in the X direction. Three preset
+// options are available, but an arbitrary alignment
+// can also be specified using XAlignment(desired number).
+type XAlignment float64
+
+const (
+	// XLeft aligns the left edge of the text with the specified location.
+	XLeft XAlignment = 0
+	// XCenter aligns the horizontal center of the text with the specified location.
+	XCenter XAlignment = -0.5
+	// XRight aligns the right edge of the text with the specified location.
+	XRight XAlignment = -1
+)
+
+// YAlignment specifies text alignment in the Y direction. Three preset
+// options are available, but an arbitrary alignment
+// can also be specified using YAlignment(desired number).
+type YAlignment float64
+
+const (
+	// YTop aligns the top of of the text with the specified location.
+	YTop YAlignment = -1
+	// YCenter aligns the vertical center of the text with the specified location.
+	YCenter YAlignment = -0.5
+	// YBottom aligns the bottom of the text with the specified location.
+	YBottom YAlignment = 0
+)
 
 // LineStyle describes what a line will look like.
 type LineStyle struct {
@@ -91,8 +127,8 @@ func (c *Canvas) DrawGlyphNoClip(sty GlyphStyle, pt vg.Point) {
 // assuming that it is drawn centered at 0,0
 func (g GlyphStyle) Rectangle() vg.Rectangle {
 	return vg.Rectangle{
-		Min: vg.Point{-g.Radius, -g.Radius},
-		Max: vg.Point{+g.Radius, +g.Radius},
+		Min: vg.Point{X: -g.Radius, Y: -g.Radius},
+		Max: vg.Point{X: +g.Radius, Y: +g.Radius},
 	}
 }
 
@@ -265,8 +301,8 @@ func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
 		Rectangle: vg.Rectangle{
-			Min: vg.Point{0, 0},
-			Max: vg.Point{w, h},
+			Min: vg.Point{X: 0, Y: 0},
+			Max: vg.Point{X: w, Y: h},
 		},
 	}
 }
@@ -420,11 +456,11 @@ func (c *Canvas) ClipLinesXY(lines ...[]vg.Point) [][]vg.Point {
 func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
 	var lines1 [][]vg.Point
 	for _, line := range lines {
-		ls := clipLine(isLeft, vg.Point{c.Max.X, c.Min.Y}, vg.Point{-1, 0}, line)
+		ls := clipLine(isLeft, vg.Point{X: c.Max.X, Y: c.Min.Y}, vg.Point{X: -1, Y: 0}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isRight, vg.Point{c.Min.X, c.Min.Y}, vg.Point{1, 0}, line)
+		ls := clipLine(isRight, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 1, Y: 0}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -436,11 +472,11 @@ func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
 func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
 	var lines1 [][]vg.Point
 	for _, line := range lines {
-		ls := clipLine(isAbove, vg.Point{c.Min.X, c.Min.Y}, vg.Point{0, -1}, line)
+		ls := clipLine(isAbove, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 0, Y: -1}, line)
 		lines1 = append(lines1, ls...)
 	}
 	for _, line := range lines1 {
-		ls := clipLine(isBelow, vg.Point{c.Min.X, c.Max.Y}, vg.Point{0, 1}, line)
+		ls := clipLine(isBelow, vg.Point{X: c.Min.X, Y: c.Max.Y}, vg.Point{X: 0, Y: 1}, line)
 		clipped = append(clipped, ls...)
 	}
 	return
@@ -506,16 +542,16 @@ func (c *Canvas) ClipPolygonXY(pts []vg.Point) []vg.Point {
 // represent the given polygon clipped in the
 // X direction.
 func (c *Canvas) ClipPolygonX(pts []vg.Point) []vg.Point {
-	return clipPoly(isLeft, vg.Point{c.Max.X, c.Min.Y}, vg.Point{-1, 0},
-		clipPoly(isRight, vg.Point{c.Min.X, c.Min.Y}, vg.Point{1, 0}, pts))
+	return clipPoly(isLeft, vg.Point{X: c.Max.X, Y: c.Min.Y}, vg.Point{X: -1, Y: 0},
+		clipPoly(isRight, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 1, Y: 0}, pts))
 }
 
 // ClipPolygonY returns a slice of lines that
 // represent the given polygon clipped in the
 // Y direction.
 func (c *Canvas) ClipPolygonY(pts []vg.Point) []vg.Point {
-	return clipPoly(isBelow, vg.Point{c.Min.X, c.Max.Y}, vg.Point{0, 1},
-		clipPoly(isAbove, vg.Point{c.Min.X, c.Min.Y}, vg.Point{0, -1}, pts))
+	return clipPoly(isBelow, vg.Point{X: c.Min.X, Y: c.Max.Y}, vg.Point{X: 0, Y: 1},
+		clipPoly(isAbove, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 0, Y: -1}, pts))
 }
 
 // clipPoly performs clipping of a polygon by a single
@@ -576,10 +612,8 @@ func isect(p0, p1, clip, norm vg.Point) vg.Point {
 }
 
 // FillText fills lines of text in the draw area.
-// The text is offset by its width times xalign and
-// its height times yalign.  x and y give the bottom
-// left corner of the text befor e it is offset.
-func (c *Canvas) FillText(sty TextStyle, pt vg.Point, xalign, yalign float64, txt string) {
+// pt specifies the location where the text is to be drawn.
+func (c *Canvas) FillText(sty TextStyle, pt vg.Point, txt string) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return
@@ -587,18 +621,45 @@ func (c *Canvas) FillText(sty TextStyle, pt vg.Point, xalign, yalign float64, tx
 
 	c.SetColor(sty.Color)
 
-	ht := sty.Height(txt)
-	pt.Y += ht*vg.Length(yalign) - sty.Font.Extents().Ascent
+	if sty.Rotation != 0 {
+		c.Push()
+		c.Rotate(sty.Rotation)
+	}
+
+	cos := vg.Length(math.Cos(sty.Rotation))
+	sin := vg.Length(math.Sin(sty.Rotation))
+	pt.X, pt.Y = pt.Y*sin+pt.X*cos, pt.Y*cos-pt.X*sin
+
 	nl := textNLines(txt)
+	ht := sty.Height(txt)
+	pt.Y += ht*vg.Length(sty.YAlign) - sty.Font.Extents().Ascent
 	for i, line := range strings.Split(txt, "\n") {
-		xoffs := vg.Length(xalign) * sty.Font.Width(line)
+		xoffs := vg.Length(sty.XAlign) * sty.Font.Width(line)
 		n := vg.Length(nl - i)
 		c.FillString(sty.Font, pt.Add(vg.Point{X: xoffs, Y: n * sty.Font.Size}), line)
+	}
+
+	if sty.Rotation != 0 {
+		c.Pop()
+	}
+}
+
+// rotatePoint applies rotation theta (in radians) about the origin to point p.
+func rotatePoint(theta float64, p vg.Point) vg.Point {
+	if theta == 0 {
+		return p
+	}
+	x := float64(p.X)
+	y := float64(p.Y)
+
+	return vg.Point{
+		X: vg.Length(x*math.Cos(theta) - y*math.Sin(theta)),
+		Y: vg.Length(y*math.Cos(theta) + x*math.Sin(theta)),
 	}
 }
 
 // Width returns the width of lines of text
-// when using the given font.
+// when using the given font before any text rotation is applied.
 func (sty TextStyle) Width(txt string) (max vg.Length) {
 	txt = strings.TrimRight(txt, "\n")
 	for _, line := range strings.Split(txt, "\n") {
@@ -610,7 +671,7 @@ func (sty TextStyle) Width(txt string) (max vg.Length) {
 }
 
 // Height returns the height of the text when using
-// the given font.
+// the given font before any text rotation is applied.
 func (sty TextStyle) Height(txt string) vg.Length {
 	nl := textNLines(txt)
 	if nl == 0 {
@@ -621,9 +682,51 @@ func (sty TextStyle) Height(txt string) vg.Length {
 }
 
 // Rectangle returns a rectangle giving the bounds of
-// this text assuming that it is drawn at 0, 0
+// this text assuming that it is drawn at (0, 0).
 func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
-	return vg.Rectangle{Max: vg.Point{sty.Width(txt), sty.Height(txt)}}
+	w := sty.Width(txt)
+	h := sty.Height(txt)
+	xoff := vg.Length(sty.XAlign) * w
+	yoff := vg.Length(sty.YAlign) * h
+	// lower left corner
+	p1 := rotatePoint(sty.Rotation, vg.Point{X: xoff, Y: yoff})
+	// upper left corner
+	p2 := rotatePoint(sty.Rotation, vg.Point{X: xoff, Y: h + yoff})
+	// lower right corner
+	p3 := rotatePoint(sty.Rotation, vg.Point{X: w + xoff, Y: yoff})
+	// upper right corner
+	p4 := rotatePoint(sty.Rotation, vg.Point{X: w + xoff, Y: h + yoff})
+
+	return vg.Rectangle{
+		Max: vg.Point{
+			X: max(p1.X, p2.X, p3.X, p4.X),
+			Y: max(p1.Y, p2.Y, p3.Y, p4.Y),
+		},
+		Min: vg.Point{
+			X: min(p1.X, p2.X, p3.X, p4.X),
+			Y: min(p1.Y, p2.Y, p3.Y, p4.Y),
+		},
+	}
+}
+
+func max(d ...vg.Length) vg.Length {
+	o := vg.Length(math.Inf(-1))
+	for _, dd := range d {
+		if dd > o {
+			o = dd
+		}
+	}
+	return o
+}
+
+func min(d ...vg.Length) vg.Length {
+	o := vg.Length(math.Inf(1))
+	for _, dd := range d {
+		if dd < o {
+			o = dd
+		}
+	}
+	return o
 }
 
 // textNLines returns the number of lines in the text.
