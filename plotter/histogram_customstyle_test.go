@@ -17,7 +17,7 @@ import (
 )
 
 // An example of making a histogram with a custom style.
-func ExampleHistogramGnuplot() {
+func ExampleHistogramCustomStyle() {
 	// stdNorm returns the probability of drawing a
 	// value from a standard normal distribution.
 	stdNorm := func(x float64) float64 {
@@ -40,7 +40,7 @@ func ExampleHistogramGnuplot() {
 	p.Title.Text = "Histogram"
 	p.X.Label.Text = "X-axis"
 	p.Y.Label.Text = "Y-axis"
-	p.Style = GnuplotStyle{}
+	p.Style = CustomStyle{}
 
 	h, err := NewHist(vals, 16)
 	if err != nil {
@@ -55,19 +55,19 @@ func ExampleHistogramGnuplot() {
 	norm.Width = vg.Points(2)
 	p.Add(norm)
 
-	err = p.Save(200, 200, "testdata/histogram-gnuplot-style.png")
+	err = p.Save(200, 200, "testdata/histogram-custom-style.png")
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
-func TestHistogramGnuplot(t *testing.T) {
-	checkPlot(ExampleHistogramGnuplot, t, "histogram-gnuplot-style.png")
+func TestHistogramCustomStyle(t *testing.T) {
+	checkPlot(ExampleHistogramCustomStyle, t, "histogram-custom-style.png")
 }
 
-type GnuplotStyle struct{}
+type CustomStyle struct{}
 
-func (s GnuplotStyle) DrawPlot(p *plot.Plot, c draw.Canvas) {
+func (CustomStyle) DrawPlot(p *plot.Plot, c draw.Canvas) {
 	if p.BackgroundColor != nil {
 		c.SetColor(p.BackgroundColor)
 		c.Fill(c.Rectangle.Path())
@@ -93,7 +93,7 @@ func (s GnuplotStyle) DrawPlot(p *plot.Plot, c draw.Canvas) {
 
 	if p.Title.Text != "" {
 		cx := draw.Crop(c, ywidth, 0, 0, 0)
-		c.FillText(p.Title.TextStyle, cx.Center().X, c.Max.Y, -0.5, -1, p.Title.Text)
+		c.FillText(p.Title.TextStyle, vg.Point{cx.Center().X, c.Max.Y}, -0.5, -1, p.Title.Text)
 		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 		c.Max.Y -= p.Title.Padding
 	}
