@@ -122,9 +122,9 @@ func makeAxis() (Axis, error) {
 	return a, nil
 }
 
-// sanitizeRange ensures that the range of the
+// SanitizeRange ensures that the range of the
 // axis makes sense.
-func (a *Axis) sanitizeRange() {
+func (a *Axis) SanitizeRange() {
 	if math.IsInf(a.Min, 0) {
 		a.Min = 0
 	}
@@ -177,14 +177,14 @@ func (a *Axis) drawTicks() bool {
 	return a.Tick.Width > 0 && a.Tick.Length > 0
 }
 
-// A horizontalAxis draws horizontally across the bottom
+// A HorizontalAxis draws horizontally across the bottom
 // of a plot.
-type horizontalAxis struct {
+type HorizontalAxis struct {
 	Axis
 }
 
-// size returns the height of the axis.
-func (a *horizontalAxis) size() (h vg.Length) {
+// Size returns the height of the axis.
+func (a *HorizontalAxis) Size() (h vg.Length) {
 	if a.Label.Text != "" {
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
@@ -200,8 +200,8 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	return
 }
 
-// draw draws the axis along the lower edge of a draw.Canvas.
-func (a *horizontalAxis) draw(c draw.Canvas) {
+// Draw draws the axis along the lower edge of a draw.Canvas.
+func (a *HorizontalAxis) Draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
@@ -241,7 +241,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a *HorizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -259,13 +259,13 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	return
 }
 
-// A verticalAxis is drawn vertically up the left side of a plot.
-type verticalAxis struct {
+// A VerticalAxis is drawn vertically up the left side of a plot.
+type VerticalAxis struct {
 	Axis
 }
 
-// size returns the width of the axis.
-func (a *verticalAxis) size() (w vg.Length) {
+// Size returns the width of the axis.
+func (a *VerticalAxis) Size() (w vg.Length) {
 	if a.Label.Text != "" {
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
@@ -284,8 +284,8 @@ func (a *verticalAxis) size() (w vg.Length) {
 	return
 }
 
-// draw draws the axis along the left side of a draw.Canvas.
-func (a *verticalAxis) draw(c draw.Canvas) {
+// Draw draws the axis along the left side of a draw.Canvas.
+func (a *VerticalAxis) Draw(c draw.Canvas) {
 	x := c.Min.X
 	if a.Label.Text != "" {
 		x += a.Label.Height(a.Label.Text)
@@ -327,7 +327,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a *VerticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue

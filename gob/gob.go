@@ -40,4 +40,6 @@ func init() {
 	gob.Register(plotter.XYZs{})
 	gob.Register(plotter.XYValues{})
 
+	// plot.Drawer
+	gob.Register(plot.DefaultPlotStyle{})
 }

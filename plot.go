@@ -59,6 +59,9 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
+	// Style draws the plot with style
+	Style PlotDrawer
+
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
 	plotters []Plotter
@@ -72,6 +75,11 @@ type Plot struct {
 type Plotter interface {
 	// Plot draws the data to a draw.Canvas.
 	Plot(draw.Canvas, *Plot)
+}
+
+// PlotDrawer draws a Plot on a draw.Canvas
+type PlotDrawer interface {
+	DrawPlot(p *Plot, c draw.Canvas)
 }
 
 // DataRanger wraps the DataRange method.
@@ -104,12 +112,18 @@ func New() (*Plot, error) {
 		X:               x,
 		Y:               y,
 		Legend:          legend,
+		Style:           DefaultPlotStyle{},
 	}
 	p.Title.TextStyle = draw.TextStyle{
 		Color: color.Black,
 		Font:  titleFont,
 	}
 	return p, nil
+}
+
+// Plotters returns the list of plotters attached to this Plot.
+func (p *Plot) Plotters() []Plotter {
+	return p.plotters
 }
 
 // Add adds a Plotters to the plot.
@@ -143,32 +157,7 @@ func (p *Plot) Add(ps ...Plotter) {
 // taken into account when padding the plot so that
 // none of their glyphs are clipped.
 func (p *Plot) Draw(c draw.Canvas) {
-	if p.BackgroundColor != nil {
-		c.SetColor(p.BackgroundColor)
-		c.Fill(c.Rectangle.Path())
-	}
-	if p.Title.Text != "" {
-		c.FillText(p.Title.TextStyle, vg.Point{c.Center().X, c.Max.Y}, -0.5, -1, p.Title.Text)
-		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
-		c.Max.Y -= p.Title.Padding
-	}
-
-	p.X.sanitizeRange()
-	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
-	y := verticalAxis{p.Y}
-
-	ywidth := y.size()
-	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
-	xheight := x.size()
-	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
-
-	dataC := padY(p, padX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
-	for _, data := range p.plotters {
-		data.Plot(dataC, p)
-	}
-
-	p.Legend.draw(draw.Crop(draw.Crop(c, ywidth, 0, 0, 0), 0, 0, xheight, 0))
+	p.Style.DrawPlot(p, c)
 }
 
 // DataCanvas returns a new draw.Canvas that
@@ -179,11 +168,11 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 		da.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
 		da.Max.Y -= p.Title.Padding
 	}
-	p.X.sanitizeRange()
-	x := horizontalAxis{p.X}
-	p.Y.sanitizeRange()
-	y := verticalAxis{p.Y}
-	return padY(p, padX(p, draw.Crop(da, y.size(), x.size(), 0, 0)))
+	p.X.SanitizeRange()
+	x := HorizontalAxis{p.X}
+	p.Y.SanitizeRange()
+	y := VerticalAxis{p.Y}
+	return PadY(p, PadX(p, draw.Crop(da, y.Size(), x.Size(), 0, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
@@ -197,12 +186,51 @@ func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
 	}
 }
 
-// padX returns a draw.Canvas that is padded horizontally
+// DefaultPlotStyle implements PlotDrawer
+type DefaultPlotStyle struct{}
+
+// DrawPlot draws a plot to a draw.Canvas.
+//
+// Plotters are drawn in the order in which they were
+// added to the plot.  Plotters that  implement the
+// GlyphBoxer interface will have their GlyphBoxes
+// taken into account when padding the plot so that
+// none of their glyphs are clipped.
+func (DefaultPlotStyle) DrawPlot(p *Plot, c draw.Canvas) {
+	if p.BackgroundColor != nil {
+		c.SetColor(p.BackgroundColor)
+		c.Fill(c.Rectangle.Path())
+	}
+	if p.Title.Text != "" {
+		c.FillText(p.Title.TextStyle, vg.Point{c.Center().X, c.Max.Y}, -0.5, -1, p.Title.Text)
+		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		c.Max.Y -= p.Title.Padding
+	}
+
+	p.X.SanitizeRange()
+	x := HorizontalAxis{p.X}
+	p.Y.SanitizeRange()
+	y := VerticalAxis{p.Y}
+
+	ywidth := y.Size()
+	x.Draw(PadX(p, draw.Crop(c, ywidth, 0, 0, 0)))
+	xheight := x.Size()
+	y.Draw(PadY(p, draw.Crop(c, 0, 0, xheight, 0)))
+
+	dataC := PadY(p, PadX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
+	for _, data := range p.plotters {
+		data.Plot(dataC, p)
+	}
+
+	p.Legend.Draw(draw.Crop(draw.Crop(c, ywidth, 0, 0, 0), 0, 0, xheight, 0))
+}
+
+// PadX returns a draw.Canvas that is padded horizontally
 // so that glyphs will no be clipped.
-func padX(p *Plot, c draw.Canvas) draw.Canvas {
+func PadX(p *Plot, c draw.Canvas) draw.Canvas {
 	glyphs := p.GlyphBoxes(p)
 	l := leftMost(&c, glyphs)
-	xAxis := horizontalAxis{p.X}
+	xAxis := HorizontalAxis{p.X}
 	glyphs = append(glyphs, xAxis.GlyphBoxes(p)...)
 	r := rightMost(&c, glyphs)
 
@@ -253,12 +281,12 @@ func leftMost(c *draw.Canvas, boxes []GlyphBox) GlyphBox {
 	return l
 }
 
-// padY returns a draw.Canvas that is padded vertically
+// PadY returns a draw.Canvas that is padded vertically
 // so that glyphs will no be clipped.
-func padY(p *Plot, c draw.Canvas) draw.Canvas {
+func PadY(p *Plot, c draw.Canvas) draw.Canvas {
 	glyphs := p.GlyphBoxes(p)
 	b := bottomMost(&c, glyphs)
-	yAxis := verticalAxis{p.Y}
+	yAxis := VerticalAxis{p.Y}
 	glyphs = append(glyphs, yAxis.GlyphBoxes(p)...)
 	t := topMost(&c, glyphs)
 
