@@ -10,6 +10,7 @@
 package palette
 
 import (
+	"errors"
 	"image/color"
 	"math"
 )
@@ -31,6 +32,56 @@ type DivergingPalette interface {
 	CriticalIndex() (low, high int)
 }
 
+// A ColorMap maps scalar values to colors.
+type ColorMap interface {
+	// At returns the color associated with the given value.
+	// If the value is not between Max() and Min(), an error is returned.
+	At(float64) (color.Color, error)
+
+	// Max returns the current maximum value of the ColorMap.
+	Max() float64
+
+	// SetMax sets the maximum value of the ColorMap.
+	SetMax(float64)
+
+	// Min returns the current minimum value of the ColorMap.
+	Min() float64
+
+	// SetMin sets the minimum value of the ColorMap.
+	SetMin(float64)
+
+	// Alpha returns the opacity value of the ColorMap.
+	Alpha() float64
+
+	// SetAlpha sets the opacity value of the ColorMap. Zero is transparent
+	// and one is completely opaque. The default value of alpha should be
+	// expected to be one. The function should be expected to panic
+	// if alpha is not between zero and one.
+	SetAlpha(float64)
+
+	// Palette creates a Palette with the specified number of colors
+	// from the ColorMap.
+	Palette(colors int) Palette
+}
+
+// DivergingColorMap maps scalar values to colors that diverge
+// from a central value.
+type DivergingColorMap interface {
+	ColorMap
+
+	// SetConvergePoint sets the value where the diverging colors
+	// should meet. The default value should be expected to be
+	// (Min() + Max()) / 2. It should be expected that calling either
+	// SetMax() or SetMin() will set a new default value, so for a
+	// custom convergence point this function should be called after
+	// SetMax() and SetMin(). The function should be expected to panic
+	// if the value is not between Min() and Max().
+	SetConvergePoint(float64)
+
+	// ConvergePoint returns the value where the diverging colors meet.
+	ConvergePoint() float64
+}
+
 // Hue represents a hue in HSV color space. Valid Hues are within [0, 1].
 type Hue float64
 
@@ -41,6 +92,20 @@ const (
 	Cyan
 	Blue
 	Magenta
+)
+
+var (
+	// ErrOverflow is the error returned by ColorMaps when the specified
+	// value is greater than the maximum value.
+	ErrOverflow = errors.New("palette: specified value > maximum")
+
+	// ErrUnderflow is the error returned by ColorMaps when the specified
+	// value is less than the minimum value.
+	ErrUnderflow = errors.New("palette: specified value < minimum")
+
+	// ErrNaN is the error returned by ColorMaps when the specified
+	// value is NaN.
+	ErrNaN = errors.New("palette: specified value == NaN")
 )
 
 // Complement returns the complementary hue of a Hue.
