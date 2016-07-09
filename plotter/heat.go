@@ -159,7 +159,7 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			case v > h.Max:
 				col = h.Overflow
 			default:
-				col = pal[int((v-h.Min)*ps+0.5)] // Apply palette scaling.
+				col = pal[int((v-h.Min)*ps-0.5)] // Apply palette scaling.
 			}
 			if col != nil {
 				c.SetColor(col)
