@@ -11,8 +11,10 @@ package palette
 
 import (
 	"errors"
+	"fmt"
 	"image/color"
 	"math"
+	"sort"
 )
 
 // Palette is a collection of colors ordered into a palette.
@@ -30,6 +32,56 @@ type DivergingPalette interface {
 	// The low and high index values will be equal when
 	// there is a single median color.
 	CriticalIndex() (low, high int)
+}
+
+// A ColorMapInt maps an integer category value to a color.
+// If there is no mapped color for the given category, an error is returned.
+type ColorMapInt interface {
+	// At returns the color associated with category cat.
+	At(cat int) (color.Color, error)
+}
+
+// IntMap fulfils the ColorMapInt interface, mapping integer
+// categories to colors.
+type IntMap struct {
+	Categories []int
+	Colors     []color.Color
+}
+
+// At fulfils the ColorMapInt interface.
+func (im *IntMap) At(cat int) (color.Color, error) {
+	if len(im.Categories) != len(im.Colors) {
+		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(im.Categories), len(im.Colors)))
+	}
+	if i := sort.SearchInts(im.Categories, cat); i < len(im.Categories) && im.Categories[i] == cat {
+		return im.Colors[i], nil
+	}
+	return nil, fmt.Errorf("palette: category '%d' not found", cat)
+}
+
+// A ColorMapString maps a string category value to a color.
+// If there is no mapped color for the given category, an error is returned.
+type ColorMapString interface {
+	// At returns the color associated with category cat.
+	At(cat string) (color.Color, error)
+}
+
+// StringMap fulfils the ColorMapString interface, mapping integer
+// categories to colors.
+type StringMap struct {
+	Categories []string
+	Colors     []color.Color
+}
+
+// At fulfils the ColorMapInt interface.
+func (sm *StringMap) At(cat string) (color.Color, error) {
+	if len(sm.Categories) != len(sm.Colors) {
+		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(sm.Categories), len(sm.Colors)))
+	}
+	if i := sort.SearchStrings(sm.Categories, cat); i < len(sm.Categories) && sm.Categories[i] == cat {
+		return sm.Colors[i], nil
+	}
+	return nil, fmt.Errorf("palette: category '%s' not found", cat)
 }
 
 // A ColorMap maps scalar values to colors.
