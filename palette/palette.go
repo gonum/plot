@@ -64,10 +64,10 @@ func (d divergingPalette) CriticalIndex() (low, high int) {
 func Rainbow(colors int, start, end Hue, sat, val, alpha float64) Palette {
 	p := make(palette, colors)
 	hd := float64(end-start) / float64(colors-1)
-	c := HSVA{H: float64(start), V: val, S: sat, A: alpha}
+	c := HSVA{V: val, S: sat, A: alpha}
 	for i := range p {
+		c.H = float64(start) + float64(i)*hd
 		p[i] = color.NRGBAModel.Convert(c)
-		c.H += hd
 	}
 
 	return p
@@ -80,10 +80,10 @@ func Heat(colors int, alpha float64) Palette {
 	i := colors - j
 
 	hd := float64(Yellow-Red) / float64(i-1)
-	c := HSVA{H: float64(Red), V: 1, S: 1, A: alpha}
+	c := HSVA{V: 1, S: 1, A: alpha}
 	for k := range p[:i] {
+		c.H = float64(Red) + float64(k)*hd
 		p[k] = color.NRGBAModel.Convert(c)
-		c.H += hd
 	}
 	if j == 0 {
 		return p
@@ -94,8 +94,8 @@ func Heat(colors int, alpha float64) Palette {
 	c.S = start
 	sd := (end - start) / float64(j-1)
 	for k := range p[i:] {
+		c.S = start + float64(k)*sd
 		p[k+i] = color.NRGBAModel.Convert(c)
-		c.S += sd
 	}
 
 	return p
@@ -106,14 +106,14 @@ func Heat(colors int, alpha float64) Palette {
 func Radial(colors int, start, end Hue, alpha float64) DivergingPalette {
 	p := make(divergingPalette, colors)
 	h := colors / 2
-	c := HSVA{S: 0.5, V: 1, A: alpha}
+	c := HSVA{V: 1, A: alpha}
 	ds := 0.5 / float64(h)
 	for i := range p[:h] {
 		c.H = float64(start)
+		c.S = 0.5 - float64(i)*ds
 		p[i] = color.NRGBAModel.Convert(c)
 		c.H = float64(end)
 		p[len(p)-1-i] = color.NRGBAModel.Convert(c)
-		c.S -= ds
 	}
 	if colors%2 != 0 {
 		p[colors/2] = color.NRGBA{0xff, 0xff, 0xff, byte(math.MaxUint8 * alpha)}
