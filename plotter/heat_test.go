@@ -13,12 +13,38 @@ import (
 	"github.com/gonum/plot/palette"
 )
 
+type offsetUnitGrid struct {
+	XOffset, YOffset float64
+
+	Data mat64.Matrix
+}
+
+func (g offsetUnitGrid) Dims() (c, r int)   { r, c = g.Data.Dims(); return c, r }
+func (g offsetUnitGrid) Z(c, r int) float64 { return g.Data.At(r, c) }
+func (g offsetUnitGrid) X(c int) float64 {
+	_, n := g.Data.Dims()
+	if c < 0 || c >= n {
+		panic("index out of range")
+	}
+	return float64(c) + g.XOffset
+}
+func (g offsetUnitGrid) Y(r int) float64 {
+	m, _ := g.Data.Dims()
+	if r < 0 || r >= m {
+		panic("index out of range")
+	}
+	return float64(r) + g.YOffset
+}
+
 func ExampleHeatMap() {
-	m := unitGrid{mat64.NewDense(3, 4, []float64{
-		1, 2, 3, 4,
-		5, 6, 7, 8,
-		9, 10, 11, 12,
-	})}
+	m := offsetUnitGrid{
+		XOffset: -2,
+		YOffset: -1,
+		Data: mat64.NewDense(3, 4, []float64{
+			1, 2, 3, 4,
+			5, 6, 7, 8,
+			9, 10, 11, 12,
+		})}
 	h := NewHeatMap(m, palette.Heat(12, 1))
 
 	p, err := plot.New()
@@ -31,8 +57,8 @@ func ExampleHeatMap() {
 
 	p.X.Padding = 0
 	p.Y.Padding = 0
-	p.X.Max = 3.5
-	p.Y.Max = 2.5
+	p.X.Max = 1.5
+	p.Y.Max = 1.5
 
 	err = p.Save(100, 100, "testdata/heatMap.png")
 	if err != nil {
