@@ -98,11 +98,6 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	// ps scales the palette uniformly across the data range.
 	ps := float64(len(pal)-1) / (h.Max - h.Min)
-	// for some degenerate data sets with h.Max == h.Min, this blows
-	// up and needs to be caught
-	if math.IsNaN(ps) {
-		ps = 0.0
-	}
 
 	trX, trY := plt.Transforms(&c)
 
