@@ -384,7 +384,7 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-	prec := maxInt(precisionOf(min), precisionOf(max))
+	prec := precisionOf(majorDelta)
 	for val <= max {
 		if val >= min && val <= max {
 			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
@@ -572,11 +572,4 @@ func formatFloatTick(v float64, prec int) string {
 // precisionOf returns the precision needed to display x without e notation.
 func precisionOf(x float64) int {
 	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), displayPrecision))
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }

@@ -35,19 +35,25 @@ func TestAxisSmallTick(t *testing.T) {
 			Max:    math.MaxFloat64 / 3,
 			Labels: []string{"4.8e+307", "5.2e+307", "5.6e+307"},
 		},
+		{
+			Min:    0.00010,
+			Max:    0.00015,
+			Labels: []string{"0.0001", "0.00011", "0.00012", "0.00013", "0.00014"},
+		},
 	} {
 		ticks := d.Ticks(test.Min, test.Max)
 		var count int
 		for _, tick := range ticks {
 			if tick.Label != "" {
+				if count >= len(test.Labels) {
+					t.Errorf("Too many tick labels")
+					break
+				}
 				if test.Labels[count] != tick.Label {
 					t.Error("Ticks mismatch: Want", test.Labels[count], ", got", tick.Label)
 				}
 				count++
 			}
-		}
-		if count != len(test.Labels) {
-			t.Errorf("Too many tick labels")
 		}
 	}
 }
