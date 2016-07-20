@@ -384,7 +384,9 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-	prec := maxInt(precisionOf(min), precisionOf(max))
+	// Precision required is not just to see a value for the ticks, but to
+	// measure and distinguish the tick points from each other accurately
+	prec := precisionOf(majorDelta)
 	for val <= max {
 		if val >= min && val <= max {
 			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
