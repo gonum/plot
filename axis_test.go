@@ -6,54 +6,56 @@ package plot
 
 import (
 	"math"
+	"reflect"
 	"testing"
 )
 
 func TestAxisSmallTick(t *testing.T) {
 	d := DefaultTicks{}
 	for _, test := range []struct {
-		Min, Max float64
-		Labels   []string
+		min, max float64
+		want     []string
 	}{
 		{
-			Min:    -1.9846500878911073,
-			Max:    0.4370974820125605,
-			Labels: []string{"-1.6", "-0.8", "0"},
+			min:  -1.9846500878911073,
+			max:  0.4370974820125605,
+			want: []string{"-1.6", "-0.8", "0"},
 		},
 		{
-			Min:    -1.985e-15,
-			Max:    0.4371e-15,
-			Labels: []string{"-1.6e-15", "-8e-16", "0"},
+			min:  -1.985e-15,
+			max:  0.4371e-15,
+			want: []string{"-1.6e-15", "-8e-16", "0"},
 		},
 		{
-			Min:    -1.985e15,
-			Max:    0.4371e15,
-			Labels: []string{"-1.6e+15", "-8e+14", "0"},
+			min:  -1.985e15,
+			max:  0.4371e15,
+			want: []string{"-1.6e+15", "-8e+14", "0"},
 		},
 		{
-			Min:    math.MaxFloat64 / 4,
-			Max:    math.MaxFloat64 / 3,
-			Labels: []string{"4.8e+307", "5.2e+307", "5.6e+307"},
+			min:  math.MaxFloat64 / 4,
+			max:  math.MaxFloat64 / 3,
+			want: []string{"4.8e+307", "5.2e+307", "5.6e+307"},
 		},
 		{
-			Min:    0.00010,
-			Max:    0.00015,
-			Labels: []string{"0.0001", "0.00011", "0.00012", "0.00013", "0.00014"},
+			min:  0.00010,
+			max:  0.00015,
+			want: []string{"0.0001", "0.00011", "0.00012", "0.00013", "0.00014"},
 		},
 	} {
-		ticks := d.Ticks(test.Min, test.Max)
-		var count int
-		for _, tick := range ticks {
-			if tick.Label != "" {
-				if count >= len(test.Labels) {
-					t.Errorf("Too many tick labels")
-					break
-				}
-				if test.Labels[count] != tick.Label {
-					t.Error("Ticks mismatch: Want", test.Labels[count], ", got", tick.Label)
-				}
-				count++
-			}
+		ticks := d.Ticks(test.min, test.max)
+		got := labelsOf(ticks)
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", got, test.want)
 		}
 	}
+}
+
+func labelsOf(ticks []Tick) []string {
+	var labels []string
+	for _, t := range ticks {
+		if t.Label != "" {
+			labels = append(labels, t.Label)
+		}
+	}
+	return labels
 }
