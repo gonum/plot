@@ -57,7 +57,8 @@ type HeatMap struct {
 // NewHeatMap creates as new heat map plotter for the given data,
 // using the provided palette. If g has Min and Max methods that return
 // a float, those returned values are used to set the respective HeatMap
-// fields.
+// fields. If the returned HeatMap is used when Min is greater than or
+// equal to Max, the Plot method will panic.
 func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	var min, max float64
 	type minMaxer interface {
@@ -92,6 +93,9 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 
 // Plot implements the Plot method of the plot.Plotter interface.
 func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
+	if h.Min >= h.Max {
+		panic("heatmap: non-positive Z range")
+	}
 	pal := h.Palette.Colors()
 	if len(pal) == 0 {
 		panic("heatmap: empty palette")

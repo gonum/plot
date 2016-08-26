@@ -11,6 +11,8 @@ import (
 	"github.com/gonum/matrix/mat64"
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/palette"
+	"github.com/gonum/plot/vg/draw"
+	"github.com/gonum/plot/vg/recorder"
 )
 
 type offsetUnitGrid struct {
@@ -68,4 +70,34 @@ func ExampleHeatMap() {
 
 func TestHeatMap(t *testing.T) {
 	checkPlot(ExampleHeatMap, t, "heatMap.png")
+}
+
+func TestFlatHeat(t *testing.T) {
+	m := offsetUnitGrid{
+		XOffset: -2,
+		YOffset: -1,
+		Data:    mat64.NewDense(3, 4, nil),
+	}
+	h := NewHeatMap(m, palette.Heat(12, 1))
+
+	p, err := plot.New()
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	p.Add(h)
+
+	func() {
+		defer func() {
+			r := recover()
+			if r == nil {
+				t.Error("expected panic for flat data")
+			}
+			const want = "heatmap: non-positive Z range"
+			if r != want {
+				t.Errorf("unexpected panic message: got:%q want:%q", r, want)
+			}
+		}()
+		c := draw.NewCanvas(new(recorder.Canvas), 72, 72)
+		p.Draw(c)
+	}()
 }
