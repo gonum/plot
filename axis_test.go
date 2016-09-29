@@ -71,8 +71,8 @@ func allLabelsOf(ticks []Tick) []string {
 	return labels
 }
 
-func TestAutoUnixTimeTicks(t *testing.T) {
-	d := AutoUnixTimeTicks{Width: 4 * vg.Inch}
+func TestTimeTicks(t *testing.T) {
+	d := TimeTicks{Width: 4 * vg.Inch}
 	for _, test := range []struct {
 		min, max string
 		want     []string

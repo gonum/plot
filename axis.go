@@ -497,18 +497,18 @@ func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
 	return ticks
 }
 
-// AutoUnixTimeTicks is suitable for axes representing time values.
-// AutoUnixTimeTicks expects values in Unix time seconds.  It will
+// TimeTicks is suitable for axes representing time values.
+// TimeTicks expects values in Unix time seconds.  It will
 // adjust the number of ticks according to the specified Width.  If
-// not specified, Width defaults to 4 inches.
-type AutoUnixTimeTicks struct {
+// not specified, Width defaults to 10 centimeters.
+type TimeTicks struct {
 	// Width is the width of the underlying graph, used to calculate
 	// the number of ticks that can fit properly with their time
 	// shown.
 	Width vg.Length
 }
 
-var _ Ticker = AutoUnixTimeTicks{}
+var _ Ticker = TimeTicks{}
 
 // Inspired by https://github.com/d3/d3-scale/blob/master/src/time.js
 var tickRules = []tickRule{
@@ -560,7 +560,7 @@ type tickRule struct {
 
 // Ticks implements plot.Ticker and displays appropriately spaced and
 // formatted time labels.
-func (t AutoUnixTimeTicks) Ticks(min, max float64) []Tick {
+func (t TimeTicks) Ticks(min, max float64) []Tick {
 	width := t.Width
 	if width == 0 {
 		width = 10 * vg.Centimeter
