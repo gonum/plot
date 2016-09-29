@@ -5,7 +5,6 @@
 package plot
 
 import (
-	"fmt"
 	"math"
 	"reflect"
 	"testing"
@@ -219,7 +218,7 @@ func TestAutoUnixTimeTicks(t *testing.T) {
 			want: []string{"2017", "2022", "2027", "2032", "2037", "2042", "2047"},
 		},
 	} {
-		fmt.Println("For dates", test.min, test.max)
+		//fmt.Println("For dates", test.min, test.max)
 		ticks := d.Ticks(dateToFloat64(test.min), dateToFloat64(test.max))
 		got := allLabelsOf(ticks)
 		if !reflect.DeepEqual(got, test.want) {

@@ -7,7 +7,6 @@ package plot
 import (
 	"image/color"
 	"math"
-	"os"
 	"strconv"
 	"time"
 
@@ -512,113 +511,85 @@ type AutoUnixTimeTicks struct {
 var _ Ticker = AutoUnixTimeTicks{}
 
 // Inspired by https://github.com/d3/d3-scale/blob/master/src/time.js
-var tickIntervals = []tickRule{
-	{time.Millisecond,
-		"15:04:05.000", "15:04:05", ".000", time.Millisecond},
-	{200 * time.Millisecond,
-		"15:04:05.000", "15:04:05", ".000", 200 * time.Millisecond},
-	{500 * time.Millisecond,
-		"15:04:05.000", "15:04:05", ".000", 500 * time.Millisecond},
-	{time.Second,
-		"15:04:05", "15:04", ":05", time.Second},
-	{2 * time.Second,
-		"15:04:05", "15:04", ":05", 2 * time.Second},
-	{5 * time.Second,
-		"15:04:05", "15:04", ":05", 5 * time.Second},
-	{15 * time.Second,
-		"Jan 02, 15:04", "Jan 02", "15:04", 15 * time.Second},
-	{30 * time.Second,
-		"15:04:05", "15:04", ":05", 30 * time.Second},
-	{time.Minute,
-		"15:04:05", "15:04", ":05", time.Minute},
-	{2 * time.Minute,
-		"Jan 02, 3:04pm", "Jan 02", "3:04pm", 2 * time.Minute},
-	{5 * time.Minute,
-		"Jan 02, 3:04pm", "Jan 02", "3:04pm", 5 * time.Minute},
-	{15 * time.Minute,
-		"Jan 02, 3:04pm", "Jan 02", "3:04pm", 15 * time.Minute},
-	{30 * time.Minute,
-		"Jan 02, 3:04pm", "Jan 02", "3:04pm", 30 * time.Minute},
-	{time.Hour,
-		"Jan 2, 3pm", "Jan 2", "3pm", time.Hour},
-	{3 * time.Hour,
-		"Jan 2, 3pm", "Jan 2", "3pm", 3 * time.Hour},
-	{6 * time.Hour,
-		"Jan 2, 3pm", "Jan 2", "3pm", 6 * time.Hour},
-	{12 * time.Hour,
-		"Jan 2", "Jan 2", "3pm", 12 * time.Hour},
-	{24 * time.Hour,
-		"Jan 2", "Jan", "2", 24 * time.Hour},
-	{48 * time.Hour,
-		"Jan 2", "Jan", "2", 48 * time.Hour},
-	{7 * 24 * time.Hour,
-		"Jan 2", "Jan", "2", 7 * 24 * time.Hour},
-	{aMonth, // 1 month
-		"Jan 2006", "2006", "Jan", aMonth},
-	{3 * aMonth, // 3 months
-		"Jan 2006", "2006", "Jan", 3 * aMonth},
-	{6 * aMonth, // 6 months
-		"Jan 2006", "2006", "Jan", 6 * aMonth},
-	{12 * aMonth, // 1 year
-		"2006", "", "2006", 12 * aMonth},
-	{2 * 12 * aMonth, // 2 years
-		"2006", "", "2006", 2 * 12 * aMonth},
-	{5 * 12 * aMonth, // 5 years
-		"2006", "", "2006", 5 * 12 * aMonth},
-	{10 * 12 * aMonth, // 10 years
-		"2006", "", "2006", 10 * 12 * aMonth},
+var tickRules = []tickRule{
+	{time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{200 * time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{500 * time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{time.Second, "15:04:05", "15:04", ":05"},
+	{2 * time.Second, "15:04:05", "15:04", ":05"},
+	{5 * time.Second, "15:04:05", "15:04", ":05"},
+	{15 * time.Second, "Jan 02, 15:04", "Jan 02", "15:04"},
+	{30 * time.Second, "15:04:05", "15:04", ":05"},
+	{time.Minute, "15:04:05", "15:04", ":05"},
+	{2 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{5 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{15 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{30 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{3 * time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{6 * time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{12 * time.Hour, "Jan 2", "Jan 2", "3pm"},
+	{24 * time.Hour, "Jan 2", "Jan", "2"},
+	{48 * time.Hour, "Jan 2", "Jan", "2"},
+	{7 * 24 * time.Hour, "Jan 2", "Jan", "2"},
+	{month, "Jan 2006", "2006", "Jan"},
+	{3 * month, "Jan 2006", "2006", "Jan"},
+	{6 * month, "Jan 2006", "2006", "Jan"},
+	{12 * month, "2006", "", "2006"},
+	{2 * year, "2006", "", "2006"},
+	{5 * year, "2006", "", "2006"},
+	{10 * year, "2006", "", "2006"},
 }
 
-var aMonth = 31 * 24 * time.Hour
+const month = 31 * 24 * time.Hour
+const year = 12 * month
 
+// tickRule defines a time display format for a given time window (per
+// inch).
+//
+// This assumes a tick about each `durationPerInch`.  The long format is
+// shown each time the timestamp goes over a certain boundary
+// (verified through `watchFormat`).  This way you can show `Sep 2,
+// 12pm` when you pass midnight after `11pm` on `Sep 1`.
 type tickRule struct {
-	DurationPerInch time.Duration // use this rule for a maximum Duration per inch
-	LongFormat      string        // longer format
-	WatchFormat     string        // show long format when WatchFormat changes between ticks
-	ShortFormat     string        // incremental format, shorter
-	TimeWindow      time.Duration // interval for ticks
+	durationPerInch time.Duration // use this rule for a maximum Duration per inch, it is also used as an interval per ticks.
+	longFormat      string        // longer format
+	watchFormat     string        // show long format when watchFormat changes between ticks
+	shortFormat     string        // incremental format, shorter
 }
 
-// Ticks implements plot.Ticker.
+// Ticks implements plot.Ticker and displays appropriately spaced and
+// formatted time labels.
 func (t AutoUnixTimeTicks) Ticks(min, max float64) []Tick {
 	width := t.Width
 	if width == 0 {
-		width = 4 * vg.Inch
+		width = 10 * vg.Centimeter
 	}
 
 	minT := time.Unix(int64(min), 0).UTC()
 	maxT := time.Unix(int64(max), 0).UTC()
 	durationPerInch := maxT.Sub(minT) / time.Duration(width/vg.Inch)
 
-	rule := tickIntervals[len(tickIntervals)-1]
-	for idx := range tickIntervals[:len(tickIntervals)-1] {
-		if durationPerInch < tickIntervals[idx+1].DurationPerInch {
-			rule = tickIntervals[idx]
+	lastElement := len(tickRules) - 1
+	rule := tickRules[lastElement]
+	for idx, tickRule := range tickRules[:lastElement] {
+		if durationPerInch < tickRules[idx+1].durationPerInch {
+			rule = tickRule
 			break
 		}
 	}
 
-	ticks := []Tick{
-	//	{Value: min, Label: minT.Format(rule.BeginFormat)},
-	}
-
-	monthsDelta := time.Month(rule.TimeWindow / aMonth)
-
-	//fmt.Println("Months delta", int(monthsDelta))
-	start := minT.Truncate(rule.TimeWindow)
-	count := 0
-	lastWatch := ""
+	timeWindow := rule.durationPerInch
+	delta := time.Month(timeWindow / month) // in months
+	start := minT.Truncate(timeWindow)
+	var lastWatch string
+	var ticks []Tick
 	for {
-		count++
-		if monthsDelta > 0 {
+		if delta > 0 {
 			// Count in Months now
-			start = time.Date(start.Year(), start.Month()+monthsDelta, 1, 0, 0, 0, 0, time.UTC)
+			start = time.Date(start.Year(), start.Month()+delta, 1, 0, 0, 0, 0, time.UTC)
 		} else {
-			start = start.Add(rule.TimeWindow)
-		}
-
-		if count > 20 {
-			os.Exit(0)
+			start = start.Add(timeWindow)
 		}
 
 		if start.Before(minT) {
@@ -628,15 +599,15 @@ func (t AutoUnixTimeTicks) Ticks(min, max float64) []Tick {
 			break
 		}
 
-		label := ""
-		newWatch := start.Format(rule.WatchFormat)
+		var label string
+		newWatch := start.Format(rule.watchFormat)
 		if lastWatch == newWatch {
-			label = start.Format(rule.ShortFormat)
+			label = start.Format(rule.shortFormat)
 		} else {
 			//TODO: overwrite the first tick with the long form if we
-			//haven't shown a lonform at all.. instead of always
-			//showing the longform first.
-			label = start.Format(rule.LongFormat)
+			// haven't shown a lonform at all.. instead of always
+			// showing the longform first.
+			label = start.Format(rule.longFormat)
 		}
 		lastWatch = newWatch
 
@@ -644,7 +615,6 @@ func (t AutoUnixTimeTicks) Ticks(min, max float64) []Tick {
 			Value: float64(start.UnixNano()) / float64(time.Second),
 			Label: label,
 		})
-
 	}
 
 	return ticks
