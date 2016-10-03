@@ -1,22 +1,14 @@
+// Copyright ©2016 The gonum Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 package plotutil
 
 import "github.com/gonum/plot/plotter"
 
+// xyer implements plotter.XYer for use by ZipXY.
 type xyer struct {
 	x, y []float64
 	len  int
-}
-
-// Len returns the length of the XYer object.
-// fulfills the plotter.XYer interface requirement.
-func (xy *xyer) Len() int {
-	return xy.len
-}
-
-// XY returns the x,y values at index idx.
-// fulfills the plotter.XYer interface requirement.
-func (xy *xyer) XY(idx int) (x, y float64) {
-	return xy.x[idx], xy.y[idx]
 }
 
 // ZipXY is a convenience function to build a plotter.XYer from slices.
@@ -36,21 +28,22 @@ func ZipXY(x, y []float64) plotter.XYer {
 	return &xyer{x: x, y: y, len: ln}
 }
 
+// Len returns the length of the XYer object.
+// fulfills the plotter.XYer interface requirement.
+func (xy *xyer) Len() int {
+	return xy.len
+}
+
+// XY returns the x,y values at index idx.
+// fulfills the plotter.XYer interface requirement.
+func (xy *xyer) XY(idx int) (x, y float64) {
+	return xy.x[idx], xy.y[idx]
+}
+
+// xyzer implements plotter.XYZer for use by ZipXYZ.
 type xyzer struct {
 	x, y, z []float64
 	len     int
-}
-
-// Len returns the length of the XYZer object.
-// fulfills the plotter.XYZer interface requirement.
-func (xyz *xyzer) Len() int {
-	return xyz.len
-}
-
-// XYZ returns the x,y,z values at index idx.
-// fulfills the plotter.XYZer interface requirement.
-func (xyz *xyzer) XYZ(idx int) (x, y, z float64) {
-	return xyz.x[idx], xyz.y[idx], xyz.z[idx]
 }
 
 // ZipXYZ is a convenience function to build a plotter.XYZer from slices.
@@ -74,4 +67,16 @@ func ZipXYZ(x, y, z []float64) plotter.XYZer {
 	}
 
 	return &xyzer{x: x, y: y, z: z, len: ln}
+}
+
+// Len returns the length of the XYZer object.
+// fulfills the plotter.XYZer interface requirement.
+func (xyz *xyzer) Len() int {
+	return xyz.len
+}
+
+// XYZ returns the x,y,z values at index idx.
+// fulfills the plotter.XYZer interface requirement.
+func (xyz *xyzer) XYZ(idx int) (x, y, z float64) {
+	return xyz.x[idx], xyz.y[idx], xyz.z[idx]
 }
