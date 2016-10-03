@@ -1,3 +1,6 @@
+// Copyright ©2016 The gonum Authors. All rights reserved.
+// Use of this source code is governed by a BSD-style
+// license that can be found in the LICENSE file.
 package plotutil
 
 import (
@@ -74,36 +77,36 @@ var tests = []struct {
 		xyzpanic: "",
 	},
 	{
-		x:        randSlice(5),
-		y:        randSlice(5),
-		z:        randSlice(5),
+		x:        genSlice(5),
+		y:        genSlice(5),
+		z:        genSlice(5),
 		xylen:    5,
 		xyzlen:   5,
 		xypanic:  "",
 		xyzpanic: "",
 	},
 	{
-		x:        randSlice(4),
-		y:        randSlice(5),
-		z:        randSlice(5),
+		x:        genSlice(4),
+		y:        genSlice(5),
+		z:        genSlice(5),
 		xylen:    4,
 		xyzlen:   4,
 		xypanic:  "",
 		xyzpanic: "",
 	},
 	{
-		x:        randSlice(5),
-		y:        randSlice(4),
-		z:        randSlice(5),
+		x:        genSlice(5),
+		y:        genSlice(4),
+		z:        genSlice(5),
 		xylen:    4,
 		xyzlen:   4,
 		xypanic:  "",
 		xyzpanic: "",
 	},
 	{
-		x:        randSlice(5),
-		y:        randSlice(5),
-		z:        randSlice(4),
+		x:        genSlice(5),
+		y:        genSlice(5),
+		z:        genSlice(4),
 		xylen:    5,
 		xyzlen:   4,
 		xypanic:  "",
@@ -111,7 +114,7 @@ var tests = []struct {
 	},
 }
 
-func randSlice(len int) []float64 {
+func genSlice(len int) []float64 {
 	sl := make([]float64, len)
 	for i := range sl {
 		sl[i] = float64(i)
