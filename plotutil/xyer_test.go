@@ -1,6 +1,7 @@
 // Copyright ©2016 The gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+
 package plotutil
 
 import (
@@ -19,8 +20,8 @@ var tests = []struct {
 		z:        []float64{0},
 		xylen:    0,
 		xyzlen:   0,
-		xypanic:  "x is an empty or nil slice",
-		xyzpanic: "x is an empty or nil slice",
+		xypanic:  "VecXY length mismatch 0 != 1",
+		xyzpanic: "VecXYZ length mismatch 0 != 1 != 1",
 	},
 	{
 		x:        []float64{0},
@@ -28,8 +29,8 @@ var tests = []struct {
 		z:        []float64{0},
 		xylen:    0,
 		xyzlen:   0,
-		xypanic:  "y is an empty or nil slice",
-		xyzpanic: "y is an empty or nil slice",
+		xypanic:  "VecXY length mismatch 1 != 0",
+		xyzpanic: "VecXYZ length mismatch 1 != 0 != 1",
 	},
 	{
 		x:        []float64{0},
@@ -38,7 +39,7 @@ var tests = []struct {
 		xylen:    1,
 		xyzlen:   0,
 		xypanic:  "",
-		xyzpanic: "z is an empty or nil slice",
+		xyzpanic: "VecXYZ length mismatch 1 != 1 != 0",
 	},
 	{
 		x:        []float64{},
@@ -46,8 +47,8 @@ var tests = []struct {
 		z:        []float64{0},
 		xylen:    0,
 		xyzlen:   0,
-		xypanic:  "x is an empty or nil slice",
-		xyzpanic: "x is an empty or nil slice",
+		xypanic:  "VecXY length mismatch 0 != 1",
+		xyzpanic: "VecXYZ length mismatch 0 != 1 != 1",
 	},
 	{
 		x:        []float64{0},
@@ -55,8 +56,8 @@ var tests = []struct {
 		z:        []float64{0},
 		xylen:    0,
 		xyzlen:   0,
-		xypanic:  "y is an empty or nil slice",
-		xyzpanic: "y is an empty or nil slice",
+		xypanic:  "VecXY length mismatch 1 != 0",
+		xyzpanic: "VecXYZ length mismatch 1 != 0 != 1",
 	},
 	{
 		x:        []float64{0},
@@ -65,7 +66,7 @@ var tests = []struct {
 		xylen:    1,
 		xyzlen:   0,
 		xypanic:  "",
-		xyzpanic: "z is an empty or nil slice",
+		xyzpanic: "VecXYZ length mismatch 1 != 1 != 0",
 	},
 	{
 		x:        []float64{0},
@@ -89,28 +90,28 @@ var tests = []struct {
 		x:        genSlice(4),
 		y:        genSlice(5),
 		z:        genSlice(5),
-		xylen:    4,
-		xyzlen:   4,
-		xypanic:  "",
-		xyzpanic: "",
+		xylen:    0,
+		xyzlen:   0,
+		xypanic:  "VecXY length mismatch 4 != 5",
+		xyzpanic: "VecXYZ length mismatch 4 != 5 != 5",
 	},
 	{
 		x:        genSlice(5),
 		y:        genSlice(4),
 		z:        genSlice(5),
-		xylen:    4,
-		xyzlen:   4,
-		xypanic:  "",
-		xyzpanic: "",
+		xylen:    0,
+		xyzlen:   0,
+		xypanic:  "VecXY length mismatch 5 != 4",
+		xyzpanic: "VecXYZ length mismatch 5 != 4 != 5",
 	},
 	{
 		x:        genSlice(5),
 		y:        genSlice(5),
 		z:        genSlice(4),
 		xylen:    5,
-		xyzlen:   4,
+		xyzlen:   0,
 		xypanic:  "",
-		xyzpanic: "",
+		xyzpanic: "VecXYZ length mismatch 5 != 5 != 4",
 	},
 }
 
@@ -131,13 +132,13 @@ func TestXYer(t *testing.T) {
 				}
 			}()
 			res := ZipXY(tst.x, tst.y)
-			xy, ok := res.(*xyer)
+			xy, ok := res.(*VecXY)
 
 			if !ok {
 				t.Errorf("Test: %v Incorrect type got: %T expected: *xyer", tnum, res)
 				return ""
 			}
-			if !reflect.DeepEqual(*xy, xyer{tst.x, tst.y, tst.xylen}) {
+			if !reflect.DeepEqual(*xy, VecXY{tst.x, tst.y}) {
 				t.Errorf("Test: %v XYer test failed", tnum)
 			}
 			return ""
@@ -157,13 +158,13 @@ func TestXYZer(t *testing.T) {
 				}
 			}()
 			res := ZipXYZ(tst.x, tst.y, tst.z)
-			xyz, ok := res.(*xyzer)
+			xyz, ok := res.(*VecXYZ)
 
 			if !ok {
 				t.Errorf("Test: %v Incorrect type found (expected *xyzer) %T", tnum, res)
 				return ""
 			}
-			if !reflect.DeepEqual(*xyz, xyzer{tst.x, tst.y, tst.z, tst.xyzlen}) {
+			if !reflect.DeepEqual(*xyz, VecXYZ{tst.x, tst.y, tst.z}) {
 				t.Errorf("Test: %v XYZer test failed", tnum)
 			}
 			return ""

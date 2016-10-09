@@ -1,82 +1,71 @@
 // Copyright ©2016 The gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
+
 package plotutil
 
-import "github.com/gonum/plot/plotter"
+import (
+	"fmt"
 
-// xyer implements plotter.XYer for use by ZipXY.
-type xyer struct {
-	x, y []float64
-	len  int
+	"github.com/gonum/plot/plotter"
+)
+
+// VecXY implements plotter.XYer.
+type VecXY struct {
+	X, Y []float64
 }
 
-// ZipXY is a convenience function to build a plotter.XYer from slices.
-// Length will be set to the shortest slice length.
-// Panics on empty or nil slices.
+// ZipXY is a convenience function to build a VecXY from slices with length checks.
+// Panics on length mismatch.
 func ZipXY(x, y []float64) plotter.XYer {
-	switch {
-	case len(x) == 0:
-		panic("x is an empty or nil slice")
-	case len(y) == 0:
-		panic("y is an empty or nil slice")
+	if len(y) != len(x) {
+		panic(fmt.Sprintf("VecXY length mismatch %d != %d", len(x), len(y)))
 	}
-	ln := len(x)
-	if len(y) < ln {
-		ln = len(y)
-	}
-	return &xyer{x: x, y: y, len: ln}
+	return &VecXY{X: x, Y: y}
 }
 
-// Len returns the length of the XYer object.
-// fulfills the plotter.XYer interface requirement.
-func (xy *xyer) Len() int {
-	return xy.len
+// Len returns the length of the VecXY object.
+// Panics on slice length mismatch.
+// Fulfills the plotter.XYer interface requirement.
+func (xy *VecXY) Len() int {
+	if len(xy.X) != len(xy.Y) {
+		panic(fmt.Sprintf("VecXY length mismatch %d != %d", len(xy.X), len(xy.Y)))
+	}
+	return len(xy.X)
 }
 
 // XY returns the x,y values at index idx.
 // fulfills the plotter.XYer interface requirement.
-func (xy *xyer) XY(idx int) (x, y float64) {
-	return xy.x[idx], xy.y[idx]
+func (xy *VecXY) XY(idx int) (x, y float64) {
+	return xy.X[idx], xy.Y[idx]
 }
 
 // xyzer implements plotter.XYZer for use by ZipXYZ.
-type xyzer struct {
-	x, y, z []float64
-	len     int
+type VecXYZ struct {
+	X, Y, Z []float64
 }
 
 // ZipXYZ is a convenience function to build a plotter.XYZer from slices.
 // Length will be set to the shortest slice length.
 // Panics on empty or nil slices.
 func ZipXYZ(x, y, z []float64) plotter.XYZer {
-	switch {
-	case len(x) == 0:
-		panic("x is an empty or nil slice")
-	case len(y) == 0:
-		panic("y is an empty or nil slice")
-	case len(z) == 0:
-		panic("z is an empty or nil slice")
+	if len(y) != len(x) || len(y) != len(z) {
+		panic(fmt.Sprintf("VecXYZ length mismatch %d != %d != %d", len(x), len(y), len(z)))
 	}
-	ln := len(x)
-	if len(y) < ln {
-		ln = len(y)
-	}
-	if len(z) < ln {
-		ln = len(z)
-	}
-
-	return &xyzer{x: x, y: y, z: z, len: ln}
+	return &VecXYZ{X: x, Y: y, Z: z}
 }
 
 // Len returns the length of the XYZer object.
 // fulfills the plotter.XYZer interface requirement.
-func (xyz *xyzer) Len() int {
-	return xyz.len
+func (xyz *VecXYZ) Len() int {
+	if len(xyz.Y) != len(xyz.X) || len(xyz.Y) != len(xyz.Z) {
+		panic(fmt.Sprintf("VecXYZ length mismatch %d != %d != %d", len(xyz.X), len(xyz.Y), len(xyz.Z)))
+	}
+	return len(xyz.X)
 }
 
 // XYZ returns the x,y,z values at index idx.
 // fulfills the plotter.XYZer interface requirement.
-func (xyz *xyzer) XYZ(idx int) (x, y, z float64) {
-	return xyz.x[idx], xyz.y[idx], xyz.z[idx]
+func (xyz *VecXYZ) XYZ(idx int) (x, y, z float64) {
+	return xyz.X[idx], xyz.Y[idx], xyz.Z[idx]
 }
