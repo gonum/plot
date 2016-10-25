@@ -20,6 +20,9 @@ import (
 func Example_timeSeries() {
 	rnd := rand.New(rand.NewSource(1))
 
+	// xticks defines how we convert and display time.Time values.
+	xticks := plot.TimeTicks{Format: "2006-01-02\n15:04"}
+
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
 	randomPoints := func(n int) XYs {
@@ -48,7 +51,7 @@ func Example_timeSeries() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Time Series"
-	p.X.Tick.Marker = plot.UnixTimeTicks{Format: "2006-01-02"}
+	p.X.Tick.Marker = xticks
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"
 	p.Add(NewGrid())
 

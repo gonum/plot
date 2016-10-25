@@ -462,9 +462,18 @@ func (ts ConstantTicks) Ticks(float64, float64) []Tick {
 	return ts
 }
 
-// UnixTimeTicks is suitable for axes representing time values.
-// UnixTimeTicks expects values in Unix time seconds.
-type UnixTimeTicks struct {
+// UnixTimeIn returns a time conversion function for the given location.
+func UnixTimeIn(loc *time.Location) func(t float64) time.Time {
+	return func(t float64) time.Time {
+		return time.Unix(int64(t), 0).In(loc)
+	}
+}
+
+// UTCUnixTime is the default time conversion for TimeTicks.
+var UTCUnixTime = UnixTimeIn(time.UTC)
+
+// TimeTicks is suitable for axes representing time values.
+type TimeTicks struct {
 	// Ticker is used to generate a set of ticks.
 	// If nil, DefaultTicks will be used.
 	Ticker Ticker
@@ -472,27 +481,33 @@ type UnixTimeTicks struct {
 	// Format is the textual representation of the time value.
 	// If empty, time.RFC3339 will be used
 	Format string
+
+	// Time takes a float64 value and converts it into a time.Time.
+	// If nil, UTCUnixTime is used.
+	Time func(t float64) time.Time
 }
 
-var _ Ticker = UnixTimeTicks{}
+var _ Ticker = TimeTicks{}
 
 // Ticks implements plot.Ticker.
-func (utt UnixTimeTicks) Ticks(min, max float64) []Tick {
-	if utt.Ticker == nil {
-		utt.Ticker = DefaultTicks{}
+func (t TimeTicks) Ticks(min, max float64) []Tick {
+	if t.Ticker == nil {
+		t.Ticker = DefaultTicks{}
 	}
-	if utt.Format == "" {
-		utt.Format = time.RFC3339
+	if t.Format == "" {
+		t.Format = time.RFC3339
+	}
+	if t.Time == nil {
+		t.Time = UTCUnixTime
 	}
 
-	ticks := utt.Ticker.Ticks(min, max)
+	ticks := t.Ticker.Ticks(min, max)
 	for i := range ticks {
 		tick := &ticks[i]
 		if tick.Label == "" {
 			continue
 		}
-		t := time.Unix(int64(tick.Value), 0)
-		tick.Label = t.Format(utt.Format)
+		tick.Label = t.Time(tick.Value).Format(t.Format)
 	}
 	return ticks
 }
