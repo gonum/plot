@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -89,5 +90,5 @@ func ExampleBubbles() {
 }
 
 func TestBubbles(t *testing.T) {
-	checkPlot(ExampleBubbles, t, "bubbles.png")
+	cmpimg.CheckPlot(ExampleBubbles, t, "bubbles.png")
 }

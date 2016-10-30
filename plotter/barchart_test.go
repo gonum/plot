@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -167,7 +168,7 @@ func ExampleBarChart() {
 }
 
 func TestBarChart(t *testing.T) {
-	checkPlot(ExampleBarChart, t, "verticalBarChart.png",
+	cmpimg.CheckPlot(ExampleBarChart, t, "verticalBarChart.png",
 		"horizontalBarChart.png", "barChart2.png",
 		"stackedBarChart.png")
 }

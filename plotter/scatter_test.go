@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
@@ -84,5 +85,5 @@ func ExampleScatter() {
 }
 
 func TestScatter(t *testing.T) {
-	checkPlot(ExampleScatter, t, "scatter.png")
+	cmpimg.CheckPlot(ExampleScatter, t, "scatter.png")
 }

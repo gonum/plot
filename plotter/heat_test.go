@@ -10,6 +10,7 @@ import (
 
 	"github.com/gonum/matrix/mat64"
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/vg/draw"
 	"github.com/gonum/plot/vg/recorder"
@@ -69,7 +70,7 @@ func ExampleHeatMap() {
 }
 
 func TestHeatMap(t *testing.T) {
-	checkPlot(ExampleHeatMap, t, "heatMap.png")
+	cmpimg.CheckPlot(ExampleHeatMap, t, "heatMap.png")
 }
 
 func TestFlatHeat(t *testing.T) {

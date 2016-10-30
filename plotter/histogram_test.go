@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -59,5 +60,5 @@ func ExampleHistogram() {
 }
 
 func TestHistogram(t *testing.T) {
-	checkPlot(ExampleHistogram, t, "histogram.png")
+	cmpimg.CheckPlot(ExampleHistogram, t, "histogram.png")
 }

@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg/draw"
 )
 
@@ -79,5 +80,5 @@ func ExampleErrors() {
 }
 
 func TestErrors(t *testing.T) {
-	checkPlot(ExampleErrors, t, "errorBars.png")
+	cmpimg.CheckPlot(ExampleErrors, t, "errorBars.png")
 }

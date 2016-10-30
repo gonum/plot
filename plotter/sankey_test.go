@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 	"github.com/gonum/plot/vg/vgimg"
@@ -141,7 +142,7 @@ func ExampleSankey_simple() {
 }
 
 func TestSankey_simple(t *testing.T) {
-	checkPlot(ExampleSankey_simple, t, "sankeySimple.png")
+	cmpimg.CheckPlot(ExampleSankey_simple, t, "sankeySimple.png")
 }
 
 // ExampleSankey_grouped creates a sankey diagram with grouped flows.
@@ -418,5 +419,5 @@ func ExampleSankey_grouped() {
 }
 
 func TestSankey_grouped(t *testing.T) {
-	checkPlot(ExampleSankey_grouped, t, "sankeyGrouped.png")
+	cmpimg.CheckPlot(ExampleSankey_grouped, t, "sankeyGrouped.png")
 }

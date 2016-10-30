@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -56,5 +57,5 @@ func ExampleFunction() {
 }
 
 func TestFunction(t *testing.T) {
-	checkPlot(ExampleFunction, t, "functions.png")
+	cmpimg.CheckPlot(ExampleFunction, t, "functions.png")
 }

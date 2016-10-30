@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -153,6 +154,6 @@ func ExampleBoxPlot() {
 }
 
 func TestBoxPlot(t *testing.T) {
-	checkPlot(ExampleBoxPlot, t, "verticalBoxPlot.png",
+	cmpimg.CheckPlot(ExampleBoxPlot, t, "verticalBoxPlot.png",
 		"horizontalBoxPlot.png", "groupedBoxPlot.png")
 }

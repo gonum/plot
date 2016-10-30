@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
@@ -102,5 +103,5 @@ func Example_rotation() {
 }
 
 func TestRotation(t *testing.T) {
-	checkPlot(Example_rotation, t, "rotation.png")
+	cmpimg.CheckPlot(Example_rotation, t, "rotation.png")
 }

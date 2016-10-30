@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
@@ -72,5 +73,5 @@ func Example_timeSeries() {
 }
 
 func TestTimeSeries(t *testing.T) {
-	checkPlot(Example_timeSeries, t, "timeseries.png")
+	cmpimg.CheckPlot(Example_timeSeries, t, "timeseries.png")
 }

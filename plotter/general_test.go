@@ -5,77 +5,13 @@
 package plotter
 
 import (
-	"flag"
-	"io/ioutil"
 	"log"
-	"os"
-	"path/filepath"
-	"strings"
 	"testing"
 
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
-
-var generateTestData = flag.Bool("regen", false, "Uses the current state to regenerate the test data.")
-
-func goldenPath(path string) string {
-	ext := filepath.Ext(path)
-	noext := strings.TrimSuffix(path, ext)
-	return noext + "_golden" + ext
-}
-
-// checkPlot checks a generated plot against a previously created reference.
-// If generateTestData = true, it regereates the reference.
-func checkPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
-	paths := make([]string, len(filenames))
-	for i, fn := range filenames {
-		paths[i] = filepath.Join("testdata", fn)
-	}
-
-	if *generateTestData {
-		// Recreate Golden images and exit.
-		ExampleFunc()
-		for _, path := range paths {
-			golden := goldenPath(path)
-			_ = os.Remove(golden)
-			if err := os.Rename(path, golden); err != nil {
-				t.Fatal(err)
-			}
-		}
-		return
-	}
-
-	// Overwrite the Golden Images.
-	ExampleFunc()
-
-	// Read the images we've just generated and check them against the
-	// Golden Images.
-	for _, path := range paths {
-		got, err := ioutil.ReadFile(path)
-		if err != nil {
-			t.Errorf("Failed to read %s: %s", path, err)
-			continue
-		}
-		golden := goldenPath(path)
-		want, err := ioutil.ReadFile(golden)
-		if err != nil {
-			t.Errorf("Failed to read golden file %s: %s", golden, err)
-			continue
-		}
-		typ := filepath.Ext(path)[1:] // remove the dot in e.g. ".pdf"
-		ok, err := cmpimg.Equal(typ, got, want)
-		if err != nil {
-			t.Errorf("failed to compare image for %s: %v\n", path, err)
-			continue
-		}
-		if !ok {
-			t.Errorf("image mismatch for %s\n", path)
-			continue
-		}
-	}
-}
 
 // Draw the plot logo.
 func Example() {
@@ -134,5 +70,5 @@ func Example() {
 }
 
 func TestMainExample(t *testing.T) {
-	checkPlot(Example, t, "plotLogo.png")
+	cmpimg.CheckPlot(Example, t, "plotLogo.png")
 }

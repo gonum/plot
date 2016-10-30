@@ -10,6 +10,7 @@ import (
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/vg"
 )
 
@@ -121,7 +122,7 @@ func ExampleQuartPlot() {
 }
 
 func TestQuartPlot(t *testing.T) {
-	checkPlot(ExampleQuartPlot, t, "verticalQuartPlot.png",
+	cmpimg.CheckPlot(ExampleQuartPlot, t, "verticalQuartPlot.png",
 		"horizontalQuartPlot.png",
 		"groupedQuartPlot.png")
 }
