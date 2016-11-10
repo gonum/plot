@@ -4,6 +4,8 @@
 
 package vg
 
+import "math"
+
 // A Point is a location in 2d space.
 //
 // Points are used for drawing, not for data.  For
@@ -30,6 +32,19 @@ func (p Point) Sub(q Point) Point {
 // Scale returns the component-wise product of a point and a scalar.
 func (p Point) Scale(s Length) Point {
 	return Point{p.X * s, p.Y * s}
+}
+
+// Rotate returns the point obtained by rotating a point by an angle,
+// with another point defining the center of the rotation.
+func (p Point) Rotate(ref Point, angle float64) Point {
+	return Point{
+		X: Length(float64(p.X-ref.X)*math.Cos(angle)-
+			float64(p.Y-ref.Y)*math.Sin(angle)) +
+			ref.X,
+		Y: Length(float64(p.Y-ref.Y)*math.Cos(angle)+
+			float64(p.X-ref.X)*math.Sin(angle)) +
+			ref.Y,
+	}
 }
 
 // A Rectangle represents a rectangular region of 2d space.
