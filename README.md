@@ -5,6 +5,8 @@ It provides an API for building and drawing plots in Go.
 *Note* that this new API is still in flux and may change.
 See the wiki for some [example plots](http://github.com/gonum/plot/wiki/Example-plots).
 
+For additional Plotters, see the [Community Plotters](https://github.com/gonum/plot/wiki/Community-Plotters) Wiki page.
+
 There is a discussion list on Google Groups: gonum-dev@googlegroups.com.
 
 `gonum/plot` is split into a few packages:
