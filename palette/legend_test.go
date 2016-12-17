@@ -5,12 +5,12 @@
 package palette
 
 import (
+	"image/color"
 	"log"
 	"testing"
 
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/internal/cmpimg"
-	"github.com/gonum/plot/palette/moreland"
 )
 
 func ExampleColorMapLegend_horizontal() {
@@ -18,7 +18,7 @@ func ExampleColorMapLegend_horizontal() {
 	if err != nil {
 		log.Panic(err)
 	}
-	cm := moreland.ExtendedBlackBody()
+	cm := FromPalette(New(color.White, color.Black))
 	cm.SetMax(1)
 	l := NewColorMapLegend(cm)
 	p.Add(l)
@@ -38,7 +38,7 @@ func ExampleColorMapLegend_vertical() {
 	if err != nil {
 		log.Panic(err)
 	}
-	cm := moreland.ExtendedBlackBody()
+	cm := FromPalette(New(color.White, color.Black))
 	cm.SetMax(1)
 	l := NewColorMapLegend(cm)
 	l.Vertical = true

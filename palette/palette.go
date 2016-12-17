@@ -22,6 +22,11 @@ type Palette interface {
 	Colors() []color.Color
 }
 
+// New returns a new palette from the specified colors
+func New(colors ...color.Color) Palette {
+	return palette(colors)
+}
+
 // DivergingPalette is a collection of colors ordered into a palette with
 // a critical class or break in the middle of the color range.
 type DivergingPalette interface {
@@ -82,56 +87,6 @@ func (sm *StringMap) At(cat string) (color.Color, error) {
 		return sm.Colors[i], nil
 	}
 	return nil, fmt.Errorf("palette: category '%s' not found", cat)
-}
-
-// A ColorMap maps scalar values to colors.
-type ColorMap interface {
-	// At returns the color associated with the given value.
-	// If the value is not between Max() and Min(), an error is returned.
-	At(float64) (color.Color, error)
-
-	// Max returns the current maximum value of the ColorMap.
-	Max() float64
-
-	// SetMax sets the maximum value of the ColorMap.
-	SetMax(float64)
-
-	// Min returns the current minimum value of the ColorMap.
-	Min() float64
-
-	// SetMin sets the minimum value of the ColorMap.
-	SetMin(float64)
-
-	// Alpha returns the opacity value of the ColorMap.
-	Alpha() float64
-
-	// SetAlpha sets the opacity value of the ColorMap. Zero is transparent
-	// and one is completely opaque. The default value of alpha should be
-	// expected to be one. The function should be expected to panic
-	// if alpha is not between zero and one.
-	SetAlpha(float64)
-
-	// Palette creates a Palette with the specified number of colors
-	// from the ColorMap.
-	Palette(colors int) Palette
-}
-
-// DivergingColorMap maps scalar values to colors that diverge
-// from a central value.
-type DivergingColorMap interface {
-	ColorMap
-
-	// SetConvergePoint sets the value where the diverging colors
-	// should meet. The default value should be expected to be
-	// (Min() + Max()) / 2. It should be expected that calling either
-	// SetMax() or SetMin() will set a new default value, so for a
-	// custom convergence point this function should be called after
-	// SetMax() and SetMin(). The function should be expected to panic
-	// if the value is not between Min() and Max().
-	SetConvergePoint(float64)
-
-	// ConvergePoint returns the value where the diverging colors meet.
-	ConvergePoint() float64
 }
 
 // Hue represents a hue in HSV color space. Valid Hues are within [0, 1].

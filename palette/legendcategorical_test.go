@@ -12,7 +12,6 @@ import (
 
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/internal/cmpimg"
-	"github.com/gonum/plot/palette/moreland"
 	"github.com/gonum/plot/vg"
 )
 
@@ -21,7 +20,7 @@ func ExampleStringMap_Legend_vertical() {
 	if err != nil {
 		log.Panic(err)
 	}
-	plte := moreland.ExtendedBlackBody().Palette(5)
+	plte := FromPalette(New(color.White, color.Black)).Palette(5)
 	cm := StringMap{
 		Categories: []string{"Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 5"},
 		Colors:     plte.Colors(),
@@ -44,7 +43,7 @@ func ExampleStringMap_Legend_horizontal() {
 	if err != nil {
 		log.Panic(err)
 	}
-	plte := moreland.ExtendedBlackBody().Palette(5)
+	plte := FromPalette(New(color.White, color.Black)).Palette(5)
 	cm := StringMap{
 		Categories: []string{"Cat 1", "Cat 2", "Cat 3", "Cat 4", "Cat 5"},
 		Colors:     plte.Colors(),
@@ -68,7 +67,7 @@ func ExampleIntMap_Legend_vertical() {
 	if err != nil {
 		log.Panic(err)
 	}
-	plte := moreland.ExtendedBlackBody().Palette(5)
+	plte := FromPalette(New(color.White, color.Black)).Palette(5)
 	cm := IntMap{
 		Categories: []int{1, 3, 5, 7, 9},
 		Colors:     plte.Colors(),
@@ -91,7 +90,7 @@ func ExampleIntMap_Legend_horizontal() {
 	if err != nil {
 		log.Panic(err)
 	}
-	plte := moreland.ExtendedBlackBody().Palette(5)
+	plte := FromPalette(New(color.White, color.Black)).Palette(5)
 	cm := IntMap{
 		Categories: []int{1, 3, 5, 7, 9},
 		Colors:     plte.Colors(),
