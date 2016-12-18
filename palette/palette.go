@@ -14,7 +14,6 @@ import (
 	"fmt"
 	"image/color"
 	"math"
-	"sort"
 )
 
 // Palette is a collection of colors ordered into a palette.
@@ -58,10 +57,21 @@ func (im *IntMap) At(cat int) (color.Color, error) {
 	if len(im.Categories) != len(im.Colors) {
 		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(im.Categories), len(im.Colors)))
 	}
-	if i := sort.SearchInts(im.Categories, cat); i < len(im.Categories) && im.Categories[i] == cat {
+	if i := searchInts(im.Categories, cat); i != -1 {
 		return im.Colors[i], nil
 	}
 	return nil, fmt.Errorf("palette: category '%d' not found", cat)
+}
+
+// searchInts returns the index of ints that matches i, or -1 if there
+// is no match.
+func searchInts(ints []int, i int) int {
+	for ii, iii := range ints {
+		if iii == i {
+			return ii
+		}
+	}
+	return -1
 }
 
 // A ColorMapString maps a string category value to a color.
@@ -83,10 +93,21 @@ func (sm *StringMap) At(cat string) (color.Color, error) {
 	if len(sm.Categories) != len(sm.Colors) {
 		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(sm.Categories), len(sm.Colors)))
 	}
-	if i := sort.SearchStrings(sm.Categories, cat); i < len(sm.Categories) && sm.Categories[i] == cat {
+	if i := searchStrings(sm.Categories, cat); i != -1 {
 		return sm.Colors[i], nil
 	}
 	return nil, fmt.Errorf("palette: category '%s' not found", cat)
+}
+
+// searchStrings returns the index of strs that matches str, or -1 if there
+// is no match.
+func searchStrings(strs []string, str string) int {
+	for i, s := range strs {
+		if s == str {
+			return i
+		}
+	}
+	return -1
 }
 
 // Hue represents a hue in HSV color space. Valid Hues are within [0, 1].

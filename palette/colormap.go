@@ -62,7 +62,8 @@ type DivergingColorMap interface {
 	ConvergePoint() float64
 }
 
-// FromPalette creates a ColorMap from a Palette.
+// FromPalette creates a ColorMap that maps values to colors based
+// on RGB interpolation among the colors in p.
 func FromPalette(p Palette) ColorMap {
 	scalars := make([]float64, len(p.Colors()))
 	return &colorMap{
@@ -103,9 +104,9 @@ func (cm *colorMap) At(v float64) (color.Color, error) {
 	c2 := color.NRGBA64Model.Convert(cm.colors[i]).(color.NRGBA64)
 	frac := (scalar - cm.scalars[i-1]) / (cm.scalars[i] - cm.scalars[i-1])
 	return color.NRGBA64{
-		R: uint16(frac*float64(int(c2.R)-int(c1.R)) + float64(c1.R)),
-		G: uint16(frac*float64(int(c2.G)-int(c1.G)) + float64(c1.G)),
-		B: uint16(frac*float64(int(c2.B)-int(c1.B)) + float64(c1.B)),
+		R: uint16(frac*(float64(c2.R)-float64(c1.R)) + float64(c1.R)),
+		G: uint16(frac*(float64(c2.G)-float64(c1.G)) + float64(c1.G)),
+		B: uint16(frac*(float64(c2.B)-float64(c1.B)) + float64(c1.B)),
 		A: uint16(float64(math.MaxUint16) * cm.alpha),
 	}, nil
 }
