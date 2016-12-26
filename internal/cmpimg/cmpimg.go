@@ -13,6 +13,7 @@ import (
 	_ "image/jpeg"
 	_ "image/png"
 	"reflect"
+	"strings"
 
 	_ "golang.org/x/image/tiff"
 	"rsc.io/pdf"
@@ -29,7 +30,19 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 		return bytes.Equal(raw1, raw2), nil
 
 	case "eps":
-		return bytes.Equal(raw1, raw2), nil
+		lines1, lines2 := strings.Split(string(raw1), "\n"), strings.Split(string(raw2), "\n")
+		if len(lines1) != len(lines2) {
+			return false, nil
+		}
+		for i, line1 := range lines1 {
+			if strings.Contains(line1, "CreationDate") {
+				continue
+			}
+			if line1 != lines2[i] {
+				return false, nil
+			}
+		}
+		return true, nil
 
 	case "pdf":
 		// TODO(sbinet): bytes.Reader.Size was introduced only after go-1.4
