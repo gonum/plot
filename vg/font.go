@@ -12,9 +12,7 @@ package vg
 
 import (
 	"errors"
-	"go/build"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"sync"
 
@@ -244,25 +242,7 @@ func fontData(name string) ([]byte, error) {
 // go get).  If the resulting FontDirs slice is empty then the current
 // directory is added to it.  This slice may be changed to load fonts
 // from different locations.
-var FontDirs = initFontDirs()
-
-// InitFontDirs returns the initial value for the FontDirectories variable.
-func initFontDirs() []string {
-	dirs := filepath.SplitList(os.Getenv("VGFONTPATH"))
-
-	if pkg, err := build.Import(importString, "", build.FindOnly); err == nil {
-		p := filepath.Join(pkg.Dir, "fonts")
-		if _, err := os.Stat(p); err == nil {
-			dirs = append(dirs, p)
-		}
-	}
-
-	if len(dirs) == 0 {
-		dirs = []string{"./fonts"}
-	}
-
-	return dirs
-}
+var FontDirs []string
 
 // FontFile returns the font file name for a font name or an error
 // if it is an unknown font (i.e., not in the FontMap).
