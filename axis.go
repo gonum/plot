@@ -196,7 +196,7 @@ type horizontalAxis struct {
 
 // size returns the height of the axis.
 func (a *horizontalAxis) size() (h vg.Length) {
-	if a.Label.Text != "" {
+	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
@@ -258,13 +258,9 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		if t.IsMinor() {
 			continue
 		}
-		w := a.Tick.Label.Width(t.Label)
 		box := GlyphBox{
-			X: a.Norm(t.Value),
-			Rectangle: vg.Rectangle{
-				Min: vg.Point{X: -w / 2},
-				Max: vg.Point{X: w / 2},
-			},
+			X:         a.Norm(t.Value),
+			Rectangle: a.Tick.Label.Rectangle(t.Label),
 		}
 		boxes = append(boxes, box)
 	}
@@ -278,7 +274,7 @@ type verticalAxis struct {
 
 // size returns the width of the axis.
 func (a *verticalAxis) size() (w vg.Length) {
-	if a.Label.Text != "" {
+	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
@@ -343,13 +339,9 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		if t.IsMinor() {
 			continue
 		}
-		h := a.Tick.Label.Height(t.Label)
 		box := GlyphBox{
-			Y: a.Norm(t.Value),
-			Rectangle: vg.Rectangle{
-				Min: vg.Point{Y: -h / 2},
-				Max: vg.Point{Y: h / 2},
-			},
+			Y:         a.Norm(t.Value),
+			Rectangle: a.Tick.Label.Rectangle(t.Label),
 		}
 		boxes = append(boxes, box)
 	}
