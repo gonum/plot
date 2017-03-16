@@ -10,8 +10,8 @@ import (
 	"math"
 	"sort"
 
-	"github.com/biogo/graphics/bezier"
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/bezier"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
