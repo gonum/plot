@@ -11,7 +11,7 @@ import (
 	"sort"
 
 	"github.com/gonum/plot"
-	"github.com/gonum/plot/internal/bezier"
+	"github.com/gonum/plot/tools/bezier"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
