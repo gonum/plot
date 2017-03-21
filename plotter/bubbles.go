@@ -116,3 +116,15 @@ func (bs *Bubbles) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 	}
 	return boxes
 }
+
+// implementing the plot.Thumbnailer interface.
+func (bs *Bubbles) Thumbnail(c *draw.Canvas) {
+	pts := []vg.Point{
+		{c.Min.X, c.Min.Y},
+		{c.Min.X, c.Max.Y},
+		{c.Max.X, c.Max.Y},
+		{c.Max.X, c.Min.Y},
+	}
+	poly := c.ClipPolygonY(pts)
+	c.FillPolygon(bs.Color, poly)
+}
