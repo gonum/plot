@@ -91,6 +91,12 @@ type GlyphStyle struct {
 	// Radius specifies the size of the glyph's radius.
 	Radius vg.Length
 
+	// Width is set, LineColour is used to outline the glyph
+	Width vg.Length
+
+	// Outline glyph with this color if Width is set.
+	LineColor color.Color
+
 	// Shape draws the shape of the glyph.
 	Shape GlyphDrawer
 }
@@ -142,6 +148,11 @@ func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	p.Arc(pt, sty.Radius, 0, 2*math.Pi)
 	p.Close()
 	c.Fill(p)
+
+	if sty.Width > 0 {
+		c.SetLineStyle(LineStyle{Color: sty.LineColor, Width: sty.Width})
+		c.Stroke(p)
+	}
 }
 
 // RingGlyph is a glyph that draws the outline of a circle.
@@ -192,6 +203,11 @@ func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	p.Line(vg.Point{X: pt.X - x, Y: pt.Y + x})
 	p.Close()
 	c.Fill(p)
+
+	if sty.Width > 0 {
+		c.SetLineStyle(LineStyle{Color: sty.LineColor, Width: sty.Width})
+		c.Stroke(p)
+	}
 }
 
 // TriangleGlyph is a glyph that draws the outline of a triangle.
@@ -221,6 +237,11 @@ func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	p.Line(vg.Point{X: pt.X + r*cosπover6, Y: pt.Y - r*sinπover6})
 	p.Close()
 	c.Fill(p)
+
+	if sty.Width > 0 {
+		c.SetLineStyle(LineStyle{Color: sty.LineColor, Width: sty.Width})
+		c.Stroke(p)
+	}
 }
 
 // PlusGlyph is a glyph that draws a plus sign
