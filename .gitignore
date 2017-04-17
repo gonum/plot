@@ -1,3 +1,4 @@
+**/*.swp
 **/*.svg
 **/*.png
 !**/testdata/*_golden.png
