@@ -257,10 +257,7 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	c.gc.Save()
 	defer c.gc.Restore()
 
-	data, ok := fontMap[font.Name()]
-	if !ok {
-		panic(fmt.Sprintf("Font name %s is unknown", font.Name()))
-	}
+	data := draw2d.FontData{Name: font.Name()}
 	if !registeredFont[font.Name()] {
 		draw2d.RegisterFont(data, font.Font())
 		registeredFont[font.Name()] = true
@@ -297,73 +294,6 @@ var (
 	// RegisteredFont contains the set of font names
 	// that have already been registered with draw2d.
 	registeredFont = map[string]bool{}
-
-	// FontMap contains a mapping from vg's font
-	// names to draw2d.FontData for the corresponding
-	// font.  This is needed to register the  fonts with
-	// draw2d.
-	fontMap = map[string]draw2d.FontData{
-		"Courier": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilyMono,
-			Style:  draw2d.FontStyleNormal,
-		},
-		"Courier-Bold": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilyMono,
-			Style:  draw2d.FontStyleBold,
-		},
-		"Courier-Oblique": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilyMono,
-			Style:  draw2d.FontStyleItalic,
-		},
-		"Courier-BoldOblique": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilyMono,
-			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
-		},
-		"Helvetica": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySans,
-			Style:  draw2d.FontStyleNormal,
-		},
-		"Helvetica-Bold": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySans,
-			Style:  draw2d.FontStyleBold,
-		},
-		"Helvetica-Oblique": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySans,
-			Style:  draw2d.FontStyleItalic,
-		},
-		"Helvetica-BoldOblique": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySans,
-			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
-		},
-		"Times-Roman": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySerif,
-			Style:  draw2d.FontStyleNormal,
-		},
-		"Times-Bold": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySerif,
-			Style:  draw2d.FontStyleBold,
-		},
-		"Times-Italic": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySerif,
-			Style:  draw2d.FontStyleItalic,
-		},
-		"Times-BoldItalic": draw2d.FontData{
-			Name:   "Liberation",
-			Family: draw2d.FontFamilySerif,
-			Style:  draw2d.FontStyleItalic | draw2d.FontStyleBold,
-		},
-	}
 )
 
 // WriterCounter implements the io.Writer interface, and counts
