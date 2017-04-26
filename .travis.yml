@@ -5,8 +5,9 @@ language: go
 # Versions of go that are explicitly supported by gonum.
 go:
  - 1.5.4
- - 1.6.3
- - 1.7.3
+ - 1.6.4
+ - 1.7.4
+ - 1.8beta1
 
 env:
   global:
