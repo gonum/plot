@@ -23,13 +23,6 @@ import (
 	"github.com/gonum/plot/vg/fonts"
 )
 
-const (
-	// importString is the import string expected for
-	// this package.  It is used to find the font
-	// directory included with the package source.
-	importString = "github.com/gonum/plot/vg"
-)
-
 var (
 	// FontMap maps Postscript/PDF font names to compatible
 	// free fonts (TrueType converted ghostscript fonts).

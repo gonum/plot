@@ -12,8 +12,15 @@ import (
 	"path/filepath"
 )
 
+const (
+	// importString is the import string expected for
+	// this package.  It is used to find the font
+	// directory included with the package source.
+	importString = "github.com/gonum/plot/vg"
+)
+
 func init() {
-	initFontDirs()
+	FontDirs = initFontDirs()
 }
 
 // InitFontDirs returns the initial value for the FontDirectories variable.
