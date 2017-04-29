@@ -17,8 +17,6 @@ import (
 	"image/png"
 	"io"
 
-	"golang.org/x/image/tiff"
-
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dimg"
 
@@ -337,23 +335,6 @@ func (c PngCanvas) WriteTo(w io.Writer) (int64, error) {
 	wc := writerCounter{Writer: w}
 	b := bufio.NewWriter(&wc)
 	if err := png.Encode(b, c.img); err != nil {
-		return wc.n, err
-	}
-	err := b.Flush()
-	return wc.n, err
-}
-
-// A TiffCanvas is an image canvas with a WriteTo method that
-// writes a tiff image.
-type TiffCanvas struct {
-	*Canvas
-}
-
-// WriteTo implements the io.WriterTo interface, writing a tiff image.
-func (c TiffCanvas) WriteTo(w io.Writer) (int64, error) {
-	wc := writerCounter{Writer: w}
-	b := bufio.NewWriter(&wc)
-	if err := tiff.Encode(b, c.img, nil); err != nil {
 		return wc.n, err
 	}
 	err := b.Flush()
