@@ -190,7 +190,7 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, draw.Crop(da, y.size(), x.size(), 0, 0)))
+	return padY(p, padX(p, draw.Crop(da, y.size(), 0, x.size(), 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
