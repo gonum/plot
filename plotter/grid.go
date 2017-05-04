@@ -43,6 +43,13 @@ func NewGrid() *Grid {
 func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
 
+	var (
+		ymin = c.Min.Y
+		ymax = c.Max.Y
+		xmin = c.Min.X
+		xmax = c.Max.X
+	)
+
 	if g.Vertical.Color == nil {
 		goto horiz
 	}
@@ -51,7 +58,10 @@ func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
 			continue
 		}
 		x := trX(tk.Value)
-		c.StrokeLine2(g.Vertical, x, c.Min.Y, x, c.Min.Y+c.Size().Y)
+		if x > xmax || x < xmin {
+			continue
+		}
+		c.StrokeLine2(g.Vertical, x, ymin, x, ymax)
 	}
 
 horiz:
@@ -63,6 +73,9 @@ horiz:
 			continue
 		}
 		y := trY(tk.Value)
-		c.StrokeLine2(g.Horizontal, c.Min.X, y, c.Min.X+c.Size().X, y)
+		if y > ymax || y < ymin {
+			continue
+		}
+		c.StrokeLine2(g.Horizontal, xmin, y, xmax, y)
 	}
 }
