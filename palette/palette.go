@@ -20,6 +20,11 @@ type Palette interface {
 	Colors() []color.Color
 }
 
+// New returns a new palette from the specified colors
+func New(colors ...color.Color) Palette {
+	return palette(colors)
+}
+
 // DivergingPalette is a collection of colors ordered into a palette with
 // a critical class or break in the middle of the color range.
 type DivergingPalette interface {
