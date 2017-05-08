@@ -11,6 +11,7 @@ package palette
 
 import (
 	"errors"
+	"fmt"
 	"image/color"
 	"math"
 )
@@ -18,6 +19,11 @@ import (
 // Palette is a collection of colors ordered into a palette.
 type Palette interface {
 	Colors() []color.Color
+}
+
+// New returns a new palette from the specified colors
+func New(colors ...color.Color) Palette {
+	return palette(colors)
 }
 
 // DivergingPalette is a collection of colors ordered into a palette with
@@ -32,54 +38,76 @@ type DivergingPalette interface {
 	CriticalIndex() (low, high int)
 }
 
-// A ColorMap maps scalar values to colors.
-type ColorMap interface {
-	// At returns the color associated with the given value.
-	// If the value is not between Max() and Min(), an error is returned.
-	At(float64) (color.Color, error)
-
-	// Max returns the current maximum value of the ColorMap.
-	Max() float64
-
-	// SetMax sets the maximum value of the ColorMap.
-	SetMax(float64)
-
-	// Min returns the current minimum value of the ColorMap.
-	Min() float64
-
-	// SetMin sets the minimum value of the ColorMap.
-	SetMin(float64)
-
-	// Alpha returns the opacity value of the ColorMap.
-	Alpha() float64
-
-	// SetAlpha sets the opacity value of the ColorMap. Zero is transparent
-	// and one is completely opaque. The default value of alpha should be
-	// expected to be one. The function should be expected to panic
-	// if alpha is not between zero and one.
-	SetAlpha(float64)
-
-	// Palette creates a Palette with the specified number of colors
-	// from the ColorMap.
-	Palette(colors int) Palette
+// A ColorMapInt maps an integer category value to a color.
+// If there is no mapped color for the given category, an error is returned.
+type ColorMapInt interface {
+	// At returns the color associated with category cat.
+	At(cat int) (color.Color, error)
 }
 
-// DivergingColorMap maps scalar values to colors that diverge
-// from a central value.
-type DivergingColorMap interface {
-	ColorMap
+// IntMap fulfils the ColorMapInt interface, mapping integer
+// categories to colors.
+type IntMap struct {
+	Categories []int
+	Colors     []color.Color
+}
 
-	// SetConvergePoint sets the value where the diverging colors
-	// should meet. The default value should be expected to be
-	// (Min() + Max()) / 2. It should be expected that calling either
-	// SetMax() or SetMin() will set a new default value, so for a
-	// custom convergence point this function should be called after
-	// SetMax() and SetMin(). The function should be expected to panic
-	// if the value is not between Min() and Max().
-	SetConvergePoint(float64)
+// At fulfils the ColorMapInt interface.
+func (im *IntMap) At(cat int) (color.Color, error) {
+	if len(im.Categories) != len(im.Colors) {
+		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(im.Categories), len(im.Colors)))
+	}
+	if i := searchInts(im.Categories, cat); i != -1 {
+		return im.Colors[i], nil
+	}
+	return nil, fmt.Errorf("palette: category '%d' not found", cat)
+}
 
-	// ConvergePoint returns the value where the diverging colors meet.
-	ConvergePoint() float64
+// searchInts returns the index of ints that matches i, or -1 if there
+// is no match.
+func searchInts(ints []int, i int) int {
+	for ii, iii := range ints {
+		if iii == i {
+			return ii
+		}
+	}
+	return -1
+}
+
+// A ColorMapString maps a string category value to a color.
+// If there is no mapped color for the given category, an error is returned.
+type ColorMapString interface {
+	// At returns the color associated with category cat.
+	At(cat string) (color.Color, error)
+}
+
+// StringMap fulfils the ColorMapString interface, mapping integer
+// categories to colors.
+type StringMap struct {
+	Categories []string
+	Colors     []color.Color
+}
+
+// At fulfils the ColorMapInt interface.
+func (sm *StringMap) At(cat string) (color.Color, error) {
+	if len(sm.Categories) != len(sm.Colors) {
+		panic(fmt.Errorf("palette: number of categories (%d) != number of colors (%d)", len(sm.Categories), len(sm.Colors)))
+	}
+	if i := searchStrings(sm.Categories, cat); i != -1 {
+		return sm.Colors[i], nil
+	}
+	return nil, fmt.Errorf("palette: category '%s' not found", cat)
+}
+
+// searchStrings returns the index of strs that matches str, or -1 if there
+// is no match.
+func searchStrings(strs []string, str string) int {
+	for i, s := range strs {
+		if s == str {
+			return i
+		}
+	}
+	return -1
 }
 
 // Hue represents a hue in HSV color space. Valid Hues are within [0, 1].
