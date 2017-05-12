@@ -96,7 +96,7 @@ func (b *BarChart) StackOn(on *BarChart) {
 }
 
 // Plot implements the plot.Plotter interface.
-func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trCat, trVal := plt.Transforms(&c)
 	if b.Horizontal {
 		trCat, trVal = trVal, trCat
@@ -151,6 +151,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		}
 		c.StrokeLines(b.LineStyle, outline...)
 	}
+	return nil
 }
 
 // DataRange implements the plot.DataRanger interface.

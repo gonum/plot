@@ -30,7 +30,7 @@ func NewFunction(f func(float64) float64) *Function {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
+func (f *Function) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 
 	d := (p.X.Max - p.X.Min) / float64(f.Samples-1)
@@ -41,6 +41,7 @@ func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
 		line[i].Y = trY(f.F(x))
 	}
 	c.StrokeLines(f.LineStyle, c.ClipLinesXY(line)...)
+	return nil
 }
 
 // Thumbnail draws a line in the given style down the

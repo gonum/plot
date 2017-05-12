@@ -71,7 +71,7 @@ type Plot struct {
 // http://godoc.org/github.com/gonum/plot/plotter
 type Plotter interface {
 	// Plot draws the data to a draw.Canvas.
-	Plot(draw.Canvas, *Plot)
+	Plot(draw.Canvas, *Plot) error
 }
 
 // DataRanger wraps the DataRange method.
@@ -149,7 +149,10 @@ func (p *Plot) Add(ps ...Plotter) {
 // GlyphBoxer interface will have their GlyphBoxes
 // taken into account when padding the plot so that
 // none of their glyphs are clipped.
-func (p *Plot) Draw(c draw.Canvas) {
+//
+// All errors raised during a call to Draw are returned
+// in an Errors slice.
+func (p *Plot) Draw(c draw.Canvas) error {
 	if p.BackgroundColor != nil {
 		c.SetColor(p.BackgroundColor)
 		c.Fill(c.Rectangle.Path())
@@ -171,11 +174,19 @@ func (p *Plot) Draw(c draw.Canvas) {
 	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
 
 	dataC := padY(p, padX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
+	var errs Errors
 	for _, data := range p.plotters {
-		data.Plot(dataC, p)
+		err := data.Plot(dataC, p)
+		if err != nil {
+			errs = append(errs, err)
+		}
 	}
 
 	p.Legend.draw(draw.Crop(draw.Crop(c, ywidth, 0, 0, 0), 0, 0, xheight, 0))
+	if errs != nil {
+		return errs
+	}
+	return nil
 }
 
 // DataCanvas returns a new draw.Canvas that
@@ -447,13 +458,15 @@ func (p *Plot) NominalY(names ...string) {
 // Supported formats are:
 //
 //  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+//
+// If WriterTo returns an error of type Errors some of
+// the elements of the written plot may be invalid.
 func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 	c, err := draw.NewFormattedCanvas(w, h, format)
 	if err != nil {
 		return nil, err
 	}
-	p.Draw(draw.New(c))
-	return c, nil
+	return c, p.Draw(draw.New(c))
 }
 
 // Save saves the plot to an image file.  The file format is determined
@@ -462,6 +475,9 @@ func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 // Supported extensions are:
 //
 //  .eps, .jpg, .jpeg, .pdf, .png, .svg, .tif and .tiff.
+//
+// If Save returns an error of type Errors some of
+// the elements of the saved plot may be invalid.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 	f, err := os.Create(file)
 	if err != nil {
@@ -478,11 +494,15 @@ func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 	if len(format) != 0 {
 		format = format[1:]
 	}
-	c, err := p.WriterTo(w, h, format)
+	c, errs := p.WriterTo(w, h, format)
+	_, err = c.WriteTo(f)
+
+	// If the call to c.WriteTo failed this is a hard
+	// error and we do not care about the plotting
+	// errors, otherwise return any errors that arose
+	// during rendering.
 	if err != nil {
 		return err
 	}
-
-	_, err = c.WriteTo(f)
-	return err
+	return errs
 }

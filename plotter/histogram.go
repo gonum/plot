@@ -73,7 +73,7 @@ func (u unitYs) XY(i int) (float64, float64) {
 
 // Plot implements the Plotter interface, drawing a line
 // that connects each point in the Line.
-func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
+func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 
 	for _, bin := range h.Bins {
@@ -89,6 +89,8 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(0)})
 		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum X and Y values

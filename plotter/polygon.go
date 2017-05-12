@@ -51,7 +51,7 @@ func NewPolygon(xys ...XYer) (*Polygon, error) {
 
 // Plot draws the polygon, implementing the plot.Plotter
 // interface.
-func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) {
+func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 	ps := make([][]vg.Point, len(pts.XYs))
 
@@ -82,6 +82,8 @@ func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) {
 		}
 		c.StrokeLines(pts.LineStyle, c.ClipLinesXY(ring)...)
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum

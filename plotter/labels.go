@@ -73,7 +73,7 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
+func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 	for i, label := range l.Labels {
 		pt := vg.Point{X: trX(l.XYs[i].X), Y: trY(l.XYs[i].Y)}
@@ -84,6 +84,7 @@ func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 		pt.Y += l.YOffset
 		c.FillText(l.TextStyle[i], pt, label)
 	}
+	return nil
 }
 
 // DataRange returns the minimum and maximum X and Y values

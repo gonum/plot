@@ -186,17 +186,16 @@ func median(vs Values) float64 {
 }
 
 // Plot draws the BoxPlot on Canvas c and Plot plt.
-func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) error {
 	if b.Horizontal {
 		b := &horizBoxPlot{b}
-		b.Plot(c, plt)
-		return
+		return b.Plot(c, plt)
 	}
 
 	trX, trY := plt.Transforms(&c)
 	x := trX(b.Location)
 	if !c.ContainsX(x) {
-		return
+		return nil
 	}
 	x += b.Offset
 
@@ -234,6 +233,8 @@ func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 			c.DrawGlyphNoClip(b.GlyphStyle, vg.Point{X: x, Y: y})
 		}
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum x
@@ -318,11 +319,11 @@ func (o boxPlotOutsideLabels) Label(i int) string {
 // bar charts.
 type horizBoxPlot struct{ *BoxPlot }
 
-func (b horizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b horizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 	y := trY(b.Location)
 	if !c.ContainsY(y) {
-		return
+		return nil
 	}
 	y += b.Offset
 
@@ -360,6 +361,8 @@ func (b horizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 			c.DrawGlyphNoClip(b.GlyphStyle, vg.Point{X: x, Y: y})
 		}
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum x

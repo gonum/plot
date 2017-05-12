@@ -40,7 +40,7 @@ func NewLine(xys XYer) (*Line, error) {
 
 // Plot draws the Line, implementing the plot.Plotter
 // interface.
-func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
+func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 	ps := make([]vg.Point, len(pts.XYs))
 
@@ -63,6 +63,8 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 
 	c.StrokeLines(pts.LineStyle, c.ClipLinesXY(ps)...)
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum

@@ -26,7 +26,7 @@ func NewGlyphBoxes() *GlyphBoxes {
 	return g
 }
 
-func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
+func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) error {
 	for _, b := range plt.GlyphBoxes(plt) {
 		x := c.X(b.X) + b.Rectangle.Min.X
 		y := c.Y(b.Y) + b.Rectangle.Min.Y
@@ -38,4 +38,5 @@ func (g GlyphBoxes) Plot(c draw.Canvas, plt *plot.Plot) {
 			{x, y},
 		})
 	}
+	return nil
 }

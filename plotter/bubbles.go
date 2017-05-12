@@ -61,7 +61,7 @@ func NewBubbles(xyz XYZer, min, max vg.Length) (*Bubbles, error) {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
+func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 
 	c.SetColor(bs.Color)
@@ -83,6 +83,8 @@ func (bs *Bubbles) Plot(c draw.Canvas, plt *plot.Plot) {
 		p.Close()
 		c.Fill(p)
 	}
+
+	return nil
 }
 
 // radius returns the radius of a bubble by linear interpolation.

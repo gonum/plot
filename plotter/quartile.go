@@ -80,17 +80,16 @@ func NewQuartPlot(loc float64, values Valuer) (*QuartPlot, error) {
 }
 
 // Plot draws the QuartPlot on Canvas c and Plot plt.
-func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) error {
 	if b.Horizontal {
 		b := &horizQuartPlot{b}
-		b.Plot(c, plt)
-		return
+		return b.Plot(c, plt)
 	}
 
 	trX, trY := plt.Transforms(&c)
 	x := trX(b.Location)
 	if !c.ContainsX(x) {
-		return
+		return nil
 	}
 	x += b.Offset
 
@@ -114,6 +113,8 @@ func (b *QuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 			c.DrawGlyphNoClip(ostyle, vg.Point{X: x, Y: y})
 		}
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum x
@@ -196,11 +197,11 @@ func (o quartPlotOutsideLabels) Label(i int) string {
 // it draws horizontally instead of Vertically.
 type horizQuartPlot struct{ *QuartPlot }
 
-func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
+func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 	y := trY(b.Location)
 	if !c.ContainsY(y) {
-		return
+		return nil
 	}
 	y += b.Offset
 
@@ -224,6 +225,8 @@ func (b horizQuartPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 			c.DrawGlyphNoClip(ostyle, vg.Point{X: x, Y: y})
 		}
 	}
+
+	return nil
 }
 
 // DataRange returns the minimum and maximum x

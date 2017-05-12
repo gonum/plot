@@ -63,7 +63,7 @@ func NewYErrorBars(yerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
+func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 	for i, err := range e.YErrors {
 		x := trX(e.XYs[i].X)
@@ -75,6 +75,7 @@ func (e *YErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 		e.drawCap(&c, x, ylow)
 		e.drawCap(&c, x, yhigh)
 	}
+	return nil
 }
 
 // drawCap draws the cap if it is not clipped.
@@ -171,7 +172,7 @@ func NewXErrorBars(xerrs interface {
 }
 
 // Plot implements the Plotter interface, drawing labels.
-func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
+func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 	for i, err := range e.XErrors {
 		y := trY(e.XYs[i].Y)
@@ -183,6 +184,7 @@ func (e *XErrorBars) Plot(c draw.Canvas, p *plot.Plot) {
 		e.drawCap(&c, xlow, y)
 		e.drawCap(&c, xhigh, y)
 	}
+	return nil
 }
 
 // drawCap draws the cap if it is not clipped.

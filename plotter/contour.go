@@ -5,6 +5,7 @@
 package plotter
 
 import (
+	"errors"
 	"image/color"
 	"math"
 	"sort"
@@ -121,10 +122,16 @@ func quantilesR7(g GridXYZ, p []float64) []float64 {
 const naive = false
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (h *Contour) Plot(c draw.Canvas, plt *plot.Plot) {
+func (h *Contour) Plot(c draw.Canvas, plt *plot.Plot) error {
+	if h.Min > h.Max {
+		panic("contour: non-positive Z range")
+	}
+	if h.Min == h.Max {
+		return errors.New("contour: zero Z range")
+	}
 	if naive {
 		h.naivePlot(c, plt)
-		return
+		return nil
 	}
 
 	var pal []color.Color
@@ -178,6 +185,8 @@ func (h *Contour) Plot(c draw.Canvas, plt *plot.Plot) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // naivePlot implements the a naive rendering approach for contours.

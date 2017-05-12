@@ -5,6 +5,7 @@
 package plotter
 
 import (
+	"errors"
 	"image/color"
 	"math"
 
@@ -57,8 +58,7 @@ type HeatMap struct {
 // NewHeatMap creates as new heat map plotter for the given data,
 // using the provided palette. If g has Min and Max methods that return
 // a float, those returned values are used to set the respective HeatMap
-// fields. If the returned HeatMap is used when Min is greater than or
-// equal to Max, the Plot method will panic.
+// fields.
 func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	var min, max float64
 	type minMaxer interface {
@@ -92,9 +92,12 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
-	if h.Min >= h.Max {
+func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) error {
+	if h.Min > h.Max {
 		panic("heatmap: non-positive Z range")
+	}
+	if h.Min == h.Max {
+		return errors.New("heatmap: zero Z range")
 	}
 	pal := h.Palette.Colors()
 	if len(pal) == 0 {
@@ -112,10 +115,10 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 		var right, left float64
 		switch i {
 		case 0:
-			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
+			right = (h.GridXYZ.X(1) - h.GridXYZ.X(0)) / 2
 			left = -right
 		case cols - 1:
-			right = (h.GridXYZ.X(i) - h.GridXYZ.X(i-1)) / 2
+			right = (h.GridXYZ.X(cols-1) - h.GridXYZ.X(cols-2)) / 2
 			left = -right
 		default:
 			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
@@ -133,10 +136,10 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			var up, down float64
 			switch j {
 			case 0:
-				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
+				up = (h.GridXYZ.Y(1) - h.GridXYZ.Y(0)) / 2
 				down = -up
 			case rows - 1:
-				up = (h.GridXYZ.Y(j) - h.GridXYZ.Y(j-1)) / 2
+				up = (h.GridXYZ.Y(rows-1) - h.GridXYZ.Y(rows-2)) / 2
 				down = -up
 			default:
 				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
@@ -171,6 +174,8 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			}
 		}
 	}
+
+	return nil
 }
 
 // DataRange implements the DataRange method

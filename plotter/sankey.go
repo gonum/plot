@@ -206,7 +206,7 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 }
 
 // Plot implements the plot.Plotter interface.
-func (s *Sankey) Plot(c draw.Canvas, plt *plot.Plot) {
+func (s *Sankey) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trCat, trVal := plt.Transforms(&c)
 
 	// Here we draw the flows.
@@ -293,6 +293,8 @@ func (s *Sankey) Plot(c draw.Canvas, plt *plot.Plot) {
 		}
 		c.StrokeLines(lineStyle, pts)
 	}
+
+	return nil
 }
 
 // stockList returns a sorted list of the stocks in the diagram.

@@ -40,7 +40,7 @@ func NewGrid() *Grid {
 }
 
 // Plot implements the plot.Plotter interface.
-func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
+func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 
 	var (
@@ -66,7 +66,7 @@ func (g *Grid) Plot(c draw.Canvas, plt *plot.Plot) {
 
 horiz:
 	if g.Horizontal.Color == nil {
-		return
+		return nil
 	}
 	for _, tk := range plt.Y.Tick.Marker.Ticks(plt.Y.Min, plt.Y.Max) {
 		if tk.IsMinor() {
@@ -78,4 +78,6 @@ horiz:
 		}
 		c.StrokeLine2(g.Horizontal, xmin, y, xmax, y)
 	}
+
+	return nil
 }

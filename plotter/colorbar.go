@@ -53,7 +53,7 @@ func (l *ColorBar) check() {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
+func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) error {
 	l.check()
 	colors := l.colors(c)
 	var img *image.NRGBA64
@@ -98,6 +98,7 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 		Max: vg.Point{X: xmax, Y: ymax},
 	}
 	c.DrawImage(rect, img)
+	return nil
 }
 
 // DataRange implements the DataRange method

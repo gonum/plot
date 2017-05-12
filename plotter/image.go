@@ -46,7 +46,7 @@ func NewImage(img image.Image, xmin, ymin, xmax, ymax float64) *Image {
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
-func (img *Image) Plot(c draw.Canvas, p *plot.Plot) {
+func (img *Image) Plot(c draw.Canvas, p *plot.Plot) error {
 	trX, trY := p.Transforms(&c)
 	xmin := trX(img.xmin)
 	ymin := trY(img.ymin)
@@ -57,6 +57,7 @@ func (img *Image) Plot(c draw.Canvas, p *plot.Plot) {
 		Max: vg.Point{X: xmax, Y: ymax},
 	}
 	c.DrawImage(rect, img.img)
+	return nil
 }
 
 // DataRange implements the DataRange method

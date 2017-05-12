@@ -36,11 +36,12 @@ func NewScatter(xys XYer) (*Scatter, error) {
 
 // Plot draws the Scatter, implementing the plot.Plotter
 // interface.
-func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
+func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) error {
 	trX, trY := plt.Transforms(&c)
 	for _, p := range pts.XYs {
 		c.DrawGlyph(pts.GlyphStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
 	}
+	return nil
 }
 
 // DataRange returns the minimum and maximum
