@@ -49,6 +49,11 @@ type HeatMap struct {
 	Underflow color.Color
 	Overflow  color.Color
 
+	// NaN is the color used to fill heat map elements
+	// that are NaN or do not map to a unique palette
+	// color.
+	NaN color.Color
+
 	// Min and Max define the dynamic range of the
 	// heat map.
 	Min, Max float64
@@ -57,8 +62,8 @@ type HeatMap struct {
 // NewHeatMap creates as new heat map plotter for the given data,
 // using the provided palette. If g has Min and Max methods that return
 // a float, those returned values are used to set the respective HeatMap
-// fields. If the returned HeatMap is used when Min is greater than or
-// equal to Max, the Plot method will panic.
+// fields. If the returned HeatMap is used when Min is greater than Max,
+// the Plot method will panic.
 func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	var min, max float64
 	type minMaxer interface {
@@ -93,8 +98,8 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 
 // Plot implements the Plot method of the plot.Plotter interface.
 func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
-	if h.Min >= h.Max {
-		panic("heatmap: non-positive Z range")
+	if h.Min > h.Max {
+		panic("heatmap: negative Z range")
 	}
 	pal := h.Palette.Colors()
 	if len(pal) == 0 {
@@ -108,14 +113,13 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 	var pa vg.Path
 	cols, rows := h.GridXYZ.Dims()
 	for i := 0; i < cols; i++ {
-
 		var right, left float64
 		switch i {
 		case 0:
-			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
+			right = (h.GridXYZ.X(1) - h.GridXYZ.X(0)) / 2
 			left = -right
 		case cols - 1:
-			right = (h.GridXYZ.X(i) - h.GridXYZ.X(i-1)) / 2
+			right = (h.GridXYZ.X(cols-1) - h.GridXYZ.X(cols-2)) / 2
 			left = -right
 		default:
 			right = (h.GridXYZ.X(i+1) - h.GridXYZ.X(i)) / 2
@@ -123,20 +127,13 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 		}
 
 		for j := 0; j < rows; j++ {
-			v := h.GridXYZ.Z(i, j)
-			if math.IsNaN(v) || math.IsInf(v, 0) {
-				continue
-			}
-
-			pa = pa[:0]
-
 			var up, down float64
 			switch j {
 			case 0:
-				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
+				up = (h.GridXYZ.Y(1) - h.GridXYZ.Y(0)) / 2
 				down = -up
 			case rows - 1:
-				up = (h.GridXYZ.Y(j) - h.GridXYZ.Y(j-1)) / 2
+				up = (h.GridXYZ.Y(rows-1) - h.GridXYZ.Y(rows-2)) / 2
 				down = -up
 			default:
 				up = (h.GridXYZ.Y(j+1) - h.GridXYZ.Y(j)) / 2
@@ -150,6 +147,7 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 				continue
 			}
 
+			pa = pa[:0]
 			pa.Move(vg.Point{X: x, Y: y})
 			pa.Line(vg.Point{X: dx, Y: y})
 			pa.Line(vg.Point{X: dx, Y: dy})
@@ -157,11 +155,13 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 			pa.Close()
 
 			var col color.Color
-			switch {
+			switch v := h.GridXYZ.Z(i, j); {
 			case v < h.Min:
 				col = h.Underflow
 			case v > h.Max:
 				col = h.Overflow
+			case math.IsNaN(v), math.IsInf(ps, 0):
+				col = h.NaN
 			default:
 				col = pal[int((v-h.Min)*ps+0.5)] // Apply palette scaling.
 			}
