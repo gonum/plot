@@ -5,6 +5,7 @@
 package plot
 
 import (
+	"fmt"
 	"image/color"
 	"math"
 	"strconv"
@@ -502,6 +503,98 @@ func (t TimeTicks) Ticks(min, max float64) []Tick {
 		tick.Label = t.Time(tick.Value).Format(t.Format)
 	}
 	return ticks
+}
+
+// IntTicks is suitable for axes representing integer.
+type IntTicks struct {
+	// AddMinTick adds tick to the min value when it is a true.
+	AddMinTick bool
+
+	// AddMaxTick adds tick to the max value when it is a true.
+	AddMaxTick bool
+}
+
+// Ticks returns Ticks in a specified range
+func (it IntTicks) Ticks(min, max float64) (ticks []Tick) {
+	const SuggestedTicks = 3
+	if max < min {
+		panic("illegal range")
+	}
+	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
+	n := (max - min) / tens
+	for n < SuggestedTicks {
+		tens /= 10
+		n = (max - min) / tens
+	}
+
+	majorMult := int(n / SuggestedTicks)
+	switch majorMult {
+	case 7:
+		majorMult = 6
+	case 9:
+		majorMult = 8
+	}
+	majorDelta := float64(majorMult) * tens
+	val := math.Floor(min/majorDelta) * majorDelta
+
+	// Add tick to min value
+	if it.AddMinTick {
+		if val != min {
+			ticks = append(ticks, Tick{Value: min, Label: fmt.Sprintf("%.f", min)})
+		}
+	}
+
+	for val <= max {
+		if val >= min && val <= max {
+			ticks = append(ticks, Tick{Value: val, Label: fmt.Sprintf("%.f", val)})
+		}
+		if math.Nextafter(val, val+majorDelta) == val {
+			break
+		}
+		val += majorDelta
+	}
+
+	minorDelta := majorDelta / 2
+	switch majorMult {
+	case 3, 6:
+		minorDelta = majorDelta / 3
+	case 5:
+		minorDelta = majorDelta / 5
+	}
+
+	val = math.Floor(min/minorDelta) * minorDelta
+	for val <= max {
+		found := false
+		for _, t := range ticks {
+			if t.Value == val {
+				found = true
+			}
+		}
+		if val >= min && val <= max && !found {
+			ticks = append(ticks, Tick{Value: val})
+		}
+		if math.Nextafter(val, val+minorDelta) == val {
+			break
+		}
+		val += minorDelta
+	}
+	// Add tick to max value
+	if it.AddMaxTick {
+		found := false
+		for _, t := range ticks {
+			if t.Value == max {
+				if t.Label == "" {
+					t.Label = fmt.Sprintf("%.f", t.Value)
+				}
+				found = true
+				break
+			}
+		}
+		if found == false {
+			ticks = append(ticks, Tick{Value: max, Label: fmt.Sprintf("%.f", max)})
+		}
+	}
+	return
 }
 
 // A Tick is a single tick mark on an axis.

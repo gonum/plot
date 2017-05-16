@@ -50,6 +50,46 @@ func TestAxisSmallTick(t *testing.T) {
 	}
 }
 
+func TestIntTick(t *testing.T) {
+	i := IntTicks{}
+	for _, test := range []struct {
+		addMinTick bool
+		addMaxTick bool
+		min, max   float64
+		want       []string
+	}{
+		{
+			addMinTick: false,
+			addMaxTick: false,
+			min:        1.0,
+			max:        99999.0,
+			want:       []string{"30000", "60000", "90000"},
+		},
+		{
+			addMinTick: true,
+			addMaxTick: false,
+			min:        1.0,
+			max:        99999.0,
+			want:       []string{"1", "30000", "60000", "90000"},
+		},
+		{
+			addMinTick: true,
+			addMaxTick: true,
+			min:        1.0,
+			max:        99999.0,
+			want:       []string{"1", "30000", "60000", "90000", "99999"},
+		},
+	} {
+		i.AddMinTick = test.addMinTick
+		i.AddMaxTick = test.addMaxTick
+		ticks := i.Ticks(test.min, test.max)
+		got := labelsOf(ticks)
+		if !reflect.DeepEqual(got, test.want) {
+			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", got, test.want)
+		}
+	}
+}
+
 func labelsOf(ticks []Tick) []string {
 	var labels []string
 	for _, t := range ticks {
