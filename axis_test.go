@@ -42,7 +42,7 @@ func TestAxisSmallTick(t *testing.T) {
 			want: []string{"0.0001", "0.00011", "0.00012", "0.00013", "0.00014"},
 		},
 	} {
-		ticks := d.Ticks(test.min, test.max)
+		ticks := d.Ticks(test.min, test.max, nil)
 		got := labelsOf(ticks)
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", got, test.want)
