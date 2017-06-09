@@ -164,6 +164,13 @@ func UseImageWithContext(img draw.Image, gc draw2d.GraphicContext) option {
 	}
 }
 
+// Image returns the image the canvas is drawing to.
+//
+// The dimensions of the returned image must not be modified.
+func (c *Canvas) Image() draw.Image {
+	return c.img
+}
+
 func (c *Canvas) Size() (w, h vg.Length) {
 	return c.w, c.h
 }
