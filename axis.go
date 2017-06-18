@@ -20,7 +20,9 @@ const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
-	// Ticks returns Ticks in a specified range
+	// Ticks returns Ticks in a specified range and formatted according to the
+	// given format function.
+	// When no format is provided (nil) a sane default is used.
 	Ticks(min, max float64, format func(v float64, prec int) string) []Tick
 }
 
@@ -499,7 +501,7 @@ func (t TimeTicks) Ticks(min, max float64, format func(v float64, prec int) stri
 		t.Time = UTCUnixTime
 	}
 
-	ticks := t.Ticker.Ticks(min, max, nil)
+	ticks := t.Ticker.Ticks(min, max, format)
 	for i := range ticks {
 		tick := &ticks[i]
 		if tick.Label == "" {

@@ -7,6 +7,7 @@ package plot
 import (
 	"math"
 	"reflect"
+	"strconv"
 	"testing"
 )
 
@@ -14,6 +15,7 @@ func TestAxisSmallTick(t *testing.T) {
 	d := DefaultTicks{}
 	for _, test := range []struct {
 		min, max float64
+		format   func(v float64, prec int) string
 		want     []string
 	}{
 		{
@@ -41,8 +43,16 @@ func TestAxisSmallTick(t *testing.T) {
 			max:  0.00015,
 			want: []string{"0.0001", "0.00011", "0.00012", "0.00013", "0.00014"},
 		},
+		{
+			min: 0.0001,
+			max: 0.0005,
+			format: func(v float64, prec int) string {
+				return strconv.FormatFloat(v, 'e', 1, 64)
+			},
+			want: []string{"1.0e-04", "2.0e-04", "3.0e-04", "4.0e-04", "5.0e-04"},
+		},
 	} {
-		ticks := d.Ticks(test.min, test.max, nil)
+		ticks := d.Ticks(test.min, test.max, test.format)
 		got := labelsOf(ticks)
 		if !reflect.DeepEqual(got, test.want) {
 			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", got, test.want)
