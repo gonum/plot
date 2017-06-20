@@ -13,7 +13,8 @@ import (
 	"sort"
 	"testing"
 
-	"github.com/gonum/matrix/mat64"
+	"gonum.org/v1/gonum/mat"
+
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/palette"
 	"github.com/gonum/plot/vg"
@@ -21,7 +22,7 @@ import (
 
 var visualDebug = flag.Bool("visual", false, "output images for benchmarks and test data")
 
-type unitGrid struct{ mat64.Matrix }
+type unitGrid struct{ mat.Matrix }
 
 func (g unitGrid) Dims() (c, r int)   { r, c = g.Matrix.Dims(); return c, r }
 func (g unitGrid) Z(c, r int) float64 { return g.Matrix.At(r, c) }
@@ -44,7 +45,7 @@ func TestHeatMapWithContour(t *testing.T) {
 	if !*visualDebug {
 		return
 	}
-	m := unitGrid{mat64.NewDense(3, 4, []float64{
+	m := unitGrid{mat.NewDense(3, 4, []float64{
 		2, 1, 4, 3,
 		6, 7, 2, 5,
 		9, 10, 11, 12,
@@ -83,7 +84,7 @@ func TestComplexContours(t *testing.T) {
 			data[i] = rnd.NormFloat64()*n + math.Hypot(r, c)
 		}
 
-		m := unitGrid{mat64.NewDense(80, 80, data)}
+		m := unitGrid{mat.NewDense(80, 80, data)}
 
 		levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
 		c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
@@ -122,7 +123,7 @@ func complexContourBench(noise float64, b *testing.B) {
 		data[i] = rnd.NormFloat64()*noise + math.Hypot(r, c)
 	}
 
-	m := unitGrid{mat64.NewDense(80, 80, data)}
+	m := unitGrid{mat.NewDense(80, 80, data)}
 
 	levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
 
@@ -137,7 +138,7 @@ func complexContourBench(noise float64, b *testing.B) {
 }
 
 func TestContourPaths(t *testing.T) {
-	m := unitGrid{mat64.NewDense(3, 4, []float64{
+	m := unitGrid{mat.NewDense(3, 4, []float64{
 		2, 1, 4, 3,
 		6, 7, 2, 5,
 		9, 10, 11, 12,

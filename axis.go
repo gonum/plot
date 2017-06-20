@@ -10,7 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/gonum/floats"
+	"gonum.org/v1/gonum/floats"
+
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
