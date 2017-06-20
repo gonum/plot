@@ -10,7 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gonum/matrix/mat64"
+	"gonum.org/v1/gonum/mat"
+
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/palette"
@@ -23,7 +24,7 @@ import (
 type offsetUnitGrid struct {
 	XOffset, YOffset float64
 
-	Data mat64.Matrix
+	Data mat.Matrix
 }
 
 func (g offsetUnitGrid) Dims() (c, r int)   { r, c = g.Data.Dims(); return c, r }
@@ -47,7 +48,7 @@ func ExampleHeatMap() {
 	m := offsetUnitGrid{
 		XOffset: -2,
 		YOffset: -1,
-		Data: mat64.NewDense(3, 4, []float64{
+		Data: mat.NewDense(3, 4, []float64{
 			1, 2, 3, 4,
 			5, 6, 7, 8,
 			9, 10, 11, 12,
@@ -112,7 +113,7 @@ func TestFlatHeat(t *testing.T) {
 	m := offsetUnitGrid{
 		XOffset: -2,
 		YOffset: -1,
-		Data:    mat64.NewDense(3, 4, nil),
+		Data:    mat.NewDense(3, 4, nil),
 	}
 	h := NewHeatMap(m, palette.Heat(12, 1))
 

@@ -10,7 +10,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/gonum/matrix/mat64"
+	"gonum.org/v1/gonum/mat"
+
 	"github.com/gonum/plot"
 	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/palette"
@@ -23,7 +24,7 @@ import (
 type offsetUnitGrid struct {
 	XOffset, YOffset float64
 
-	Data *mat64.Dense
+	Data *mat.Dense
 }
 
 func (g offsetUnitGrid) Dims() (c, r int)   { r, c = g.Data.Dims(); return c, r }
@@ -50,7 +51,7 @@ func Example() {
 	m := offsetUnitGrid{
 		XOffset: -50,
 		YOffset: -50,
-		Data:    mat64.NewDense(100, 100, nil),
+		Data:    mat.NewDense(100, 100, nil),
 	}
 	for i := 0; i < 100; i++ {
 		for j := 0; j < 100; j++ {
