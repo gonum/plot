@@ -83,7 +83,7 @@ func (l *luminance) At(v float64) (color.Color, error) {
 	if err := checkRange(l.min, l.max, v); err != nil {
 		return nil, err
 	}
-	scalar := (v - l.min) / l.max
+	scalar := (v - l.min) / (l.max - l.min)
 	if !inUnitRange(scalar) {
 		return nil, fmt.Errorf("moreland: interpolation value (%g) out of range [%g,%g]", scalar, l.min, l.max)
 	}
