@@ -19,7 +19,7 @@ type Legend struct {
 	draw.TextStyle
 
 	// Padding is the amount of padding to add
-	// betweeneach entry of the legend.  If Padding
+	// between each entry in the legend.  If Padding
 	// is zero then entries are spaced based on the
 	// font size.
 	Padding vg.Length
