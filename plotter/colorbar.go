@@ -58,18 +58,19 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 	colors := l.colors(c)
 	var img *image.NRGBA64
 	var xmin, xmax, ymin, ymax vg.Length
+	delta := (l.ColorMap.Max() - l.ColorMap.Min()) / float64(colors-1)
 	if l.Vertical {
 		trX, trY := p.Transforms(&c)
-		xmin = trX(l.ColorMap.Min())
-		ymin = trY(0)
-		xmax = trX(l.ColorMap.Max())
-		ymax = trY(1)
+		xmin = trX(0)
+		ymin = trY(l.ColorMap.Min())
+		xmax = trX(1)
+		ymax = trY(l.ColorMap.Max())
 		img = image.NewNRGBA64(image.Rectangle{
 			Min: image.Point{X: 0, Y: 0},
 			Max: image.Point{X: 1, Y: colors},
 		})
 		for i := 0; i < colors; i++ {
-			color, err := l.ColorMap.At(float64(i) / float64(colors-1))
+			color, err := l.ColorMap.At(l.ColorMap.Min() + delta*float64(i))
 			if err != nil {
 				panic(err)
 			}
@@ -77,16 +78,16 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 		}
 	} else {
 		trX, trY := p.Transforms(&c)
-		ymin = trY(l.ColorMap.Min())
-		xmin = trX(0)
-		ymax = trY(l.ColorMap.Max())
-		xmax = trX(1)
+		xmin = trX(l.ColorMap.Min())
+		ymin = trY(0)
+		xmax = trX(l.ColorMap.Max())
+		ymax = trY(1)
 		img = image.NewNRGBA64(image.Rectangle{
 			Min: image.Point{X: 0, Y: 0},
 			Max: image.Point{X: colors, Y: 1},
 		})
 		for i := 0; i < colors; i++ {
-			color, err := l.ColorMap.At(float64(i) / float64(colors-1))
+			color, err := l.ColorMap.At(l.ColorMap.Min() + delta*float64(i))
 			if err != nil {
 				panic(err)
 			}

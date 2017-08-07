@@ -19,7 +19,8 @@ func ExampleColorBar_horizontal() {
 		log.Panic(err)
 	}
 	l := &ColorBar{ColorMap: moreland.ExtendedBlackBody()}
-	l.ColorMap.SetMax(1)
+	l.ColorMap.SetMin(0.5)
+	l.ColorMap.SetMax(1.5)
 	p.Add(l)
 	p.HideY()
 	p.X.Padding = 0
@@ -40,7 +41,8 @@ func ExampleColorBar_vertical() {
 		log.Panic(err)
 	}
 	l := &ColorBar{ColorMap: moreland.ExtendedBlackBody()}
-	l.ColorMap.SetMax(1)
+	l.ColorMap.SetMin(0.5)
+	l.ColorMap.SetMax(1.5)
 	l.Vertical = true
 	p.Add(l)
 	p.HideX()
