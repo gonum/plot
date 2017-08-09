@@ -8,9 +8,9 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 // Polygon implements the Plotter interface, drawing a polygon.

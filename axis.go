@@ -12,8 +12,8 @@ import (
 
 	"gonum.org/v1/gonum/floats"
 
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 // displayPrecision is a sane level of float precision for a plot.

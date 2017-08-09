@@ -22,7 +22,7 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 // Canvas implements the vg.Canvas interface,

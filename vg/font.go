@@ -16,11 +16,12 @@ import (
 	"path/filepath"
 	"sync"
 
+	"gonum.org/v1/plot/vg/fonts"
+
 	"golang.org/x/image/math/fixed"
 
 	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
-	"github.com/gonum/plot/vg/fonts"
 )
 
 var (

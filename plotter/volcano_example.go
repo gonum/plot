@@ -13,15 +13,15 @@ package main
 import (
 	"image/color"
 
-	"github.com/gonum/matrix/mat64"
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/palette"
-	"github.com/gonum/plot/plotter"
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
+	"gonum.org/v1/gonum/mat"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/palette"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
-type deciGrid struct{ mat64.Matrix }
+type deciGrid struct{ mat.Matrix }
 
 func (g deciGrid) Dims() (c, r int)   { r, c = g.Matrix.Dims(); return c, r }
 func (g deciGrid) Z(c, r int) float64 { return g.Matrix.At(r, c) }
@@ -42,7 +42,7 @@ func (g deciGrid) Y(r int) float64 {
 
 func main() {
 	var levels []float64
-	for l := 100.5; l < volcano.Matrix.(*mat64.Dense).Max(); l += 5 {
+	for l := 100.5; l < volcano.Matrix.(*mat.Dense).Max(); l += 5 {
 		levels = append(levels, l)
 	}
 	c := plotter.NewContour(volcano, levels, palette.Rainbow(len(levels), (palette.Yellow+palette.Red)/2, palette.Blue, 1, 1, 1))
@@ -90,7 +90,7 @@ func main() {
 }
 
 // Data extracted from RDatasets volcano data for the Maunga Whau volcano topographic data.
-var volcano = deciGrid{mat64.NewDense(87, 61, []float64{
+var volcano = deciGrid{mat.NewDense(87, 61, []float64{
 	100, 100, 101, 101, 101, 101, 101, 100, 100, 100, 101, 101, 102, 102, 102, 102, 103, 104, 103, 102, 101, 101, 102, 103, 104, 104, 105, 107, 107, 107, 108, 108, 110, 110, 110, 110, 110, 110, 110, 110, 108, 108, 108, 107, 107, 108, 108, 108, 108, 108, 107, 107, 107, 107, 106, 106, 105, 105, 104, 104, 103,
 	101, 101, 102, 102, 102, 102, 102, 101, 101, 101, 102, 102, 103, 103, 103, 103, 104, 105, 104, 103, 102, 102, 103, 105, 106, 106, 107, 109, 110, 110, 110, 110, 111, 112, 113, 114, 116, 115, 114, 112, 110, 110, 110, 109, 108, 109, 109, 109, 109, 108, 108, 108, 108, 107, 107, 106, 106, 105, 105, 104, 104,
 	102, 102, 103, 103, 103, 103, 103, 102, 102, 102, 103, 103, 104, 104, 104, 104, 105, 106, 105, 104, 104, 105, 106, 107, 108, 110, 111, 113, 114, 115, 114, 115, 116, 118, 119, 119, 121, 121, 120, 118, 116, 114, 112, 111, 110, 110, 110, 110, 109, 109, 109, 109, 108, 108, 107, 107, 106, 106, 105, 105, 104,

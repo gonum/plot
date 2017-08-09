@@ -10,10 +10,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/internal/cmpimg"
-	"github.com/gonum/plot/palette/moreland"
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/palette/moreland"
+	"gonum.org/v1/plot/vg"
 )
 
 // ExamplePolygon_holes draws a polygon with holes, showing how

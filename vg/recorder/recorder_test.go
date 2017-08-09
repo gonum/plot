@@ -10,7 +10,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 func TestRecorder(t *testing.T) {
@@ -67,10 +67,10 @@ var want = []string{
 	`Comment("End of preamble")`,
 	`Scale(1, 2)`,
 	`Rotate(0.72)`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:23 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Radius:0, Start:0, Angle:0}})`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:24 Push()`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:25 Pop()`,
-	`github.com/gonum/plot/vg/recorder/recorder_test.go:26 Translate(3, 4)`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:23 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Radius:0, Start:0, Angle:0}})`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:24 Push()`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:25 Pop()`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:26 Translate(3, 4)`,
 	`SetLineWidth(100)`,
 	`SetLineDash([]vg.Length{2, 5}, 6)`,
 	`SetColor(color.RGBA{R:0x65, G:0x23, B:0xf2, A:0x0})`,

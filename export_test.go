@@ -5,7 +5,7 @@
 package plot
 
 import (
-	"github.com/gonum/plot/vg/draw"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 // Draw exports the Legend draw method for testing.

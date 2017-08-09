@@ -10,11 +10,11 @@ import (
 	"math"
 	"strings"
 
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/vgeps"
-	"github.com/gonum/plot/vg/vgimg"
-	"github.com/gonum/plot/vg/vgpdf"
-	"github.com/gonum/plot/vg/vgsvg"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/vgeps"
+	"gonum.org/v1/plot/vg/vgimg"
+	"gonum.org/v1/plot/vg/vgpdf"
+	"gonum.org/v1/plot/vg/vgsvg"
 )
 
 // A Canvas is a vector graphics canvas along with

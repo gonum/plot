@@ -16,7 +16,7 @@ import (
 	"math"
 	"time"
 
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 // DPI is the nominal resolution of drawing in EPS.
@@ -54,7 +54,7 @@ func NewTitle(w, h vg.Length, title string) *Canvas {
 		buf: new(bytes.Buffer),
 	}
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
-	c.buf.WriteString("%%Creator github.com/gonum/plot/vg/vgeps\n")
+	c.buf.WriteString("%%Creator gonum.org/v1/plot/vg/vgeps\n")
 	c.buf.WriteString("%%Title: " + title + "\n")
 	c.buf.WriteString(fmt.Sprintf("%%%%BoundingBox: 0 0 %.*g %.*g\n",
 		pr, w.Dots(DPI),

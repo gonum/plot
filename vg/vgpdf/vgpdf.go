@@ -15,7 +15,8 @@ import (
 	"math"
 
 	"bitbucket.org/zombiezen/gopdf/pdf"
-	"github.com/gonum/plot/vg"
+
+	"gonum.org/v1/plot/vg"
 )
 
 // DPI is the nominal resolution of drawing in PDF.

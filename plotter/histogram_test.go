@@ -11,9 +11,9 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/internal/cmpimg"
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/vg"
 )
 
 // An example of making a histogram.

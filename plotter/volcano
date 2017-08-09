@@ -16,15 +16,15 @@ package main
 import (
 	"image/color"
 
-	"github.com/gonum/matrix/mat64"
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/palette"
-	"github.com/gonum/plot/plotter"
-	"github.com/gonum/plot/vg"
-	"github.com/gonum/plot/vg/draw"
+	"gonum.org/v1/gonum/mat"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/palette"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
-type deciGrid struct{ mat64.Matrix }
+type deciGrid struct{ mat.Matrix }
 
 func (g deciGrid) Dims() (c, r int)   { r, c = g.Matrix.Dims(); return c, r }
 func (g deciGrid) Z(c, r int) float64 { return g.Matrix.At(r, c) }

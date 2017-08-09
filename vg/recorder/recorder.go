@@ -14,7 +14,7 @@ import (
 	"image/png"
 	"runtime"
 
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 var _ vg.Canvas = (*Canvas)(nil)

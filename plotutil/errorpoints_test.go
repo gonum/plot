@@ -7,8 +7,8 @@ package plotutil
 import (
 	"math/rand"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/plotter"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
 )
 
 func ExampleErrorPoints() {

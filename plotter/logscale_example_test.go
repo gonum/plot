@@ -10,10 +10,10 @@ import (
 	"math"
 	"testing"
 
-	"github.com/gonum/plot"
-	"github.com/gonum/plot/internal/cmpimg"
-	"github.com/gonum/plot/plotter"
-	"github.com/gonum/plot/vg"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 )
 
 // Example_logScale shows how to create a plot with a log-scale on the Y-axis.
