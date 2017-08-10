@@ -4,7 +4,7 @@
 
 // Package vgeps implements the vg.Canvas interface using
 // encapsulated postscript.
-package vgeps
+package vgeps // import "gonum.org/v1/plot/vg/vgeps"
 
 import (
 	"bufio"

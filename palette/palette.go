@@ -7,7 +7,7 @@
 // license that can be found in the LICENSE file.
 
 // Package palette provides basic color palette handling.
-package palette
+package palette // import "gonum.org/v1/plot/palette"
 
 import (
 	"errors"

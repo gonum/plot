@@ -4,7 +4,7 @@
 
 // Package vgpdf implements the vg.Canvas interface
 // using gopdf (bitbucket.org/zombiezen/gopdf/pdf).
-package vgpdf
+package vgpdf // import "gonum.org/v1/plot/vg/vgpdf"
 
 import (
 	"bufio"

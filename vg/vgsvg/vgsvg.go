@@ -4,7 +4,7 @@
 
 // Package vgsvg uses svgo (github.com/ajstarks/svgo)
 // as a backend for vg.
-package vgsvg
+package vgsvg // import "gonum.org/v1/plot/vg/vgsvg"
 
 import (
 	"bufio"
