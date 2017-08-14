@@ -6,5 +6,6 @@
 **/*.pdf
 **/*.jpg
 **/*.jpeg
+**/*.tex
 **/*.tif
 **/*.tiff
