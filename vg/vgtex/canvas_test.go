@@ -5,18 +5,18 @@
 package vgtex
 
 import (
-	"bytes"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
 
 	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
 	"github.com/gonum/plot/plotter"
 	"github.com/gonum/plot/vg"
 	"github.com/gonum/plot/vg/draw"
 )
 
+// An example of making a LaTeX plot.
 func Example() {
 	scatter, err := plotter.NewScatter(plotter.XYs{{1, 1}, {0, 1}, {0, 0}})
 	if err != nil {
@@ -48,20 +48,5 @@ func Example() {
 }
 
 func TestTexCanvas(t *testing.T) {
-	Example()
-	fname := "testdata/scatter.tex"
-	got, err := ioutil.ReadFile(fname)
-	if err != nil {
-		t.Fatalf("error reading test file: %v\n", err)
-	}
-
-	refname := "testdata/scatter_golden.tex"
-	want, err := ioutil.ReadFile(refname)
-	if err != nil {
-		t.Fatalf("error reading ref file: %v\n", err)
-	}
-
-	if !bytes.Equal(got, want) {
-		t.Fatalf("test file [%s] and ref file [%s] differ", fname, refname)
-	}
+	cmpimg.CheckPlot(Example, t, "scatter.tex")
 }
