@@ -45,20 +45,14 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 		return true, nil
 
 	case "pdf":
-		// TODO(sbinet): bytes.Reader.Size was introduced only after go-1.4
-		// use that if/when we drop go-1.4 bwd compat.
 		r1 := bytes.NewReader(raw1)
-		sz1 := int64(len(raw1))
-		pdf1, err := pdf.NewReader(r1, sz1)
+		pdf1, err := pdf.NewReader(r1, r1.Size())
 		if err != nil {
 			return false, err
 		}
 
-		// TODO(sbinet): bytes.Reader.Size was introduced only after go-1.4
-		// use that if/when we drop go-1.4 bwd compat.
 		r2 := bytes.NewReader(raw2)
-		sz2 := int64(len(raw2))
-		pdf2, err := pdf.NewReader(r2, sz2)
+		pdf2, err := pdf.NewReader(r2, r2.Size())
 		if err != nil {
 			return false, err
 		}
