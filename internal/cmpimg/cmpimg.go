@@ -26,7 +26,7 @@ import (
 // Equal may return an error if the decoding of the raw image somehow failed.
 func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 	switch typ {
-	case "svg":
+	case "svg", "tex":
 		return bytes.Equal(raw1, raw2), nil
 
 	case "eps":
