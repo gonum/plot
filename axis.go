@@ -17,7 +17,7 @@ import (
 )
 
 // displayPrecision is a sane level of float precision for a plot.
-const displayPrecision = 4
+const displayPrecision = 1
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
@@ -571,10 +571,10 @@ func log(x float64) float64 {
 	return math.Log(x)
 }
 
-// formatFloatTick returns a g-formated string representation of v
+// formatFloatTick returns a f-formated string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
-	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
+	return strconv.FormatFloat(floats.Round(v, prec), 'f', displayPrecision, 64)
 }
 
 // precisionOf returns the precision needed to display x without e notation.
