@@ -76,6 +76,10 @@ type Axis struct {
 		// returned by the Marker function that are not in
 		// range of the axis are not drawn.
 		Marker Ticker
+
+		// Format function used to format the Axis Ticks.
+		// When no format is provided a sane default is used.
+		Format func(v float64, prec int) string
 	}
 
 	// Scale transforms a value given in the data coordinate system
@@ -202,7 +206,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max, nil); len(marks) > 0 {
+	if marks := a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format); len(marks) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
@@ -222,7 +226,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		y += a.Label.Height(a.Label.Text)
 	}
 
-	marks := a.Tick.Marker.Ticks(a.Min, a.Max, nil)
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format)
 	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
 	for _, t := range marks {
 		x := c.X(a.Norm(t.Value))
@@ -256,7 +260,7 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
 func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max, nil) {
+	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format) {
 		if t.IsMinor() {
 			continue
 		}
@@ -280,7 +284,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max, nil); len(marks) > 0 {
+	if marks := a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format); len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
@@ -304,7 +308,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		c.FillText(sty, vg.Point{X: x, Y: c.Center().Y}, a.Label.Text)
 		x += -a.Label.Font.Extents().Descent
 	}
-	marks := a.Tick.Marker.Ticks(a.Min, a.Max, nil)
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format)
 	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
@@ -337,7 +341,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
 func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max, nil) {
+	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max, a.Tick.Format) {
 		if t.IsMinor() {
 			continue
 		}
