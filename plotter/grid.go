@@ -68,7 +68,7 @@ horiz:
 	if g.Horizontal.Color == nil {
 		return
 	}
-	for _, tk := range plt.Y.Tick.Marker.Ticks(plt.Y.Min, plt.Y.Max, plt.X.Tick.Format) {
+	for _, tk := range plt.Y.Tick.Marker.Ticks(plt.Y.Min, plt.Y.Max, plt.Y.Tick.Format) {
 		if tk.IsMinor() {
 			continue
 		}
