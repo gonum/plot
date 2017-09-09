@@ -135,6 +135,7 @@ func makeAxis(orientation bool) (Axis, error) {
 	}
 	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks{}
+	a.Tick.Format = DefaultTickFormat
 
 	return a, nil
 }
@@ -366,9 +367,6 @@ func (DefaultTicks) Ticks(min, max float64, format func(v float64, prec int) str
 	if max < min {
 		panic("illegal range")
 	}
-	if format == nil {
-		format = formatFloatTick
-	}
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
 	n := (max - min) / tens
 	for n < SuggestedTicks {
@@ -435,9 +433,6 @@ func (LogTicks) Ticks(min, max float64, format func(v float64, prec int) string)
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
-	}
-	if format == nil {
-		format = formatFloatTick
 	}
 	prec := precisionOf(max)
 	for val < max*10 {
@@ -582,9 +577,9 @@ func log(x float64) float64 {
 	return math.Log(x)
 }
 
-// formatFloatTick returns a g-formated string representation of v
+// DefaultTickFormat returns a g-formated string representation of v
 // to the specified precision.
-func formatFloatTick(v float64, prec int) string {
+func DefaultTickFormat(v float64, prec int) string {
 	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
 }
 
