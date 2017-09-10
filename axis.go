@@ -9,6 +9,7 @@ import (
 	"math"
 	"strconv"
 	"time"
+	"strings"
 
 	"gonum.org/v1/gonum/floats"
 
@@ -16,8 +17,6 @@ import (
 	"gonum.org/v1/plot/vg/draw"
 )
 
-// displayPrecision is a sane level of float precision for a plot.
-const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
@@ -574,10 +573,16 @@ func log(x float64) float64 {
 // formatFloatTick returns a g-formated string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
+	//we take a g-formatted value, turn it to a sting, split the string into parts delimited by ".", and take the first part (the 'integer' part), count its length, add one more symbol to it - and this is displayPresision
+	v_str := strings.Split(strconv.FormatFloat(v, 'g', -1, 64), ".")
+	// displayPrecision is a sane level of float precision for a plot.
+	displayPrecision := len(v_str[0])+1
 	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
 }
 
 // precisionOf returns the precision needed to display x without e notation.
 func precisionOf(x float64) int {
+	x_str := strings.Split(strconv.FormatFloat(x, 'g', -1, 64), ".")
+	displayPrecision := float64(len(x_str[0])+1)
 	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), displayPrecision))
 }
