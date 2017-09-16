@@ -129,8 +129,8 @@ func randomPoints(n int, rnd *rand.Rand) plotter.XYs {
 // into the labels for the major tick marks.
 type commaTicks struct{}
 
-func (commaTicks) Ticks(min, max float64) []plot.Tick {
-	tks := plot.DefaultTicks{}.Ticks(min, max)
+func (commaTicks) Ticks(min, max float64, format func(v float64, prec int) string) []plot.Tick {
+	tks := plot.DefaultTicks{}.Ticks(min, max, format)
 	for i, t := range tks {
 		if t.Label == "" { // Skip minor ticks, they are fine.
 			continue
