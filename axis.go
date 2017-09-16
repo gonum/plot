@@ -15,14 +15,14 @@ import (
 	"github.com/gonum/plot/vg/draw"
 )
 
-// displayPrecision is a sane level of float precision for a plot.
+// displayPrecision default level of float precision for a plot.
 const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
 	// Ticks returns Ticks in a specified range and formatted according to the
 	// given format function.
-	// When no format is provided (nil) a sane default is used.
+	// When format is nil DefaultTickFormat is used.
 	Ticks(min, max float64, format func(v float64, prec int) string) []Tick
 }
 
@@ -78,7 +78,7 @@ type Axis struct {
 		Marker Ticker
 
 		// Format function used to format the Axis Ticks.
-		// When no format is provided a sane default is used.
+		// When format is nil DefaultTickFormat is used.
 		Format func(v float64, prec int) string
 	}
 
