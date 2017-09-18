@@ -362,7 +362,7 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	labels = nil
 	ticks = nil
 
-	if max < min {
+	if max <= min {
 		panic("illegal range")
 	}
 
@@ -387,9 +387,6 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		if val >= min && val <= max {
 			//Makes a list of values.
 			labels = append(labels, val)
-		}
-		if math.Nextafter(val, val+majorDelta) == val {
-			break
 		}
 		val += majorDelta
 	}
@@ -421,9 +418,6 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		if val >= min && val <= max && !found {
 			ticks = append(ticks, Tick{Value: val})
 		}
-		if math.Nextafter(val, val+minorDelta) == val {
-			break
-		}
 		val += minorDelta
 	}
 	return
@@ -435,14 +429,12 @@ func removeDuplicates(elements []float64) []float64 {
 	result := []float64{}
 
 	for v := range elements {
-		if encountered[elements[v]] == true {
-			// Does not add any duplicate.
-		} else {
+		if encountered[elements[v]] == false {
 			// Records this element as an encountered element.
 			encountered[elements[v]] = true
 			// Appends it to the result slice.
 			result = append(result, elements[v])
-		}
+		} // Otherwise, no elements are added as they are duplicates.
 	}
 	// Returns the new slice.
 	return result
