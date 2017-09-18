@@ -385,7 +385,7 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 
 	for val <= max {
 		if val >= min && val <= max {
-			//making a list of values
+			//Makes a list of values.
 			labels = append(labels, val)
 		}
 		if math.Nextafter(val, val+majorDelta) == val {
@@ -394,11 +394,11 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		val += majorDelta
 	}
 
-	//make a list of labels with a level of precision where all the labels are different
+	//Makes a list of labels with a level of precision where all the labels are different.
 	new_labels = findRightLevelOfPrecision(labels)
 
 	for j := 0; j < len(labels); j++ {
-		//making a list of big ticks
+		//Makes a list of big ticks.
 		ticks = append(ticks, Tick{Value: labels[j], Label: strconv.FormatFloat(new_labels[j], 'g', -1, 64)})
 	}
 
@@ -430,21 +430,21 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 }
 
 func removeDuplicates(elements []float64) []float64 {
-	// using map to record duplicates as we find them
+	// Uses a map to record duplicates as we find them.
 	encountered := map[float64]bool{}
 	result := []float64{}
 
 	for v := range elements {
 		if encountered[elements[v]] == true {
-			// not adding a duplicate
+			// Does not add any duplicate.
 		} else {
-			// recording this element as an encountered element
+			// Records this element as an encountered element.
 			encountered[elements[v]] = true
-			// appending it to the result slice
+			// Appends it to the result slice.
 			result = append(result, elements[v])
 		}
 	}
-	// return the new slice
+	// Returns the new slice.
 	return result
 }
 
@@ -452,7 +452,7 @@ func findRightLevelOfPrecision(elements []float64) []float64 {
 
 	var result []float64
 
-	for i := 1; i < 308; { //308 is the precision of the MaxFloat64
+	for i := 1; i < 308; { //308 is the precision of the MaxFloat64 which we take as the maximum one here
 
 		var new_element float64
 
@@ -462,7 +462,7 @@ func findRightLevelOfPrecision(elements []float64) []float64 {
 
 		for _, v := range elements {
 			v_mult = v * math.Pow10(i)
-			//as within 'if' statement we are turning v_mult to integer, it cannot exceed it. If it does - we use another rounding technique.
+			//As within 'if' statement v_mult is turned to integer, it cannot exceed the MaxInt64. If it does, another rounding technique is used.
 			if v_mult < (math.MaxInt64) {
 				new_element = float64(int(v_mult)) / math.Pow10(i)
 			} else {
@@ -471,7 +471,7 @@ func findRightLevelOfPrecision(elements []float64) []float64 {
 
 			result = append(result, new_element)
 		}
-		//checking whether the result array has duplicates. If not - we found the right level of precision, if not - add one more digit and check again.
+		//checks whether the result array has duplicates. If not, the right level of precision is found, if it does, one more digit to the precision level is added and the check runs again.
 		if len(result) == len(removeDuplicates(result)) {
 			displayPrecision = i
 			break
