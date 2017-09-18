@@ -10,14 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"gonum.org/v1/gonum/floats"
-
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
-
-// displayPrecision is a sane level of float precision for a plot.
-const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
@@ -355,12 +350,22 @@ type DefaultTicks struct{}
 
 var _ Ticker = DefaultTicks{}
 
+var labels []float64
+
+var new_labels []float64
+
+var displayPrecision int
+
 // Ticks returns Ticks in a specified range
 func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	const SuggestedTicks = 3
+	labels = nil
+	ticks = nil
+
 	if max < min {
 		panic("illegal range")
 	}
+
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
 	n := (max - min) / tens
 	for n < SuggestedTicks {
@@ -377,15 +382,24 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-	prec := precisionOf(majorDelta)
+
 	for val <= max {
 		if val >= min && val <= max {
-			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
+			//making a list of values
+			labels = append(labels, val)
 		}
 		if math.Nextafter(val, val+majorDelta) == val {
 			break
 		}
 		val += majorDelta
+	}
+
+	//make a list of labels with a level of precision where all the labels are different
+	new_labels = findRightLevelOfPrecision(labels)
+
+	for j := 0; j < len(labels); j++ {
+		//making a list of big ticks
+		ticks = append(ticks, Tick{Value: labels[j], Label: strconv.FormatFloat(new_labels[j], 'g', -1, 64)})
 	}
 
 	minorDelta := majorDelta / 2
@@ -413,6 +427,60 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		val += minorDelta
 	}
 	return
+}
+
+func removeDuplicates(elements []float64) []float64 {
+	// using map to record duplicates as we find them
+	encountered := map[float64]bool{}
+	result := []float64{}
+
+	for v := range elements {
+		if encountered[elements[v]] == true {
+			// not adding a duplicate
+		} else {
+			// recording this element as an encountered element
+			encountered[elements[v]] = true
+			// appending it to the result slice
+			result = append(result, elements[v])
+		}
+	}
+	// return the new slice
+	return result
+}
+
+func findRightLevelOfPrecision(elements []float64) []float64 {
+
+	var result []float64
+
+	for i := 1; i < 308; { //308 is the precision of the MaxFloat64
+
+		var new_element float64
+
+		var v_mult float64
+
+		result = nil
+
+		for _, v := range elements {
+			v_mult = v * math.Pow10(i)
+			//as within 'if' statement we are turning v_mult to integer, it cannot exceed it. If it does - we use another rounding technique.
+			if v_mult < (math.MaxInt64) {
+				new_element = float64(int(v_mult)) / math.Pow10(i)
+			} else {
+				new_element, _ = strconv.ParseFloat(strconv.FormatFloat(v, 'g', i, 64), 64)
+			}
+
+			result = append(result, new_element)
+		}
+		//checking whether the result array has duplicates. If not - we found the right level of precision, if not - add one more digit and check again.
+		if len(result) == len(removeDuplicates(result)) {
+			displayPrecision = i
+			break
+		} else {
+			i = i + 1
+		}
+	}
+	//return the resulting array
+	return result
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
@@ -571,13 +639,13 @@ func log(x float64) float64 {
 	return math.Log(x)
 }
 
-// formatFloatTick returns a g-formated string representation of v
+//formatFloatTick returns a g-formated string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
-	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
+	return strconv.FormatFloat(v, 'g', displayPrecision, 64)
 }
 
 // precisionOf returns the precision needed to display x without e notation.
 func precisionOf(x float64) int {
-	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), displayPrecision))
+	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), float64(displayPrecision)))
 }
