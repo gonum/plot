@@ -641,7 +641,7 @@ func log(x float64) float64 {
 	return math.Log(x)
 }
 
-//formatFloatTick returns a g-formated string representation of v
+// formatFloatTick returns a g-formated string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
 	return strconv.FormatFloat(v, 'g', prec, 64)
