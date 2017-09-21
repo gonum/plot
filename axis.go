@@ -498,18 +498,17 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
-	prec := precisionOf(max)
 	for val < max*10 {
 		for i := 1; i < 10; i++ {
 			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
-				tick.Label = formatFloatTick(val*float64(i), prec)
+				tick.Label = formatFloatTick(val*float64(i), displayPrecision)
 			}
 			ticks = append(ticks, tick)
 		}
 		val *= 10
 	}
-	tick := Tick{Value: val, Label: formatFloatTick(val, prec)}
+	tick := Tick{Value: val, Label: formatFloatTick(val, displayPrecision)}
 	ticks = append(ticks, tick)
 	return ticks
 }
@@ -645,9 +644,4 @@ func log(x float64) float64 {
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
 	return strconv.FormatFloat(v, 'g', prec, 64)
-}
-
-// precisionOf returns the precision needed to display x without e notation.
-func precisionOf(x float64) int {
-	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), float64(displayPrecision)))
 }
