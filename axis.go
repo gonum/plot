@@ -344,21 +344,57 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	return
 }
 
+// LogTicks is suitable for the Tick.Marker field of an Axis,
+// it returns tick marks suitable for a log-scale axis.
+type LogTicks struct{}
+
+var _ Ticker = LogTicks{}
+
+// Ticks returns Ticks in a specified range
+func (LogTicks) Ticks(min, max float64) []Tick {
+	var ticks []Tick
+	val := math.Pow10(int(math.Floor(math.Log10(min))))
+
+	if min <= 0 {
+		panic("Values must be greater than 0 for a log scale.")
+	}
+
+	var labels []float64
+	var new_labels []float64
+	labels = nil
+
+	for val < max*10 {
+		for i := 1; i < 10; i++ {
+			if i == 1 {
+				labels = append(labels, val*float64(i))
+			}
+		}
+		val *= 10
+	}
+
+	new_labels = adjustPrecision(labels)
+
+	for j := 0; j < len(labels); j++ {
+		//Makes a list of big ticks.
+		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
+	}
+
+	return ticks
+}
+
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
 // it returns a resonable default set of tick marks.
 type DefaultTicks struct{}
 
 var _ Ticker = DefaultTicks{}
 
-var displayPrecision int
-
 // Ticks returns Ticks in a specified range
 func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
-	const SuggestedTicks = 3
-	
+	const suggestedTicks = 3
+
 	var labels []float64
 	var new_labels []float64
-	
+
 	labels = nil
 
 	if max <= min {
@@ -367,12 +403,12 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
 	n := (max - min) / tens
-	for n < SuggestedTicks {
+	for n < suggestedTicks {
 		tens /= 10
 		n = (max - min) / tens
 	}
 
-	majorMult := int(n / SuggestedTicks)
+	majorMult := int(n / suggestedTicks)
 	switch majorMult {
 	case 7:
 		majorMult = 6
@@ -391,11 +427,11 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 
 	//Makes a list of labels with a level of precision where all the labels are different.
-	new_labels = findRightLevelOfPrecision(labels)
+	new_labels = adjustPrecision(labels)
 
 	for j := 0; j < len(labels); j++ {
 		//Makes a list of big ticks.
-		ticks = append(ticks, Tick{Value: labels[j], Label: strconv.FormatFloat(new_labels[j], 'g', -1, 64)})
+		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
 	}
 
 	minorDelta := majorDelta / 2
@@ -422,62 +458,34 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	return
 }
 
-func removeDuplicates(elements []float64) []float64 {
-	// Uses a map to record duplicates as we find them.
-	seen := make(map[float64]bool)
-	out := make([]float64,0,len(elements))
-
-	for _,v := range elements {
-		if seen[v] {
-			//No elements are added as they are duplicates.
-			continue
-		}
-			// Records this element as a seen element.
-			seen[v] = true
-			// Appends it to the result slice.
-			out = append(out, v)
-	}
-	// Returns the new slice.
-	return out
-}
-
-func findRightLevelOfPrecision(elements []float64) []float64 {
-
-	var result []float64
-
-	for i := 1; i < 308; i++ { //308 is the precision of the MaxFloat64 which we take as the maximum one here
-
+func adjustPrecision(elements []float64) []float64 {
+	const maxExp = 308 //precision of the MaxFloat64 which we take as the maximum one here
+	for i := 1; i < maxExp; i++ {
 		var result []float64
-		var i10 float64
-
-		i10 = math.Pow10(i)
+		i10 := math.Pow10(i)
 
 		for _, v := range elements {
-
 			var new_element float64
-			var vpow float64
-
-			vpow = v*i10
-
+			vpow := v * i10
 			//As within 'if' statement vpow is turned to integer, it cannot exceed the MaxInt64. If it does, another rounding technique is used.
-				if vpow < math.MaxInt64 {
-					if v>=0 {
-						new_element = float64(int(vpow)) / i10
-					} else {
-						new_element = 0-float64(int(math.Abs(v)*i10)) / i10
-					}
-					result = append(result, new_element)
+
+			if vpow < math.MaxInt64 {
+				if v > 0 {
+					new_element = float64(int(vpow)) / i10
 				} else {
-					new_element, err := strconv.ParseFloat(strconv.FormatFloat(v, 'g', i, 64), 64)
-					if err != nil {
-						panic(err)
-					}
-					result = append(result, new_element)
+					new_element = 0 - float64(int(math.Abs(v)*i10))/i10
 				}
+				result = append(result, new_element)
+			} else {
+				new_element, err := strconv.ParseFloat(formatFloatTick(v, i), 64)
+				if err != nil {
+					panic(err)
+				}
+				result = append(result, new_element)
+			}
 		}
 		//checks whether the result array has duplicates. If not, the right level of precision is found, if it does, one more digit to the precision level is added and the check runs again.
 		if len(result) == len(removeDuplicates(result)) {
-			displayPrecision = i
 			//return the resulting array
 			return result
 		}
@@ -485,32 +493,22 @@ func findRightLevelOfPrecision(elements []float64) []float64 {
 	return nil
 }
 
-// LogTicks is suitable for the Tick.Marker field of an Axis,
-// it returns tick marks suitable for a log-scale axis.
-type LogTicks struct{}
+func removeDuplicates(elements []float64) []float64 {
+	// Uses a map to record duplicates as we find them.
+	seen := make(map[float64]bool)
+	out := make([]float64, 0, len(elements))
 
-var _ Ticker = LogTicks{}
-
-// Ticks returns Ticks in a specified range
-func (LogTicks) Ticks(min, max float64) []Tick {
-	var ticks []Tick
-	val := math.Pow10(int(math.Floor(math.Log10(min))))
-	if min <= 0 {
-		panic("Values must be greater than 0 for a log scale.")
-	}
-	for val < max*10 {
-		for i := 1; i < 10; i++ {
-			tick := Tick{Value: val * float64(i)}
-			if i == 1 {
-				tick.Label = formatFloatTick(val*float64(i), displayPrecision)
-			}
-			ticks = append(ticks, tick)
+	for _, v := range elements {
+		if seen[v] {
+			continue
 		}
-		val *= 10
+		// Records this element as a seen element.
+		seen[v] = true
+		// Appends it to the result slice.
+		out = append(out, v)
 	}
-	tick := Tick{Value: val, Label: formatFloatTick(val, displayPrecision)}
-	ticks = append(ticks, tick)
-	return ticks
+	// Returns the new slice.
+	return out
 }
 
 // ConstantTicks is suitable for the Tick.Marker field of an Axis.
