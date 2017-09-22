@@ -344,44 +344,6 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 	return
 }
 
-// LogTicks is suitable for the Tick.Marker field of an Axis,
-// it returns tick marks suitable for a log-scale axis.
-type LogTicks struct{}
-
-var _ Ticker = LogTicks{}
-
-// Ticks returns Ticks in a specified range
-func (LogTicks) Ticks(min, max float64) []Tick {
-	var ticks []Tick
-	val := math.Pow10(int(math.Floor(math.Log10(min))))
-
-	if min <= 0 {
-		panic("Values must be greater than 0 for a log scale.")
-	}
-
-	var labels []float64
-	var new_labels []float64
-	labels = nil
-
-	for val < max*10 {
-		for i := 1; i < 10; i++ {
-			if i == 1 {
-				labels = append(labels, val*float64(i))
-			}
-		}
-		val *= 10
-	}
-
-	new_labels = adjustPrecision(labels)
-
-	for j := 0; j < len(labels); j++ {
-		//Makes a list of big ticks.
-		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
-	}
-
-	return ticks
-}
-
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
 // it returns a resonable default set of tick marks.
 type DefaultTicks struct{}
@@ -456,6 +418,44 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		val += minorDelta
 	}
 	return
+}
+
+// LogTicks is suitable for the Tick.Marker field of an Axis,
+// it returns tick marks suitable for a log-scale axis.
+type LogTicks struct{}
+
+var _ Ticker = LogTicks{}
+
+// Ticks returns Ticks in a specified range
+func (LogTicks) Ticks(min, max float64) []Tick {
+	var ticks []Tick
+	val := math.Pow10(int(math.Floor(math.Log10(min))))
+
+	if min <= 0 {
+		panic("Values must be greater than 0 for a log scale.")
+	}
+
+	var labels []float64
+	var new_labels []float64
+	labels = nil
+
+	for val < max*10 {
+		for i := 1; i < 10; i++ {
+			if i == 1 {
+				labels = append(labels, val*float64(i))
+			}
+		}
+		val *= 10
+	}
+
+	new_labels = adjustPrecision(labels)
+
+	for j := 0; j < len(labels); j++ {
+		//Makes a list of big ticks.
+		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
+	}
+
+	return ticks
 }
 
 func adjustPrecision(elements []float64) []float64 {
