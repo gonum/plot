@@ -5,15 +5,14 @@
 package plotter_test
 
 import (
-	"testing"
-	"gonum.org/v1/plot/internal/cmpimg"
-	"log"
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/plotter"
+	"log"
+	"testing"
 )
 
 func TestFloatPrecision(t *testing.T) {
-
 	const fname = "precision.png"
 
 	cmpimg.CheckPlot(func() {
@@ -31,7 +30,6 @@ func TestFloatPrecision(t *testing.T) {
 			data[i].Y = 1300
 		}
 
-
 		lines, points, err := plotter.NewLinePoints(data)
 		if err != nil {
 			log.Fatal(err)
@@ -39,11 +37,9 @@ func TestFloatPrecision(t *testing.T) {
 		p.Add(points, lines)
 		p.Add(plotter.NewGrid())
 
-
-		err = p.Save(200, 200, fname)
+		err = p.Save(200, 200, "testdata/"+fname)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}, t, fname)
-
 }
