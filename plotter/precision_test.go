@@ -37,7 +37,7 @@ func TestFloatPrecision(t *testing.T) {
 		p.Add(points, lines)
 		p.Add(plotter.NewGrid())
 
-		err = p.Save(200, 200, "testdata/"+fname)
+		err = p.Save(300, 300, "testdata/"+fname)
 		if err != nil {
 			log.Fatal(err)
 		}

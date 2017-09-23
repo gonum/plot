@@ -429,21 +429,23 @@ var _ Ticker = LogTicks{}
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
+	var labels []float64
+	var new_labels []float64
+	labels = nil
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
 
-	var labels []float64
-	var new_labels []float64
-	labels = nil
-
 	for val < max*10 {
 		for i := 1; i < 10; i++ {
+			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
 				labels = append(labels, val*float64(i))
 			}
+			//Makes a list of small ticks
+			ticks = append(ticks, tick)
 		}
 		val *= 10
 	}
@@ -451,10 +453,9 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 	new_labels = adjustPrecision(labels)
 
 	for j := 0; j < len(labels); j++ {
-		//Makes a list of big ticks.
+		//Adds big ticks to the list of small ones
 		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
 	}
-
 	return ticks
 }
 
@@ -468,7 +469,6 @@ func adjustPrecision(elements []float64) []float64 {
 			var new_element float64
 			vpow := v * i10
 			//As within 'if' statement vpow is turned to integer, it cannot exceed the MaxInt64. If it does, another rounding technique is used.
-
 			if vpow < math.MaxInt64 {
 				if v > 0 {
 					new_element = float64(int(vpow)) / i10
