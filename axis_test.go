@@ -5,9 +5,9 @@
 package plot
 
 import (
+	"math"
 	"reflect"
 	"testing"
-	"math"
 )
 
 func TestAxisSmallTick(t *testing.T) {
@@ -44,17 +44,17 @@ func TestAxisSmallTick(t *testing.T) {
 		{
 			min:  555.6545,
 			max:  21800.9875,
-			want: []string{"6000","12000","18000"},
+			want: []string{"6000", "12000", "18000"},
 		},
 		{
 			min:  555.6545,
 			max:  27800.9875,
-			want: []string{"8000","16000","24000"},
+			want: []string{"8000", "16000", "24000"},
 		},
 		{
 			min:  55.6545,
 			max:  1555.9875,
-			want: []string{"500","1000","1500"},
+			want: []string{"500", "1000", "1500"},
 		},
 	} {
 		ticks := d.Ticks(test.min, test.max)
