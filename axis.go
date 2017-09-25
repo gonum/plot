@@ -354,8 +354,7 @@ var _ Ticker = DefaultTicks{}
 func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	const suggestedTicks = 3
 
-	var labels []float64
-	var new_labels []float64
+	var labels, newLabels []float64
 
 	labels = nil
 
@@ -379,7 +378,6 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-
 	for val <= max {
 		if val >= min && val <= max {
 			//Makes a list of values.
@@ -389,11 +387,11 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 
 	//Makes a list of labels with a level of precision where all the labels are different.
-	new_labels = adjustPrecision(labels)
+	newLabels = adjustPrecision(labels)
 
 	for j := 0; j < len(labels); j++ {
 		//Makes a list of big ticks.
-		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
+		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(newLabels[j], -1)})
 	}
 
 	minorDelta := majorDelta / 2
@@ -429,8 +427,7 @@ var _ Ticker = LogTicks{}
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
-	var labels []float64
-	var new_labels []float64
+	var labels, newLabels []float64
 	labels = nil
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 
@@ -450,65 +447,56 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 		val *= 10
 	}
 
-	new_labels = adjustPrecision(labels)
+	newLabels = adjustPrecision(labels)
 
 	for j := 0; j < len(labels); j++ {
 		//Adds big ticks to the list of small ones
-		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(new_labels[j], -1)})
+		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(newLabels[j], -1)})
 	}
 	return ticks
 }
 
 func adjustPrecision(elements []float64) []float64 {
-	const maxExp = 308 //precision of the MaxFloat64 which we take as the maximum one here
+	const maxExp = 308 //maxExp is the maximum float64 exponent
 	for i := 1; i < maxExp; i++ {
 		var result []float64
 		i10 := math.Pow10(i)
 
 		for _, v := range elements {
-			var new_element float64
+			var newElement float64
 			vpow := v * i10
-			//As within 'if' statement vpow is turned to integer, it cannot exceed the MaxInt64. If it does, another rounding technique is used.
 			if vpow < math.MaxInt64 {
 				if v > 0 {
-					new_element = float64(int(vpow)) / i10
+					newElement = float64(int(vpow)) / i10
 				} else {
-					new_element = 0 - float64(int(math.Abs(v)*i10))/i10
+					newElement = 0 - float64(int(math.Abs(v)*i10))/i10
 				}
-				result = append(result, new_element)
+				result = append(result, newElement)
 			} else {
-				new_element, err := strconv.ParseFloat(formatFloatTick(v, i), 64)
+				newElement, err := strconv.ParseFloat(formatFloatTick(v, i), 64)
 				if err != nil {
 					panic(err)
 				}
-				result = append(result, new_element)
+				result = append(result, newElement)
 			}
 		}
-		//checks whether the result array has duplicates. If not, the right level of precision is found, if it does, one more digit to the precision level is added and the check runs again.
-		if len(result) == len(removeDuplicates(result)) {
-			//return the resulting array
+		if !hasDuplicates(result) {
 			return result
 		}
 	}
 	return nil
 }
 
-func removeDuplicates(elements []float64) []float64 {
-	// Uses a map to record duplicates as we find them.
-	seen := make(map[float64]bool)
-	out := make([]float64, 0, len(elements))
-
-	for _, v := range elements {
-		if seen[v] {
-			continue
+// hasDuplicates returns whether the sorted slice f has a duplicate element.
+// Standard IEEE 754 NaN equality is used since tick values are not expected
+// to contain NaN values.
+func hasDuplicates(f []float64) bool {
+	for i, v := range f[1:] {
+		if v == f[i] {
+			return true
 		}
-		// Records this element as a seen element.
-		seen[v] = true
-		// Appends it to the result slice.
-		out = append(out, v)
 	}
-	// Returns the new slice.
-	return out
+	return false
 }
 
 // ConstantTicks is suitable for the Tick.Marker field of an Axis.
