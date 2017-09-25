@@ -378,22 +378,19 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
+	// Makes a list of non-truncated y-values.
 	for val <= max {
-		if val >= min && val <= max {
-			//Makes a list of values.
+		if val >= min {
 			labels = append(labels, val)
 		}
 		val += majorDelta
 	}
-
-	//Makes a list of labels with a level of precision where all the labels are different.
+	// Makes a slice of distinct tick labels.
 	newLabels = adjustPrecision(labels)
-
-	for j := 0; j < len(labels); j++ {
-		//Makes a list of big ticks.
-		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(newLabels[j], -1)})
+	// Makes a list of big ticks.
+	for j, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
 	}
-
 	minorDelta := majorDelta / 2
 	switch majorMult {
 	case 3, 6:
@@ -428,7 +425,7 @@ var _ Ticker = LogTicks{}
 func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
 	var labels, newLabels []float64
-	labels = nil
+
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 
 	if min <= 0 {
@@ -441,7 +438,7 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 			if i == 1 {
 				labels = append(labels, val*float64(i))
 			}
-			//Makes a list of small ticks
+			// Makes a list of small ticks.
 			ticks = append(ticks, tick)
 		}
 		val *= 10
@@ -449,19 +446,19 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 
 	newLabels = adjustPrecision(labels)
 
-	for j := 0; j < len(labels); j++ {
-		//Adds big ticks to the list of small ones
-		ticks = append(ticks, Tick{Value: labels[j], Label: formatFloatTick(newLabels[j], -1)})
+	// Adds big ticks to the list of small ones.
+	for j, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
 	}
 	return ticks
 }
 
 func adjustPrecision(elements []float64) []float64 {
-	const maxExp = 308 //maxExp is the maximum float64 exponent
+	const maxExp = 308 // maxExp is the maximum float64 exponent.
 	for i := 1; i < maxExp; i++ {
 		var result []float64
 		for _, v := range elements {
-			newElement := Round(v, i)
+			newElement := round(v, i)
 			result = append(result, newElement)
 		}
 		if !hasDuplicates(result) {
@@ -471,13 +468,13 @@ func adjustPrecision(elements []float64) []float64 {
 	return nil
 }
 
-// Round returns the half away from zero rounded value of x with prec precision.
+// round returns the half away from zero rounded value of x with a prec precision.
 //
 // Special cases are:
-// 	Round(±0) = +0
-// 	Round(±Inf) = ±Inf
-// 	Round(NaN) = NaN
-func Round(x float64, prec int) float64 {
+// 	round(±0) = +0
+// 	round(±Inf) = ±Inf
+// 	round(NaN) = NaN
+func round(x float64, prec int) float64 {
 	if x == 0 {
 		// Make sure zero is returned
 		// without the negative bit set.
