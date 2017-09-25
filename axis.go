@@ -460,31 +460,49 @@ func adjustPrecision(elements []float64) []float64 {
 	const maxExp = 308 //maxExp is the maximum float64 exponent
 	for i := 1; i < maxExp; i++ {
 		var result []float64
-		i10 := math.Pow10(i)
-
 		for _, v := range elements {
-			var newElement float64
-			vpow := v * i10
-			if vpow < math.MaxInt64 {
-				if v > 0 {
-					newElement = float64(int(vpow)) / i10
-				} else {
-					newElement = 0 - float64(int(math.Abs(v)*i10))/i10
-				}
-				result = append(result, newElement)
-			} else {
-				newElement, err := strconv.ParseFloat(formatFloatTick(v, i), 64)
-				if err != nil {
-					panic(err)
-				}
-				result = append(result, newElement)
-			}
+			newElement := Round(v, i)
+			result = append(result, newElement)
 		}
 		if !hasDuplicates(result) {
 			return result
 		}
 	}
 	return nil
+}
+
+// Round returns the half away from zero rounded value of x with prec precision.
+//
+// Special cases are:
+// 	Round(±0) = +0
+// 	Round(±Inf) = ±Inf
+// 	Round(NaN) = NaN
+func Round(x float64, prec int) float64 {
+	if x == 0 {
+		// Make sure zero is returned
+		// without the negative bit set.
+		return 0
+	}
+	// Fast path for positive precision on integers.
+	if prec >= 0 && x == math.Trunc(x) {
+		return x
+	}
+	pow := math.Pow10(prec)
+	intermed := x * pow
+	if math.IsInf(intermed, 0) {
+		return x
+	}
+	if x < 0 {
+		x = math.Ceil(intermed - 0.5)
+	} else {
+		x = math.Floor(intermed + 0.5)
+	}
+
+	if x == 0 {
+		return 0
+	}
+
+	return x / pow
 }
 
 // hasDuplicates returns whether the sorted slice f has a duplicate element.
