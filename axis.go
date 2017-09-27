@@ -10,14 +10,9 @@ import (
 	"strconv"
 	"time"
 
-	"gonum.org/v1/gonum/floats"
-
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
-
-// displayPrecision is a sane level of float precision for a plot.
-const displayPrecision = 4
 
 // Ticker creates Ticks in a specified range
 type Ticker interface {
@@ -357,18 +352,24 @@ var _ Ticker = DefaultTicks{}
 
 // Ticks returns Ticks in a specified range
 func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
-	const SuggestedTicks = 3
-	if max < min {
+	const suggestedTicks = 3
+
+	var labels, newLabels []float64
+
+	labels = nil
+
+	if max <= min {
 		panic("illegal range")
 	}
+
 	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
 	n := (max - min) / tens
-	for n < SuggestedTicks {
+	for n < suggestedTicks {
 		tens /= 10
 		n = (max - min) / tens
 	}
 
-	majorMult := int(n / SuggestedTicks)
+	majorMult := int(n / suggestedTicks)
 	switch majorMult {
 	case 7:
 		majorMult = 6
@@ -377,17 +378,19 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	}
 	majorDelta := float64(majorMult) * tens
 	val := math.Floor(min/majorDelta) * majorDelta
-	prec := precisionOf(majorDelta)
+	// Makes a list of non-truncated y-values.
 	for val <= max {
-		if val >= min && val <= max {
-			ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, prec)})
-		}
-		if math.Nextafter(val, val+majorDelta) == val {
-			break
+		if val >= min {
+			labels = append(labels, val)
 		}
 		val += majorDelta
 	}
-
+	// Makes a slice of distinct tick labels.
+	newLabels = adjustPrecision(labels)
+	// Makes a list of big ticks.
+	for j, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
+	}
 	minorDelta := majorDelta / 2
 	switch majorMult {
 	case 3, 6:
@@ -407,9 +410,6 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		if val >= min && val <= max && !found {
 			ticks = append(ticks, Tick{Value: val})
 		}
-		if math.Nextafter(val, val+minorDelta) == val {
-			break
-		}
 		val += minorDelta
 	}
 	return
@@ -424,24 +424,94 @@ var _ Ticker = LogTicks{}
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
+	var labels, newLabels []float64
+
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
+
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
-	prec := precisionOf(max)
+
 	for val < max*10 {
 		for i := 1; i < 10; i++ {
 			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
-				tick.Label = formatFloatTick(val*float64(i), prec)
+				labels = append(labels, val*float64(i))
 			}
+			// Makes a list of small ticks.
 			ticks = append(ticks, tick)
 		}
 		val *= 10
 	}
-	tick := Tick{Value: val, Label: formatFloatTick(val, prec)}
-	ticks = append(ticks, tick)
+
+	newLabels = adjustPrecision(labels)
+
+	// Adds big ticks to the list of small ones.
+	for j, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
+	}
 	return ticks
+}
+
+func adjustPrecision(elements []float64) []float64 {
+	const maxExp = 308 // maxExp is the maximum float64 exponent.
+	for i := 1; i < maxExp; i++ {
+		var result []float64
+		for _, v := range elements {
+			newElement := round(v, i)
+			result = append(result, newElement)
+		}
+		if !hasDuplicates(result) {
+			return result
+		}
+	}
+	return nil
+}
+
+// round returns the half away from zero rounded value of x with a prec precision.
+//
+// Special cases are:
+// 	round(±0) = +0
+// 	round(±Inf) = ±Inf
+// 	round(NaN) = NaN
+func round(x float64, prec int) float64 {
+	if x == 0 {
+		// Make sure zero is returned
+		// without the negative bit set.
+		return 0
+	}
+	// Fast path for positive precision on integers.
+	if prec >= 0 && x == math.Trunc(x) {
+		return x
+	}
+	pow := math.Pow10(prec)
+	intermed := x * pow
+	if math.IsInf(intermed, 0) {
+		return x
+	}
+	if x < 0 {
+		x = math.Ceil(intermed - 0.5)
+	} else {
+		x = math.Floor(intermed + 0.5)
+	}
+
+	if x == 0 {
+		return 0
+	}
+
+	return x / pow
+}
+
+// hasDuplicates returns whether the sorted slice f has a duplicate element.
+// Standard IEEE 754 NaN equality is used since tick values are not expected
+// to contain NaN values.
+func hasDuplicates(f []float64) bool {
+	for i, v := range f[1:] {
+		if v == f[i] {
+			return true
+		}
+	}
+	return false
 }
 
 // ConstantTicks is suitable for the Tick.Marker field of an Axis.
@@ -574,10 +644,5 @@ func log(x float64) float64 {
 // formatFloatTick returns a g-formated string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
-	return strconv.FormatFloat(floats.Round(v, prec), 'g', displayPrecision, 64)
-}
-
-// precisionOf returns the precision needed to display x without e notation.
-func precisionOf(x float64) int {
-	return int(math.Max(math.Ceil(-math.Log10(math.Abs(x))), displayPrecision))
+	return strconv.FormatFloat(v, 'g', prec, 64)
 }
