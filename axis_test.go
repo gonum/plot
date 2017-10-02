@@ -5,7 +5,6 @@
 package plot
 
 import (
-	"math"
 	"reflect"
 	"testing"
 )
