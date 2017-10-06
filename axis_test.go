@@ -65,6 +65,42 @@ func TestAxisSmallTick(t *testing.T) {
 	}
 }
 
+func TestPreciseMajorTicks(t *testing.T) {
+	p := PreciseTicks{}
+	for _, test := range []struct {
+		min, max  float64
+		valueWant []float64
+		labelWant []string
+	}{
+		{
+			min:       3.096916 - 0.125,
+			max:       3.096916 + 0.125,
+			valueWant: []float64{3., 3.1, 3.2},
+			labelWant: []string{"3", "3.1", "3.2"},
+		},
+	} {
+		ticks := p.Ticks(test.min, test.max)
+		labelGot := labelsOf(ticks)
+		valueGot := valuesOf(ticks)
+		if !reflect.DeepEqual(labelGot, test.labelWant) {
+			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", labelGot, test.labelWant)
+		}
+		if !reflect.DeepEqual(valueGot, test.valueWant) {
+			t.Errorf("tick values mismatch:\ngot: %q\nwant:%q", valueGot, test.valueWant)
+		}
+	}
+}
+
+func valuesOf(ticks []Tick) []float64 {
+	var values []float64
+	for _, t := range ticks {
+		if t.Label != "" {
+			values = append(values, t.Value)
+		}
+	}
+	return values
+}
+
 func labelsOf(ticks []Tick) []string {
 	var labels []string
 	for _, t := range ticks {
