@@ -356,8 +356,6 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 
 	var labels, newLabels []float64
 
-	labels = nil
-
 	if max <= min {
 		panic("illegal range")
 	}
@@ -413,6 +411,76 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		val += minorDelta
 	}
 	return
+}
+
+// PreciseTicks is suitable for the Tick.Marker field of an Axis, it returns a
+// set of tick marks with labels that have been rounded less agressively than
+// what DefaultTicks provides.
+type PreciseTicks struct{}
+
+var _ Ticker = PreciseTicks{}
+
+// Ticks returns Ticks in a specified range
+func (PreciseTicks) Ticks(min, max float64) []Tick {
+	const suggestedTicks = 3
+
+	if max <= min {
+		panic("illegal range")
+	}
+
+	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
+	n := (max - min) / tens
+	for n < suggestedTicks-1 {
+		tens /= 10
+		n = (max - min) / tens
+	}
+
+	majorMult := int(n / (suggestedTicks - 1))
+	switch majorMult {
+	case 7:
+		majorMult = 6
+	case 9:
+		majorMult = 8
+	}
+	majorDelta := float64(majorMult) * tens
+	val := math.Floor(min/majorDelta) * majorDelta
+	// Makes a list of non-truncated y-values.
+	var labels []float64
+	for val <= max {
+		if val >= min {
+			labels = append(labels, val)
+		}
+		val += majorDelta
+	}
+	prec := int(math.Ceil(math.Log10(val)) - math.Floor(math.Log10(majorDelta)))
+	// Makes a list of big ticks.
+	var ticks []Tick
+	for _, v := range labels {
+		vRounded := round(v, prec)
+		ticks = append(ticks, Tick{Value: vRounded, Label: formatFloatTick(vRounded, -1)})
+	}
+	minorDelta := majorDelta / 2
+	switch majorMult {
+	case 3, 6:
+		minorDelta = majorDelta / 3
+	case 5:
+		minorDelta = majorDelta / 5
+	}
+
+	val = math.Floor(min/minorDelta) * minorDelta
+	for val <= max {
+		found := false
+		for _, t := range ticks {
+			if t.Value == val {
+				found = true
+			}
+		}
+		if val >= min && val <= max && !found {
+			ticks = append(ticks, Tick{Value: val})
+		}
+		val += minorDelta
+	}
+	return ticks
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
