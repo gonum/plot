@@ -12,6 +12,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -40,6 +41,7 @@ func ExampleScatter() {
 	scatterData := randomPoints(n)
 	lineData := randomPoints(n)
 	linePointsData := randomPoints(n)
+	scatterDataNew := randomPoints(n)
 
 	p, err := plot.New()
 	if err != nil {
@@ -54,6 +56,7 @@ func ExampleScatter() {
 	if err != nil {
 		log.Panic(err)
 	}
+
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(3)
 
@@ -73,12 +76,31 @@ func ExampleScatter() {
 	lpPoints.Shape = draw.CircleGlyph{}
 	lpPoints.Color = color.RGBA{R: 255, A: 255}
 
-	p.Add(s, l, lpLine, lpPoints)
+	sc, err := NewScatter(scatterDataNew)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	colors := moreland.Kindlmann() // Initialize a color map.
+	colors.SetMax(255)
+	colors.SetMin(0)
+
+	sc.GlyphStyleFunc = func(i int) draw.GlyphStyle {
+		z := []float64{31, 41, 51, 61, 71, 81, 91, 101, 111, 121, 131, 141, 151, 161, 171, 181}
+		c, err := colors.At(z[i])
+		if err != nil {
+			log.Panic(err)
+		}
+		return draw.GlyphStyle{Color: c, Radius: vg.Points(3), Shape: draw.CircleGlyph{}}
+	}
+
+	p.Add(s, l, lpLine, lpPoints, sc)
 	p.Legend.Add("scatter", s)
 	p.Legend.Add("line", l)
 	p.Legend.Add("line points", lpLine, lpPoints)
+	p.Legend.Add("scatterColor", sc)
 
-	err = p.Save(200, 200, "testdata/scatter.png")
+	err = p.Save(300, 300, "testdata/scatter.png")
 	if err != nil {
 		log.Panic(err)
 	}

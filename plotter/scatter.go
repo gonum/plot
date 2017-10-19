@@ -16,6 +16,10 @@ type Scatter struct {
 	// XYs is a copy of the points for this scatter.
 	XYs
 
+	//GlyphStyleFunc, if not nil, specifies GlyphStyles
+	//for individual points
+	GlyphStyleFunc func(int) draw.GlyphStyle
+
 	// GlyphStyle is the style of the glyphs drawn
 	// at each point.
 	draw.GlyphStyle
@@ -24,22 +28,32 @@ type Scatter struct {
 // NewScatter returns a Scatter that uses the
 // default glyph style.
 func NewScatter(xys XYer) (*Scatter, error) {
+	var s Scatter
 	data, err := CopyXYs(xys)
 	if err != nil {
 		return nil, err
 	}
-	return &Scatter{
-		XYs:        data,
-		GlyphStyle: DefaultGlyphStyle,
-	}, err
+	s.XYs = data
+
+	s.GlyphStyle = DefaultGlyphStyle
+
+	s.GlyphStyleFunc = func(int) draw.GlyphStyle {
+		return s.GlyphStyle
+	}
+	return &s, err
 }
 
 // Plot draws the Scatter, implementing the plot.Plotter
 // interface.
 func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
-	for _, p := range pts.XYs {
-		c.DrawGlyph(pts.GlyphStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
+	for i, p := range pts.XYs {
+		if pts.GlyphStyleFunc != nil {
+			GlyphNewStyle := pts.GlyphStyleFunc(i)
+			c.DrawGlyph(GlyphNewStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
+		} else {
+			c.DrawGlyph(pts.GlyphStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
+		}
 	}
 }
 
