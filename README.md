@@ -28,4 +28,6 @@ You can get `gonum/plot` using go get:
 
 `go get gonum.org/v1/plot/...`
 
+Make sure to have `mercurial` installed. You can install `mercurial` with `sudo apt install mercurial` on Debian/Ubuntu systems.
+
 If you write a cool plotter that you think others may be interested in using, please post to the list so that we can link to it in the `gonum/plot` wiki or possibly integrate it into the `plotter` package.
