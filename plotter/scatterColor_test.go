@@ -21,7 +21,7 @@ import (
 
 // ExampleScatterColor draws some scatter points, a line,
 // and a line with points.
-func ExampleScatterColor() {
+func ExampleScatter_color() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomPoints returns some random x, y points
@@ -71,7 +71,6 @@ func ExampleScatterColor() {
 	}
 
 	p.Add(sc)
-	//p.Legend.Add("",sc)
 
 	// Create a legend.
 	thumbs := PaletteThumbnailers(colors.Palette(n))
@@ -115,5 +114,5 @@ func ExampleScatterColor() {
 }
 
 func TestScatterColor(t *testing.T) {
-	cmpimg.CheckPlot(ExampleScatterColor, t, "scatterColor.png")
+	cmpimg.CheckPlot(ExampleScatter_color, t, "scatterColor.png")
 }

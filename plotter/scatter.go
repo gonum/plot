@@ -16,8 +16,8 @@ type Scatter struct {
 	// XYs is a copy of the points for this scatter.
 	XYs
 
-	//GlyphStyleFunc, if not nil, specifies GlyphStyles
-	//for individual points
+	// GlyphStyleFunc, if not nil, specifies GlyphStyles
+	// for individual points
 	GlyphStyleFunc func(int) draw.GlyphStyle
 
 	// GlyphStyle is the style of the glyphs drawn
