@@ -17,6 +17,8 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/jung-kurt/gofpdf"
 )
 
 const (
@@ -51,6 +53,12 @@ func main() {
 	err = untar(tmpdir, resp.Body)
 	if err != nil {
 		log.Fatalf("error untarring: %v\n", err)
+	}
+
+	// generate PDF font data
+	err = genPDFFontData(filepath.Join(tmpdir, fontsName))
+	if err != nil {
+		log.Fatalf("error generating PDF font embedding data: %v", err)
 	}
 
 	fontsDir := getFontsDir()
@@ -221,4 +229,29 @@ func prependHeaders(name string) error {
 	}
 
 	return os.Rename(dst.Name(), src.Name())
+}
+
+func genPDFFontData(dir string) error {
+	files, err := filepath.Glob(filepath.Join(dir, "*.ttf"))
+	if err != nil {
+		return err
+	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+
+	const (
+		embed = true
+	)
+
+	enc := filepath.Join(cwd, "cp1252.map")
+	for _, fname := range files {
+		err = gofpdf.MakeFont(fname, enc, dir, os.Stderr, embed)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
