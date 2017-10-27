@@ -47,13 +47,17 @@ func NewScatter(xys XYer) (*Scatter, error) {
 // interface.
 func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	trX, trY := plt.Transforms(&c)
+	glyph := func(i int) draw.GlyphStyle {return pts.GlyphStyle}
+	if pts.GlyphStyleFunc != nil {
+		glyph = pts.GlyphStyleFunc
+	}
 	for i, p := range pts.XYs {
-		if pts.GlyphStyleFunc != nil {
-			GlyphNewStyle := pts.GlyphStyleFunc(i)
-			c.DrawGlyph(GlyphNewStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
-		} else {
-			c.DrawGlyph(pts.GlyphStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
-		}
+	//	if pts.GlyphStyleFunc != nil {
+	//		GlyphNewStyle := pts.GlyphStyleFunc(i)
+	//		c.DrawGlyph(GlyphNewStyle, vg.Point{X: trX(p.X), Y: trY(p.Y)})
+	//	} else {
+			c.DrawGlyph(glyph(i), vg.Point{X: trX(p.X), Y: trY(p.Y)})
+	//	}
 	}
 }
 
