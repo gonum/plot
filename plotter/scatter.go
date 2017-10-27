@@ -28,19 +28,14 @@ type Scatter struct {
 // NewScatter returns a Scatter that uses the
 // default glyph style.
 func NewScatter(xys XYer) (*Scatter, error) {
-	var s Scatter
 	data, err := CopyXYs(xys)
 	if err != nil {
 		return nil, err
 	}
-	s.XYs = data
-
-	s.GlyphStyle = DefaultGlyphStyle
-
-	s.GlyphStyleFunc = func(int) draw.GlyphStyle {
-		return s.GlyphStyle
-	}
-	return &s, err
+	return &Scatter{
+		XYs:        data,
+		GlyphStyle: DefaultGlyphStyle,
+	}, err
 }
 
 // Plot draws the Scatter, implementing the plot.Plotter
