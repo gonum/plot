@@ -5,12 +5,12 @@
 package plotter
 
 import (
+	"fmt"
 	"image/color"
 	"log"
 	"math/rand"
 	"testing"
 
-	"fmt"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
@@ -132,11 +132,15 @@ func ExampleScatter() {
 	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
 	p.Draw(dc)
 	w, err := os.Create("testdata/scatter.png")
+	defer w.Close()
 	if err != nil {
 		log.Panic(err)
 	}
 	png := vgimg.PngCanvas{Canvas: img}
 	if _, err = png.WriteTo(w); err != nil {
+		log.Panic(err)
+	}
+	if err = w.Close(); err != nil {
 		log.Panic(err)
 	}
 }
