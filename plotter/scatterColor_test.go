@@ -19,8 +19,9 @@ import (
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
-// ExampleScatterColor draws some scatter points, a line,
-// and a line with points.
+// ExampleScatter_color draws some scatter points.
+// Each point is plotted with a different color depending on
+// some external criteria.
 func ExampleScatter_color() {
 	rnd := rand.New(rand.NewSource(1))
 
@@ -60,8 +61,10 @@ func ExampleScatter_color() {
 	colors.SetMax(255)
 	colors.SetMin(0)
 
-	z := []float64{31, 41, 51, 61, 71, 81, 91, 101, 111, 121, 131, 141, 151, 161, 171, 181}
+	// Variable z depends on i, and used for setting color for each individual point of the plot.
+	z := []float64{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150}
 
+	//Specify style for individual points.
 	sc.GlyphStyleFunc = func(i int) draw.GlyphStyle {
 		c, err := colors.At(z[i])
 		if err != nil {
@@ -69,7 +72,6 @@ func ExampleScatter_color() {
 		}
 		return draw.GlyphStyle{Color: c, Radius: vg.Points(3), Shape: draw.CircleGlyph{}}
 	}
-
 	p.Add(sc)
 
 	// Create a legend.
@@ -92,6 +94,7 @@ func ExampleScatter_color() {
 
 	// This is the width of the legend, experimentally determined.
 	const legendWidth = 1.5 * vg.Centimeter
+
 	// Slide the legend over so it doesn't overlap the ScatterPlot.
 	p.Legend.XOffs = legendWidth
 
