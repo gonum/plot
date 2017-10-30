@@ -354,7 +354,7 @@ var _ Ticker = DefaultTicks{}
 func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 	const suggestedTicks = 3
 
-	var labels, newLabels []float64
+	var labels []float64
 
 	if max <= min {
 		panic("illegal range")
@@ -384,10 +384,10 @@ func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
 		val += majorDelta
 	}
 	// Makes a slice of distinct tick labels.
-	newLabels = adjustPrecision(labels)
+	labels = adjustPrecision(labels)
 	// Makes a list of big ticks.
-	for j, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
+	for _, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
 	}
 	minorDelta := majorDelta / 2
 	switch majorMult {
@@ -492,7 +492,7 @@ var _ Ticker = LogTicks{}
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
 	var ticks []Tick
-	var labels, newLabels []float64
+	var labels []float64
 
 	val := math.Pow10(int(math.Floor(math.Log10(min))))
 
@@ -512,11 +512,11 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 		val *= 10
 	}
 
-	newLabels = adjustPrecision(labels)
+	labels = adjustPrecision(labels)
 
 	// Adds big ticks to the list of small ones.
-	for j, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(newLabels[j], -1)})
+	for _, v := range labels {
+		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
 	}
 	return ticks
 }
