@@ -14,8 +14,11 @@ import (
 	"image/color"
 	"image/png"
 	"io"
+	"io/ioutil"
 	"log"
 	"math"
+	"os"
+	"path/filepath"
 
 	pdf "github.com/jung-kurt/gofpdf"
 
@@ -36,7 +39,7 @@ type Canvas struct {
 	dpi   int
 	nimgs int // images counter
 	ctx   []context
-	fonts map[string]struct{}
+	fonts map[vg.Font]struct{}
 }
 
 type context struct {
@@ -58,7 +61,7 @@ func New(w, h vg.Length) *Canvas {
 		lineVisible: true,
 		dpi:         DPI,
 		ctx:         make([]context, 1),
-		fonts:       make(map[string]struct{}),
+		fonts:       make(map[vg.Font]struct{}),
 	}
 	vg.Initialize(c)
 	c.pdf.SetMargins(0, 0, 0)
@@ -196,22 +199,28 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 
 // font registers a font and a size with the PDF canvas.
 func (c *Canvas) font(fnt vg.Font, pt vg.Point) {
-	if _, ok := c.fonts[fnt.Name()]; ok {
+	if _, ok := c.fonts[fnt]; ok {
 		return
 	}
 	if n, ok := vg.FontMap[fnt.Name()]; ok {
-		json, err := fonts.Asset(n + ".json")
+		raw, err := fonts.Asset(n + ".ttf")
 		if err != nil {
-			log.Panicf("vgpdf: could not load JSON description for TTF font %q: %v", n+".json", err)
+			log.Panicf("vgpdf: could not load TTF data from asset for TTF font %q: %v", n+".ttf", err)
 		}
 
-		zfile, err := fonts.Asset(n + ".z")
+		enc, err := fonts.Asset("cp1252.map")
 		if err != nil {
-			log.Panicf("vgpdf: could not load zip file for TTF font: %q: %v", n+".z", err)
+			log.Panicf("vgpdf: could not load encoding map: %v", err)
 		}
 
-		c.fonts[fnt.Name()] = struct{}{}
-		c.pdf.AddFontFromBytes(fnt.Name(), "", json, zfile)
+		const embed = true
+		zdata, jdata, err := makeFont(raw, enc, embed)
+		if err != nil {
+			log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
+		}
+
+		c.fonts[fnt] = struct{}{}
+		c.pdf.AddFontFromBytes(fnt.Name(), "", jdata, zdata)
 		return
 	}
 	log.Panicf("vgpdf: not implemented")
@@ -362,4 +371,52 @@ func rgb(c color.Color) (int, int, int) {
 	}
 	r, g, b, _ := c.RGBA()
 	return int(float64(r) * c255), int(float64(g) * c255), int(float64(b) * c255)
+}
+
+func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
+	tmpdir, err := ioutil.TempDir("", "gofpdf-makefont-")
+	if err != nil {
+		return z, j, err
+	}
+	defer os.RemoveAll(tmpdir)
+
+	indir := filepath.Join(tmpdir, "input")
+	err = os.Mkdir(indir, 0755)
+	if err != nil {
+		return z, j, err
+	}
+
+	outdir := filepath.Join(tmpdir, "output")
+	err = os.Mkdir(outdir, 0755)
+	if err != nil {
+		return z, j, err
+	}
+
+	fname := filepath.Join(indir, "font.ttf")
+	encname := filepath.Join(indir, "cp1252.map")
+
+	err = ioutil.WriteFile(fname, font, 0644)
+	if err != nil {
+		return z, j, err
+	}
+
+	err = ioutil.WriteFile(encname, encoding, 0644)
+	if err != nil {
+		return z, j, err
+	}
+
+	err = pdf.MakeFont(fname, encname, outdir, ioutil.Discard, embed)
+	if err != nil {
+		return z, j, err
+	}
+
+	if embed {
+		z, err = ioutil.ReadFile(filepath.Join(outdir, "font.z"))
+		if err != nil {
+			return z, j, err
+		}
+	}
+	j, err = ioutil.ReadFile(filepath.Join(outdir, "font.json"))
+
+	return z, j, err
 }
