@@ -51,17 +51,6 @@ func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 }
 
-/*
-// radius returns the radius of a bubble by linear interpolation.
-func (sc *Scatter) radius(z float64) vg.Length {
-	rng := bs.MaxRadius - bs.MinRadius
-	if bs.MaxZ == bs.MinZ {
-		return rng/2 + bs.MinRadius
-	}
-	d := (z - bs.MinZ) / (bs.MaxZ - bs.MinZ)
-	return vg.Length(d)*rng + bs.MinRadius
-}
-*/
 // DataRange returns the minimum and maximum
 // x and y values, implementing the plot.DataRanger
 // interface.
