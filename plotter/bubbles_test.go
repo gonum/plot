@@ -59,7 +59,7 @@ func ExampleScatter_bubbles() {
 	if err != nil {
 		log.Panic(err)
 	}
-	p.Title.Text = "Bubble Plot"
+	p.Title.Text = "Bubbles"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
@@ -73,9 +73,9 @@ func ExampleScatter_bubbles() {
 		c := color.RGBA{R: 196, B: 128, A: 255}
 		var minRadius, maxRadius = vg.Points(1), vg.Points(20)
 		rng := maxRadius - minRadius
-		d := (float64(i)*0.8 - minZ) / (maxZ - minZ) // float64(i)*0.8 is just a random function (i)
+		_, _, z := scatterData.XYZ(i)
+		d := (z-minZ) / (maxZ - minZ)
 		r := vg.Length(d)*rng + minRadius
-		//r := float64(i)
 		return draw.GlyphStyle{Color: c, Radius: r, Shape: draw.CircleGlyph{}}
 	}
 	p.Add(sc)

@@ -182,7 +182,7 @@ type XYZer interface {
 	// XYZ returns an x, y, z triple.
 	XYZ(int) (float64, float64, float64)
 
-	// XY returns a pair of x and y.
+	// XY returns an x,y pair.
 	XY(int) (float64, float64)
 }
 
@@ -199,7 +199,7 @@ func (xyz XYZs) XYZ(i int) (float64, float64, float64) {
 	return xyz[i].X, xyz[i].Y, xyz[i].Z
 }
 
-// XY implements the XY method of the XYZer interface.
+// XY implements the XY method of the XYer interface.
 func (xyz XYZs) XY(i int) (float64, float64) {
 	return xyz[i].X, xyz[i].Y
 }
