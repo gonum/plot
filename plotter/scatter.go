@@ -51,6 +51,17 @@ func (pts *Scatter) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 }
 
+/*
+// radius returns the radius of a bubble by linear interpolation.
+func (sc *Scatter) radius(z float64) vg.Length {
+	rng := bs.MaxRadius - bs.MinRadius
+	if bs.MaxZ == bs.MinZ {
+		return rng/2 + bs.MinRadius
+	}
+	d := (z - bs.MinZ) / (bs.MaxZ - bs.MinZ)
+	return vg.Length(d)*rng + bs.MinRadius
+}
+*/
 // DataRange returns the minimum and maximum
 // x and y values, implementing the plot.DataRanger
 // interface.
@@ -61,11 +72,19 @@ func (pts *Scatter) DataRange() (xmin, xmax, ymin, ymax float64) {
 // GlyphBoxes returns a slice of plot.GlyphBoxes,
 // implementing the plot.GlyphBoxer interface.
 func (pts *Scatter) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
+	glyph := func(i int) draw.GlyphStyle { return pts.GlyphStyle }
+	if pts.GlyphStyleFunc != nil {
+		glyph = pts.GlyphStyleFunc
+	}
 	bs := make([]plot.GlyphBox, len(pts.XYs))
 	for i, p := range pts.XYs {
 		bs[i].X = plt.X.Norm(p.X)
 		bs[i].Y = plt.Y.Norm(p.Y)
-		bs[i].Rectangle = pts.GlyphStyle.Rectangle()
+		r := glyph(i).Radius
+		bs[i].Rectangle = vg.Rectangle{
+			Min: vg.Point{X: -r, Y: -r},
+			Max: vg.Point{X: +r, Y: +r},
+		}
 	}
 	return bs
 }

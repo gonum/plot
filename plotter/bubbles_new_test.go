@@ -49,7 +49,6 @@ func ExampleScatter_bubbles() {
 	p.Title.Text = "Bubble Plot"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
 
 	sc, err := NewScatter(scatterDataNew)
 	if err != nil {
@@ -64,7 +63,7 @@ func ExampleScatter_bubbles() {
 	}
 	p.Add(sc)
 
-	img := vgimg.New(300, 230)
+	img := vgimg.New(200, 200)
 	dc := draw.New(img)
 	p.Draw(dc)
 	w, err := os.Create("testdata/bubblesNew.png")
