@@ -9,14 +9,12 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"os"
 	"testing"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
 )
 
 // ExampleScatter_bubbles draws some scatter points.
@@ -74,25 +72,14 @@ func ExampleScatter_bubbles() {
 		var minRadius, maxRadius = vg.Points(1), vg.Points(20)
 		rng := maxRadius - minRadius
 		_, _, z := scatterData.XYZ(i)
-		d := (z-minZ) / (maxZ - minZ)
+		d := (z - minZ) / (maxZ - minZ)
 		r := vg.Length(d)*rng + minRadius
 		return draw.GlyphStyle{Color: c, Radius: r, Shape: draw.CircleGlyph{}}
 	}
 	p.Add(sc)
 
-	img := vgimg.New(200, 200)
-	dc := draw.New(img)
-	p.Draw(dc)
-	w, err := os.Create("testdata/bubbles.png")
-	defer w.Close()
+	err = p.Save(200, 200, "testdata/bubbles.png")
 	if err != nil {
-		log.Panic(err)
-	}
-	png := vgimg.PngCanvas{Canvas: img}
-	if _, err = png.WriteTo(w); err != nil {
-		log.Panic(err)
-	}
-	if err = w.Close(); err != nil {
 		log.Panic(err)
 	}
 }

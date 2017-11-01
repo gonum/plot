@@ -17,6 +17,7 @@ import (
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
+	"math"
 )
 
 // ExampleScatter_color draws some scatter points.
@@ -25,23 +26,24 @@ import (
 func ExampleScatter_color() {
 	rnd := rand.New(rand.NewSource(1))
 
-	// randomPoints returns some random x, y points
+	// randomTriples returns some random x, y, z triples
 	// with some interesting kind of trend.
-	randomPoints := func(n int) XYs {
-		pts := make(XYs, n)
-		for i := range pts {
+	randomTriples := func(n int) XYZs {
+		data := make(XYZs, n)
+		for i := range data {
 			if i == 0 {
-				pts[i].X = rnd.Float64()
+				data[i].X = rnd.Float64()
 			} else {
-				pts[i].X = pts[i-1].X + rnd.Float64()
+				data[i].X = data[i-1].X + 2*rnd.Float64()
 			}
-			pts[i].Y = pts[i].X + 10*rnd.Float64()
+			data[i].Y = data[i].X + 10*rnd.Float64()
+			data[i].Z = data[i].X
 		}
-		return pts
+		return data
 	}
 
 	n := 15
-	scatterDataNew := randomPoints(n)
+	scatterData := randomTriples(n)
 
 	p, err := plot.New()
 	if err != nil {
@@ -52,21 +54,35 @@ func ExampleScatter_color() {
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
 
-	sc, err := NewScatter(scatterDataNew)
+	sc, err := NewScatter(scatterData)
 	if err != nil {
 		log.Panic(err)
+	}
+
+	// Calculate the range of Z values.
+	minZ, maxZ := math.Inf(1), math.Inf(-1)
+	for _, xyz := range scatterData {
+		if xyz.Z > maxZ {
+			maxZ = xyz.Z
+		}
+		if xyz.Z < minZ {
+			minZ = xyz.Z
+		}
 	}
 
 	colors := moreland.Kindlmann() // Initialize a color map.
 	colors.SetMax(255)
 	colors.SetMin(0)
+	max := colors.Max()
+	min := colors.Min()
 
-	// Variable z depends on i, and used for setting color for each individual point of the plot.
-	z := []float64{0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150}
-
-	//Specify style for individual points.
+	// Specify style and color for individual points.
 	sc.GlyphStyleFunc = func(i int) draw.GlyphStyle {
-		c, err := colors.At(z[i])
+		_, _, z := scatterData.XYZ(i)
+		d := (z - minZ) / (maxZ - minZ)
+		rng := max - min
+		k := d*rng + min
+		c, err := colors.At(k)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -85,9 +101,9 @@ func ExampleScatter_color() {
 		var val float64
 		switch i {
 		case 0:
-			val = z[0]
+			val = min
 		case len(thumbs) - 1:
-			val = z[n]
+			val = max
 		}
 		p.Legend.Add(fmt.Sprintf("%g", val), t)
 	}
