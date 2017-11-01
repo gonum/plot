@@ -125,7 +125,7 @@ const naive = false
 // Plot implements the Plot method of the plot.Plotter interface.
 func (h *Contour) Plot(c draw.Canvas, plt *plot.Plot) {
 	if h.Min > h.Max {
-		panic("contour: negative Z range")
+		panic("contour: invalid Z range: min greater than max")
 	}
 
 	if naive {
