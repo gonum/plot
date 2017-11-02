@@ -446,74 +446,11 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 		val *= 10
 	}
 
-	labels = adjustPrecision(labels)
-
 	// Adds big ticks to the list of small ones.
 	for _, v := range labels {
 		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
 	}
 	return ticks
-}
-
-func adjustPrecision(elements []float64) []float64 {
-	const maxExp = 308 // maxExp is the maximum float64 exponent.
-	for i := 1; i < maxExp; i++ {
-		var result []float64
-		for _, v := range elements {
-			newElement := round(v, i)
-			result = append(result, newElement)
-		}
-		if !hasDuplicates(result) {
-			return result
-		}
-	}
-	return nil
-}
-
-// round returns the half away from zero rounded value of x with a prec precision.
-//
-// Special cases are:
-// 	round(±0) = +0
-// 	round(±Inf) = ±Inf
-// 	round(NaN) = NaN
-func round(x float64, prec int) float64 {
-	if x == 0 {
-		// Make sure zero is returned
-		// without the negative bit set.
-		return 0
-	}
-	// Fast path for positive precision on integers.
-	if prec >= 0 && x == math.Trunc(x) {
-		return x
-	}
-	pow := math.Pow10(prec)
-	intermed := x * pow
-	if math.IsInf(intermed, 0) {
-		return x
-	}
-	if x < 0 {
-		x = math.Ceil(intermed - 0.5)
-	} else {
-		x = math.Floor(intermed + 0.5)
-	}
-
-	if x == 0 {
-		return 0
-	}
-
-	return x / pow
-}
-
-// hasDuplicates returns whether the sorted slice f has a duplicate element.
-// Standard IEEE 754 NaN equality is used since tick values are not expected
-// to contain NaN values.
-func hasDuplicates(f []float64) bool {
-	for i, v := range f[1:] {
-		if v == f[i] {
-			return true
-		}
-	}
-	return false
 }
 
 // ConstantTicks is suitable for the Tick.Marker field of an Axis.
