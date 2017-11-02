@@ -345,142 +345,76 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 }
 
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
-// it returns a resonable default set of tick marks.
+// it returns a reasonable default set of tick marks.
 type DefaultTicks struct{}
 
 var _ Ticker = DefaultTicks{}
 
-// Ticks returns Ticks in a specified range
-func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
-	const suggestedTicks = 3
-
-	var labels []float64
-
+// Ticks returns Ticks in the specified range.
+func (DefaultTicks) Ticks(min, max float64) []Tick {
 	if max <= min {
 		panic("illegal range")
 	}
 
-	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
-	n := (max - min) / tens
-	for n < suggestedTicks {
-		tens /= 10
-		n = (max - min) / tens
-	}
-
-	majorMult := int(n / suggestedTicks)
-	switch majorMult {
-	case 7:
-		majorMult = 6
-	case 9:
-		majorMult = 8
-	}
-	majorDelta := float64(majorMult) * tens
-	val := math.Floor(min/majorDelta) * majorDelta
-	// Makes a list of non-truncated y-values.
-	for val <= max {
-		if val >= min {
-			labels = append(labels, val)
-		}
-		val += majorDelta
-	}
-	// Makes a slice of distinct tick labels.
-	labels = adjustPrecision(labels)
-	// Makes a list of big ticks.
-	for _, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
-	}
-	minorDelta := majorDelta / 2
-	switch majorMult {
-	case 3, 6:
-		minorDelta = majorDelta / 3
-	case 5:
-		minorDelta = majorDelta / 5
-	}
-
-	val = math.Floor(min/minorDelta) * minorDelta
-	for val <= max {
-		found := false
-		for _, t := range ticks {
-			if t.Value == val {
-				found = true
-			}
-		}
-		if val >= min && val <= max && !found {
-			ticks = append(ticks, Tick{Value: val})
-		}
-		val += minorDelta
-	}
-	return
-}
-
-// PreciseTicks is suitable for the Tick.Marker field of an Axis, it returns a
-// set of tick marks with labels that have been rounded less agressively than
-// what DefaultTicks provides.
-type PreciseTicks struct{}
-
-var _ Ticker = PreciseTicks{}
-
-// Ticks returns Ticks in a specified range
-func (PreciseTicks) Ticks(min, max float64) []Tick {
 	const suggestedTicks = 3
 
-	if max <= min {
-		panic("illegal range")
-	}
-
-	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
-	n := (max - min) / tens
-	for n < suggestedTicks-1 {
-		tens /= 10
-		n = (max - min) / tens
-	}
-
-	majorMult := int(n / (suggestedTicks - 1))
-	switch majorMult {
-	case 7:
-		majorMult = 6
-	case 9:
-		majorMult = 8
-	}
-	majorDelta := float64(majorMult) * tens
-	val := math.Floor(min/majorDelta) * majorDelta
-	// Makes a list of non-truncated y-values.
-	var labels []float64
-	for val <= max {
-		if val >= min {
-			labels = append(labels, val)
-		}
-		val += majorDelta
-	}
-	prec := int(math.Ceil(math.Log10(val)) - math.Floor(math.Log10(majorDelta)))
-	// Makes a list of big ticks.
+	labels, step, mag := talbotLinHanrahan(min, max, suggestedTicks, false, nil, nil, nil)
+	majorDelta := step * math.Pow10(mag)
+	extraPrec := labels[0] != math.Trunc(labels[0]) || step != math.Trunc(step)
 	var ticks []Tick
 	for _, v := range labels {
-		vRounded := round(v, prec)
-		ticks = append(ticks, Tick{Value: vRounded, Label: formatFloatTick(vRounded, -1)})
-	}
-	minorDelta := majorDelta / 2
-	switch majorMult {
-	case 3, 6:
-		minorDelta = majorDelta / 3
-	case 5:
-		minorDelta = majorDelta / 5
+		off := 1
+		fmt := byte('g')
+		if -1 <= mag && mag <= 6 {
+			fmt = 'f'
+			off = 0
+			if extraPrec {
+				off = 1
+			}
+		}
+		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fmt, maxInt(off, -mag), 64)})
 	}
 
-	val = math.Floor(min/minorDelta) * minorDelta
-	for val <= max {
+	var minorDelta float64
+	// See talbotLinHanrahan for the values used here.
+	switch step {
+	case 1, 2.5:
+		minorDelta = majorDelta / 5
+	case 2, 3, 4, 5:
+		minorDelta = majorDelta / step
+	default:
+		minorDelta = majorDelta / 2
+	}
+
+	var i float64
+	for labels[0]+(i-1)*minorDelta > min {
+		i--
+	}
+	for {
+		val := labels[0] + i*minorDelta
+		if val > max {
+			break
+		}
 		found := false
 		for _, t := range ticks {
-			if t.Value == val {
+			if math.Abs(t.Value-val) < minorDelta/2 {
 				found = true
 			}
 		}
-		if val >= min && val <= max && !found {
+		if !found {
 			ticks = append(ticks, Tick{Value: val})
 		}
-		val += minorDelta
+		i++
 	}
+
 	return ticks
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
