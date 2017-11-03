@@ -208,7 +208,7 @@ func (a *horizontalAxis) size() (h vg.Length) {
 }
 
 // draw draws the axis along the lower edge of a draw.Canvas.
-func (a *horizontalAxis) draw(c draw.Canvas) {
+func (a *horizontalAxis) draw(c draw.Canvas) (min, max float64) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
@@ -217,12 +217,16 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	for _, m := range marks {
+		a.Min = math.Min(a.Min, m.Value)
+		a.Max = math.Max(a.Max, m.Value)
+	}
 	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
 	for _, t := range marks {
-		x := c.X(a.Norm(t.Value))
-		if !c.ContainsX(x) || t.IsMinor() {
+		if t.IsMinor() {
 			continue
 		}
+		x := c.X(a.Norm(t.Value))
 		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + ticklabelheight}, t.Label)
 	}
 
@@ -236,9 +240,6 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := c.X(a.Norm(t.Value))
-			if !c.ContainsX(x) {
-				continue
-			}
 			start := t.lengthOffset(len)
 			c.StrokeLine2(a.Tick.LineStyle, x, y+start, x, y+len)
 		}
@@ -246,6 +247,8 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 	}
 
 	c.StrokeLine2(a.LineStyle, c.Min.X, y, c.Max.X, y)
+
+	return a.Min, a.Max
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
@@ -289,7 +292,7 @@ func (a *verticalAxis) size() (w vg.Length) {
 }
 
 // draw draws the axis along the left side of a draw.Canvas.
-func (a *verticalAxis) draw(c draw.Canvas) {
+func (a *verticalAxis) draw(c draw.Canvas) (min, max float64) {
 	x := c.Min.X
 	if a.Label.Text != "" {
 		sty := a.Label.TextStyle
@@ -299,15 +302,20 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		x += -a.Label.Font.Extents().Descent
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	for _, m := range marks {
+		a.Min = math.Min(a.Min, m.Value)
+		a.Max = math.Max(a.Max, m.Value)
+	}
 	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
+
 	major := false
 	for _, t := range marks {
-		y := c.Y(a.Norm(t.Value))
-		if !c.ContainsY(y) || t.IsMinor() {
+		if t.IsMinor() {
 			continue
 		}
+		y := c.Y(a.Norm(t.Value))
 		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y}, t.Label)
 		major = true
 	}
@@ -318,15 +326,14 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			y := c.Y(a.Norm(t.Value))
-			if !c.ContainsY(y) {
-				continue
-			}
 			start := t.lengthOffset(len)
 			c.StrokeLine2(a.Tick.LineStyle, x+start, y, x+len, y)
 		}
 		x += len
 	}
 	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max.Y)
+
+	return a.Min, a.Max
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
