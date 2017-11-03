@@ -432,31 +432,24 @@ var _ Ticker = LogTicks{}
 
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
-	var ticks []Tick
-	var labels []float64
-
-	val := math.Pow10(int(math.Floor(math.Log10(min))))
-
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
 
-	for val < max*10 {
+	val := math.Pow10(int(math.Log10(min)))
+	max = math.Pow10(int(math.Ceil(math.Log10(max))))
+	var ticks []Tick
+	for val < max {
 		for i := 1; i < 10; i++ {
-			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
-				labels = append(labels, val*float64(i))
+				ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
 			}
-			// Makes a list of small ticks.
-			ticks = append(ticks, tick)
+			ticks = append(ticks, Tick{Value: val * float64(i)})
 		}
 		val *= 10
 	}
+	ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
 
-	// Adds big ticks to the list of small ones.
-	for _, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
-	}
 	return ticks
 }
 
