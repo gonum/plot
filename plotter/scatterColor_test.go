@@ -5,10 +5,10 @@
 package plotter
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
-	"os"
+	//"os"
+	"math"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -16,8 +16,7 @@ import (
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
-	"math"
+	//"gonum.org/v1/plot/vg/vgimg"
 )
 
 // ExampleScatter_color draws some scatter points.
@@ -45,20 +44,6 @@ func ExampleScatter_color() {
 	n := 15
 	scatterData := randomTriples(n)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
-	p.Title.Text = "Points Example Color"
-	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
-
-	sc, err := NewScatter(scatterData)
-	if err != nil {
-		log.Panic(err)
-	}
-
 	// Calculate the range of Z values.
 	minZ, maxZ := math.Inf(1), math.Inf(-1)
 	for _, xyz := range scatterData {
@@ -71,10 +56,27 @@ func ExampleScatter_color() {
 	}
 
 	colors := moreland.Kindlmann() // Initialize a color map.
-	colors.SetMax(255)
-	colors.SetMin(0)
+	colors.SetMax(maxZ)
+	colors.SetMin(minZ)
 	max := colors.Max()
 	min := colors.Min()
+
+	p, err := plot.New()
+	if err != nil {
+		log.Panic(err)
+	}
+	p.Title.Text = "Points Example Color"
+	p.X.Label.Text = "X"
+	p.Y.Label.Text = "Y"
+	p.Add(NewGrid())
+
+	l := &ColorBar{ColorMap: colors}
+	p.Add(l)
+
+	sc, err := NewScatter(scatterData)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// Specify style and color for individual points.
 	sc.GlyphStyleFunc = func(i int) draw.GlyphStyle {
@@ -90,44 +92,8 @@ func ExampleScatter_color() {
 	}
 	p.Add(sc)
 
-	// Create a legend.
-	thumbs := PaletteThumbnailers(colors.Palette(n))
-	for i := len(thumbs) - 1; i >= 0; i-- {
-		t := thumbs[i]
-		if i != 0 && i != len(thumbs)-1 {
-			p.Legend.Add("", t)
-			continue
-		}
-		var val float64
-		switch i {
-		case 0:
-			val = min
-		case len(thumbs) - 1:
-			val = max
-		}
-		p.Legend.Add(fmt.Sprintf("%g", val), t)
-	}
-
-	// This is the width of the legend, experimentally determined.
-	const legendWidth = 1.5 * vg.Centimeter
-
-	// Slide the legend over so it doesn't overlap the ScatterPlot.
-	p.Legend.XOffs = legendWidth
-
-	img := vgimg.New(300, 230)
-	dc := draw.New(img)
-	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
-	p.Draw(dc)
-	w, err := os.Create("testdata/scatterColor.png")
-	defer w.Close()
+	err = p.Save(300, 230, "testdata/scatterColor.png")
 	if err != nil {
-		log.Panic(err)
-	}
-	png := vgimg.PngCanvas{Canvas: img}
-	if _, err = png.WriteTo(w); err != nil {
-		log.Panic(err)
-	}
-	if err = w.Close(); err != nil {
 		log.Panic(err)
 	}
 }
