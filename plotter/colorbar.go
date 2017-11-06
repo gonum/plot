@@ -30,15 +30,15 @@ type ColorBar struct {
 
 // colors returns the number of colors to be shown
 // in the legend, substituting invalid values
-// with the default of one color per vg.Point.
+// with the default of one color per point.
 func (l *ColorBar) colors(c draw.Canvas) int {
 	if l.Colors > 0 {
 		return l.Colors
 	}
 	if l.Vertical {
-		return int((c.Max.Y - c.Min.Y).Points())
+		return int(c.Max.Y - c.Min.Y)
 	}
-	return int((c.Max.X - c.Min.X).Points())
+	return int(c.Max.X - c.Min.X)
 }
 
 // check determines whether the ColorBar is
