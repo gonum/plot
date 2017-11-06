@@ -58,7 +58,7 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 	colors := l.colors(c)
 	var img *image.NRGBA64
 	var xmin, xmax, ymin, ymax vg.Length
-	delta := (l.ColorMap.Max() - l.ColorMap.Min()) / float64(colors-1)
+	delta := (l.ColorMap.Max() - l.ColorMap.Min()) / float64(colors)
 	if l.Vertical {
 		trX, trY := p.Transforms(&c)
 		xmin = trX(0)
