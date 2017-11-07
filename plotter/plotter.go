@@ -182,7 +182,7 @@ type XYZer interface {
 	// XYZ returns an x, y, z triple.
 	XYZ(int) (float64, float64, float64)
 
-	// XY returns an x,y pair.
+	// XY returns an x, y pair.
 	XY(int) (float64, float64)
 }
 

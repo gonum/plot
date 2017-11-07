@@ -6,9 +6,8 @@ package plotter
 
 import (
 	"log"
-	"math/rand"
-	//"os"
 	"math"
+	"math/rand"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -16,17 +15,15 @@ import (
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	//"gonum.org/v1/plot/vg/vgimg"
 )
 
-// ExampleScatter_color draws some scatter points.
+// ExampleScatter_color draws a coloured scatter plot.
 // Each point is plotted with a different color depending on
-// some external criteria.
+// external criteria.
 func ExampleScatter_color() {
 	rnd := rand.New(rand.NewSource(1))
 
-	// randomTriples returns some random x, y, z triples
-	// with some interesting kind of trend.
+	// randomTriples returns some random but correlated x, y, z triples
 	randomTriples := func(n int) XYZs {
 		data := make(XYZs, n)
 		for i := range data {
@@ -58,14 +55,12 @@ func ExampleScatter_color() {
 	colors := moreland.Kindlmann() // Initialize a color map.
 	colors.SetMax(maxZ)
 	colors.SetMin(minZ)
-	max := colors.Max()
-	min := colors.Min()
 
 	p, err := plot.New()
 	if err != nil {
 		log.Panic(err)
 	}
-	p.Title.Text = "Points Example Color"
+	p.Title.Text = "Colored Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
@@ -82,8 +77,8 @@ func ExampleScatter_color() {
 	sc.GlyphStyleFunc = func(i int) draw.GlyphStyle {
 		_, _, z := scatterData.XYZ(i)
 		d := (z - minZ) / (maxZ - minZ)
-		rng := max - min
-		k := d*rng + min
+		rng := maxZ - minZ
+		k := d*rng + minZ
 		c, err := colors.At(k)
 		if err != nil {
 			log.Panic(err)

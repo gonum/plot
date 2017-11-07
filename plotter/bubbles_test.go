@@ -19,12 +19,11 @@ import (
 
 // ExampleScatter_bubbles draws some scatter points.
 // Each point is plotted with a different radius size depending on
-// some external criteria.
+// external criteria.
 func ExampleScatter_bubbles() {
 	rnd := rand.New(rand.NewSource(1))
 
-	// randomTriples returns some random x, y, z triples
-	// with some interesting kind of trend.
+	// randomTriples returns some random but correlated x, y, z triples
 	randomTriples := func(n int) XYZs {
 		data := make(XYZs, n)
 		for i := range data {
