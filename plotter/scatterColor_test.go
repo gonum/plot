@@ -17,7 +17,7 @@ import (
 	"gonum.org/v1/plot/vg/draw"
 )
 
-// ExampleScatter_color draws a coloured scatter plot.
+// ExampleScatter_color draws a colored scatter plot.
 // Each point is plotted with a different color depending on
 // external criteria.
 func ExampleScatter_color() {
