@@ -154,10 +154,16 @@ func (p *Plot) Draw(c draw.Canvas) {
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
 
-	ywidth := y.size()
-	p.X.Min, p.X.Max = x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
-	xheight := x.size()
-	p.Y.Min, p.Y.Max = y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
+	var xheight, ywidth vg.Length
+	xheight, x.Min, x.Max = x.size()
+	ywidth, y.Min, y.Max = y.size()
+
+	// Save the user-specified values to restore later.
+	xmin, xmax, ymin, ymax := p.X.Min, p.X.Max, p.Y.Min, p.Y.Max
+	p.X.Min, p.X.Max, p.Y.Min, p.Y.Max = x.Min, x.Max, y.Min, y.Max
+
+	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
+	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
 
 	dataC := padY(p, padX(p, draw.Crop(c, ywidth, 0, xheight, 0)))
 	for _, data := range p.plotters {
@@ -165,6 +171,9 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 
 	p.Legend.draw(draw.Crop(c, ywidth, 0, xheight, 0))
+
+	// Restore user-specified values.
+	p.X.Min, p.X.Max, p.Y.Min, p.Y.Max = xmin, xmax, ymin, ymax
 }
 
 // DataCanvas returns a new draw.Canvas that
@@ -179,7 +188,9 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, draw.Crop(da, y.size(), 0, x.size(), 0)))
+	xsize, _, _ := x.size()
+	ysize, _, _ := y.size()
+	return padY(p, padX(p, draw.Crop(da, ysize, 0, xsize, 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's

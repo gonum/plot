@@ -175,12 +175,12 @@ func (LogScale) Normalize(min, max, x float64) float64 {
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
-func (a *Axis) Norm(x float64) float64 {
+func (a Axis) Norm(x float64) float64 {
 	return a.Scale.Normalize(a.Min, a.Max, x)
 }
 
 // drawTicks returns true if the tick marks should be drawn.
-func (a *Axis) drawTicks() bool {
+func (a Axis) drawTicks() bool {
 	return a.Tick.Width > 0 && a.Tick.Length > 0
 }
 
@@ -191,12 +191,15 @@ type horizontalAxis struct {
 }
 
 // size returns the height of the axis.
-func (a *horizontalAxis) size() (h vg.Length) {
+func (a horizontalAxis) size() (h vg.Length, min, max float64) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
+
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+
+	if len(marks) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
@@ -204,11 +207,17 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	}
 	h += a.Width / 2
 	h += a.Padding
-	return
+
+	min, max = a.Min, a.Max
+	for _, m := range marks {
+		min = math.Min(min, m.Value)
+		max = math.Max(max, m.Value)
+	}
+	return h, min, max
 }
 
 // draw draws the axis along the lower edge of a draw.Canvas.
-func (a *horizontalAxis) draw(c draw.Canvas) (min, max float64) {
+func (a horizontalAxis) draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
@@ -217,10 +226,6 @@ func (a *horizontalAxis) draw(c draw.Canvas) (min, max float64) {
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	for _, m := range marks {
-		a.Min = math.Min(a.Min, m.Value)
-		a.Max = math.Max(a.Max, m.Value)
-	}
 	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
 	for _, t := range marks {
 		if t.IsMinor() {
@@ -247,12 +252,11 @@ func (a *horizontalAxis) draw(c draw.Canvas) (min, max float64) {
 	}
 
 	c.StrokeLine2(a.LineStyle, c.Min.X, y, c.Max.X, y)
-
-	return a.Min, a.Max
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a horizontalAxis) GlyphBoxes(*Plot) []GlyphBox {
+	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -263,7 +267,7 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		boxes = append(boxes, box)
 	}
-	return
+	return boxes
 }
 
 // A verticalAxis is drawn vertically up the left side of a plot.
@@ -272,12 +276,15 @@ type verticalAxis struct {
 }
 
 // size returns the width of the axis.
-func (a *verticalAxis) size() (w vg.Length) {
+func (a verticalAxis) size() (w vg.Length, min, max float64) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
+
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+
+	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
@@ -288,11 +295,18 @@ func (a *verticalAxis) size() (w vg.Length) {
 	}
 	w += a.Width / 2
 	w += a.Padding
-	return
+
+	min, max = a.Min, a.Max
+	for _, m := range marks {
+		min = math.Min(min, m.Value)
+		max = math.Max(max, m.Value)
+	}
+
+	return w, min, max
 }
 
 // draw draws the axis along the left side of a draw.Canvas.
-func (a *verticalAxis) draw(c draw.Canvas) (min, max float64) {
+func (a verticalAxis) draw(c draw.Canvas) {
 	x := c.Min.X
 	if a.Label.Text != "" {
 		sty := a.Label.TextStyle
@@ -302,10 +316,6 @@ func (a *verticalAxis) draw(c draw.Canvas) (min, max float64) {
 		x += -a.Label.Font.Extents().Descent
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	for _, m := range marks {
-		a.Min = math.Min(a.Min, m.Value)
-		a.Max = math.Max(a.Max, m.Value)
-	}
 	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
@@ -331,13 +341,13 @@ func (a *verticalAxis) draw(c draw.Canvas) (min, max float64) {
 		}
 		x += len
 	}
-	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max.Y)
 
-	return a.Min, a.Max
+	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max.Y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a verticalAxis) GlyphBoxes(*Plot) []GlyphBox {
+	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -348,7 +358,7 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		boxes = append(boxes, box)
 	}
-	return
+	return boxes
 }
 
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
