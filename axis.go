@@ -191,14 +191,13 @@ type horizontalAxis struct {
 }
 
 // size returns the height of the axis.
-func (a horizontalAxis) size() (h vg.Length, min, max float64) {
+func (a horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-
 	if len(marks) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
@@ -208,12 +207,7 @@ func (a horizontalAxis) size() (h vg.Length, min, max float64) {
 	h += a.Width / 2
 	h += a.Padding
 
-	min, max = a.Min, a.Max
-	for _, m := range marks {
-		min = math.Min(min, m.Value)
-		max = math.Max(max, m.Value)
-	}
-	return h, min, max
+	return h
 }
 
 // draw draws the axis along the lower edge of a draw.Canvas.
@@ -228,10 +222,10 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
 	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
 	for _, t := range marks {
-		if t.IsMinor() {
+		x := c.X(a.Norm(t.Value))
+		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		x := c.X(a.Norm(t.Value))
 		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + ticklabelheight}, t.Label)
 	}
 
@@ -245,6 +239,9 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			x := c.X(a.Norm(t.Value))
+			if !c.ContainsX(x) {
+				continue
+			}
 			start := t.lengthOffset(len)
 			c.StrokeLine2(a.Tick.LineStyle, x, y+start, x, y+len)
 		}
@@ -276,14 +273,13 @@ type verticalAxis struct {
 }
 
 // size returns the width of the axis.
-func (a verticalAxis) size() (w vg.Length, min, max float64) {
+func (a verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
@@ -296,13 +292,7 @@ func (a verticalAxis) size() (w vg.Length, min, max float64) {
 	w += a.Width / 2
 	w += a.Padding
 
-	min, max = a.Min, a.Max
-	for _, m := range marks {
-		min = math.Min(min, m.Value)
-		max = math.Max(max, m.Value)
-	}
-
-	return w, min, max
+	return w
 }
 
 // draw draws the axis along the left side of a draw.Canvas.
@@ -322,10 +312,10 @@ func (a verticalAxis) draw(c draw.Canvas) {
 
 	major := false
 	for _, t := range marks {
-		if t.IsMinor() {
+		y := c.Y(a.Norm(t.Value))
+		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		y := c.Y(a.Norm(t.Value))
 		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y}, t.Label)
 		major = true
 	}
@@ -336,6 +326,9 @@ func (a verticalAxis) draw(c draw.Canvas) {
 		len := a.Tick.Length
 		for _, t := range marks {
 			y := c.Y(a.Norm(t.Value))
+			if !c.ContainsY(y) {
+				continue
+			}
 			start := t.lengthOffset(len)
 			c.StrokeLine2(a.Tick.LineStyle, x+start, y, x+len, y)
 		}
@@ -375,21 +368,24 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 
 	const suggestedTicks = 3
 
-	labels, step, mag := talbotLinHanrahan(min, max, suggestedTicks, false, nil, nil, nil)
+	labels, step, q, mag := talbotLinHanrahan(min, max, suggestedTicks, withinData, nil, nil, nil)
 	majorDelta := step * math.Pow10(mag)
 	extraPrec := labels[0] != math.Trunc(labels[0]) || step != math.Trunc(step)
 	var ticks []Tick
 	for _, v := range labels {
 		off := 1
-		fmt := byte('g')
+		fc := byte('g')
 		if -1 <= mag && mag <= 6 {
-			fmt = 'f'
+			fc = 'f'
 			off = 0
 			if extraPrec {
 				off = 1
 			}
+			if math.Trunc(q) != q {
+				off++
+			}
 		}
-		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fmt, maxInt(off, -mag), 64)})
+		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fc, maxInt(off, -mag), 64)})
 	}
 
 	var minorDelta float64

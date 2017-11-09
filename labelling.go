@@ -24,10 +24,21 @@ const (
 	dlamchP = dlamchB * dlamchE
 )
 
+const (
+	// free indicates no restriction on label containment.
+	free = iota
+	// containData specifies that all the data range lies
+	// within the interval [label_min, label_max].
+	containData
+	// withinData specifies that all labels lie within the
+	// interval [dMin, dMax].
+	withinData
+)
+
 // talbotLinHanrahan returns an optimal set of approximately want label values
 // for the data range [dMin, dMax], and the step and magnitude of the step between values.
-// If contained is true, the values of dMin and dMax are guaranteed to lie within the
-// interval [values[0], values[len(values)-1]].
+// containment is specifies are guarantees for label and data range containment, valid
+// values are free, containData and withinData.
 // The optional parameters Q, nice numbers, and w, weights, allow tuning of the
 // algorithm but by default (when nil) are set to the parameters described in the
 // paper.
@@ -35,7 +46,7 @@ const (
 // By default, when nil, legbility will set the legibility score for each candidate
 // labelling scheme to 1.
 // See the paper for an explanation of the function of Q, w and legibility.
-func talbotLinHanrahan(dMin, dMax float64, want int, contained bool, Q []float64, w *weights, legibility func(lMin, lMax, lStep float64) float64) (values []float64, step float64, magnitude int) {
+func talbotLinHanrahan(dMin, dMax float64, want int, containment int, Q []float64, w *weights, legibility func(lMin, lMax, lStep float64) float64) (values []float64, step, q float64, magnitude int) {
 	const eps = dlamchP * 100
 
 	if dMin > dMax {
@@ -64,15 +75,16 @@ func talbotLinHanrahan(dMin, dMax float64, want int, contained bool, Q []float64
 			l[i] = dMin + float64(i)*step
 		}
 		magnitude = minAbsMag(dMin, dMax)
-		return l, step, magnitude
+		return l, step, 0, magnitude
 	}
 
 	type selection struct {
 		// n is the number of labels selected.
 		n int
 		// lMin and lMax are the selected min
-		// and max label values.
-		lMin, lMax, lStep float64
+		// and max label values. lq is the q
+		// chosen.
+		lMin, lMax, lStep, lq float64
 		// score is the score for the selection.
 		score float64
 		// magnitude is the magnitude of the
@@ -115,18 +127,32 @@ outer:
 						lMin := start * fracStep
 						lMax := lMin + kStep
 
+						switch containment {
+						case containData:
+							if dMin < lMin || lMax < dMax {
+								continue
+							}
+						case withinData:
+							if lMin < dMin || dMax < lMax {
+								continue
+							}
+						case free:
+							// Free choice.
+						}
+
 						score := w.score(
 							simplicity(q, Q, skip, lMin, lMax, step),
 							coverage(dMin, dMax, lMin, lMax),
 							density(have, want, dMin, dMax, lMin, lMax),
 							legibility(lMin, lMax, step),
 						)
-						if score > best.score && (!contained || (lMin <= dMin && dMax <= lMax)) {
+						if score > best.score {
 							best = selection{
 								n:         have,
 								lMin:      lMin,
 								lMax:      lMax,
 								lStep:     float64(skip) * q,
+								lq:        q,
 								score:     score,
 								magnitude: mag,
 							}
@@ -144,7 +170,7 @@ outer:
 			l[i] = dMin + float64(i)*step
 		}
 		magnitude = minAbsMag(dMin, dMax)
-		return l, step, magnitude
+		return l, step, 0, magnitude
 	}
 
 	l := make([]float64, best.n)
@@ -152,7 +178,7 @@ outer:
 	for i := range l {
 		l[i] = best.lMin + float64(i)*step
 	}
-	return l, best.lStep, best.magnitude
+	return l, best.lStep, best.lq, best.magnitude
 }
 
 // minAbsMag returns the minumum magnitude of the absolute values of a and b.

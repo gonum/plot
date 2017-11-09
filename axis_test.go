@@ -18,8 +18,8 @@ var axisSmallTickTests = []struct {
 	{
 		min:        -1.9846500878911073,
 		max:        0.4370974820125605,
-		wantValues: []float64{-2, -1, 0},
-		wantLabels: []string{"-2", "-1", "0"},
+		wantValues: []float64{-1.75, -0.75, 0.25},
+		wantLabels: []string{"-1.75", "-0.75", "0.25"},
 	},
 	{
 		min:        -1.985e-15,
