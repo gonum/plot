@@ -87,7 +87,7 @@ func ExampleScatter_color() {
 	}
 	p.Add(sc)
 
-	err = p.Save(300, 240, "testdata/scatterColor.png")
+	err = p.Save(300, 230, "testdata/scatterColor.png")
 	if err != nil {
 		log.Panic(err)
 	}
