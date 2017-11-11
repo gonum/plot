@@ -15,6 +15,10 @@ import (
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
+	"os"
+	"fmt"
+	"crypto/sha1"
+	"io"
 )
 
 // ExampleScatter_color draws a colored scatter plot.
@@ -95,4 +99,40 @@ func ExampleScatter_color() {
 
 func TestScatterColor(t *testing.T) {
 	cmpimg.CheckPlot(ExampleScatter_color, t, "scatterColor.png")
+
+	statistics, err := os.Stat("testdata/scatterColor.png")
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Printf("The size of scatterColor.png is %d\n",statistics.Size())
+
+	statistics_gold, err := os.Stat("testdata/scatterColor_golden.png")
+	if err != nil {
+		log.Panic(err)
+	}
+	fmt.Printf("The size of scatterColor_golden.png is %d\n",statistics_gold.Size())
+
+	f, err := os.Open("testdata/scatterColor.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+	h := sha1.New()
+	if _, err := io.Copy(h, f); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("SHA1 checksum for scatterColor.png is %x\n", h.Sum(nil))
+
+	f_gold, err := os.Open("testdata/scatterColor_golden.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f_gold.Close()
+	h_gold := sha1.New()
+	if _, err := io.Copy(h_gold, f_gold); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("SHA1 checksum for scatterColor_golden.png is %x\n", h_gold.Sum(nil))
+
+
 }
