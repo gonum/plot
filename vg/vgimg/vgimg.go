@@ -303,8 +303,8 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 // registeredFont contains the set of font names
 // that have already been registered with draw2d.
 var registeredFont = struct {
-	m map[string]bool
 	sync.Mutex
+	m map[string]bool
 }{m: map[string]bool{}}
 
 // WriterCounter implements the io.Writer interface, and counts
