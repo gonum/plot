@@ -64,5 +64,5 @@ func TestConcurrentInit(t *testing.T) {
 		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
 		wg.Done()
 	}()
-	wg.Done()
+	wg.Wait()
 }
