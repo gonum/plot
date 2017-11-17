@@ -20,7 +20,25 @@ import (
 	"golang.org/x/image/tiff"
 
 	"gonum.org/v1/plot/vg"
+	vgdraw "gonum.org/v1/plot/vg/draw"
 )
+
+func init() {
+	pf := func(w, h vg.Length) vg.CanvasWriterTo {
+		return PngCanvas{Canvas: New(w, h)}
+	}
+	vgdraw.RegisterFormat("png", pf)
+	jf := func(w, h vg.Length) vg.CanvasWriterTo {
+		return JpegCanvas{Canvas: New(w, h)}
+	}
+	vgdraw.RegisterFormat("jpg", jf)
+	vgdraw.RegisterFormat("jpeg", jf)
+	tf := func(w, h vg.Length) vg.CanvasWriterTo {
+		return TiffCanvas{Canvas: New(w, h)}
+	}
+	vgdraw.RegisterFormat("tif", tf)
+	vgdraw.RegisterFormat("tiff", tf)
+}
 
 // Canvas implements the vg.Canvas interface,
 // drawing to an image.Image using draw2d.

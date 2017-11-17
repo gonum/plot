@@ -17,7 +17,12 @@ import (
 	"time"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
+
+func init() {
+	draw.RegisterFormat("eps", func(w, h vg.Length) vg.CanvasWriterTo { return New(w, h) })
+}
 
 // DPI is the nominal resolution of drawing in EPS.
 const DPI = 72
