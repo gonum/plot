@@ -9,16 +9,19 @@ import (
 	"math"
 	"math/rand"
 	"testing"
+	"os"
+	"fmt"
+	"crypto/sha1"
+	"io"
+	"encoding/base64"
+	"io/ioutil"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	"os"
-	"fmt"
-	"crypto/sha1"
-	"io"
+
 )
 
 // ExampleScatter_color draws a colored scatter plot.
@@ -104,13 +107,13 @@ func TestScatterColor(t *testing.T) {
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("The size of scatterColor.png is %d\n",statistics.Size())
+	fmt.Printf("The size of scatterColor.png is %d\n", statistics.Size())
 
 	statistics_gold, err := os.Stat("testdata/scatterColor_golden.png")
 	if err != nil {
 		log.Panic(err)
 	}
-	fmt.Printf("The size of scatterColor_golden.png is %d\n",statistics_gold.Size())
+	fmt.Printf("The size of scatterColor_golden.png is %d\n", statistics_gold.Size())
 
 	f, err := os.Open("testdata/scatterColor.png")
 	if err != nil {
@@ -123,16 +126,30 @@ func TestScatterColor(t *testing.T) {
 	}
 	fmt.Printf("SHA1 checksum for scatterColor.png is %x\n", h.Sum(nil))
 
-	f_gold, err := os.Open("testdata/scatterColor_golden.png")
+	fGold, err := os.Open("testdata/scatterColor_golden.png")
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer f_gold.Close()
-	h_gold := sha1.New()
-	if _, err := io.Copy(h_gold, f_gold); err != nil {
+	defer fGold.Close()
+	hGgold := sha1.New()
+	if _, err := io.Copy(hGgold, fGold); err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("SHA1 checksum for scatterColor_golden.png is %x\n", h_gold.Sum(nil))
+	fmt.Printf("SHA1 checksum for scatterColor_golden.png is %x\n", hGgold.Sum(nil))
 
+	fStr, err := ioutil.ReadFile("testdata/scatterColor.png")
+	if err != nil {
+		fmt.Print(err)
+	}
+	b64fStr := base64.StdEncoding.EncodeToString([]byte(fStr))
+	fmt.Println ("ENCODING OF SCATTERCOLOR STARTED\n", b64fStr,"\nENCODING OF SCATTERCOLOR ENDED")
 
+	fStrGold, err := ioutil.ReadFile("testdata/scatterColor_golden.png")
+	if err != nil {
+		fmt.Print(err)
+	}
+	b64fStrGold := base64.StdEncoding.EncodeToString([]byte(fStrGold))
+	fmt.Println ("ENCODING OF SCATTERCOLOR_GOLDEN STARTED\n", b64fStrGold,"\nENCODING OF SCATTERCOLOR_GOLDEN ENDED")
 }
+
+
