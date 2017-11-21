@@ -370,22 +370,27 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 
 	labels, step, q, mag := talbotLinHanrahan(min, max, suggestedTicks, withinData, nil, nil, nil)
 	majorDelta := step * math.Pow10(mag)
-	extraPrec := labels[0] != math.Trunc(labels[0]) || step != math.Trunc(step)
+	if q == 0 {
+		// Simple fall back was chosen, so
+		// majorDelta is the label distance.
+		majorDelta = labels[1] - labels[0]
+	}
+
+	// Choose a reasonable, but ad
+	// hoc formatting for labels.
+	fc := byte('f')
+	var off int
+	if mag < -1 || 6 < mag {
+		off = 1
+		fc = 'g'
+	}
+	if math.Trunc(q) != q {
+		off += 2
+	}
+	prec := minInt(6, maxInt(off, -mag))
 	var ticks []Tick
 	for _, v := range labels {
-		off := 1
-		fc := byte('g')
-		if -1 <= mag && mag <= 6 {
-			fc = 'f'
-			off = 0
-			if extraPrec {
-				off = 1
-			}
-			if math.Trunc(q) != q {
-				off++
-			}
-		}
-		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fc, maxInt(off, -mag), 64)})
+		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fc, prec, 64)})
 	}
 
 	var minorDelta float64
@@ -396,13 +401,21 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 	case 2, 3, 4, 5:
 		minorDelta = majorDelta / step
 	default:
+		if majorDelta/2 < dlamchP {
+			return ticks
+		}
 		minorDelta = majorDelta / 2
 	}
 
+	// Find the first minor tick not greater
+	// than the lowest data value.
 	var i float64
 	for labels[0]+(i-1)*minorDelta > min {
 		i--
 	}
+	// Add ticks at minorDelta intervals when
+	// they are not within minorDelta/2 of a
+	// labelled tick.
 	for {
 		val := labels[0] + i*minorDelta
 		if val > max {
@@ -421,6 +434,13 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 	}
 
 	return ticks
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
 }
 
 func maxInt(a, b int) int {

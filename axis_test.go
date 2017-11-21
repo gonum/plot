@@ -22,16 +22,16 @@ var axisSmallTickTests = []struct {
 		wantLabels: []string{"-1.75", "-0.75", "0.25"},
 	},
 	{
+		min:        -1.985e15,
+		max:        0.4371e15,
+		wantValues: []float64{-1.75e15, -7.5e14, 2.5e14},
+		wantLabels: []string{"-1.75e+15", "-7.5e+14", "2.5e+14"},
+	},
+	{
 		min:        -1.985e-15,
 		max:        0.4371e-15,
 		wantValues: []float64{-1.985e-15, -7.739500000000001e-16, 4.3709999999999994e-16},
 		wantLabels: []string{"-1.985e-15", "-7.7395e-16", "4.371e-16"},
-	},
-	{
-		min:        -1.985e15,
-		max:        0.4371e15,
-		wantValues: []float64{-2e+15, -1e+15, 0},
-		wantLabels: []string{"-2e+15", "-1e+15", "0"},
 	},
 	{
 		min:        math.MaxFloat64 / 4,
@@ -42,26 +42,26 @@ var axisSmallTickTests = []struct {
 	{
 		min:        0.00010,
 		max:        0.00015,
-		wantValues: []float64{0.0001, 0.000125, 0.00015000000000000001},
-		wantLabels: []string{"0.0001", "0.000125", "0.00015"},
+		wantValues: []float64{0.0001, 0.00012, 0.00014000000000000001},
+		wantLabels: []string{"0.0001", "0.00012", "0.00014"},
 	},
 	{
 		min:        555.6545,
 		max:        21800.9875,
-		wantValues: []float64{0, 10000, 20000},
-		wantLabels: []string{"0", "1e+04", "2e+04"},
+		wantValues: []float64{4000, 12000, 20000},
+		wantLabels: []string{"4000", "12000", "20000"},
 	},
 	{
 		min:        555.6545,
 		max:        27800.9875,
-		wantValues: []float64{0, 10000, 20000, 30000},
-		wantLabels: []string{"0", "1e+04", "2e+04", "3e+04"},
+		wantValues: []float64{5000, 15000, 25000},
+		wantLabels: []string{"5000", "15000", "25000"},
 	},
 	{
 		min:        55.6545,
 		max:        1555.9875,
-		wantValues: []float64{0, 500, 1000, 1500},
-		wantLabels: []string{"0", "5e+02", "1e+03", "2e+03"},
+		wantValues: []float64{300, 900, 1500},
+		wantLabels: []string{"300", "900", "1500"},
 	},
 	{
 		min:        3.096916 - 0.125,
@@ -73,15 +73,15 @@ var axisSmallTickTests = []struct {
 
 func TestAxisSmallTick(t *testing.T) {
 	d := DefaultTicks{}
-	for _, test := range axisSmallTickTests[:1] {
+	for i, test := range axisSmallTickTests {
 		ticks := d.Ticks(test.min, test.max)
 		gotLabels := labelsOf(ticks)
 		gotValues := valuesOf(ticks)
 		if !reflect.DeepEqual(gotValues, test.wantValues) {
-			t.Errorf("tick values mismatch:\ngot: %v\nwant:%v", gotValues, test.wantValues)
+			t.Errorf("tick values mismatch %d:\ngot: %v\nwant:%v", i, gotValues, test.wantValues)
 		}
 		if !reflect.DeepEqual(gotLabels, test.wantLabels) {
-			t.Errorf("tick labels mismatch:\ngot: %q\nwant:%q", gotLabels, test.wantLabels)
+			t.Errorf("tick labels mismatch %d:\ngot: %q\nwant:%q", i, gotLabels, test.wantLabels)
 		}
 	}
 }
