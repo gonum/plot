@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"image"
+	"image/color"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
@@ -70,11 +71,7 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 			Max: image.Point{X: 1, Y: colors},
 		})
 		for i := 0; i < colors; i++ {
-			color, err := l.ColorMap.At(l.ColorMap.Min() + delta*float64(i))
-			if err != nil {
-				panic(err)
-			}
-			img.Set(0, colors-1-i, color)
+			img.Set(0, colors-1-i, l.getColor(delta, i))
 		}
 	} else {
 		trX, trY := p.Transforms(&c)
@@ -87,11 +84,7 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 			Max: image.Point{X: colors, Y: 1},
 		})
 		for i := 0; i < colors; i++ {
-			color, err := l.ColorMap.At(l.ColorMap.Min() + delta*float64(i))
-			if err != nil {
-				panic(err)
-			}
-			img.Set(i, 0, color)
+			img.Set(i, 0, l.getColor(delta, i))
 		}
 	}
 	rect := vg.Rectangle{
@@ -99,6 +92,18 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 		Max: vg.Point{X: xmax, Y: ymax},
 	}
 	c.DrawImage(rect, img)
+}
+
+func (l *ColorBar) getColor(delta float64, i int) color.Color {
+	v := l.ColorMap.Min() + delta*float64(i)
+	if max := l.ColorMap.Max(); v > max { // Handle floating point rounding errors.
+		v = max
+	}
+	color, err := l.ColorMap.At(v)
+	if err != nil {
+		panic(err)
+	}
+	return color
 }
 
 // DataRange implements the DataRange method
