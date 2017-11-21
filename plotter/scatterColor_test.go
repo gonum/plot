@@ -5,23 +5,19 @@
 package plotter
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
-	"testing"
 	"os"
-	"fmt"
-	"crypto/sha1"
-	"io"
-	"encoding/base64"
-	"io/ioutil"
+	"testing"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-
+	"gonum.org/v1/plot/vg/vgimg"
 )
 
 // ExampleScatter_color draws a colored scatter plot.
@@ -72,9 +68,6 @@ func ExampleScatter_color() {
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
 
-	l := &ColorBar{ColorMap: colors}
-	p.Add(l)
-
 	sc, err := NewScatter(scatterData)
 	if err != nil {
 		log.Panic(err)
@@ -94,62 +87,49 @@ func ExampleScatter_color() {
 	}
 	p.Add(sc)
 
-	err = p.Save(300, 230, "testdata/scatterColor.png")
+	//Create a legend
+	thumbs := PaletteThumbnailers(colors.Palette(n))
+	for i := len(thumbs) - 1; i >= 0; i-- {
+		t := thumbs[i]
+		if i != 0 && i != len(thumbs)-1 {
+			p.Legend.Add("", t)
+			continue
+		}
+		var val int
+		switch i {
+		case 0:
+			val = int(minZ)
+		case len(thumbs) - 1:
+			val = int(maxZ)
+		}
+		p.Legend.Add(fmt.Sprintf("%d", val), t)
+	}
+
+	// This is the width of the legend, experimentally determined.
+	const legendWidth = vg.Centimeter
+
+	// Slide the legend over so it doesn't overlap the ScatterPlot.
+	p.Legend.XOffs = legendWidth
+
+	img := vgimg.New(300, 230)
+	dc := draw.New(img)
+	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
+	p.Draw(dc)
+
+	w, err := os.Create("testdata/scatterColor.png")
+	defer w.Close()
 	if err != nil {
+		log.Panic(err)
+	}
+	png := vgimg.PngCanvas{Canvas: img}
+	if _, err = png.WriteTo(w); err != nil {
+		log.Panic(err)
+	}
+	if err = w.Close(); err != nil {
 		log.Panic(err)
 	}
 }
 
 func TestScatterColor(t *testing.T) {
 	cmpimg.CheckPlot(ExampleScatter_color, t, "scatterColor.png")
-
-	statistics, err := os.Stat("testdata/scatterColor.png")
-	if err != nil {
-		log.Panic(err)
-	}
-	fmt.Printf("The size of scatterColor.png is %d\n", statistics.Size())
-
-	statistics_gold, err := os.Stat("testdata/scatterColor_golden.png")
-	if err != nil {
-		log.Panic(err)
-	}
-	fmt.Printf("The size of scatterColor_golden.png is %d\n", statistics_gold.Size())
-
-	f, err := os.Open("testdata/scatterColor.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer f.Close()
-	h := sha1.New()
-	if _, err := io.Copy(h, f); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("SHA1 checksum for scatterColor.png is %x\n", h.Sum(nil))
-
-	fGold, err := os.Open("testdata/scatterColor_golden.png")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer fGold.Close()
-	hGgold := sha1.New()
-	if _, err := io.Copy(hGgold, fGold); err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("SHA1 checksum for scatterColor_golden.png is %x\n", hGgold.Sum(nil))
-
-	fStr, err := ioutil.ReadFile("testdata/scatterColor.png")
-	if err != nil {
-		fmt.Print(err)
-	}
-	b64fStr := base64.StdEncoding.EncodeToString([]byte(fStr))
-	fmt.Println ("ENCODING OF SCATTERCOLOR STARTED\n", b64fStr,"\nENCODING OF SCATTERCOLOR ENDED")
-
-	fStrGold, err := ioutil.ReadFile("testdata/scatterColor_golden.png")
-	if err != nil {
-		fmt.Print(err)
-	}
-	b64fStrGold := base64.StdEncoding.EncodeToString([]byte(fStrGold))
-	fmt.Println ("ENCODING OF SCATTERCOLOR_GOLDEN STARTED\n", b64fStrGold,"\nENCODING OF SCATTERCOLOR_GOLDEN ENDED")
 }
-
-
