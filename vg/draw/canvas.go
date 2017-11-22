@@ -14,9 +14,11 @@ import (
 )
 
 // formats holds the registered canvas image formats
-var formats struct {
+var formats = struct {
 	sync.Mutex
 	m map[string]func(w, h vg.Length) vg.CanvasWriterTo
+}{
+	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
 }
 
 // RegisterFormat registers an image format for use by NewformattedCanvas.
@@ -25,9 +27,6 @@ var formats struct {
 func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
 	formats.Lock()
 	defer formats.Unlock()
-	if formats.m == nil {
-		formats.m = make(map[string]func(w, h vg.Length) vg.CanvasWriterTo)
-	}
 	if fn == nil {
 		delete(formats.m, name)
 	} else {
