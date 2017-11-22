@@ -284,12 +284,14 @@ func New(c vg.CanvasSizer) Canvas {
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
 	formats.Lock()
 	defer formats.Unlock()
+	var supported []string
 	for name, fn := range formats.m {
 		if format == name {
 			return fn(w, h), nil
 		}
+		supported = append(supported, name)
 	}
-	return nil, fmt.Errorf("unsupported format: %q", format)
+	return nil, fmt.Errorf("unsupported format: %q. supported formats: %v", format, supported)
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
