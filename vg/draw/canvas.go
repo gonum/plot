@@ -21,7 +21,7 @@ var formats = struct {
 	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
 }
 
-// RegisterFormat registers an image format for use by NewformattedCanvas.
+// RegisterFormat registers an image format for use by NewFormattedCanvas.
 // Name is the name of the format, like "jpeg" or "png".
 // New is the construction function to call for the format.
 func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
