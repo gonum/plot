@@ -175,12 +175,12 @@ func (LogScale) Normalize(min, max, x float64) float64 {
 // system, normalized to its distance as a fraction of the
 // range of this axis.  For example, if x is a.Min then the return
 // value is 0, and if x is a.Max then the return value is 1.
-func (a *Axis) Norm(x float64) float64 {
+func (a Axis) Norm(x float64) float64 {
 	return a.Scale.Normalize(a.Min, a.Max, x)
 }
 
 // drawTicks returns true if the tick marks should be drawn.
-func (a *Axis) drawTicks() bool {
+func (a Axis) drawTicks() bool {
 	return a.Tick.Width > 0 && a.Tick.Length > 0
 }
 
@@ -191,12 +191,14 @@ type horizontalAxis struct {
 }
 
 // size returns the height of the axis.
-func (a *horizontalAxis) size() (h vg.Length) {
+func (a horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		h -= a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
+
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	if len(marks) > 0 {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
@@ -204,11 +206,12 @@ func (a *horizontalAxis) size() (h vg.Length) {
 	}
 	h += a.Width / 2
 	h += a.Padding
-	return
+
+	return h
 }
 
 // draw draws the axis along the lower edge of a draw.Canvas.
-func (a *horizontalAxis) draw(c draw.Canvas) {
+func (a horizontalAxis) draw(c draw.Canvas) {
 	y := c.Min.Y
 	if a.Label.Text != "" {
 		y -= a.Label.Font.Extents().Descent
@@ -249,7 +252,8 @@ func (a *horizontalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a horizontalAxis) GlyphBoxes(*Plot) []GlyphBox {
+	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -260,7 +264,7 @@ func (a *horizontalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		boxes = append(boxes, box)
 	}
-	return
+	return boxes
 }
 
 // A verticalAxis is drawn vertically up the left side of a plot.
@@ -269,12 +273,14 @@ type verticalAxis struct {
 }
 
 // size returns the width of the axis.
-func (a *verticalAxis) size() (w vg.Length) {
+func (a verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
 		w -= a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 	}
-	if marks := a.Tick.Marker.Ticks(a.Min, a.Max); len(marks) > 0 {
+
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
 			w += a.Label.Width(" ")
@@ -285,11 +291,12 @@ func (a *verticalAxis) size() (w vg.Length) {
 	}
 	w += a.Width / 2
 	w += a.Padding
-	return
+
+	return w
 }
 
 // draw draws the axis along the left side of a draw.Canvas.
-func (a *verticalAxis) draw(c draw.Canvas) {
+func (a verticalAxis) draw(c draw.Canvas) {
 	x := c.Min.X
 	if a.Label.Text != "" {
 		sty := a.Label.TextStyle
@@ -302,6 +309,7 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
+
 	major := false
 	for _, t := range marks {
 		y := c.Y(a.Norm(t.Value))
@@ -326,11 +334,13 @@ func (a *verticalAxis) draw(c draw.Canvas) {
 		}
 		x += len
 	}
+
 	c.StrokeLine2(a.LineStyle, x, c.Min.Y, x, c.Max.Y)
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+func (a verticalAxis) GlyphBoxes(*Plot) []GlyphBox {
+	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
 			continue
@@ -341,146 +351,103 @@ func (a *verticalAxis) GlyphBoxes(*Plot) (boxes []GlyphBox) {
 		}
 		boxes = append(boxes, box)
 	}
-	return
+	return boxes
 }
 
 // DefaultTicks is suitable for the Tick.Marker field of an Axis,
-// it returns a resonable default set of tick marks.
+// it returns a reasonable default set of tick marks.
 type DefaultTicks struct{}
 
 var _ Ticker = DefaultTicks{}
 
-// Ticks returns Ticks in a specified range
-func (DefaultTicks) Ticks(min, max float64) (ticks []Tick) {
-	const suggestedTicks = 3
-
-	var labels []float64
-
+// Ticks returns Ticks in the specified range.
+func (DefaultTicks) Ticks(min, max float64) []Tick {
 	if max <= min {
 		panic("illegal range")
 	}
 
-	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
-	n := (max - min) / tens
-	for n < suggestedTicks {
-		tens /= 10
-		n = (max - min) / tens
-	}
-
-	majorMult := int(n / suggestedTicks)
-	switch majorMult {
-	case 7:
-		majorMult = 6
-	case 9:
-		majorMult = 8
-	}
-	majorDelta := float64(majorMult) * tens
-	val := math.Floor(min/majorDelta) * majorDelta
-	// Makes a list of non-truncated y-values.
-	for val <= max {
-		if val >= min {
-			labels = append(labels, val)
-		}
-		val += majorDelta
-	}
-	// Makes a slice of distinct tick labels.
-	labels = adjustPrecision(labels)
-	// Makes a list of big ticks.
-	for _, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
-	}
-	minorDelta := majorDelta / 2
-	switch majorMult {
-	case 3, 6:
-		minorDelta = majorDelta / 3
-	case 5:
-		minorDelta = majorDelta / 5
-	}
-
-	val = math.Floor(min/minorDelta) * minorDelta
-	for val <= max {
-		found := false
-		for _, t := range ticks {
-			if t.Value == val {
-				found = true
-			}
-		}
-		if val >= min && val <= max && !found {
-			ticks = append(ticks, Tick{Value: val})
-		}
-		val += minorDelta
-	}
-	return
-}
-
-// PreciseTicks is suitable for the Tick.Marker field of an Axis, it returns a
-// set of tick marks with labels that have been rounded less agressively than
-// what DefaultTicks provides.
-type PreciseTicks struct{}
-
-var _ Ticker = PreciseTicks{}
-
-// Ticks returns Ticks in a specified range
-func (PreciseTicks) Ticks(min, max float64) []Tick {
 	const suggestedTicks = 3
 
-	if max <= min {
-		panic("illegal range")
+	labels, step, q, mag := talbotLinHanrahan(min, max, suggestedTicks, withinData, nil, nil, nil)
+	majorDelta := step * math.Pow10(mag)
+	if q == 0 {
+		// Simple fall back was chosen, so
+		// majorDelta is the label distance.
+		majorDelta = labels[1] - labels[0]
 	}
 
-	tens := math.Pow10(int(math.Floor(math.Log10(max - min))))
-	n := (max - min) / tens
-	for n < suggestedTicks-1 {
-		tens /= 10
-		n = (max - min) / tens
+	// Choose a reasonable, but ad
+	// hoc formatting for labels.
+	fc := byte('f')
+	var off int
+	if mag < -1 || 6 < mag {
+		off = 1
+		fc = 'g'
 	}
-
-	majorMult := int(n / (suggestedTicks - 1))
-	switch majorMult {
-	case 7:
-		majorMult = 6
-	case 9:
-		majorMult = 8
+	if math.Trunc(q) != q {
+		off += 2
 	}
-	majorDelta := float64(majorMult) * tens
-	val := math.Floor(min/majorDelta) * majorDelta
-	// Makes a list of non-truncated y-values.
-	var labels []float64
-	for val <= max {
-		if val >= min {
-			labels = append(labels, val)
-		}
-		val += majorDelta
-	}
-	prec := int(math.Ceil(math.Log10(val)) - math.Floor(math.Log10(majorDelta)))
-	// Makes a list of big ticks.
+	prec := minInt(6, maxInt(off, -mag))
 	var ticks []Tick
 	for _, v := range labels {
-		vRounded := round(v, prec)
-		ticks = append(ticks, Tick{Value: vRounded, Label: formatFloatTick(vRounded, -1)})
-	}
-	minorDelta := majorDelta / 2
-	switch majorMult {
-	case 3, 6:
-		minorDelta = majorDelta / 3
-	case 5:
-		minorDelta = majorDelta / 5
+		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fc, prec, 64)})
 	}
 
-	val = math.Floor(min/minorDelta) * minorDelta
-	for val <= max {
+	var minorDelta float64
+	// See talbotLinHanrahan for the values used here.
+	switch step {
+	case 1, 2.5:
+		minorDelta = majorDelta / 5
+	case 2, 3, 4, 5:
+		minorDelta = majorDelta / step
+	default:
+		if majorDelta/2 < dlamchP {
+			return ticks
+		}
+		minorDelta = majorDelta / 2
+	}
+
+	// Find the first minor tick not greater
+	// than the lowest data value.
+	var i float64
+	for labels[0]+(i-1)*minorDelta > min {
+		i--
+	}
+	// Add ticks at minorDelta intervals when
+	// they are not within minorDelta/2 of a
+	// labelled tick.
+	for {
+		val := labels[0] + i*minorDelta
+		if val > max {
+			break
+		}
 		found := false
 		for _, t := range ticks {
-			if t.Value == val {
+			if math.Abs(t.Value-val) < minorDelta/2 {
 				found = true
 			}
 		}
-		if val >= min && val <= max && !found {
+		if !found {
 			ticks = append(ticks, Tick{Value: val})
 		}
-		val += minorDelta
+		i++
 	}
+
 	return ticks
+}
+
+func minInt(a, b int) int {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+func maxInt(a, b int) int {
+	if a > b {
+		return a
+	}
+	return b
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
@@ -491,95 +458,25 @@ var _ Ticker = LogTicks{}
 
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
-	var ticks []Tick
-	var labels []float64
-
-	val := math.Pow10(int(math.Floor(math.Log10(min))))
-
 	if min <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
 
-	for val < max*10 {
+	val := math.Pow10(int(math.Log10(min)))
+	max = math.Pow10(int(math.Ceil(math.Log10(max))))
+	var ticks []Tick
+	for val < max {
 		for i := 1; i < 10; i++ {
-			tick := Tick{Value: val * float64(i)}
 			if i == 1 {
-				labels = append(labels, val*float64(i))
+				ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
 			}
-			// Makes a list of small ticks.
-			ticks = append(ticks, tick)
+			ticks = append(ticks, Tick{Value: val * float64(i)})
 		}
 		val *= 10
 	}
+	ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
 
-	labels = adjustPrecision(labels)
-
-	// Adds big ticks to the list of small ones.
-	for _, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: formatFloatTick(v, -1)})
-	}
 	return ticks
-}
-
-func adjustPrecision(elements []float64) []float64 {
-	const maxExp = 308 // maxExp is the maximum float64 exponent.
-	for i := 1; i < maxExp; i++ {
-		var result []float64
-		for _, v := range elements {
-			newElement := round(v, i)
-			result = append(result, newElement)
-		}
-		if !hasDuplicates(result) {
-			return result
-		}
-	}
-	return nil
-}
-
-// round returns the half away from zero rounded value of x with a prec precision.
-//
-// Special cases are:
-// 	round(±0) = +0
-// 	round(±Inf) = ±Inf
-// 	round(NaN) = NaN
-func round(x float64, prec int) float64 {
-	if x == 0 {
-		// Make sure zero is returned
-		// without the negative bit set.
-		return 0
-	}
-	// Fast path for positive precision on integers.
-	if prec >= 0 && x == math.Trunc(x) {
-		return x
-	}
-	pow := math.Pow10(prec)
-	intermed := x * pow
-	if math.IsInf(intermed, 0) {
-		return x
-	}
-	if x < 0 {
-		x = math.Ceil(intermed - 0.5)
-	} else {
-		x = math.Floor(intermed + 0.5)
-	}
-
-	if x == 0 {
-		return 0
-	}
-
-	return x / pow
-}
-
-// hasDuplicates returns whether the sorted slice f has a duplicate element.
-// Standard IEEE 754 NaN equality is used since tick values are not expected
-// to contain NaN values.
-func hasDuplicates(f []float64) bool {
-	for i, v := range f[1:] {
-		if v == f[i] {
-			return true
-		}
-	}
-	return false
 }
 
 // ConstantTicks is suitable for the Tick.Marker field of an Axis.
