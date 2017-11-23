@@ -29,7 +29,6 @@ func init() {
 	gob.Register(plotter.BarChart{})
 	gob.Register(plotter.Histogram{})
 	gob.Register(plotter.BoxPlot{})
-	gob.Register(plotter.Bubbles{})
 	gob.Register(plotter.YErrorBars{})
 	gob.Register(plotter.XErrorBars{})
 	gob.Register(plotter.Function{})
