@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -47,4 +48,21 @@ func TestIssue179(t *testing.T) {
 	if !bytes.Equal(b.Bytes(), want) {
 		t.Error("Image mismatch")
 	}
+}
+
+func TestConcurrentInit(t *testing.T) {
+	vg.MakeFont("Helvetica", 10)
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		c := vgimg.New(215, 215)
+		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
+		wg.Done()
+	}()
+	go func() {
+		c := vgimg.New(215, 215)
+		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
+		wg.Done()
+	}()
+	wg.Wait()
 }

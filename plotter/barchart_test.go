@@ -158,8 +158,7 @@ func ExampleBarChart() {
 	p.Legend.Add("C", barsC)
 	p.Legend.Add("D", barsD)
 	p.Legend.Top = true
-	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
-		"Six", "Seven", "Eight", "Nine", "Ten")
+	p.NominalX("Zero", "One", "Two", "Three", "Four")
 
 	p.Add(NewGlyphBoxes())
 	err = p.Save(250, 250, "testdata/stackedBarChart.png")

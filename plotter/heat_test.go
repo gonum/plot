@@ -7,6 +7,7 @@ package plotter
 import (
 	"fmt"
 	"log"
+	"math"
 	"os"
 	"testing"
 
@@ -42,6 +43,16 @@ func (g offsetUnitGrid) Y(r int) float64 {
 	return float64(r) + g.YOffset
 }
 
+type integerTicks struct{}
+
+func (integerTicks) Ticks(min, max float64) []plot.Tick {
+	var t []plot.Tick
+	for i := math.Trunc(min); i <= max; i++ {
+		t = append(t, plot.Tick{Value: i, Label: fmt.Sprint(i)})
+	}
+	return t
+}
+
 func ExampleHeatMap() {
 	m := offsetUnitGrid{
 		XOffset: -2,
@@ -59,6 +70,9 @@ func ExampleHeatMap() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Heat map"
+
+	p.X.Tick.Marker = integerTicks{}
+	p.Y.Tick.Marker = integerTicks{}
 
 	p.Add(h)
 

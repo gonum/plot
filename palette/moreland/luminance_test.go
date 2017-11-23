@@ -7,6 +7,7 @@ package moreland
 import (
 	"fmt"
 	"image/color"
+	"math/rand"
 	"reflect"
 	"testing"
 )
@@ -117,4 +118,23 @@ func TestExtendedBlackBody(t *testing.T) {
 // [0, 0xffff].
 func floatToUint32(f float64) uint32 {
 	return uint32(f * 0xffff)
+}
+
+func BenchmarkLuminance_At(b *testing.B) {
+	pBase := ExtendedBlackBody()
+	for n := 2; n < 12; n += 2 {
+		p, err := NewLuminance(pBase.Palette(n).Colors())
+		if err != nil {
+			b.Fatal(err)
+		}
+		p.SetMax(1)
+		rand.Seed(1)
+		b.Run(fmt.Sprintf("%d controls", n), func(b *testing.B) {
+			for i := 0; i < b.N; i++ {
+				if _, err := p.At(rand.Float64()); err != nil {
+					b.Fatal(err)
+				}
+			}
+		})
+	}
 }

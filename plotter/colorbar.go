@@ -30,15 +30,15 @@ type ColorBar struct {
 
 // colors returns the number of colors to be shown
 // in the legend, substituting invalid values
-// with the default of one color per vg.Point.
+// with the default of one color per point.
 func (l *ColorBar) colors(c draw.Canvas) int {
 	if l.Colors > 0 {
 		return l.Colors
 	}
 	if l.Vertical {
-		return int((c.Max.Y - c.Min.Y).Points())
+		return int(c.Max.Y - c.Min.Y)
 	}
-	return int((c.Max.X - c.Min.X).Points())
+	return int(c.Max.X - c.Min.X)
 }
 
 // check determines whether the ColorBar is
@@ -58,7 +58,7 @@ func (l *ColorBar) Plot(c draw.Canvas, p *plot.Plot) {
 	colors := l.colors(c)
 	var img *image.NRGBA64
 	var xmin, xmax, ymin, ymax vg.Length
-	delta := (l.ColorMap.Max() - l.ColorMap.Min()) / float64(colors-1)
+	delta := (l.ColorMap.Max() - l.ColorMap.Min()) / float64(colors)
 	if l.Vertical {
 		trX, trY := p.Transforms(&c)
 		xmin = trX(0)
