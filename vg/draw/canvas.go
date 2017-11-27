@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"sort"
 	"sync"
 
 	"gonum.org/v1/plot/vg"
@@ -19,6 +20,18 @@ var formats = struct {
 	m map[string]func(w, h vg.Length) vg.CanvasWriterTo
 }{
 	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
+}
+
+// Formats returns a sorted list of the registered formats.
+func Formats() []string {
+	formats.Lock()
+	defer formats.Unlock()
+	var list []string
+	for name := range formats.m {
+		list = append(list, name)
+	}
+	sort.Strings(list)
+	return list
 }
 
 // RegisterFormat registers an image format for use by NewFormattedCanvas.
@@ -284,14 +297,12 @@ func New(c vg.CanvasSizer) Canvas {
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
 	formats.Lock()
 	defer formats.Unlock()
-	var supported []string
 	for name, fn := range formats.m {
 		if format == name {
 			return fn(w, h), nil
 		}
-		supported = append(supported, name)
 	}
-	return nil, fmt.Errorf("unsupported format: %q. supported formats: %v", format, supported)
+	return nil, fmt.Errorf("unsupported format: %q. supported formats: %v", format, Formats())
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
