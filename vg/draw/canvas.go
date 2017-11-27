@@ -22,16 +22,16 @@ var formats = struct {
 }
 
 // RegisterFormat registers an image format for use by NewFormattedCanvas.
-// Name is the name of the format, like "jpeg" or "png".
-// New is the construction function to call for the format.
+// name is the name of the format, like "jpeg" or "png".
+// fn is the construction function to call for the format.
+// If RegisterFormat is called with fn being nil, it panics.
 func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
 	formats.Lock()
 	defer formats.Unlock()
 	if fn == nil {
-		delete(formats.m, name)
-	} else {
-		formats.m[name] = fn
+		panic("draw: RegisterFormat with nil function")
 	}
+	formats.m[name] = fn
 }
 
 // A Canvas is a vector graphics canvas along with
