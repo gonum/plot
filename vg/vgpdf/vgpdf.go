@@ -106,9 +106,11 @@ func (c *Canvas) SetColor(clr color.Color) {
 	}
 	c.cur().drawc = clr
 	c.cur().fillc = clr
-	c.pdf.SetFillColor(rgb(clr))
-	c.pdf.SetDrawColor(rgb(clr))
-	c.pdf.SetTextColor(rgb(clr))
+	r, g, b, a := rgba(clr)
+	c.pdf.SetFillColor(r, g, b)
+	c.pdf.SetDrawColor(r, g, b)
+	c.pdf.SetTextColor(r, g, b)
+	c.pdf.SetAlpha(a, "Normal")
 }
 
 func (c *Canvas) Rotate(r float64) {
@@ -364,13 +366,13 @@ const (
 	c255 = 255.0 / 65535.0
 )
 
-// rgb converts a Go color into a gofpdf 3-tuple int
-func rgb(c color.Color) (int, int, int) {
+// rgba converts a Go color into a gofpdf 3-tuple int + 1 float64
+func rgba(c color.Color) (int, int, int, float64) {
 	if c == nil {
 		c = color.Black
 	}
-	r, g, b, _ := c.RGBA()
-	return int(float64(r) * c255), int(float64(g) * c255), int(float64(b) * c255)
+	r, g, b, a := c.RGBA()
+	return int(float64(r) * c255), int(float64(g) * c255), int(float64(b) * c255), float64(a) / math.MaxUint16
 }
 
 func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
