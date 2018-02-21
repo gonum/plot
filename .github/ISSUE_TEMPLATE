@@ -1,0 +1,33 @@
+<!--
+Please make sure your issue title matchs the Go convention; a summary
+of the problem, prefixed by the primary affected package.
+
+If the issue is a question about usage or similar, please ask at the
+Gonum discussion list rather than filing an issue:
+
+https://groups.google.com/forum/#!forum/gonum-dev
+-->
+### What are you trying to do?
+
+
+### What did you do?
+<!-- Please include a link to a minimal reproducer here. -->
+
+
+### What did you expect to happen?
+<!-- Please include an expected output image if available. -->
+
+
+### What actually happened?
+<!-- Please include an annotated output image if available. -->
+
+
+### What version of Go and Gonum are you using?
+<!--
+Paste the output of `go version` and if you are installing Gonum from source, paste
+the output of `(cd $(go env GOPATH)/src/gonum.org/v1/gonum && git rev-parse HEAD)`.
+-->
+
+
+### Does this issue reproduce with the current master?
+
