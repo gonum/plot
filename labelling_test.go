@@ -234,7 +234,7 @@ func TestTalbotLinHanrahan(t *testing.T) {
 				test.dMin, test.dMax, test.want, test.containment, step, test.wantStep)
 		}
 		if magnitude != test.wantMagnitude {
-			t.Errorf("unexpected magnitude for dMin=%g, dMax=%g, want=%d, containment=%t: got:%d want:%d",
+			t.Errorf("unexpected magnitude for dMin=%g, dMax=%g, want=%d, containment=%d: got:%d want:%d",
 				test.dMin, test.dMax, test.want, test.containment, magnitude, test.wantMagnitude)
 		}
 		if test.containment == containData {
