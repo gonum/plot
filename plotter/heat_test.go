@@ -77,11 +77,15 @@ func ExampleHeatMap() {
 	p.Add(h)
 
 	// Create a legend.
+	l, err := plot.NewLegend()
+	if err != nil {
+		log.Panic(err)
+	}
 	thumbs := PaletteThumbnailers(pal)
 	for i := len(thumbs) - 1; i >= 0; i-- {
 		t := thumbs[i]
 		if i != 0 && i != len(thumbs)-1 {
-			p.Legend.Add("", t)
+			l.Add("", t)
 			continue
 		}
 		var val float64
@@ -91,12 +95,8 @@ func ExampleHeatMap() {
 		case len(thumbs) - 1:
 			val = h.Max
 		}
-		p.Legend.Add(fmt.Sprintf("%.2g", val), t)
+		l.Add(fmt.Sprintf("%.2g", val), t)
 	}
-	// This is the width of the legend, experimentally determined.
-	const legendWidth = 1.25 * vg.Centimeter
-	// Slide the legend over so it doesn't overlap the HeatMap.
-	p.Legend.XOffs = legendWidth
 
 	p.X.Padding = 0
 	p.Y.Padding = 0
@@ -105,7 +105,15 @@ func ExampleHeatMap() {
 
 	img := vgimg.New(250, 175)
 	dc := draw.New(img)
-	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
+
+	l.Top = true
+	// Calculate the width of the legend.
+	r := l.Rectangle(dc)
+	legendWidth := r.Max.X - r.Min.X
+	l.YOffs = -p.Title.Font.Extents().Height // Adjust the legend down a little.
+
+	l.Draw(dc)
+	dc = draw.Crop(dc, 0, -legendWidth-vg.Millimeter, 0, 0) // Make space for the legend.
 	p.Draw(dc)
 	w, err := os.Create("testdata/heatMap.png")
 	if err != nil {
