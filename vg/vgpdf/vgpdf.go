@@ -32,20 +32,19 @@ const DPI = 72
 // Canvas implements the vg.Canvas interface,
 // drawing to a PDF.
 type Canvas struct {
-	pdf         *pdf.Fpdf
-	w, h        vg.Length
-	lineVisible bool
+	doc  *pdf.Fpdf
+	w, h vg.Length
 
-	dpi   int
-	nimgs int // images counter
-	ctx   []context
-	fonts map[vg.Font]struct{}
+	dpi       int
+	numImages int
+	stack     []context
+	fonts     map[vg.Font]struct{}
 }
 
 type context struct {
-	fillc color.Color // fill color
-	drawc color.Color // draw color
-	linew vg.Length   // line width
+	fill  color.Color
+	line  color.Color
+	width vg.Length
 }
 
 // New creates a new PDF Canvas.
@@ -55,17 +54,16 @@ func New(w, h vg.Length) *Canvas {
 		Size:    pdf.SizeType{Wd: w.Points(), Ht: h.Points()},
 	}
 	c := &Canvas{
-		pdf:         pdf.NewCustom(&cfg),
-		w:           w,
-		h:           h,
-		lineVisible: true,
-		dpi:         DPI,
-		ctx:         make([]context, 1),
-		fonts:       make(map[vg.Font]struct{}),
+		doc:   pdf.NewCustom(&cfg),
+		w:     w,
+		h:     h,
+		dpi:   DPI,
+		stack: make([]context, 1),
+		fonts: make(map[vg.Font]struct{}),
 	}
 	vg.Initialize(c)
-	c.pdf.SetMargins(0, 0, 0)
-	c.pdf.AddPage()
+	c.doc.SetMargins(0, 0, 0)
+	c.doc.AddPage()
 	c.Push()
 	c.Translate(vg.Point{0, h})
 	c.Scale(1, -1)
@@ -77,8 +75,8 @@ func (c *Canvas) DPI() float64 {
 	return float64(c.dpi)
 }
 
-func (c *Canvas) cur() *context {
-	return &c.ctx[len(c.ctx)-1]
+func (c *Canvas) context() *context {
+	return &c.stack[len(c.stack)-1]
 }
 
 func (c *Canvas) Size() (w, h vg.Length) {
@@ -86,10 +84,9 @@ func (c *Canvas) Size() (w, h vg.Length) {
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
-	c.cur().linew = w
+	c.context().width = w
 	lw := c.unit(w)
-	c.pdf.SetLineWidth(lw)
-	c.lineVisible = w > 0
+	c.doc.SetLineWidth(lw)
 }
 
 func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
@@ -97,47 +94,47 @@ func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
 	for i, d := range dashes {
 		ds[i] = c.unit(d)
 	}
-	c.pdf.SetDashPattern(ds, c.unit(offs))
+	c.doc.SetDashPattern(ds, c.unit(offs))
 }
 
 func (c *Canvas) SetColor(clr color.Color) {
 	if clr == nil {
 		clr = color.Black
 	}
-	c.cur().drawc = clr
-	c.cur().fillc = clr
+	c.context().line = clr
+	c.context().fill = clr
 	r, g, b, a := rgba(clr)
-	c.pdf.SetFillColor(r, g, b)
-	c.pdf.SetDrawColor(r, g, b)
-	c.pdf.SetTextColor(r, g, b)
-	c.pdf.SetAlpha(a, "Normal")
+	c.doc.SetFillColor(r, g, b)
+	c.doc.SetDrawColor(r, g, b)
+	c.doc.SetTextColor(r, g, b)
+	c.doc.SetAlpha(a, "Normal")
 }
 
 func (c *Canvas) Rotate(r float64) {
-	c.pdf.TransformRotate(-r*180/math.Pi, 0, 0)
+	c.doc.TransformRotate(-r*180/math.Pi, 0, 0)
 }
 
 func (c *Canvas) Translate(pt vg.Point) {
 	xp, yp := c.pdfPoint(pt)
-	c.pdf.TransformTranslate(xp, yp)
+	c.doc.TransformTranslate(xp, yp)
 }
 
 func (c *Canvas) Scale(x float64, y float64) {
-	c.pdf.TransformScale(x*100, y*100, 0, 0)
+	c.doc.TransformScale(x*100, y*100, 0, 0)
 }
 
 func (c *Canvas) Push() {
-	c.ctx = append(c.ctx, *c.cur())
-	c.pdf.TransformBegin()
+	c.stack = append(c.stack, *c.context())
+	c.doc.TransformBegin()
 }
 
 func (c *Canvas) Pop() {
-	c.pdf.TransformEnd()
-	c.ctx = c.ctx[:len(c.ctx)-1]
+	c.doc.TransformEnd()
+	c.stack = c.stack[:len(c.stack)-1]
 }
 
 func (c *Canvas) Stroke(p vg.Path) {
-	if c.lineVisible {
+	if c.context().width > 0 {
 		c.pdfPath(p, "D")
 	}
 }
@@ -148,7 +145,7 @@ func (c *Canvas) Fill(p vg.Path) {
 
 func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	c.font(fnt, pt)
-	c.pdf.SetFont(fnt.Name(), "", c.unit(fnt.Size))
+	c.doc.SetFont(fnt.Name(), "", c.unit(fnt.Size))
 
 	c.Push()
 	defer c.Pop()
@@ -158,27 +155,22 @@ func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	left, top, right, bottom := c.sbounds(fnt, str)
 	w := right - left
 	h := bottom - top
-	margin := c.pdf.GetCellMargin()
+	margin := c.doc.GetCellMargin()
 
-	c.pdf.MoveTo(-left-margin, top)
-	c.pdf.CellFormat(w, h, str, "", 0, "BL", false, 0, "")
+	c.doc.MoveTo(-left-margin, top)
+	c.doc.CellFormat(w, h, str, "", 0, "BL", false, 0, "")
 }
 
 func (c *Canvas) sbounds(fnt vg.Font, txt string) (left, top, right, bottom float64) {
-	_, h := c.pdf.GetFontSize()
-	d := c.pdf.GetFontDesc("", "")
+	_, h := c.doc.GetFontSize()
+	d := c.doc.GetFontDesc("", "")
 	if d.Ascent == 0 {
 		// not defined (standard font?), use average of 81%
 		top = 0.81 * h
 	} else {
 		top = -float64(d.Ascent) * h / float64(d.Ascent-d.Descent)
 	}
-	return 0, top, c.pdf.GetStringWidth(txt), top + h
-}
-
-// whitespace determines if a rune is whitespace
-func whitespace(r rune) bool {
-	return r == ' ' || r == '\n' || r == '\t'
+	return 0, top, c.doc.GetStringWidth(txt), top + h
 }
 
 // DrawImage implements the vg.Canvas.DrawImage method.
@@ -191,12 +183,12 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 	if err != nil {
 		log.Panicf("error encoding image to PNG: %v", err)
 	}
-	c.pdf.RegisterImageOptionsReader(name, opts, buf)
+	c.doc.RegisterImageOptionsReader(name, opts, buf)
 
 	xp, yp := c.pdfPoint(rect.Min)
 	wp, hp := c.pdfPoint(rect.Size())
 
-	c.pdf.ImageOptions(name, xp, yp, wp, hp, false, opts, 0, "")
+	c.doc.ImageOptions(name, xp, yp, wp, hp, false, opts, 0, "")
 }
 
 // font registers a font and a size with the PDF canvas.
@@ -222,10 +214,10 @@ func (c *Canvas) font(fnt vg.Font, pt vg.Point) {
 		}
 
 		c.fonts[fnt] = struct{}{}
-		c.pdf.AddFontFromBytes(fnt.Name(), "", jdata, zdata)
+		c.doc.AddFontFromBytes(fnt.Name(), "", jdata, zdata)
 		return
 	}
-	log.Panicf("vgpdf: not implemented")
+	log.Panicf("vgpdf: could not find font %q in the pre-registered fonts map", fnt.Name())
 }
 
 // pdfPath processes a vg.Path and applies it to the canvas.
@@ -238,20 +230,20 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 		switch comp.Type {
 		case vg.MoveComp:
 			xp, yp = c.pdfPoint(comp.Pos)
-			c.pdf.MoveTo(xp, yp)
+			c.doc.MoveTo(xp, yp)
 		case vg.LineComp:
-			c.pdf.LineTo(c.pdfPoint(comp.Pos))
+			c.doc.LineTo(c.pdfPoint(comp.Pos))
 		case vg.ArcComp:
 			// FIXME(sbinet): use c.pdf.ArcTo
 			c.arc(comp, style)
 		case vg.CloseComp:
-			c.pdf.LineTo(xp, yp)
-			c.pdf.ClosePath()
+			c.doc.LineTo(xp, yp)
+			c.doc.ClosePath()
 		default:
 			panic(fmt.Sprintf("Unknown path component type: %d\n", comp.Type))
 		}
 	}
-	c.pdf.DrawPath(style)
+	c.doc.DrawPath(style)
 	return
 }
 
@@ -263,7 +255,7 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 func (c *Canvas) arc(comp vg.PathComp, style string) {
 	x0 := comp.Pos.X + comp.Radius*vg.Length(math.Cos(comp.Start))
 	y0 := comp.Pos.Y + comp.Radius*vg.Length(math.Sin(comp.Start))
-	c.pdf.LineTo(c.pdfPointXY(x0, y0))
+	c.doc.LineTo(c.pdfPointXY(x0, y0))
 
 	a1 := comp.Start
 	end := a1 + comp.Angle
@@ -312,7 +304,7 @@ func (c *Canvas) partialArc(x, y, r vg.Length, a1, a2 float64, style string) {
 	y3r := x3*sinar + y3*cosar + y
 	x4 = r*vg.Length(math.Cos(a2)) + x
 	y4 = r*vg.Length(math.Sin(a2)) + y
-	c.pdf.Curve(c.unit(x2r), c.unit(y2r), c.unit(x3r), c.unit(y3r), c.unit(x4), c.unit(y4), style)
+	c.doc.Curve(c.unit(x2r), c.unit(y2r), c.unit(x3r), c.unit(y3r), c.unit(x4), c.unit(y4), style)
 }
 
 func (c *Canvas) pdfPointXY(x, y vg.Length) (float64, float64) {
@@ -330,8 +322,8 @@ func (c *Canvas) unit(l vg.Length) float64 {
 
 // imageName generates a unique image name for this PDF canvas
 func (c *Canvas) imageName() string {
-	c.nimgs++
-	return fmt.Sprintf("image_%03d.png", c.nimgs)
+	c.numImages++
+	return fmt.Sprintf("image_%03d.png", c.numImages)
 }
 
 // WriterCounter implements the io.Writer interface, and counts
@@ -352,19 +344,15 @@ func (w *writerCounter) Write(p []byte) (int, error) {
 // and may no longer be used for drawing.
 func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	c.Pop()
-	c.pdf.Close()
+	c.doc.Close()
 	wc := writerCounter{Writer: w}
 	b := bufio.NewWriter(&wc)
-	if err := c.pdf.Output(b); err != nil {
+	if err := c.doc.Output(b); err != nil {
 		return wc.n, err
 	}
 	err := b.Flush()
 	return wc.n, err
 }
-
-const (
-	c255 = 255.0 / 65535.0
-)
 
 // rgba converts a Go color into a gofpdf 3-tuple int + 1 float64
 func rgba(c color.Color) (int, int, int, float64) {
@@ -372,7 +360,7 @@ func rgba(c color.Color) (int, int, int, float64) {
 		c = color.Black
 	}
 	r, g, b, a := c.RGBA()
-	return int(float64(r) * c255), int(float64(g) * c255), int(float64(b) * c255), float64(a) / math.MaxUint16
+	return int(r >> 8), int(g >> 8), int(b >> 8), float64(a) / math.MaxUint16
 }
 
 func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
