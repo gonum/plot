@@ -88,7 +88,7 @@ func newCanvas(w, h vg.Length, document bool) *Canvas {
 	return c
 }
 
-func (c *Canvas) ctx() *context {
+func (c *Canvas) context() *context {
 	return &c.stack[len(c.stack)-1]
 }
 
@@ -99,18 +99,18 @@ func (c *Canvas) Size() (w, h vg.Length) {
 
 // SetLineWidth implements the vg.Canvas.SetLineWidth method.
 func (c *Canvas) SetLineWidth(w vg.Length) {
-	c.ctx().linew = w
+	c.context().linew = w
 }
 
 // SetLineDash implements the vg.Canvas.SetLineDash method.
 func (c *Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
-	c.ctx().dashArray = pattern
-	c.ctx().dashOffset = offset
+	c.context().dashArray = pattern
+	c.context().dashOffset = offset
 }
 
 // SetColor implements the vg.Canvas.SetColor method.
 func (c *Canvas) SetColor(clr color.Color) {
-	c.ctx().color = clr
+	c.context().color = clr
 }
 
 // Rotate implements the vg.Canvas.Rotate method.
@@ -132,7 +132,7 @@ func (c *Canvas) Scale(x, y float64) {
 // Push implements the vg.Canvas.Push method.
 func (c *Canvas) Push() {
 	c.wtex(`\begin{pgfscope}`)
-	c.stack = append(c.stack, *c.ctx())
+	c.stack = append(c.stack, *c.context())
 }
 
 // Pop implements the vg.Canvas.Pop method.
@@ -144,7 +144,7 @@ func (c *Canvas) Pop() {
 
 // Stroke implements the vg.Canvas.Stroke method.
 func (c *Canvas) Stroke(p vg.Path) {
-	if c.ctx().linew <= 0 {
+	if c.context().linew <= 0 {
 		return
 	}
 	c.wstyle()
@@ -208,23 +208,23 @@ func (c *Canvas) wstyle() {
 }
 
 func (c *Canvas) wdash() {
-	if len(c.ctx().dashArray) == 0 {
+	if len(c.context().dashArray) == 0 {
 		return
 	}
 	str := `\pgfsetdash{`
-	for _, d := range c.ctx().dashArray {
+	for _, d := range c.context().dashArray {
 		str += fmt.Sprintf("{%gpt}", d)
 	}
-	str += fmt.Sprintf("}{%gpt}", c.ctx().dashOffset)
+	str += fmt.Sprintf("}{%gpt}", c.context().dashOffset)
 	c.wtex(str)
 }
 
 func (c *Canvas) wlineWidth() {
-	c.wtex(`\pgfsetlinewidth{%gpt}`, c.ctx().linew)
+	c.wtex(`\pgfsetlinewidth{%gpt}`, c.context().linew)
 }
 
 func (c *Canvas) wcolor() {
-	col := c.ctx().color
+	col := c.context().color
 	if col == nil {
 		col = color.Black
 	}
