@@ -64,6 +64,8 @@ func ExampleAlign() {
 	t := draw.Tiles{
 		Rows: rows,
 		Cols: cols,
+		PadX: vg.Millimeter,
+		PadY: vg.Millimeter,
 	}
 
 	canvases := Align(plots, t, dc)
