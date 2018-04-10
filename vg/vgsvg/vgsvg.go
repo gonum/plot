@@ -31,11 +31,11 @@ const DPI = 90
 const pr = 5
 
 type Canvas struct {
-	svg  *svgo.SVG
-	w, h vg.Length
-	buf  *bytes.Buffer
-	ht   float64
-	stk  []context
+	svg   *svgo.SVG
+	w, h  vg.Length
+	buf   *bytes.Buffer
+	ht    float64
+	stack []context
 }
 
 type context struct {
@@ -49,12 +49,12 @@ type context struct {
 func New(w, h vg.Length) *Canvas {
 	buf := new(bytes.Buffer)
 	c := &Canvas{
-		svg: svgo.New(buf),
-		w:   w,
-		h:   h,
-		buf: buf,
-		ht:  w.Points(),
-		stk: []context{context{}},
+		svg:   svgo.New(buf),
+		w:     w,
+		h:     h,
+		buf:   buf,
+		ht:    w.Points(),
+		stack: []context{context{}},
 	}
 
 	// This is like svg.Start, except it uses floats
@@ -82,7 +82,7 @@ func (c *Canvas) Size() (w, h vg.Length) {
 }
 
 func (c *Canvas) cur() *context {
-	return &c.stk[len(c.stk)-1]
+	return &c.stack[len(c.stack)-1]
 }
 
 func (c *Canvas) SetLineWidth(w vg.Length) {
@@ -117,14 +117,14 @@ func (c *Canvas) Scale(x, y float64) {
 func (c *Canvas) Push() {
 	top := *c.cur()
 	top.gEnds = 0
-	c.stk = append(c.stk, top)
+	c.stack = append(c.stack, top)
 }
 
 func (c *Canvas) Pop() {
 	for i := 0; i < c.cur().gEnds; i++ {
 		c.svg.Gend()
 	}
-	c.stk = c.stk[:len(c.stk)-1]
+	c.stack = c.stack[:len(c.stack)-1]
 }
 
 func (c *Canvas) Stroke(path vg.Path) {
@@ -341,7 +341,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 // needed before the SVG is saved.
 func (c *Canvas) nEnds() int {
 	n := 1 // close the transform that moves the origin
-	for _, ctx := range c.stk {
+	for _, ctx := range c.stack {
 		n += ctx.gEnds
 	}
 	return n

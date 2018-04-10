@@ -23,9 +23,9 @@ import (
 const DPI = 72
 
 type Canvas struct {
-	stk  []ctx
-	w, h vg.Length
-	buf  *bytes.Buffer
+	stack []ctx
+	w, h  vg.Length
+	buf   *bytes.Buffer
 }
 
 type ctx struct {
@@ -48,10 +48,10 @@ func New(w, h vg.Length) *Canvas {
 // NewTitle returns a new Canvas with the given title string.
 func NewTitle(w, h vg.Length, title string) *Canvas {
 	c := &Canvas{
-		stk: []ctx{ctx{}},
-		w:   w,
-		h:   h,
-		buf: new(bytes.Buffer),
+		stack: []ctx{ctx{}},
+		w:     w,
+		h:     h,
+		buf:   new(bytes.Buffer),
 	}
 	c.buf.WriteString("%%!PS-Adobe-3.0 EPSF-3.0\n")
 	c.buf.WriteString("%%Creator gonum.org/v1/plot/vg/vgeps\n")
@@ -73,7 +73,7 @@ func (c *Canvas) Size() (w, h vg.Length) {
 
 // cur returns the top context on the stack.
 func (e *Canvas) cur() *ctx {
-	return &e.stk[len(e.stk)-1]
+	return &e.stack[len(e.stack)-1]
 }
 
 func (e *Canvas) SetLineWidth(w vg.Length) {
@@ -130,12 +130,12 @@ func (e *Canvas) Scale(x, y float64) {
 }
 
 func (e *Canvas) Push() {
-	e.stk = append(e.stk, *e.cur())
+	e.stack = append(e.stack, *e.cur())
 	e.buf.WriteString("gsave\n")
 }
 
 func (e *Canvas) Pop() {
-	e.stk = e.stk[:len(e.stk)-1]
+	e.stack = e.stack[:len(e.stack)-1]
 	e.buf.WriteString("grestore\n")
 }
 
