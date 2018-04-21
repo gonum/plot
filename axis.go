@@ -540,6 +540,129 @@ func (t TimeTicks) Ticks(min, max float64) []Tick {
 	return ticks
 }
 
+// TimeTicks is suitable for axes representing time values.
+// TimeTicks expects values in Unix time seconds.  It will
+// adjust the number of ticks according to the specified Width.  If
+// not specified, Width defaults to 10 centimeters.
+type TimeTicks struct {
+	// Width is the width of the underlying graph, used to calculate
+	// the number of ticks that can fit properly with their time
+	// shown.
+	Width vg.Length
+}
+
+var _ Ticker = TimeTicks{}
+
+// Inspired by https://github.com/d3/d3-scale/blob/master/src/time.js
+var tickRules = []tickRule{
+	{time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{200 * time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{500 * time.Millisecond, "15:04:05.000", "15:04:05", ".000"},
+	{time.Second, "15:04:05", "15:04", ":05"},
+	{2 * time.Second, "15:04:05", "15:04", ":05"},
+	{5 * time.Second, "15:04:05", "15:04", ":05"},
+	{15 * time.Second, "Jan 02, 15:04", "Jan 02", "15:04"},
+	{30 * time.Second, "15:04:05", "15:04", ":05"},
+	{time.Minute, "15:04:05", "15:04", ":05"},
+	{2 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{5 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{15 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{30 * time.Minute, "Jan 02, 3:04pm", "Jan 02", "3:04pm"},
+	{time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{3 * time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{6 * time.Hour, "Jan 2, 3pm", "Jan 2", "3pm"},
+	{12 * time.Hour, "Jan 2", "Jan 2", "3pm"},
+	{24 * time.Hour, "Jan 2", "Jan", "2"},
+	{48 * time.Hour, "Jan 2", "Jan", "2"},
+	{7 * 24 * time.Hour, "Jan 2", "Jan", "2"},
+	{month, "Jan 2006", "2006", "Jan"},
+	{3 * month, "Jan 2006", "2006", "Jan"},
+	{6 * month, "Jan 2006", "2006", "Jan"},
+	{12 * month, "2006", "", "2006"},
+	{2 * year, "2006", "", "2006"},
+	{5 * year, "2006", "", "2006"},
+	{10 * year, "2006", "", "2006"},
+}
+
+const month = 31 * 24 * time.Hour
+const year = 12 * month
+
+// tickRule defines a time display format for a given time window (per
+// inch).
+//
+// This assumes a tick about each `durationPerInch`.  The long format is
+// shown each time the timestamp goes over a certain boundary
+// (verified through `watchFormat`).  This way you can show `Sep 2,
+// 12pm` when you pass midnight after `11pm` on `Sep 1`.
+type tickRule struct {
+	durationPerInch time.Duration // use this rule for a maximum Duration per inch, it is also used as an interval per ticks.
+	longFormat      string        // longer format
+	watchFormat     string        // show long format when watchFormat changes between ticks
+	shortFormat     string        // incremental format, shorter
+}
+
+// Ticks implements plot.Ticker and displays appropriately spaced and
+// formatted time labels.
+func (t TimeTicks) Ticks(min, max float64) []Tick {
+	width := t.Width
+	if width == 0 {
+		width = 10 * vg.Centimeter
+	}
+
+	minT := time.Unix(int64(min), 0).UTC()
+	maxT := time.Unix(int64(max), 0).UTC()
+	durationPerInch := maxT.Sub(minT) / time.Duration(width/vg.Inch)
+
+	lastElement := len(tickRules) - 1
+	rule := tickRules[lastElement]
+	for idx, tickRule := range tickRules[:lastElement] {
+		if durationPerInch < tickRules[idx+1].durationPerInch {
+			rule = tickRule
+			break
+		}
+	}
+
+	timeWindow := rule.durationPerInch
+	delta := time.Month(timeWindow / month) // in months
+	start := minT.Truncate(timeWindow)
+	var lastWatch string
+	var ticks []Tick
+	for {
+		if delta > 0 {
+			// Count in Months now
+			start = time.Date(start.Year(), start.Month()+delta, 1, 0, 0, 0, 0, time.UTC)
+		} else {
+			start = start.Add(timeWindow)
+		}
+
+		if start.Before(minT) {
+			continue
+		}
+		if start.After(maxT) {
+			break
+		}
+
+		var label string
+		newWatch := start.Format(rule.watchFormat)
+		if lastWatch == newWatch {
+			label = start.Format(rule.shortFormat)
+		} else {
+			//TODO: overwrite the first tick with the long form if we
+			// haven't shown a lonform at all.. instead of always
+			// showing the longform first.
+			label = start.Format(rule.longFormat)
+		}
+		lastWatch = newWatch
+
+		ticks = append(ticks, Tick{
+			Value: float64(start.UnixNano()) / float64(time.Second),
+			Label: label,
+		})
+	}
+
+	return ticks
+}
+
 // A Tick is a single tick mark on an axis.
 type Tick struct {
 	// Value is the data value marked by this Tick.
