@@ -5,6 +5,8 @@
 package plotter
 
 import (
+	"math"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -45,13 +47,19 @@ func (f *Function) Plot(c draw.Canvas, p *plot.Plot) {
 		max = p.X.Max
 	}
 	d := (max - min) / float64(f.Samples-1)
-	line := make([]vg.Point, f.Samples)
-	for i := range line {
+	var line vg.Point
+	var lines []vg.Point
+	for i := 0; i < f.Samples; i++ {
 		x := min + float64(i)*d
-		line[i].X = trX(x)
-		line[i].Y = trY(f.F(x))
+		y := f.F(x)
+		if math.IsNaN(y) {
+			continue
+		}
+		line.X = trX(x)
+		line.Y = trY(y)
+		lines = append(lines, line)
 	}
-	c.StrokeLines(f.LineStyle, c.ClipLinesXY(line)...)
+	c.StrokeLines(f.LineStyle, c.ClipLinesXY(lines)...)
 }
 
 // Thumbnail draws a line in the given style down the
