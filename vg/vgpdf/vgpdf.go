@@ -39,6 +39,11 @@ type Canvas struct {
 	numImages int
 	stack     []context
 	fonts     map[vg.Font]struct{}
+
+	// Switch to embed fonts in PDF file.
+	// The default is to embed fonts.
+	// This makes the PDF file more portable but also larger.
+	embed bool
 }
 
 type context struct {
@@ -60,6 +65,7 @@ func New(w, h vg.Length) *Canvas {
 		dpi:   DPI,
 		stack: make([]context, 1),
 		fonts: make(map[vg.Font]struct{}),
+		embed: true,
 	}
 	vg.Initialize(c)
 	c.doc.SetMargins(0, 0, 0)
@@ -69,6 +75,15 @@ func New(w, h vg.Length) *Canvas {
 	c.Scale(1, -1)
 
 	return c
+}
+
+// EmbedFonts specifies whether the resulting PDF canvas should
+// embed the fonts or not.
+// EmbedFonts returns the previous value before modification.
+func (c *Canvas) EmbedFonts(v bool) bool {
+	prev := c.embed
+	c.embed = v
+	return prev
 }
 
 func (c *Canvas) DPI() float64 {
@@ -207,8 +222,7 @@ func (c *Canvas) font(fnt vg.Font, pt vg.Point) {
 			log.Panicf("vgpdf: could not load encoding map: %v", err)
 		}
 
-		const embed = true
-		zdata, jdata, err := makeFont(raw, enc, embed)
+		zdata, jdata, err := makeFont(raw, enc, c.embed)
 		if err != nil {
 			log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
 		}
