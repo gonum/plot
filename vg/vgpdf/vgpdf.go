@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package vgpdf implements the vg.Canvas interface
-// using gopdf (bitbucket.org/zombiezen/gopdf/pdf).
+// using gofpdf (github.com/jung-kurt/gofpdf).
 package vgpdf // import "gonum.org/v1/plot/vg/vgpdf"
 
 import (
