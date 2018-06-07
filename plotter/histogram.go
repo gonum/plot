@@ -193,3 +193,55 @@ type HistogramBin struct {
 	Min, Max float64
 	Weight   float64
 }
+
+// LogHistogram draws an histogram of the data.
+// LogHistogram is like Histogram, but tailored for the special case
+// of a log-Y axis.
+type LogHistogram struct {
+	*Histogram
+}
+
+// Plot implements the Plotter interface, drawing a line
+// that connects each point in the Line.
+func (h LogHistogram) Plot(c draw.Canvas, p *plot.Plot) {
+	trX, trY := p.Transforms(&c)
+
+	_, _, ymin, _ := h.DataRange()
+	for _, bin := range h.Bins {
+		pts := []vg.Point{
+			{trX(bin.Min), trY(ymin)},
+			{trX(bin.Max), trY(ymin)},
+			{trX(bin.Max), trY(bin.Weight)},
+			{trX(bin.Min), trY(bin.Weight)},
+		}
+		if h.FillColor != nil {
+			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
+		}
+		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(ymin)})
+		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
+	}
+}
+
+// DataRange returns the minimum and maximum X and Y values
+func (h LogHistogram) DataRange() (xmin, xmax, ymin, ymax float64) {
+	xmin = math.Inf(1)
+	xmax = math.Inf(-1)
+	ymin = math.Inf(+1)
+	ymax = math.Inf(-1)
+	for _, bin := range h.Bins {
+		if bin.Max > xmax {
+			xmax = bin.Max
+		}
+		if bin.Min < xmin {
+			xmin = bin.Min
+		}
+		if bin.Weight < ymin {
+			ymin = bin.Weight
+		}
+		if bin.Weight > ymax {
+			ymax = bin.Weight
+		}
+	}
+	ymin /= 2.5
+	return
+}
