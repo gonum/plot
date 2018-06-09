@@ -24,6 +24,10 @@ type Histogram struct {
 	// Width is the width of each bin.
 	Width float64
 
+	// LogY enables special logic for plotting
+	// a histogram with a log-Y scale.
+	LogY bool
+
 	// FillColor is the color used to fill each
 	// bar of the histogram.  If the color is nil
 	// then the bars are not filled.
@@ -76,17 +80,21 @@ func (u unitYs) XY(i int) (float64, float64) {
 func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 
+	var ymin float64
+	if h.LogY {
+		_, _, ymin, _ = h.DataRange()
+	}
 	for _, bin := range h.Bins {
 		pts := []vg.Point{
-			{trX(bin.Min), trY(0)},
-			{trX(bin.Max), trY(0)},
+			{trX(bin.Min), trY(ymin)},
+			{trX(bin.Max), trY(ymin)},
 			{trX(bin.Max), trY(bin.Weight)},
 			{trX(bin.Min), trY(bin.Weight)},
 		}
 		if h.FillColor != nil {
 			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 		}
-		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(0)})
+		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(ymin)})
 		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
 }
@@ -96,6 +104,9 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmin = math.Inf(1)
 	xmax = math.Inf(-1)
 	ymax = math.Inf(-1)
+	if h.LogY {
+		ymin = math.Inf(+1)
+	}
 	for _, bin := range h.Bins {
 		if bin.Max > xmax {
 			xmax = bin.Max
@@ -106,6 +117,13 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 		if bin.Weight > ymax {
 			ymax = bin.Weight
 		}
+		if h.LogY && bin.Weight < ymin {
+			ymin = bin.Weight
+		}
+	}
+	if h.LogY {
+		// arbitrary value to get a histogram bar with some arbitrary height
+		ymin /= 2.5
 	}
 	return
 }

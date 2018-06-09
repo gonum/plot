@@ -59,6 +59,40 @@ func ExampleHistogram() {
 	}
 }
 
+func ExampleHistogram_Log() {
+	rnd := rand.New(rand.NewSource(1))
+	n := 1000
+	vals := make(Values, n)
+	for i := 0; i < n; i++ {
+		vals[i] = rnd.NormFloat64()
+	}
+
+	p, err := plot.New()
+	if err != nil {
+		log.Panic(err)
+	}
+	p.Title.Text = "Histogram in log Y"
+	p.Y.Scale = plot.LogScale{}
+	p.Y.Tick.Marker = plot.LogTicks{}
+
+	h, err := NewHist(vals, 16)
+	if err != nil {
+		log.Fatal(err)
+	}
+	h.Normalize(1)
+	h.LogY = true
+	p.Add(h)
+
+	err = p.Save(200, 200, "testdata/histogram_logy.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 func TestHistogram(t *testing.T) {
 	cmpimg.CheckPlot(ExampleHistogram, t, "histogram.png")
+}
+
+func TestLogHistogram(t *testing.T) {
+	cmpimg.CheckPlot(ExampleHistogram_Log, t, "histogram_logy.png")
 }
