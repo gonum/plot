@@ -248,7 +248,6 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 		case vg.LineComp:
 			c.doc.LineTo(c.pdfPoint(comp.Pos))
 		case vg.ArcComp:
-			// FIXME(sbinet): use c.pdf.ArcTo
 			c.arc(comp, style)
 		case vg.CloseComp:
 			c.doc.LineTo(xp, yp)
@@ -261,64 +260,21 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 	return
 }
 
-// Approximate a circular arc using multiple
-// cubic Bézier curves, one for each π/2 segment.
-//
-// This is from:
-// 	http://hansmuller-flex.blogspot.com/2011/04/approximating-circular-arc-with-cubic.html
 func (c *Canvas) arc(comp vg.PathComp, style string) {
 	x0 := comp.Pos.X + comp.Radius*vg.Length(math.Cos(comp.Start))
 	y0 := comp.Pos.Y + comp.Radius*vg.Length(math.Sin(comp.Start))
 	c.doc.LineTo(c.pdfPointXY(x0, y0))
-
-	a1 := comp.Start
-	end := a1 + comp.Angle
-	sign := 1.0
-	if end < a1 {
-		sign = -1.0
-	}
-	left := math.Abs(comp.Angle)
-
-	// Square root of the machine epsilon for IEEE 64-bit floating
-	// point values.  This is the equality threshold recommended
-	// in Numerical Recipes, if I recall correctly—it's small enough.
-	const epsilon = 1.4901161193847656e-08
-
-	for left > epsilon {
-		a2 := a1 + sign*math.Min(math.Pi/2, left)
-		c.partialArc(comp.Pos.X, comp.Pos.Y, comp.Radius, a1, a2, style)
-		left -= math.Abs(a2 - a1)
-		a1 = a2
-	}
-}
-
-// Approximate a circular arc of fewer than π/2
-// radians with cubic Bézier curve.
-func (c *Canvas) partialArc(x, y, r vg.Length, a1, a2 float64, style string) {
-	a := (a2 - a1) / 2
-	x4 := r * vg.Length(math.Cos(a))
-	y4 := r * vg.Length(math.Sin(a))
-	x1 := x4
-	y1 := -y4
-
-	const k = 0.5522847498 // some magic constant
-	f := k * vg.Length(math.Tan(a))
-	x2 := x1 + f*y4
-	y2 := y1 + f*x4
-	x3 := x2
-	y3 := -y2
-
-	// Rotate and translate points into position.
-	ar := a + a1
-	sinar := vg.Length(math.Sin(ar))
-	cosar := vg.Length(math.Cos(ar))
-	x2r := x2*cosar - y2*sinar + x
-	y2r := x2*sinar + y2*cosar + y
-	x3r := x3*cosar - y3*sinar + x
-	y3r := x3*sinar + y3*cosar + y
-	x4 = r*vg.Length(math.Cos(a2)) + x
-	y4 = r*vg.Length(math.Sin(a2)) + y
-	c.doc.Curve(c.unit(x2r), c.unit(y2r), c.unit(x3r), c.unit(y3r), c.unit(x4), c.unit(y4), style)
+	r := c.unit(comp.Radius)
+	const deg = 180 / math.Pi
+	angle := comp.Angle * deg
+	beg := comp.Start * deg
+	end := beg + angle
+	x := c.unit(comp.Pos.X)
+	y := c.unit(comp.Pos.Y)
+	c.doc.Arc(x, y, r, r, angle, beg, end, style)
+	x1 := comp.Pos.X + comp.Radius*vg.Length(math.Cos(comp.Start+comp.Angle))
+	y1 := comp.Pos.Y + comp.Radius*vg.Length(math.Sin(comp.Start+comp.Angle))
+	c.doc.MoveTo(c.pdfPointXY(x1, y1))
 }
 
 func (c *Canvas) pdfPointXY(x, y vg.Length) (float64, float64) {
