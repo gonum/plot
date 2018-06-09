@@ -222,7 +222,7 @@ func (h LogHistogram) Plot(c draw.Canvas, p *plot.Plot) {
 	}
 }
 
-// DataRange returns the minimum and maximum X and Y values
+// DataRange returns the minimum and maximum X and Y values.
 func (h LogHistogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmin = math.Inf(1)
 	xmax = math.Inf(-1)
@@ -242,6 +242,7 @@ func (h LogHistogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 			ymax = bin.Weight
 		}
 	}
+	// arbitrary value to get a histogram bar with some arbitrary height
 	ymin /= 2.5
 	return
 }

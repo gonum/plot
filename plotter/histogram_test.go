@@ -71,7 +71,7 @@ func ExampleLogHistogram() {
 	if err != nil {
 		log.Panic(err)
 	}
-	p.Title.Text = "Histogram in logy"
+	p.Title.Text = "Histogram in log Y"
 	p.Y.Scale = plot.LogScale{}
 	p.Y.Tick.Marker = plot.LogTicks{}
 
@@ -79,7 +79,6 @@ func ExampleLogHistogram() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	// h.YMin = 0.1
 	h.Normalize(1)
 	p.Add(LogHistogram{h})
 
