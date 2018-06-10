@@ -116,3 +116,56 @@ func TestEmbedFonts(t *testing.T) {
 		})
 	}
 }
+
+func TestArc(t *testing.T) {
+	pts := plotter.XYs{{1, 1}, {2, 2}}
+	scat, err := plotter.NewScatter(pts)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := plot.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.Add(scat)
+
+	c := vgpdf.New(100, 100)
+
+	c.EmbedFonts(false)
+	p.Draw(draw.New(c))
+
+	f, err := os.Create("testdata/arc.pdf")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer f.Close()
+
+	_, err = c.WriteTo(f)
+	if err != nil {
+		t.Fatalf("could not write canvas: %v", err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want, err := ioutil.ReadFile("testdata/arc_golden.pdf")
+	if err != nil {
+		t.Fatalf("failed to read golden plot: %v", err)
+	}
+
+	got, err := ioutil.ReadFile("testdata/arc.pdf")
+	if err != nil {
+		t.Fatalf("failed to read plot: %v", err)
+	}
+
+	ok, err := cmpimg.Equal("pdf", got, want)
+	if err != nil {
+		t.Fatalf("failed to run cmpimg test: %v", err)
+	}
+
+	if !ok {
+		t.Fatalf("plot mismatch")
+	}
+}
