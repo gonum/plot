@@ -62,10 +62,14 @@ func ExampleAlign() {
 	dc := draw.New(img)
 
 	t := draw.Tiles{
-		Rows: rows,
-		Cols: cols,
-		PadX: vg.Millimeter,
-		PadY: vg.Millimeter,
+		Rows:      rows,
+		Cols:      cols,
+		PadX:      vg.Millimeter,
+		PadY:      vg.Millimeter,
+		PadTop:    vg.Points(2),
+		PadBottom: vg.Points(2),
+		PadLeft:   vg.Points(2),
+		PadRight:  vg.Points(2),
 	}
 
 	canvases := Align(plots, t, dc)
