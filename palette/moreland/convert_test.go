@@ -7,6 +7,8 @@ package moreland
 import (
 	"image/color"
 	"testing"
+
+	"gonum.org/v1/gonum/floats"
 )
 
 // TestRgb_sRGBA tests the conversion from linear RGB space to sRGB space.
@@ -24,10 +26,17 @@ func TestRgb_sRGBA(t *testing.T) {
 	}
 	for i, tc := range testCases {
 		result := tc.l.sRGBA(0)
-		if result != tc.s {
+		if !sRGBAEqualWithin(result, tc.s, 1.0e-14) {
 			t.Errorf("case %d: have %+v, want %+v", i, result, tc.s)
 		}
 	}
+}
+
+func sRGBAEqualWithin(a, b sRGBA, tol float64) bool {
+	return floats.EqualWithinAbsOrRel(a.R, b.R, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.G, b.G, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.B, b.B, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.A, b.A, tol, tol)
 }
 
 // TestSRGBa_rgb tests the conversion from sRGB space to linear RGB space.
