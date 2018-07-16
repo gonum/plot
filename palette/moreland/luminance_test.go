@@ -8,8 +8,9 @@ import (
 	"fmt"
 	"image/color"
 	"math/rand"
-	"reflect"
 	"testing"
+
+	"github.com/gonum/floats"
 )
 
 func TestCreateLuminance(t *testing.T) {
@@ -81,11 +82,38 @@ func TestCreateLuminance(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		if !reflect.DeepEqual(cmap, test.want) {
-			fmt.Printf("%#v\n", cmap)
+		if !luminanceEqualWithin(cmap.(*luminance), test.want, 1.0e-14) {
 			t.Errorf("%s: have %#v, want %#v", test.name, cmap, test.want)
 		}
 	}
+}
+
+func luminanceEqualWithin(a, b *luminance, tol float64) bool {
+	if len(a.colors) != len(b.colors) {
+		return false
+	}
+	if len(a.scalars) != len(b.scalars) {
+		return false
+	}
+	for i, ac := range a.colors {
+		if !cieLABEqualWithin(ac, b.colors[i], tol) {
+			return false
+		}
+	}
+	for i, av := range a.scalars {
+		if !floats.EqualWithinAbsOrRel(av, b.scalars[i], tol, tol) {
+			return false
+		}
+	}
+	return floats.EqualWithinAbsOrRel(a.alpha, b.alpha, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.max, b.max, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.min, b.min, tol, tol)
+}
+
+func cieLABEqualWithin(a, b cieLAB, tol float64) bool {
+	return floats.EqualWithinAbsOrRel(a.L, b.L, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.A, b.A, tol, tol) &&
+		floats.EqualWithinAbsOrRel(a.B, b.B, tol, tol)
 }
 
 func TestExtendedBlackBody(t *testing.T) {
