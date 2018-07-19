@@ -10,6 +10,7 @@ import (
 	"math"
 	"math/rand"
 	"testing"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
@@ -61,4 +62,34 @@ func ExampleHistogram() {
 
 func TestHistogram(t *testing.T) {
 	cmpimg.CheckPlot(ExampleHistogram, t, "histogram.png")
+}
+
+func TestSingletonHistogram(t *testing.T) {
+	done := make(chan struct{}, 1)
+	go func() {
+		defer close(done)
+		p, err := plot.New()
+		if err != nil {
+			t.Fatalf("unexpected error from plot.New: %v", err)
+		}
+
+		hist, err := NewHist(Values([]float64{1.0}), 60)
+		if err != nil {
+			t.Fatalf("unexpected error from NewHist: %v", err)
+		}
+		hist.Normalize(1)
+
+		p.Add(hist)
+
+		_, err = p.WriterTo(4*vg.Inch, 4*vg.Inch, "png")
+		if err != nil {
+			t.Fatalf("unexpected error from WriterTo: %v", err)
+		}
+	}()
+
+	select {
+	case <-time.After(10 * time.Second):
+		t.Error("histogram timed out")
+	case <-done:
+	}
 }
