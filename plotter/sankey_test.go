@@ -35,91 +35,91 @@ func ExampleSankey_simple() {
 	categoryLabels := []string{"Tree type", "Consumer", "Fate"}
 
 	flows := []Flow{
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Large",
 			ReceptorCategory: consumer,
 			ReceptorLabel:    "Mohamed",
 			Value:            5,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: consumer,
 			ReceptorLabel:    "Mohamed",
 			Value:            2,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Large",
 			ReceptorCategory: consumer,
 			ReceptorLabel:    "Sofia",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: consumer,
 			ReceptorLabel:    "Sofia",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Large",
 			ReceptorCategory: consumer,
 			ReceptorLabel:    "Wei",
 			Value:            6,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Eaten",
 			Value:            6,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Waste",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Sofia",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Eaten",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Sofia",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Waste",
 			Value:            0.5, // An unbalanced flow
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Wei",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Eaten",
 			Value:            5,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Wei",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Waste",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Large",
 			ReceptorCategory: fate,
 			ReceptorLabel:    "Waste",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: fate,
@@ -164,7 +164,7 @@ func ExampleSankey_grouped() {
 	categoryLabels := []string{"Tree type", "Consumer", "Fate"}
 
 	flows := []Flow{
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: consumer,
@@ -172,7 +172,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            5,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: consumer,
@@ -180,7 +180,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: consumer,
@@ -188,7 +188,7 @@ func ExampleSankey_grouped() {
 			Group:            "Lychees",
 			Value:            2,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: consumer,
@@ -196,7 +196,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: consumer,
@@ -204,7 +204,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            4,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: consumer,
@@ -212,7 +212,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: consumer,
@@ -220,7 +220,7 @@ func ExampleSankey_grouped() {
 			Group:            "Lychees",
 			Value:            6,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: consumer,
@@ -228,7 +228,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
@@ -236,7 +236,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            4,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
@@ -244,7 +244,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
@@ -252,7 +252,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Mohamed",
 			ReceptorCategory: fate,
@@ -260,7 +260,7 @@ func ExampleSankey_grouped() {
 			Group:            "Lychees",
 			Value:            2,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Sofia",
 			ReceptorCategory: fate,
@@ -268,7 +268,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            4,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Sofia",
 			ReceptorCategory: fate,
@@ -276,7 +276,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            3,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Sofia",
 			ReceptorCategory: fate,
@@ -284,7 +284,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Wei",
 			ReceptorCategory: fate,
@@ -292,7 +292,7 @@ func ExampleSankey_grouped() {
 			Group:            "Lychees",
 			Value:            6,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Wei",
 			ReceptorCategory: fate,
@@ -300,7 +300,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            2,
 		},
-		Flow{
+		{
 			SourceCategory:   consumer,
 			SourceLabel:      "Wei",
 			ReceptorCategory: fate,
@@ -308,7 +308,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: fate,
@@ -316,7 +316,7 @@ func ExampleSankey_grouped() {
 			Group:            "Apples",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
 			ReceptorCategory: fate,
@@ -324,7 +324,7 @@ func ExampleSankey_grouped() {
 			Group:            "Dates",
 			Value:            1,
 		},
-		Flow{
+		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Small",
 			ReceptorCategory: fate,

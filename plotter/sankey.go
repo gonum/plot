@@ -351,8 +351,8 @@ func (s *Sankey) bezier(begin, end vg.Point) []vg.Point {
 	const directionOffsetFrac = 0.3
 	inPts := []vg.Point{
 		begin,
-		vg.Point{X: begin.X + (end.X-begin.X)*directionOffsetFrac, Y: begin.Y},
-		vg.Point{X: begin.X + (end.X-begin.X)*(1-directionOffsetFrac), Y: end.Y},
+		{X: begin.X + (end.X-begin.X)*directionOffsetFrac, Y: begin.Y},
+		{X: begin.X + (end.X-begin.X)*(1-directionOffsetFrac), Y: end.Y},
 		end,
 	}
 	curve := bezier.New(inPts...)

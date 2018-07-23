@@ -48,7 +48,7 @@ func New(w, h vg.Length) *Canvas {
 // NewTitle returns a new Canvas with the given title string.
 func NewTitle(w, h vg.Length, title string) *Canvas {
 	c := &Canvas{
-		stack: []context{context{}},
+		stack: []context{{}},
 		w:     w,
 		h:     h,
 		buf:   new(bytes.Buffer),

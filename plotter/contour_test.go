@@ -232,8 +232,8 @@ func circularPermutations(a, b vg.Path) bool {
 
 // Contour paths sorted by path length.
 var wantContours = map[float64][]vg.Path{
-	1.5: []vg.Path{
-		vg.Path{
+	1.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 1.1666666666666667, Y: 0}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.1, Y: 0.1}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1, Y: 0.08333333333333333}},
@@ -241,8 +241,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.5, Y: 0}},
 		},
 	},
-	2.5: []vg.Path{
-		vg.Path{
+	2.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 1.5, Y: 0}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.3, Y: 0.3}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1, Y: 0.25}},
@@ -250,7 +250,7 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.125, Y: 0.125}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0, Y: 0.125}},
 		},
-		vg.Path{
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 2, Y: 1.0555555555555556}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.9545454545454546, Y: 1.0454545454545454}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.9, Y: 1}},
@@ -262,13 +262,13 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 1.0555555555555556}},
 		},
 	},
-	3.5: []vg.Path{
-		vg.Path{
+	3.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 3, Y: 0.25}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 2.5, Y: 0.5}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 2.5, Y: 0}},
 		},
-		vg.Path{
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 1.8333333333333333, Y: 0}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.5, Y: 0.5}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1, Y: 0.4166666666666667}},
@@ -276,7 +276,7 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.375, Y: 0.375}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0, Y: 0.375}},
 		},
-		vg.Path{
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 1.5, Y: 0.5}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 0.25}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 2.5, Y: 0.5}},
@@ -288,8 +288,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.5, Y: 0.5}},
 		},
 	},
-	4.5: []vg.Path{
-		vg.Path{
+	4.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0, Y: 0.625}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.375, Y: 0.625}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.5833333333333334, Y: 0.5833333333333334}},
@@ -304,8 +304,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 0.75}},
 		},
 	},
-	5.5: []vg.Path{
-		vg.Path{
+	5.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0, Y: 0.875}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.125, Y: 0.875}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.75, Y: 0.75}},
@@ -319,8 +319,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 1.0714285714285714}},
 		},
 	},
-	6.5: []vg.Path{
-		vg.Path{
+	6.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0, Y: 1.1666666666666667}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.125, Y: 1.125}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.5, Y: 1}},
@@ -335,8 +335,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 1.2142857142857142}},
 		},
 	},
-	7.5: []vg.Path{
-		vg.Path{
+	7.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0, Y: 1.5}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.375, Y: 1.375}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.75, Y: 1.25}},
@@ -347,8 +347,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 1.3571428571428572}},
 		},
 	},
-	8.5: []vg.Path{
-		vg.Path{
+	8.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0, Y: 1.8333333333333333}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.25, Y: 1.75}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.625, Y: 1.625}},
@@ -361,8 +361,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 1.5}},
 		},
 	},
-	9.5: []vg.Path{
-		vg.Path{
+	9.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 0.5, Y: 2}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 0.875, Y: 1.875}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1, Y: 1.8333333333333333}},
@@ -374,8 +374,8 @@ var wantContours = map[float64][]vg.Path{
 			{Type: vg.LineComp, Pos: vg.Point{X: 3, Y: 1.6428571428571428}},
 		},
 	},
-	10.5: []vg.Path{
-		vg.Path{
+	10.5: {
+		{
 			{Type: vg.MoveComp, Pos: vg.Point{X: 1.5, Y: 2}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 1.9285714285714286, Y: 1.9285714285714286}},
 			{Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 1.9444444444444444}},
@@ -394,40 +394,40 @@ var loopTests = []struct {
 	{
 		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
 		want: []*contour{
-			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
+			{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {7, 7}, {8, 8}, {9, 9}}},
 		},
 	},
 	{
 		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {4, 4}, {7, 7}, {8, 8}, {9, 9}}},
 		want: []*contour{
-			&contour{backward: path{{4, 4}}, forward: path{{5, 5}, {6, 6}, {4, 4}}},
-			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {7, 7}, {8, 8}, {9, 9}}},
+			{backward: path{{4, 4}}, forward: path{{5, 5}, {6, 6}, {4, 4}}},
+			{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {7, 7}, {8, 8}, {9, 9}}},
 		},
 	},
 	{
 		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {3, 3}, {7, 7}, {1, 1}, {9, 9}}},
 		want: []*contour{
-			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {9, 9}}},
-			&contour{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {3, 3}}},
-			&contour{backward: path{{1, 1}}, forward: path{{2, 2}, {3, 3}, {7, 7}, {1, 1}}},
+			{backward: path{{0, 0}}, forward: path{{1, 1}, {9, 9}}},
+			{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {3, 3}}},
+			{backward: path{{1, 1}}, forward: path{{2, 2}, {3, 3}, {7, 7}, {1, 1}}},
 		},
 	},
 	{
 		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {2, 2}, {7, 7}, {2, 2}, {9, 9}}},
 		want: []*contour{
-			&contour{backward: path{{2, 2}}, forward: path{{7, 7}, {2, 2}}},
-			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {9, 9}}},
-			&contour{backward: path{{2, 2}}, forward: path{{3, 3}, {4, 4}, {5, 5}, {2, 2}}},
+			{backward: path{{2, 2}}, forward: path{{7, 7}, {2, 2}}},
+			{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {9, 9}}},
+			{backward: path{{2, 2}}, forward: path{{3, 3}, {4, 4}, {5, 5}, {2, 2}}},
 		},
 	},
 	{
 		// This test is a known failing case for exciseQuick.
 		c: &contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 6}, {3, 3}, {8, 8}, {9, 9}, {5, 5}, {10, 10}}},
 		want: []*contour{
-			&contour{backward: path{{5, 5}}, forward: path{{10, 10}}},
-			&contour{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}}},
-			&contour{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {6, 6}, {3, 3}}},
-			&contour{backward: path{{3, 3}}, forward: path{{8, 8}, {9, 9}, {5, 5}, {6, 6}, {3, 3}}},
+			{backward: path{{5, 5}}, forward: path{{10, 10}}},
+			{backward: path{{0, 0}}, forward: path{{1, 1}, {2, 2}, {3, 3}}},
+			{backward: path{{3, 3}}, forward: path{{4, 4}, {5, 5}, {6, 6}, {3, 3}}},
+			{backward: path{{3, 3}}, forward: path{{8, 8}, {9, 9}, {5, 5}, {6, 6}, {3, 3}}},
 		},
 	},
 }
