@@ -8,13 +8,13 @@ import (
 	"bytes"
 	"encoding/gob"
 	"image/color"
-	"math/rand"
 	"os"
 	"testing"
 
-	_ "gonum.org/v1/plot/gob"
+	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
+	_ "gonum.org/v1/plot/gob"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
