@@ -20,6 +20,9 @@ env:
 
 # Get coverage tools, and start the virtual framebuffer.
 before_install:
+ # Required for format check.
+ - go get golang.org/x/tools/cmd/goimports
+ # Required for coverage.
  - go get golang.org/x/tools/cmd/cover
  - go get github.com/mattn/goveralls
  - sh -e /etc/init.d/xvfb start
@@ -27,6 +30,7 @@ before_install:
 # Get deps, build, test, and ensure the code is gofmt'ed.
 # If we are building as gonum, then we have access to the coveralls api key, so we can run coverage as well.
 script:
+ - ${TRAVIS_BUILD_DIR}/.travis/check-formatting.sh
  - go get -d -t -v ./...
  - go build -v ./...
  - go test -v ./...
