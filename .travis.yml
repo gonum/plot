@@ -20,7 +20,6 @@ env:
 
 # Get coverage tools, and start the virtual framebuffer.
 before_install:
- - git clone git://github.com/rsc/pdf $GOPATH/src/rsc.io/pdf
  - go get golang.org/x/tools/cmd/cover
  - go get github.com/mattn/goveralls
  - sh -e /etc/init.d/xvfb start
