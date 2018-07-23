@@ -76,39 +76,39 @@ func Example() {
 		cmap palette.Palette
 	}
 	palettes := []paletteHolder{
-		paletteHolder{
+		{
 			name: "SmoothBlueRed",
 			cmap: SmoothBlueRed().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "SmoothBlueTan",
 			cmap: SmoothBlueTan().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "SmoothGreenPurple",
 			cmap: SmoothGreenPurple().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "SmoothGreenRed",
 			cmap: SmoothGreenRed().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "SmoothPurpleOrange",
 			cmap: SmoothPurpleOrange().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "BlackBody",
 			cmap: BlackBody().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "ExtendedBlackBody",
 			cmap: ExtendedBlackBody().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "Kindlmann",
 			cmap: Kindlmann().Palette(255),
 		},
-		paletteHolder{
+		{
 			name: "ExtendedKindlmann",
 			cmap: ExtendedKindlmann().Palette(255),
 		},

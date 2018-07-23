@@ -20,7 +20,7 @@ func TestCreateLuminance(t *testing.T) {
 		name          string
 	}
 	tests := []testHolder{
-		testHolder{
+		{
 			name: "BlackBody",
 			controlColors: []color.Color{
 				color.NRGBA{0, 0, 0, 255},
@@ -31,7 +31,7 @@ func TestCreateLuminance(t *testing.T) {
 			},
 			want: BlackBody().(*luminance),
 		},
-		testHolder{
+		{
 			name: "ExtendedBlackBody",
 			controlColors: []color.Color{
 				color.NRGBA{0, 0, 0, 255},
@@ -44,7 +44,7 @@ func TestCreateLuminance(t *testing.T) {
 			},
 			want: ExtendedBlackBody().(*luminance),
 		},
-		testHolder{
+		{
 			name: "Kindlmann",
 			controlColors: []color.Color{
 				color.NRGBA{0, 0, 0, 255},
@@ -61,7 +61,7 @@ func TestCreateLuminance(t *testing.T) {
 			},
 			want: Kindlmann().(*luminance),
 		},
-		testHolder{
+		{
 			name: "ExtendedKindlmann",
 			controlColors: []color.Color{
 				color.NRGBA{0, 0, 0, 255},

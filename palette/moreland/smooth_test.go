@@ -27,7 +27,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 		result                           msh
 	}
 	tests := []test{
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,
@@ -35,7 +35,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 			scalar:        0.125,
 			result:        msh{M: 82, S: 0.81, H: -1.2402896406131008},
 		},
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,
@@ -43,7 +43,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 			scalar:        0.5,
 			result:        msh{M: 88, S: 0, H: 0},
 		},
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,
@@ -51,7 +51,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 			scalar:        0.75,
 			result:        msh{M: 84, S: 0.54, H: 0.7805792812262012},
 		},
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,
@@ -59,7 +59,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 			scalar:        0.7499999999999999,
 			result:        msh{M: 88, S: 1.1990408665951691e-16, H: -1.6611585624524023},
 		},
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,
@@ -67,7 +67,7 @@ func TestInterpolateMSHDiverging(t *testing.T) {
 			scalar:        0.75,
 			result:        msh{M: 88, S: 0, H: 0},
 		},
-		test{
+		{
 			start:         msh{M: 80, S: 1.08, H: -1.1},
 			end:           msh{M: 80, S: 1.08, H: 0.5},
 			convergeM:     88,

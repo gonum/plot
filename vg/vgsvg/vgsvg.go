@@ -54,7 +54,7 @@ func New(w, h vg.Length) *Canvas {
 		h:     h,
 		buf:   buf,
 		ht:    w.Points(),
-		stack: []context{context{}},
+		stack: []context{{}},
 	}
 
 	// This is like svg.Start, except it uses floats

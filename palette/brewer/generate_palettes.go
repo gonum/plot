@@ -91,9 +91,9 @@ import (
 		last = make(map[string]string)
 
 		defBuf = map[string]*bytes.Buffer{
-			"Qualitative": &bytes.Buffer{},
-			"Sequential":  &bytes.Buffer{},
-			"Diverging":   &bytes.Buffer{},
+			"Qualitative": {},
+			"Sequential":  {},
+			"Diverging":   {},
 		}
 
 		cls = map[string]string{"Diverging": "Diverging", "Qualitative": "NonDiverging", "Sequential": "NonDiverging"}
