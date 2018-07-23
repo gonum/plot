@@ -67,6 +67,7 @@ func ExampleBoxPlot() {
 	}
 	p1.Title.Text = "Vertical Box Plot"
 	p1.Y.Label.Text = "plotter.Values"
+	p1.Y.Max = 6
 	p1.Add(uniBox, uniLabels, normBox, normLabels, expBox, expLabels)
 
 	// Set the X axis of the plot to nominal with
