@@ -7,9 +7,10 @@ package moreland
 import (
 	"image/color"
 	"math"
-	"math/rand"
 	"strings"
 	"testing"
+
+	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot/palette"
 )
