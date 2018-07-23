@@ -260,8 +260,9 @@ func ExampleBarChart_positiveNegative() {
 	p.Legend.Add("1", pos1)
 	p.Legend.Add("2", pos2)
 	p.Legend.Add("Sum", netDots)
-	p.Legend.Left = true
+	p.Legend.Top = true
 	p.Legend.ThumbnailWidth = 2 * vg.Millimeter
+	p.Legend.Font.Size = 2 * vg.Millimeter
 
 	err = p.Save(100, 100, "testdata/barChart_positiveNegative.png")
 	if err != nil {
