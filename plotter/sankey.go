@@ -264,8 +264,7 @@ func (s *Sankey) Plot(c draw.Canvas, plt *plot.Plot) {
 			{catMax, valMax},
 			{catMax, valMin},
 		}
-		if s.Color != nil {
-			// poly := c.ClipPolygonX(pts) // This causes half of the bar to disappear. Is there a best practice here?
+		if color != nil {
 			c.FillPolygon(color, pts) // poly)
 		}
 		txtPt := vg.Point{X: (catMin+catMax)/2 + xOff, Y: (valMin+valMax)/2 + yOff}

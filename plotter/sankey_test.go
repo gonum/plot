@@ -383,14 +383,11 @@ func ExampleSankey_grouped() {
 			_, yTr := p.Transforms(&dc)
 			barHeight := yTr(max) - yTr(min)
 			if sankey.TextStyle.Font.Width(label) > barHeight {
-				return "large", sankey.TextStyle, 0, 0, sankey.Color, sankey.LineStyle
+				return "large", sankey.TextStyle, 0, 0, color.White, sankey.LineStyle
 			}
 		}
-		return label, sankey.TextStyle, 0, 0, sankey.Color, sankey.LineStyle
+		return label, sankey.TextStyle, 0, 0, color.White, sankey.LineStyle
 	}
-
-	// Here we set the backgroud color for stocks from grey to white.
-	sankey.Color = color.White
 
 	p.Add(sankey)
 	p.Y.Label.Text = "Number of fruit pieces"
