@@ -100,11 +100,6 @@ type stock struct {
 
 	// max is min plus the larger of receptorValue and sourceValue.
 	max float64
-
-	// sourceFlowPlaceholder and receptorFlowPlaceholder track
-	// the current plotting location during
-	// the plotting process.
-	sourceFlowPlaceholder, receptorFlowPlaceholder float64
 }
 
 // A Flow represents the amount of an entity flowing between two stocks.
@@ -209,18 +204,24 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 func (s *Sankey) Plot(c draw.Canvas, plt *plot.Plot) {
 	trCat, trVal := plt.Transforms(&c)
 
+	// sourceFlowPlaceholder and receptorFlowPlaceholder track
+	// the current plotting location during
+	// the plotting process.
+	sourceFlowPlaceholder := make(map[*stock]float64, len(s.flows))
+	receptorFlowPlaceholder := make(map[*stock]float64, len(s.flows))
+
 	// Here we draw the flows.
 	for _, f := range s.flows {
 		startStock := s.stocks[f.SourceCategory][f.SourceLabel]
 		endStock := s.stocks[f.ReceptorCategory][f.ReceptorLabel]
 		catStart := trCat(float64(f.SourceCategory)) + s.StockBarWidth/2
 		catEnd := trCat(float64(f.ReceptorCategory)) - s.StockBarWidth/2
-		valStartLow := trVal(startStock.min + startStock.sourceFlowPlaceholder)
-		valEndLow := trVal(endStock.min + endStock.receptorFlowPlaceholder)
-		valStartHigh := trVal(startStock.min + startStock.sourceFlowPlaceholder + f.Value)
-		valEndHigh := trVal(endStock.min + endStock.receptorFlowPlaceholder + f.Value)
-		startStock.sourceFlowPlaceholder += f.Value
-		endStock.receptorFlowPlaceholder += f.Value
+		valStartLow := trVal(startStock.min + sourceFlowPlaceholder[startStock])
+		valEndLow := trVal(endStock.min + receptorFlowPlaceholder[endStock])
+		valStartHigh := trVal(startStock.min + sourceFlowPlaceholder[startStock] + f.Value)
+		valEndHigh := trVal(endStock.min + receptorFlowPlaceholder[endStock] + f.Value)
+		sourceFlowPlaceholder[startStock] += f.Value
+		receptorFlowPlaceholder[endStock] += f.Value
 
 		ptsLow := s.bezier(
 			vg.Point{X: catStart, Y: valStartLow},
@@ -327,8 +328,6 @@ func (s *Sankey) setStockRange(stocks *[]*stock) {
 	var cat int
 	var min float64
 	for _, stk := range *stocks {
-		stk.sourceFlowPlaceholder = 0
-		stk.receptorFlowPlaceholder = 0
 		if stk.category != cat {
 			min = 0
 		}
