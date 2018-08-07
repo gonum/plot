@@ -14,6 +14,8 @@ import (
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
+	"gonum.org/v1/plot/vg/recorder"
 )
 
 // ExamplePolygon_holes draws a polygon with holes, showing how
@@ -157,4 +159,29 @@ func ExamplePolygon_hexagons() {
 
 func TestPolygon_hexagons(t *testing.T) {
 	cmpimg.CheckPlot(ExamplePolygon_hexagons, t, "polygon_hexagons.png")
+}
+
+// This test ensures that the plotter doesn't panic if there are
+// polygons wholly outside of the plotting range.
+func TestPolygon_clip(t *testing.T) {
+	poly, err := NewPolygon(
+		XYs{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}},
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	poly.Color = color.Black // Give the polygon a color to fill.
+	p, err := plot.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// Set the plotting range so that the polygon is outside of it.
+	p.X.Min = 2
+	p.X.Max = 5
+
+	p.Add(poly)
+	c := new(recorder.Canvas)
+	dc := draw.NewCanvas(c, vg.Centimeter, vg.Centimeter)
+	p.Draw(dc) // If this does not panic, then the test passes.
 }
