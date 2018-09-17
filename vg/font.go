@@ -18,6 +18,7 @@ import (
 
 	"gonum.org/v1/plot/vg/fonts"
 
+	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
 	"github.com/golang/freetype"
@@ -108,6 +109,13 @@ func (f *Font) Name() string {
 // Font returns the corresponding truetype.Font.
 func (f *Font) Font() *truetype.Font {
 	return f.font
+}
+
+func (f *Font) FontFace(dpi float64) font.Face {
+	return truetype.NewFace(f.font, &truetype.Options{
+		Size: f.Size.Points(),
+		DPI:  dpi,
+	})
 }
 
 // SetName sets the name of the font, effectively
