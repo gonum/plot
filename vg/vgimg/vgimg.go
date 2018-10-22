@@ -101,7 +101,6 @@ func NewWith(o ...option) *Canvas {
 		c.gc.Scale(1, -1)
 		c.gc.Translate(0, -h)
 	}
-
 	draw.Draw(c.img, c.img.Bounds(), image.Transparent, image.ZP, draw.Src)
 	c.color = []color.Color{color.Black}
 	vg.Initialize(c)
