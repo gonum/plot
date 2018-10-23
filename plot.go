@@ -438,7 +438,7 @@ func (p *Plot) NominalY(names ...string) {
 //
 //  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
 func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
-	c, err := draw.NewFormattedCanvas(w, h, format)
+	c, err := draw.NewFormattedCanvas(w, h, p.BackgroundColor, format)
 	if err != nil {
 		return nil, err
 	}

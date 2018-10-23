@@ -5,6 +5,7 @@
 package plot
 
 import (
+	"image/color"
 	"math"
 	"os"
 	"testing"
@@ -58,7 +59,7 @@ func ExampleAlign() {
 		}
 	}
 
-	img := vgimg.New(vg.Points(150), vg.Points(175))
+	img := vgimg.New(vg.Points(150), vg.Points(175), color.Transparent)
 	dc := draw.New(img)
 
 	t := draw.Tiles{
