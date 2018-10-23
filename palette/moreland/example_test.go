@@ -5,6 +5,7 @@
 package moreland
 
 import (
+	"image/color"
 	"log"
 	"math"
 	"os"
@@ -65,7 +66,7 @@ func Example() {
 		rows = 3
 		cols = 3
 	)
-	c := vgimg.New(vg.Points(800), vg.Points(800))
+	c := vgimg.New(vg.Points(800), vg.Points(800), color.Transparent)
 	dc := draw.New(c)
 	tiles := draw.Tiles{
 		Rows: rows,

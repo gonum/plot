@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 	"math"
 	"os"
@@ -103,7 +104,7 @@ func ExampleHeatMap() {
 	p.X.Max = 1.5
 	p.Y.Max = 1.5
 
-	img := vgimg.New(250, 175)
+	img := vgimg.New(250, 175, color.White)
 	dc := draw.New(img)
 
 	l.Top = true

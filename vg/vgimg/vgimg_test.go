@@ -2,6 +2,7 @@ package vgimg_test
 
 import (
 	"bytes"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
@@ -28,7 +29,7 @@ func TestIssue179(t *testing.T) {
 	p.Add(scatter)
 	p.HideAxes()
 
-	c := vgimg.JpegCanvas{Canvas: vgimg.New(5.08*vg.Centimeter, 5.08*vg.Centimeter)}
+	c := vgimg.JpegCanvas{Canvas: vgimg.New(5.08*vg.Centimeter, 5.08*vg.Centimeter, color.White)}
 	p.Draw(draw.New(c))
 	b := bytes.NewBuffer([]byte{})
 	if _, err = c.WriteTo(b); err != nil {
@@ -55,12 +56,12 @@ func TestConcurrentInit(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
-		c := vgimg.New(215, 215)
+		c := vgimg.New(215, 215, color.White)
 		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
 		wg.Done()
 	}()
 	go func() {
-		c := vgimg.New(215, 215)
+		c := vgimg.New(215, 215, color.White)
 		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
 		wg.Done()
 	}()
