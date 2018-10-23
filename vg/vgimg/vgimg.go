@@ -29,11 +29,11 @@ import (
 // Canvas implements the vg.Canvas interface,
 // drawing to an image.Image using draw2d.
 type Canvas struct {
-	gc              draw2d.GraphicContext
-	img             draw.Image
-	w, h            vg.Length
-	color           []color.Color
-	backgroundColor color.Color
+	gc         draw2d.GraphicContext
+	img        draw.Image
+	w, h       vg.Length
+	color      []color.Color
+	background color.Color
 
 	// dpi is the number of dots per inch for this canvas.
 	dpi int
@@ -102,7 +102,7 @@ func NewWith(o ...option) *Canvas {
 		c.gc.Scale(1, -1)
 		c.gc.Translate(0, -h)
 	}
-	draw.Draw(c.img, c.img.Bounds(), image.NewUniform(c.backgroundColor), image.ZP, draw.Src)
+	draw.Draw(c.img, c.img.Bounds(), image.NewUniform(c.background), image.ZP, draw.Src)
 	c.color = []color.Color{color.Black}
 	vg.Initialize(c)
 	return c
@@ -167,10 +167,10 @@ func UseImageWithContext(img draw.Image, gc draw2d.GraphicContext) option {
 	}
 }
 
-// UseBackgroundColor specifies a color for the canvas
+// UseBackgroundColor specifies the canvas background color
 func UseBackgroundColor(color color.Color) option {
 	return func(c *Canvas) uint32 {
-		c.backgroundColor = color
+		c.background = color
 		return setsColor
 	}
 }
