@@ -167,7 +167,7 @@ func UseImageWithContext(img draw.Image, gc draw2d.GraphicContext) option {
 	}
 }
 
-// UseBackgroundColor specifies the canvas background color
+// UseBackgroundColor specifies the canvas background color.
 func UseBackgroundColor(color color.Color) option {
 	return func(c *Canvas) uint32 {
 		c.background = color
