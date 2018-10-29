@@ -424,14 +424,14 @@ func TestSankey_grouped(t *testing.T) {
 // the input Flows.
 func TestSankey_idempotent(t *testing.T) {
 	flows := []Flow{
-		Flow{
+		{
 			SourceCategory:   0,
 			SourceLabel:      "Large",
 			ReceptorCategory: 1,
 			ReceptorLabel:    "Mohamed",
 			Value:            5,
 		},
-		Flow{
+		{
 			SourceCategory:   0,
 			SourceLabel:      "Small",
 			ReceptorCategory: 1,
