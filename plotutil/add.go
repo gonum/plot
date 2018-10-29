@@ -169,11 +169,12 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 }
 
 // AddLines adds Line plotters to a plot.
-// The variadic arguments must be either strings
-// or plotter.XYers.  Each plotter.XYer is added to
+// The variadic arguments must be a string
+// or one of a plotting type, plotter.XYers or *plotter.Function.
+// Each plotting type is added to
 // the plot using the next color and dashes
 // shape via the Color and Dashes functions.
-// If a plotter.XYer is immediately preceeded by
+// If a plotting type is immediately preceeded by
 // a string then a legend entry is added to the plot
 // using the string as the name.
 //
@@ -203,8 +204,18 @@ func AddLines(plt *plot.Plot, vs ...interface{}) error {
 				name = ""
 			}
 
+		case *plotter.Function:
+			t.Color = Color(i)
+			t.Dashes = Dashes(i)
+			i++
+			ps = append(ps, t)
+			if name != "" {
+				items = append(items, item{name: name, value: t})
+				name = ""
+			}
+
 		default:
-			panic(fmt.Sprintf("AddLines handles strings and plotter.XYers, got %T", t))
+			panic(fmt.Sprintf("AddLines handles strings, plotter.XYers and *plotter.Function, got %T", t))
 		}
 	}
 	plt.Add(ps...)
