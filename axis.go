@@ -611,3 +611,14 @@ func log(x float64) float64 {
 func formatFloatTick(v float64, prec int) string {
 	return strconv.FormatFloat(v, 'g', prec, 64)
 }
+
+// TickerFunc is suitable for the Tick.Marker field of an Axis.
+// It is an adapter which allows to quickly setup a Ticker using a function with an appropriate signature.
+type TickerFunc func(min, max float64) []Tick
+
+var _ Ticker = TickerFunc(nil)
+
+// Ticks implements plot.Ticker.
+func (f TickerFunc) Ticks(min, max float64) []Tick {
+	return f(min, max)
+}
