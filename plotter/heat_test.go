@@ -12,12 +12,12 @@ import (
 	"testing"
 
 	"gonum.org/v1/gonum/mat"
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/internal/cmpimg"
-	"gonum.org/v1/plot/palette"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
+	"github.com/gonum/plot/palette"
+	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
+	"github.com/gonum/plot/vg/vgimg"
 )
 
 type offsetUnitGrid struct {

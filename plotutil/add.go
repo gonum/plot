@@ -8,9 +8,9 @@ import (
 	"errors"
 	"fmt"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/plotter"
+	"github.com/gonum/plot/vg"
 )
 
 type combineXYs struct{ xs, ys plotter.Valuer }

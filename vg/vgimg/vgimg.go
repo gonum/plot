@@ -5,7 +5,7 @@
 // Package vgimg implements the vg.Canvas interface using
 // draw2d (github.com/llgcode/draw2d)
 // as a backend to output raster images.
-package vgimg // import "gonum.org/v1/plot/vg/vgimg"
+package vgimg // import "github.com/gonum/plot/vg/vgimg"
 
 import (
 	"bufio"
@@ -23,7 +23,7 @@ import (
 	"github.com/llgcode/draw2d"
 	"github.com/llgcode/draw2d/draw2dimg"
 
-	"gonum.org/v1/plot/vg"
+	"github.com/gonum/plot/vg"
 )
 
 // Canvas implements the vg.Canvas interface,

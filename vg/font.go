@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"gonum.org/v1/plot/vg/fonts"
+	"github.com/gonum/plot/vg/fonts"
 
 	"golang.org/x/image/math/fixed"
 

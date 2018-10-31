@@ -4,7 +4,7 @@
 
 // Package vgsvg uses svgo (github.com/ajstarks/svgo)
 // as a backend for vg.
-package vgsvg // import "gonum.org/v1/plot/vg/vgsvg"
+package vgsvg // import "github.com/gonum/plot/vg/vgsvg"
 
 import (
 	"bufio"
@@ -19,7 +19,7 @@ import (
 
 	svgo "github.com/ajstarks/svgo"
 
-	"gonum.org/v1/plot/vg"
+	"github.com/gonum/plot/vg"
 )
 
 // DPI is the resolution of drawing in SVG. This value was determined by

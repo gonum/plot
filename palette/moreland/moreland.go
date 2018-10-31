@@ -20,4 +20,4 @@
 // "Diverging Color Maps for Scientific Visualization." Kenneth Moreland.
 // In Proceedings of the 5th International Symposium on Visual Computing,
 // December 2009. DOI 10.1007/978-3-642-10520-3_9.
-package moreland // import "gonum.org/v1/plot/palette/moreland"
+package moreland // import "github.com/gonum/plot/palette/moreland"

@@ -7,9 +7,9 @@ package plotter
 import (
 	"image"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/palette"
-	"gonum.org/v1/plot/vg/draw"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/palette"
+	"github.com/gonum/plot/vg/draw"
 )
 
 // ColorBar is a plot.Plotter that draws a color bar legend for a ColorMap.

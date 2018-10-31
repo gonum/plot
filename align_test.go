@@ -9,10 +9,10 @@ import (
 	"os"
 	"testing"
 
-	"gonum.org/v1/plot/internal/cmpimg"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
+	"github.com/gonum/plot/internal/cmpimg"
+	"github.com/gonum/plot/vg"
+	"github.com/gonum/plot/vg/draw"
+	"github.com/gonum/plot/vg/vgimg"
 )
 
 func ExampleAlign() {

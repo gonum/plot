@@ -10,9 +10,9 @@ import (
 	"os"
 	"testing"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/internal/cmpimg"
-	"gonum.org/v1/plot/vg"
+	"github.com/gonum/plot"
+	"github.com/gonum/plot/internal/cmpimg"
+	"github.com/gonum/plot/vg"
 )
 
 const runImageLaTeX = false
