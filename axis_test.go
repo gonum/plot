@@ -105,3 +105,32 @@ func labelsOf(ticks []Tick) []string {
 	}
 	return labels
 }
+
+func TestTickerFunc_Ticks(t *testing.T) {
+	type args struct {
+		min float64
+		max float64
+	}
+	tests := []struct {
+		name string
+		args args
+		want []Tick
+		f    TickerFunc
+	}{
+		{
+			name: "return exactly the same ticks as the function passed to TickerFunc",
+			args: args{0, 3},
+			want: []Tick{{1, "a"}, {2, "b"}},
+			f: func(min, max float64) []Tick {
+				return []Tick{{1, "a"}, {2, "b"}}
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.f.Ticks(tt.args.min, tt.args.max); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("TickerFunc.Ticks() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
