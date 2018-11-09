@@ -169,6 +169,17 @@ func (e *Canvas) trace(path vg.Path) {
 			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %s\n", pr, comp.Pos.X, pr, comp.Pos.Y,
 				pr, comp.Radius, pr, comp.Start*180/math.Pi, pr,
 				end*180/math.Pi, arcOp)
+		case vg.CurveComp:
+			if len(comp.Control) > 0 {
+				p1 := comp.Control[0]
+				p2 := comp.Control[0]
+				if len(comp.Control) > 1 {
+					p2 = comp.Control[1]
+				}
+				fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %.*g curveto\n",
+					pr, p1.X, pr, p1.Y, pr, p2.X, pr, p2.Y,
+					pr, comp.Pos.X, pr, comp.Pos.Y)
+			}
 		case vg.CloseComp:
 			e.buf.WriteString("closepath\n")
 		default:

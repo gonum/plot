@@ -248,6 +248,17 @@ func (c *Canvas) outline(p vg.Path) {
 				comp.Radius.Dots(c.DPI()), comp.Radius.Dots(c.DPI()),
 				comp.Start, comp.Angle)
 
+		case vg.CurveComp:
+			if len(comp.Control) == 1 {
+				c.gc.QuadCurveTo(comp.Control[0].X.Dots(c.DPI()), comp.Control[0].Y.Dots(c.DPI()),
+					comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()))
+			} else if len(comp.Control) == 2 {
+				c.gc.CubicCurveTo(
+					comp.Control[0].X.Dots(c.DPI()), comp.Control[0].Y.Dots(c.DPI()),
+					comp.Control[1].X.Dots(c.DPI()), comp.Control[1].Y.Dots(c.DPI()),
+					comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()))
+			}
+
 		case vg.CloseComp:
 			c.gc.Close()
 

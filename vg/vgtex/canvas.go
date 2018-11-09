@@ -258,6 +258,16 @@ func (c *Canvas) wpath(p vg.Path) {
 			angle := comp.Angle * degPerRadian
 			r := comp.Radius
 			c.wtex(`\pgfpatharc{%g}{%g}{%gpt}`, start, angle, r)
+		case vg.CurveComp:
+			if len(comp.Control) > 0 {
+				a := comp.Control[0]
+				b := a
+				if len(comp.Control) > 1 {
+					b = comp.Control[1]
+				}
+				c.wtex(`\pgfcurveto{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}`,
+					a.X, a.Y, b.X, b.Y, comp.Pos.X, comp.Pos.Y)
+			}
 		case vg.CloseComp:
 			c.wtex("%% path-close")
 		default:

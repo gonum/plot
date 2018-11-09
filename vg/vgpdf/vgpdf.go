@@ -249,6 +249,17 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 			c.doc.LineTo(c.pdfPoint(comp.Pos))
 		case vg.ArcComp:
 			c.arc(comp, style)
+		case vg.CurveComp:
+			if len(comp.Control) > 0 {
+				cx, cy := c.pdfPoint(comp.Control[0])
+				px, py := c.pdfPoint(comp.Pos)
+				if len(comp.Control) == 1 {
+					c.doc.CurveTo(cx, cy, px, py)
+				} else {
+					dx, dy := c.pdfPoint(comp.Control[1])
+					c.doc.CurveBezierCubicTo(cx, cy, dx, dy, px, py)
+				}
+			}
 		case vg.CloseComp:
 			c.doc.LineTo(xp, yp)
 			c.doc.ClosePath()
