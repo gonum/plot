@@ -13,4 +13,4 @@
 // gonum.org/v1/plot/plotter package
 // which is documented here:
 // https://godoc.org/gonum.org/v1/plot/plotter
-package plot // import "gonum.org/v1/plot"
+package plot
