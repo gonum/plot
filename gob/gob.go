@@ -2,14 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package gob // import "gonum.org/v1/plot/gob"
+package gob
 
 import (
 	"encoding/gob"
 	"image/color"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
+	"github.com/blockstatecom/plot"
+	"github.com/blockstatecom/plot/plotter"
 )
 
 func init() {

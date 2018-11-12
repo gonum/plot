@@ -11,9 +11,9 @@ import (
 
 	"golang.org/x/exp/rand"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/internal/cmpimg"
-	"gonum.org/v1/plot/vg"
+	"github.com/blockstatecom/plot"
+	"github.com/blockstatecom/plot/internal/cmpimg"
+	"github.com/blockstatecom/plot/vg"
 )
 
 func ExampleBarChart() {

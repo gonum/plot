@@ -13,11 +13,11 @@ import (
 
 	"golang.org/x/exp/rand"
 
-	"gonum.org/v1/plot"
-	_ "gonum.org/v1/plot/gob"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
+	"github.com/blockstatecom/plot"
+	_ "github.com/blockstatecom/plot/gob"
+	"github.com/blockstatecom/plot/plotter"
+	"github.com/blockstatecom/plot/vg"
+	"github.com/blockstatecom/plot/vg/draw"
 )
 
 func init() {

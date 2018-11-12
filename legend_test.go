@@ -9,10 +9,10 @@ import (
 	"os"
 	"testing"
 
-	"gonum.org/v1/plot/internal/cmpimg"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
+	"github.com/blockstatecom/plot/internal/cmpimg"
+	"github.com/blockstatecom/plot/vg"
+	"github.com/blockstatecom/plot/vg/draw"
+	"github.com/blockstatecom/plot/vg/vgimg"
 )
 
 type exampleThumbnailer struct {

@@ -25,7 +25,7 @@ https://groups.google.com/forum/#!forum/gonum-dev
 ### What version of Go and Gonum/plot are you using?
 <!--
 Paste the output of `go version` and if you are installing Gonum/plot from source, paste
-the output of `(cd $(go env GOPATH)/src/gonum.org/v1/plot && git rev-parse HEAD)`.
+the output of `(cd $(go env GOPATH)/src/github.com/blockstatecom/plot && git rev-parse HEAD)`.
 -->
 
 

@@ -10,10 +10,10 @@ import (
 	"math"
 	"sort"
 
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/tools/bezier"
-	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
+	"github.com/blockstatecom/plot"
+	"github.com/blockstatecom/plot/tools/bezier"
+	"github.com/blockstatecom/plot/vg"
+	"github.com/blockstatecom/plot/vg/draw"
 )
 
 // A Sankey diagram presents stock and flow data as rectangles representing

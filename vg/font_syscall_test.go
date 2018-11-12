@@ -9,7 +9,7 @@ package vg_test
 import (
 	"testing"
 
-	"gonum.org/v1/plot/vg"
+	"github.com/blockstatecom/plot/vg"
 )
 
 func TestVGFONTPATH(t *testing.T) {
