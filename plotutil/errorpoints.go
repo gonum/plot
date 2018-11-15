@@ -96,7 +96,7 @@ func MeanAndConf95(vls []float64) (mean, lowerr, higherr float64) {
 func MedianAndMinMax(vls []float64) (med, lowerr, higherr float64) {
 	n := len(vls)
 	if n == 0 {
-		panic("MedianAndMinMax: No values")
+		panic("plotutil: MedianAndMinMax: No values")
 	}
 	if n == 1 {
 		return vls[0], 0, 0

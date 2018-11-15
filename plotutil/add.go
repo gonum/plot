@@ -71,7 +71,7 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 			}
 
 		default:
-			panic(fmt.Sprintf("AddStackedAreaPlots handles strings and plotter.Valuers, got %T", t))
+			panic(fmt.Sprintf("plotutil: AddStackedAreaPlots handles strings and plotter.Valuers, got %T", t))
 		}
 	}
 
@@ -114,7 +114,7 @@ func AddBoxPlots(plt *plot.Plot, width vg.Length, vs ...interface{}) error {
 			name = ""
 
 		default:
-			panic(fmt.Sprintf("AddBoxPlots handles strings and plotter.Valuers, got %T", t))
+			panic(fmt.Sprintf("plotutil: AddBoxPlots handles strings and plotter.Valuers, got %T", t))
 		}
 	}
 	plt.Add(ps...)
@@ -158,7 +158,7 @@ func AddScatters(plt *plot.Plot, vs ...interface{}) error {
 			}
 
 		default:
-			panic(fmt.Sprintf("AddScatters handles strings and plotter.XYers, got %T", t))
+			panic(fmt.Sprintf("plotutil: AddScatters handles strings and plotter.XYers, got %T", t))
 		}
 	}
 	plt.Add(ps...)
@@ -215,7 +215,7 @@ func AddLines(plt *plot.Plot, vs ...interface{}) error {
 			}
 
 		default:
-			panic(fmt.Sprintf("AddLines handles strings, plotter.XYers and *plotter.Function, got %T", t))
+			panic(fmt.Sprintf("plotutil: AddLines handles strings, plotter.XYers and *plotter.Function, got %T", t))
 		}
 	}
 	plt.Add(ps...)
@@ -267,7 +267,7 @@ func AddLinePoints(plt *plot.Plot, vs ...interface{}) error {
 			}
 
 		default:
-			panic(fmt.Sprintf("AddLinePoints handles strings and plotter.XYers, got %T", t))
+			panic(fmt.Sprintf("plotutil: AddLinePoints handles strings and plotter.XYers, got %T", t))
 		}
 	}
 	plt.Add(ps...)
@@ -322,7 +322,7 @@ func AddErrorBars(plt *plot.Plot, vs ...interface{}) error {
 		if added {
 			continue
 		}
-		panic(fmt.Sprintf("AddErrorBars expects plotter.XErrorer or plotter.YErrorer, got %T", v))
+		panic(fmt.Sprintf("plotutil: AddErrorBars expects plotter.XErrorer or plotter.YErrorer, got %T", v))
 	}
 	plt.Add(ps...)
 	return nil
