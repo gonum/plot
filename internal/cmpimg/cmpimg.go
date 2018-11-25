@@ -12,6 +12,7 @@ import (
 	"image"
 	"image/color"
 	"image/draw"
+	"io/ioutil"
 	"math"
 	"reflect"
 	"strings"
@@ -81,23 +82,67 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 }
 
 func cmpPdf(pdf1, pdf2 *pdf.Reader) bool {
-	n1 := pdf1.NumPage()
-	n2 := pdf2.NumPage()
-	if n1 != n2 {
+	return cmpPdfValues(pdf1.Trailer(), pdf2.Trailer())
+}
+
+func cmpPdfValues(v1, v2 pdf.Value) bool {
+	if v1.Kind() != v2.Kind() {
 		return false
 	}
 
-	for i := 1; i <= n1; i++ {
-		p1 := pdf1.Page(i).Content()
-		p2 := pdf2.Page(i).Content()
-		if !reflect.DeepEqual(p1, p2) {
+	switch v1.Kind() {
+	case pdf.String:
+		return v1.String() == v2.String()
+	case pdf.Integer:
+		return v1.Int64() == v2.Int64()
+	case pdf.Real:
+		return v1.Float64() == v2.Float64()
+	case pdf.Name:
+		return v1.Name() == v2.Name()
+	case pdf.Stream:
+		r1 := v1.Reader()
+		s1, err1 := ioutil.ReadAll(r1)
+		r1.Close()
+		r2 := v2.Reader()
+		s2, err2 := ioutil.ReadAll(r2)
+		r2.Close()
+		if err1 != nil || err2 != nil || len(s1) != len(s2) {
 			return false
 		}
+		if !bytes.Equal(s1, s2) {
+			return false
+		}
+		fallthrough
+	case pdf.Dict:
+		keys1, keys2 := v1.Keys(), v2.Keys()
+		if len(keys1) != len(keys2) {
+			return false
+		}
+		for i, k := range keys1 {
+			if k != keys2[i] {
+				return false
+			}
+			if k == "CreationDate" || k == "Parent" || k == "Font" {
+				continue
+			}
+			if !cmpPdfValues(v1.Key(k), v2.Key(k)) {
+				return false
+			}
+		}
+		return true
+	case pdf.Array:
+		if v1.Len() != v2.Len() {
+			return false
+		}
+		count := v1.Len()
+		for i := 0; i < count; i++ {
+			if !cmpPdfValues(v1.Index(i), v2.Index(i)) {
+				return false
+			}
+		}
+		return true
 	}
-
-	t1 := pdf1.Trailer().String()
-	t2 := pdf2.Trailer().String()
-	return t1 == t2
+	return false
 }
 
 // Diff calculates an intensity-scaled difference between images a and b
