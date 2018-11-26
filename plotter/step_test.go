@@ -1,4 +1,4 @@
-// Copyright ©2015 The gonum Authors. All rights reserved.
+// Copyright ©2018 The gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -51,34 +51,35 @@ func ExampleStep() {
 	if err != nil {
 		log.Panic(err)
 	}
-	stepPre.ShadeColor = color.RGBA{A: 40}
+	stepPre.FillColor = color.RGBA{A: 40}
 
 	stepMid, err := NewStep(randomPoints(n, 3.5))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepMid.StepType = StepTypeMid
+	stepMid.StepStyle = MidStep
 	stepMid.LineStyle = &draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
 
 	stepPost, err := NewStep(randomPoints(n, 7.))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepPost.StepType = StepTypePost
+	stepPost.StepStyle = PostStep
 	stepPost.LineStyle = nil
-	stepPost.ShadeColor = color.RGBA{B: 255, A: 40}
+	stepPost.FillColor = color.RGBA{B: 255, A: 255}
 
 	p.Add(stepPre, stepMid, stepPost)
 	p.Legend.Add("pre", stepPre)
 	p.Legend.Add("mid", stepMid)
 	p.Legend.Add("post", stepPost)
+	p.Legend.Top = true
 
-	err = p.Save(200, 200, "testdata/step.pdf")
+	err = p.Save(200, 200, "testdata/step.png")
 	if err != nil {
 		log.Panic(err)
 	}
 }
 
 func TestStep(t *testing.T) {
-	cmpimg.CheckPlot(ExampleStep, t, "step.pdf")
+	cmpimg.CheckPlot(ExampleStep, t, "step.png")
 }
