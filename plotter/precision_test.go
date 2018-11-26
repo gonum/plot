@@ -1,15 +1,16 @@
-// Copyright ©2017 The gonum Authors. All rights reserved.
+// Copyright ©2017 The Gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
 package plotter_test
 
 import (
+	"log"
+	"testing"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/plotter"
-	"log"
-	"testing"
 )
 
 func TestFloatPrecision(t *testing.T) {
