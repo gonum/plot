@@ -17,14 +17,14 @@ import (
 type StepKind int
 
 const (
-	// PreStep means that two consecutive points are connected by two lines in the following order: vertical, horizontal.
+	// PreStep connects two points by following lines: vertical, horizontal.
 	PreStep StepKind = iota
 
-	// MidStep means that two consecutive points are connected by three lines in the following order: horizontal, vertical, horizontal.
+	// MidStep connects two points by following lines: horizontal, vertical, horizontal.
 	// Vertical line is placed in the middle of the interval.
 	MidStep
 
-	// PostStep means that two consecutive points are connected by two lines in the following order: horizontal, vertical.
+	// PostStep connects two points by following lines: horizontal, vertical.
 	PostStep
 )
 
