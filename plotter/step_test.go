@@ -47,7 +47,7 @@ func ExampleStep() {
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
 
-	stepPre, err := NewStep(randomPoints(n, 0.))
+	stepPre, err := NewStep(randomPoints(n, 0))
 	if err != nil {
 		log.Panic(err)
 	}
@@ -60,7 +60,7 @@ func ExampleStep() {
 	stepMid.StepStyle = MidStep
 	stepMid.LineStyle = &draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
 
-	stepPost, err := NewStep(randomPoints(n, 7.))
+	stepPost, err := NewStep(randomPoints(n, 7))
 	if err != nil {
 		log.Panic(err)
 	}
