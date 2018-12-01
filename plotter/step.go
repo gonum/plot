@@ -67,42 +67,46 @@ func (pts *Step) Plot(c draw.Canvas, plt *plot.Plot) {
 		ps[i].Y = trY(p.Y)
 	}
 
-	if pts.FillColor != nil && len(ps) > 0 {
+	lines := c.ClipLinesXY(ps)
+
+	if pts.FillColor != nil && len(lines) > 0 {
 		c.SetColor(pts.FillColor)
 		minY := trY(plt.Y.Min)
 		var pa vg.Path
-		pa.Move(vg.Point{X: ps[0].X, Y: minY})
-		prev := ps[0]
+		pa.Move(vg.Point{X: lines[0][0].X, Y: minY})
+		prev := lines[0][0]
 		if pts.StepStyle != PreStep {
 			pa.Line(prev)
 		}
-		for i, pt := range ps[1:] {
-			switch pts.StepStyle {
-			case PreStep:
-				pa.Line(vg.Point{X: prev.X, Y: pt.Y})
-				pa.Line(pt)
-			case MidStep:
-				pa.Line(vg.Point{X: (prev.X + pt.X) / 2, Y: prev.Y})
-				pa.Line(vg.Point{X: (prev.X + pt.X) / 2, Y: pt.Y})
-				pa.Line(pt)
-			case PostStep:
-				pa.Line(vg.Point{X: pt.X, Y: prev.Y})
-				if i != len(ps)-2 {
-					pa.Line(pt)
+		for i, l := range lines {
+			for j, pt := range l {
+				if i == 0 && j == 0 {
+					continue
 				}
+				switch pts.StepStyle {
+				case PreStep:
+					pa.Line(vg.Point{X: prev.X, Y: pt.Y})
+					pa.Line(pt)
+				case MidStep:
+					pa.Line(vg.Point{X: (prev.X + pt.X) / 2, Y: prev.Y})
+					pa.Line(vg.Point{X: (prev.X + pt.X) / 2, Y: pt.Y})
+					pa.Line(pt)
+				case PostStep:
+					pa.Line(vg.Point{X: pt.X, Y: prev.Y})
+					if i != len(lines)-1 || j != len(l)-1 {
+						pa.Line(pt)
+					}
+				}
+				prev = pt
 			}
-			prev = pt
 		}
-		pa.Line(vg.Point{X: ps[len(pts.XYs)-1].X, Y: minY})
+		last := lines[len(lines)-1]
+		pa.Line(vg.Point{X: last[len(last)-1].X, Y: minY})
 		pa.Close()
 		c.Fill(pa)
 	}
 
-	if pts.LineStyle != nil {
-		lines := c.ClipLinesXY(ps)
-		if len(lines) == 0 {
-			return
-		}
+	if pts.LineStyle != nil && len(lines) != 0 {
 		c.SetLineStyle(*pts.LineStyle)
 		for _, l := range lines {
 			if len(l) == 0 {
