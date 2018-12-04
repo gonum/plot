@@ -7,7 +7,7 @@
 //
 // vgtex generates PGF instructions that will be interpreted and rendered by LaTeX.
 // vgtex allows to put any valid LaTeX notation inside plot's strings.
-package vgtex
+package vgtex // import "gonum.org/v1/plot/vg/vgtex"
 
 import (
 	"bufio"
@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/blockstatecom/plot/vg"
+	"gonum.org/v1/plot/vg"
 )
 
 const degPerRadian = 180 / math.Pi

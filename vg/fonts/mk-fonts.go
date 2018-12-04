@@ -97,7 +97,7 @@ func main() {
 }
 
 func getFontsDir() string {
-	dir := "github.com/blockstatecom/plot/vg"
+	dir := "gonum.org/v1/plot/vg"
 	gopath := os.Getenv("GOPATH")
 	if gopath == "" {
 		log.Fatal("no GOPATH environment variable")

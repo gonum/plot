@@ -9,7 +9,7 @@ import (
 	"image/color"
 	"math"
 
-	"github.com/blockstatecom/plot/palette"
+	"gonum.org/v1/plot/palette"
 )
 
 // smoothDiverging is a smooth diverging color palette as described in

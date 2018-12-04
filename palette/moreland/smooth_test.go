@@ -12,7 +12,7 @@ import (
 
 	"golang.org/x/exp/rand"
 
-	"github.com/blockstatecom/plot/palette"
+	"gonum.org/v1/plot/palette"
 )
 
 // bitTolerance is the precision of a uint8 when

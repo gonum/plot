@@ -16,7 +16,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/blockstatecom/plot/vg/fonts"
+	"gonum.org/v1/plot/vg/fonts"
 
 	"golang.org/x/image/math/fixed"
 

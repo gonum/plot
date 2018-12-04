@@ -8,9 +8,9 @@ import (
 	"log"
 	"testing"
 
-	"github.com/blockstatecom/plot"
-	"github.com/blockstatecom/plot/internal/cmpimg"
-	"github.com/blockstatecom/plot/vg"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/vg"
 )
 
 // Draw the plot logo.

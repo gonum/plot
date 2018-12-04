@@ -5,9 +5,9 @@
 package plotter_test
 
 import (
-	"github.com/blockstatecom/plot"
-	"github.com/blockstatecom/plot/internal/cmpimg"
-	"github.com/blockstatecom/plot/plotter"
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"log"
 	"testing"
 )

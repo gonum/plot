@@ -3,9 +3,9 @@
 // license that can be found in the LICENSE file.
 
 // Package bezier implements 2D Bézier curve calculation.
-package bezier
+package bezier // import "gonum.org/v1/plot/tools/bezier"
 
-import "github.com/blockstatecom/plot/vg"
+import "gonum.org/v1/plot/vg"
 
 type point struct {
 	Point, Control vg.Point

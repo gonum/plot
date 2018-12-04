@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/blockstatecom/plot/vg"
-	"github.com/blockstatecom/plot/vg/draw"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 // Ticker creates Ticks in a specified range

@@ -12,8 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/blockstatecom/plot/vg"
-	"github.com/blockstatecom/plot/vg/draw"
+	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 var (
@@ -55,9 +55,9 @@ type Plot struct {
 
 // Plotter is an interface that wraps the Plot method.
 // Some standard implementations of Plotter can be
-// found in the github.com/blockstatecom/plot/plotter
+// found in the gonum.org/v1/plot/plotter
 // package, documented here:
-// https://godoc.org/github.com/blockstatecom/plot/plotter
+// https://godoc.org/gonum.org/v1/plot/plotter
 type Plotter interface {
 	// Plot draws the data to a draw.Canvas.
 	Plot(draw.Canvas, *Plot)

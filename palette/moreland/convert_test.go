@@ -8,7 +8,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/blockstatecom/gonum/floats"
+	"gonum.org/v1/gonum/floats"
 )
 
 // TestRgb_sRGBA tests the conversion from linear RGB space to sRGB space.

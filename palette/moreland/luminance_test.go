@@ -11,7 +11,7 @@ import (
 
 	"golang.org/x/exp/rand"
 
-	"github.com/blockstatecom/gonum/floats"
+	"gonum.org/v1/gonum/floats"
 )
 
 func TestCreateLuminance(t *testing.T) {
