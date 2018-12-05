@@ -54,8 +54,8 @@ const (
 )
 
 // New returns a new image canvas.
-func New(w, h vg.Length, c color.Color) *Canvas {
-	return NewWith(UseWH(w, h), UseBackgroundColor(c))
+func New(w, h vg.Length) *Canvas {
+	return NewWith(UseWH(w, h))
 }
 
 // NewWith returns a new image canvas created according to the specified

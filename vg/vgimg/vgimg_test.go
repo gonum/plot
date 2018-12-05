@@ -29,7 +29,7 @@ func TestIssue179(t *testing.T) {
 	p.Add(scatter)
 	p.HideAxes()
 
-	c := vgimg.JpegCanvas{Canvas: vgimg.New(5.08*vg.Centimeter, 5.08*vg.Centimeter, color.White)}
+	c := vgimg.JpegCanvas{Canvas: vgimg.New(5.08*vg.Centimeter, 5.08*vg.Centimeter)}
 	p.Draw(draw.New(c))
 	b := bytes.NewBuffer([]byte{})
 	if _, err = c.WriteTo(b); err != nil {
