@@ -16,8 +16,7 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-// Example_invertedScale shows how to create a plot with an inverted Y-axis.
-// This is nearly identical to the Log example, except it inverts the X and Y axes
+// Example_invertedScale shows how to create a plot with an inverted axes.
 func Example_invertedScale() {
 	p, err := plot.New()
 	if err != nil {

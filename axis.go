@@ -172,8 +172,7 @@ func (LogScale) Normalize(min, max, x float64) float64 {
 }
 
 // InvertedScale can be used as the value of an Axis.Scale function to
-// invert the axis using any Normalizer. This can be useful for plots that
-// require inverted plot axis, such as are common in some fields.
+// invert the axis using any Normalizer.
 type InvertedScale struct{ Normalizer }
 
 var _ Normalizer = InvertedScale{}
