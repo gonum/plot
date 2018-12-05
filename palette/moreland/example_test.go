@@ -66,7 +66,7 @@ func Example() {
 		rows = 3
 		cols = 3
 	)
-	c := vgimg.New(vg.Points(800), vg.Points(800), color.Transparent)
+	c := vgimg.New(vg.Points(800), vg.Points(800))
 	dc := draw.New(c)
 	tiles := draw.Tiles{
 		Rows: rows,

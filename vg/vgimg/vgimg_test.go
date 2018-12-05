@@ -56,12 +56,12 @@ func TestConcurrentInit(t *testing.T) {
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
-		c := vgimg.New(215, 215, color.White)
+		c := vgimg.New(215, 215)
 		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
 		wg.Done()
 	}()
 	go func() {
-		c := vgimg.New(215, 215, color.White)
+		c := vgimg.New(215, 215)
 		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
 		wg.Done()
 	}()

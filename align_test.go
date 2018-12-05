@@ -5,7 +5,6 @@
 package plot
 
 import (
-	"image/color"
 	"math"
 	"os"
 	"testing"

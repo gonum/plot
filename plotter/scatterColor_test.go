@@ -113,7 +113,7 @@ func ExampleScatter_color() {
 	// Slide the legend over so it doesn't overlap the ScatterPlot.
 	p.Legend.XOffs = legendWidth
 
-	img := vgimg.New(300, 230, color.White)
+	img := vgimg.New(300, 230)
 	dc := draw.New(img)
 	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
 	p.Draw(dc)
