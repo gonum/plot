@@ -40,7 +40,7 @@ func (et exampleThumbnailer) Thumbnail(c *draw.Canvas) {
 
 // This example creates a some standalone legends with borders around them.
 func ExampleLegend_standalone() {
-	c := vgimg.New(vg.Points(120), vg.Points(100), color.Transparent)
+	c := vgimg.New(vg.Points(120), vg.Points(100))
 	dc := draw.New(c)
 
 	// These example thumbnailers could be replaced with any of Plotters

@@ -59,7 +59,7 @@ func ExampleAlign() {
 		}
 	}
 
-	img := vgimg.New(vg.Points(150), vg.Points(175), color.White)
+	img := vgimg.New(vg.Points(150), vg.Points(175))
 	dc := draw.New(img)
 
 	t := draw.Tiles{
