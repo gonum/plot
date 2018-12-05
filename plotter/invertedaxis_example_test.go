@@ -17,14 +17,14 @@ import (
 )
 
 // Example_invertedScale shows how to create a plot with an inverted Y-axis.
-// This is nearly identical to the Log example, except it inverts the Y axis.
+// This is nearly identical to the Log example, except it inverts the X and Y axes
 func Example_invertedScale() {
 	p, err := plot.New()
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	p.Title.Text = "Exampled of an Inverted Axis"
+	p.Title.Text = "Example of inverted axes"
 	p.Y.Scale = plot.InvertedScale{Normalizer: plot.LogScale{}}
 	p.X.Scale = plot.InvertedScale{Normalizer: plot.LinearScale{}}
 	p.Y.Tick.Marker = plot.LogTicks{}
@@ -40,7 +40,7 @@ func Example_invertedScale() {
 	p.Add(f, plotter.NewGrid())
 	p.Legend.Add("exp(x)", f)
 
-	//Notice that both .Min and .Max for X and Y are both in 'normal' order
+	// Notice that both .Min and .Max for X and Y are both in 'normal' order
 	p.X.Min = f.XMin
 	p.X.Max = f.XMax
 	p.Y.Min = math.Exp(f.XMin)
