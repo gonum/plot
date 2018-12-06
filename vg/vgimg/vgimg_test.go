@@ -6,10 +6,13 @@ package vgimg_test
 
 import (
 	"bytes"
+	"fmt"
+	"image/color"
 	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"testing"
 
@@ -69,4 +72,19 @@ func TestConcurrentInit(t *testing.T) {
 		wg.Done()
 	}()
 	wg.Wait()
+}
+
+func TestUseBackgroundColor(t *testing.T) {
+	colors := []color.Color{color.Transparent, color.NRGBA{R: 255, A: 255}}
+	for i, col := range colors {
+		t.Run(fmt.Sprint(i), func(t *testing.T) {
+			c := vgimg.NewWith(vgimg.UseWH(1, 1), vgimg.UseBackgroundColor(col))
+			img := c.Image()
+			wantCol := color.RGBAModel.Convert(col)
+			haveCol := img.At(0, 0)
+			if !reflect.DeepEqual(haveCol, wantCol) {
+				t.Fatalf("color should be %#v but is %#v", wantCol, haveCol)
+			}
+		})
+	}
 }
