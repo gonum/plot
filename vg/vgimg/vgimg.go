@@ -39,6 +39,10 @@ type Canvas struct {
 
 	// width is the current line width.
 	width vg.Length
+
+	// backgroundColor is the background color, set by
+	// UseBackgroundColor.
+	backgroundColor color.Color
 }
 
 const (
@@ -54,7 +58,7 @@ const (
 
 // New returns a new image canvas.
 func New(w, h vg.Length) *Canvas {
-	return NewWith(UseWH(w, h))
+	return NewWith(UseWH(w, h), UseBackgroundColor(color.White))
 }
 
 // NewWith returns a new image canvas created according to the specified
@@ -67,6 +71,7 @@ func New(w, h vg.Length) *Canvas {
 // passed).
 func NewWith(o ...option) *Canvas {
 	c := new(Canvas)
+	c.backgroundColor = color.White
 	var g uint32
 	for _, opt := range o {
 		f := opt(c)
@@ -101,7 +106,7 @@ func NewWith(o ...option) *Canvas {
 		c.gc.Scale(1, -1)
 		c.gc.Translate(0, -h)
 	}
-	draw.Draw(c.img, c.img.Bounds(), image.White, image.ZP, draw.Src)
+	draw.Draw(c.img, c.img.Bounds(), &image.Uniform{c.backgroundColor}, image.ZP, draw.Src)
 	c.color = []color.Color{color.Black}
 	vg.Initialize(c)
 	return c
@@ -111,8 +116,9 @@ func NewWith(o ...option) *Canvas {
 // used when initializing a canvas are compatible with
 // each other.
 const (
-	setsDPI = 1 << iota
+	setsDPI uint32 = 1 << iota
 	setsSize
+	setsBackground
 )
 
 type option func(*Canvas) uint32
@@ -148,7 +154,7 @@ func UseDPI(dpi int) option {
 func UseImage(img draw.Image) option {
 	return func(c *Canvas) uint32 {
 		c.img = img
-		return setsSize
+		return setsSize | setsBackground
 	}
 }
 
@@ -161,7 +167,16 @@ func UseImageWithContext(img draw.Image, gc draw2d.GraphicContext) option {
 		c.img = img
 		c.gc = gc
 		c.dpi = gc.GetDPI()
-		return setsDPI | setsSize
+		return setsDPI | setsSize | setsBackground
+	}
+}
+
+// UseBackgroundColor specifies the image background color.
+// Without UseBackgroundColor, the default color is white.
+func UseBackgroundColor(c color.Color) option {
+	return func(canvas *Canvas) uint32 {
+		canvas.backgroundColor = c
+		return setsBackground
 	}
 }
 
@@ -257,6 +272,7 @@ func (c *Canvas) outline(p vg.Path) {
 	}
 }
 
+// DPI returns the resolution of the receiver in pixels per inch.
 func (c *Canvas) DPI() float64 {
 	return float64(c.gc.GetDPI())
 }
