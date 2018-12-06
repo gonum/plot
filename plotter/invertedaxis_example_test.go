@@ -20,7 +20,6 @@ func Example_invertedScale() {
 	// This samples is nearly identical to the LogScale, other than
 	// both the X and Y axes are inverted. InvertedScale expects to act
 	// on another Normalizer - which should allow for more flexibility
-	Example_invertedScale shows how to create a plot with an inverted axes.
 	p, err := plot.New()
 	if err != nil {
 		log.Fatal(err)
