@@ -1,4 +1,4 @@
-// Copyright ©2017 The Gonum Authors. All rights reserved.
+// Copyright ©2018 The Gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -16,8 +16,11 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-// Example_invertedScale shows how to create a plot with an inverted axes.
 func Example_invertedScale() {
+	// This samples is nearly identical to the LogScale, other than
+	// both the X and Y axes are inverted. InvertedScale expects to act
+	// on another Normalizer - which should allow for more flexibility
+	Example_invertedScale shows how to create a plot with an inverted axes.
 	p, err := plot.New()
 	if err != nil {
 		log.Fatal(err)
@@ -39,7 +42,9 @@ func Example_invertedScale() {
 	p.Add(f, plotter.NewGrid())
 	p.Legend.Add("exp(x)", f)
 
-	// Notice that both .Min and .Max for X and Y are both in 'normal' order
+	// Both .Min and .Max for the X and Y axes are not
+	// 'swapped', but the minimal value is retained in .Min,
+	// and the maximal value stays in in .Max.
 	p.X.Min = f.XMin
 	p.X.Max = f.XMax
 	p.Y.Min = math.Exp(f.XMin)

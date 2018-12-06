@@ -177,7 +177,7 @@ type InvertedScale struct{ Normalizer }
 
 var _ Normalizer = InvertedScale{}
 
-// Normalize returns a normalized [0, 1] value for the position of x
+// Normalize returns a normalized [0, 1] value for the position of x.
 func (is InvertedScale) Normalize(min, max, x float64) float64 {
 	return is.Normalizer.Normalize(max, min, x)
 }
