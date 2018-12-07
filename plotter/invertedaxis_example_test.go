@@ -17,7 +17,7 @@ import (
 )
 
 func Example_invertedScale() {
-	// This samples is nearly identical to the LogScale, other than
+	// This example is nearly identical to the LogScale, other than
 	// both the X and Y axes are inverted. InvertedScale expects to act
 	// on another Normalizer - which should allow for more flexibility
 	p, err := plot.New()
@@ -41,9 +41,9 @@ func Example_invertedScale() {
 	p.Add(f, plotter.NewGrid())
 	p.Legend.Add("exp(x)", f)
 
-	// Both .Min and .Max for the X and Y axes are not
-	// 'swapped', but the minimal value is retained in .Min,
-	// and the maximal value stays in in .Max.
+	// Neither .Min nor .Max for the X and Y axes are 'swapped'.
+	// The minimal value is retained in .Min, and the maximal
+	// value stays in .Max.
 	p.X.Min = f.XMin
 	p.X.Max = f.XMax
 	p.Y.Min = math.Exp(f.XMin)
