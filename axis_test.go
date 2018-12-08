@@ -134,3 +134,16 @@ func TestTickerFunc_Ticks(t *testing.T) {
 		})
 	}
 }
+
+func TestInvertedScale_Normalize(t *testing.T) {
+	inverter := InvertedScale{Normalizer: LinearScale{}}
+	if got := inverter.Normalize(0, 1, 1); got != 0.0 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 1.0, 0.0, got)
+	}
+	if got := inverter.Normalize(0, 1, .5); got != 0.5 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 0.5, 0.5, got)
+	}
+	if got := inverter.Normalize(0, 1, 0); got != 1.0 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 0.0, 1.0, got)
+	}
+}
