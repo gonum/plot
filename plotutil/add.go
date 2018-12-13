@@ -61,7 +61,7 @@ func AddStackedAreaPlots(plt *plot.Plot, xs plotter.Valuer, vs ...interface{}) e
 			l.LineStyle.Width = vg.Points(0)
 			color := Color(i)
 			i++
-			l.ShadeColor = &color
+			l.FillColor = color
 
 			ps = append(ps, l)
 

@@ -17,8 +17,7 @@ import (
 	"gonum.org/v1/plot/vg/draw"
 )
 
-// ExampleStep draws some filled step lines.
-func ExampleStep() {
+func stepLine() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomPoints returns some random x, y points
@@ -26,11 +25,7 @@ func ExampleStep() {
 	randomPoints := func(n int, x float64) XYs {
 		pts := make(XYs, n)
 		for i := range pts {
-			if i == 0 {
-				pts[i].X = x + rnd.Float64()
-			} else {
-				pts[i].X = pts[i-1].X + 0.5 + rnd.Float64()
-			}
+			pts[i].X = float64(i) + x
 			pts[i].Y = 5. + 10*rnd.Float64()
 		}
 		return pts
@@ -47,32 +42,44 @@ func ExampleStep() {
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
 
-	stepPre, err := NewStep(randomPoints(n, 0))
+	stepPre, err := NewLine(randomPoints(n, 0))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepPre.FillColor = color.RGBA{A: 40}
+	stepPre.StepStyle = PreStep
+	stepPre.FillColor = color.RGBA{R: 196, G: 255, B: 196, A: 255}
 
-	stepMid, err := NewStep(randomPoints(n, 3.5))
+	stepMid, err := NewLine(randomPoints(n, 3.5))
 	if err != nil {
 		log.Panic(err)
 	}
 	stepMid.StepStyle = MidStep
-	stepMid.LineStyle = &draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
+	stepMid.LineStyle = draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
 
-	stepPost, err := NewStep(randomPoints(n, 7))
+	stepMidFilled, err := NewLine(randomPoints(n, 7))
+	if err != nil {
+		log.Panic(err)
+	}
+	stepMidFilled.StepStyle = MidStep
+	stepMidFilled.LineStyle = draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
+	stepMidFilled.FillColor = color.RGBA{R: 255, G: 196, B: 196, A: 255}
+
+	stepPost, err := NewLine(randomPoints(n, 10.5))
 	if err != nil {
 		log.Panic(err)
 	}
 	stepPost.StepStyle = PostStep
-	stepPost.LineStyle = nil
-	stepPost.FillColor = color.RGBA{B: 255, A: 255}
+	stepPost.LineStyle.Width = 0
+	stepPost.FillColor = color.RGBA{R: 196, G: 196, B: 255, A: 255}
 
-	p.Add(stepPre, stepMid, stepPost)
+	p.Add(stepPre, stepMid, stepMidFilled, stepPost)
 	p.Legend.Add("pre", stepPre)
 	p.Legend.Add("mid", stepMid)
+	p.Legend.Add("midFilled", stepMidFilled)
 	p.Legend.Add("post", stepPost)
 	p.Legend.Top = true
+	p.Y.Max = 20
+	p.Y.Min = 0
 
 	err = p.Save(200, 200, "testdata/step.png")
 	if err != nil {
@@ -81,5 +88,5 @@ func ExampleStep() {
 }
 
 func TestStep(t *testing.T) {
-	cmpimg.CheckPlot(ExampleStep, t, "step.png")
+	cmpimg.CheckPlot(stepLine, t, "step.png")
 }
