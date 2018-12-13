@@ -42,7 +42,7 @@ type Line struct {
 	// Use zero width to disable lines.
 	draw.LineStyle
 
-	// FillColor is the color to fill the area between the x-axis and the plot.
+	// FillColor is the color to fill the area below the plot.
 	// Use nil to disable the filling. This is the default.
 	FillColor color.Color
 }
