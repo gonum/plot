@@ -16,7 +16,7 @@ import (
 type StepKind int
 
 const (
-	// NoStep connects to points by simple line
+	// NoStep connects two points by simple line
 	NoStep StepKind = iota
 
 	// PreStep connects two points by following lines: vertical, horizontal.
