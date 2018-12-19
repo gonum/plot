@@ -16,6 +16,7 @@ import (
 	"gonum.org/v1/plot/plotter"
 )
 
+// See https://github.com/gonum/plot/issues/488
 func clippedFilledLine() {
 	rnd := rand.New(rand.NewSource(1))
 
