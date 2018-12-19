@@ -49,15 +49,21 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 		ps[i].Y = trY(p.Y)
 	}
 
+	clipped := c.ClipLinesXY(ps)
+	ps = ps[:0]
+	for _, p := range clipped {
+		ps = append(ps, p...)
+	}
+
 	if pts.ShadeColor != nil && len(ps) > 0 {
 		c.SetColor(*pts.ShadeColor)
 		minY := trY(plt.Y.Min)
 		var pa vg.Path
 		pa.Move(vg.Point{X: ps[0].X, Y: minY})
-		for i := range pts.XYs {
+		for i := range ps {
 			pa.Line(ps[i])
 		}
-		pa.Line(vg.Point{X: ps[len(pts.XYs)-1].X, Y: minY})
+		pa.Line(vg.Point{X: ps[len(ps)-1].X, Y: minY})
 		pa.Close()
 		c.Fill(pa)
 	}
