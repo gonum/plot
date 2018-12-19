@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -13,6 +13,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/plotter"
 )
 
 func ExampleLine_filledLine() {
@@ -20,8 +21,8 @@ func ExampleLine_filledLine() {
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
-	randomPoints := func(n int, x float64) XYs {
-		pts := make(XYs, n)
+	randomPoints := func(n int, x float64) plotter.XYs {
+		pts := make(plotter.XYs, n)
 		for i := range pts {
 			if i == 0 {
 				pts[i].X = x + rnd.Float64()
@@ -40,9 +41,9 @@ func ExampleLine_filledLine() {
 	p.Title.Text = "Filled Line Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	filled, err := NewLine(randomPoints(4, 0))
+	filled, err := plotter.NewLine(randomPoints(4, 0))
 	if err != nil {
 		log.Panic(err)
 	}

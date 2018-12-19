@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -14,6 +14,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg/draw"
 )
 
@@ -22,8 +23,8 @@ func ExampleLine_stepLine() {
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
-	randomPoints := func(n int, x float64) XYs {
-		pts := make(XYs, n)
+	randomPoints := func(n int, x float64) plotter.XYs {
+		pts := make(plotter.XYs, n)
 		for i := range pts {
 			pts[i].X = float64(i) + x
 			pts[i].Y = 5. + 10*rnd.Float64()
@@ -40,35 +41,35 @@ func ExampleLine_stepLine() {
 	p.Title.Text = "Step Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	stepPre, err := NewLine(randomPoints(n, 0))
+	stepPre, err := plotter.NewLine(randomPoints(n, 0))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepPre.StepStyle = PreStep
+	stepPre.StepStyle = plotter.PreStep
 	stepPre.FillColor = color.RGBA{R: 196, G: 255, B: 196, A: 255}
 
-	stepMid, err := NewLine(randomPoints(n, 3.5))
+	stepMid, err := plotter.NewLine(randomPoints(n, 3.5))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepMid.StepStyle = MidStep
+	stepMid.StepStyle = plotter.MidStep
 	stepMid.LineStyle = draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
 
-	stepMidFilled, err := NewLine(randomPoints(n, 7))
+	stepMidFilled, err := plotter.NewLine(randomPoints(n, 7))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepMidFilled.StepStyle = MidStep
+	stepMidFilled.StepStyle = plotter.MidStep
 	stepMidFilled.LineStyle = draw.LineStyle{Color: color.RGBA{R: 196, B: 128, A: 255}, Width: vg.Points(1)}
 	stepMidFilled.FillColor = color.RGBA{R: 255, G: 196, B: 196, A: 255}
 
-	stepPost, err := NewLine(randomPoints(n, 10.5))
+	stepPost, err := plotter.NewLine(randomPoints(n, 10.5))
 	if err != nil {
 		log.Panic(err)
 	}
-	stepPost.StepStyle = PostStep
+	stepPost.StepStyle = plotter.PostStep
 	stepPost.LineStyle.Width = 0
 	stepPost.FillColor = color.RGBA{R: 196, G: 196, B: 255, A: 255}
 
