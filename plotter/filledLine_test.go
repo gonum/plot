@@ -15,7 +15,7 @@ import (
 	"gonum.org/v1/plot/internal/cmpimg"
 )
 
-func filledLine() {
+func ExampleLine_filledLine() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomPoints returns some random x, y points
@@ -33,8 +33,6 @@ func filledLine() {
 		return pts
 	}
 
-	n := 4
-
 	p, err := plot.New()
 	if err != nil {
 		log.Panic(err)
@@ -44,13 +42,14 @@ func filledLine() {
 	p.Y.Label.Text = "Y"
 	p.Add(NewGrid())
 
-	filled, err := NewLine(randomPoints(n, 0))
+	filled, err := NewLine(randomPoints(4, 0))
 	if err != nil {
 		log.Panic(err)
 	}
 	filled.FillColor = color.RGBA{R: 196, G: 255, B: 196, A: 255}
 
 	p.Add(filled)
+	// testing clipping
 	p.Y.Max = -1
 
 	err = p.Save(200, 200, "testdata/filledLine.png")
@@ -60,5 +59,5 @@ func filledLine() {
 }
 
 func TestFilledLine(t *testing.T) {
-	cmpimg.CheckPlot(filledLine, t, "filledLine.png")
+	cmpimg.CheckPlot(ExampleLine_filledLine, t, "filledLine.png")
 }

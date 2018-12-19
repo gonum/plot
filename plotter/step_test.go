@@ -17,7 +17,7 @@ import (
 	"gonum.org/v1/plot/vg/draw"
 )
 
-func stepLine() {
+func ExampleLine_stepLine() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomPoints returns some random x, y points
@@ -88,5 +88,5 @@ func stepLine() {
 }
 
 func TestStep(t *testing.T) {
-	cmpimg.CheckPlot(stepLine, t, "step.png")
+	cmpimg.CheckPlot(ExampleLine_stepLine, t, "step.png")
 }
