@@ -94,7 +94,7 @@ func makeAxis(orientation bool) (Axis, error) {
 	}
 
 	a := Axis{
-		Min: math.Inf(1),
+		Min: math.Inf(+1),
 		Max: math.Inf(-1),
 		LineStyle: draw.LineStyle{
 			Color: color.Black,
@@ -469,7 +469,7 @@ var _ Ticker = LogTicks{}
 
 // Ticks returns Ticks in a specified range
 func (LogTicks) Ticks(min, max float64) []Tick {
-	if min <= 0 {
+	if min <= 0 || max <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
 

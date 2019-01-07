@@ -77,25 +77,34 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 	trX, trY := p.Transforms(&c)
 
 	for _, bin := range h.Bins {
+		ymin := c.Min.Y
+		ymax := c.Min.Y
+		if 0 != bin.Weight {
+			ymax = trY(bin.Weight)
+		}
+		xmin := trX(bin.Min)
+		xmax := trX(bin.Max)
 		pts := []vg.Point{
-			{trX(bin.Min), trY(0)},
-			{trX(bin.Max), trY(0)},
-			{trX(bin.Max), trY(bin.Weight)},
-			{trX(bin.Min), trY(bin.Weight)},
+			{xmin, ymin},
+			{xmax, ymin},
+			{xmax, ymax},
+			{xmin, ymax},
 		}
 		if h.FillColor != nil {
 			c.FillPolygon(h.FillColor, c.ClipPolygonXY(pts))
 		}
-		pts = append(pts, vg.Point{X: trX(bin.Min), Y: trY(0)})
+		pts = append(pts, vg.Point{X: xmin, Y: ymin})
 		c.StrokeLines(h.LineStyle, c.ClipLinesXY(pts)...)
 	}
 }
 
 // DataRange returns the minimum and maximum X and Y values
 func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
-	xmin = math.Inf(1)
+	xmin = math.Inf(+1)
 	xmax = math.Inf(-1)
+	ymin = math.Inf(+1)
 	ymax = math.Inf(-1)
+	ylow := math.Inf(+1) // smallest non-zero y value
 	for _, bin := range h.Bins {
 		if bin.Max > xmax {
 			xmax = bin.Max
@@ -106,6 +115,16 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 		if bin.Weight > ymax {
 			ymax = bin.Weight
 		}
+		if bin.Weight < ymin {
+			ymin = bin.Weight
+		}
+		if 0 < bin.Weight && bin.Weight < ylow {
+			ylow = bin.Weight
+		}
+	}
+	if ymin == 0 {
+		// reserve a bit of space for the smallest bin to be displayed still.
+		ymin = ylow * 0.5
 	}
 	return
 }
