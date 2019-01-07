@@ -3,47 +3,47 @@
 <svg width="1.3889in" height="1.3889in"
 	xmlns="http://www.w3.org/2000/svg"
 	xmlns:xlink="http://www.w3.org/1999/xlink">
-<g transform="scale(1, -1) translate(0, -125)">
-<path d="M0,0L125,0L125,125L0,125Z" style="fill:#FFFFFF" />
-<text x="4.5801" y="-110.56" transform="scale(1, -1)"
+<g transform="scale(1, -1) translate(0, -133.33)">
+<path d="M0,0L133.33,0L133.33,133.33L0,133.33Z" style="fill:#FFFFFF" />
+<text x="4.8854" y="-117.93" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">Polygon with holes</text>
-<text x="78.438" y="-4.8267" transform="scale(1, -1)"
+<text x="83.667" y="-5.1484" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">X</text>
-<text x="42.708" y="-19.502" transform="scale(1, -1)"
+<text x="45.555" y="-20.802" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0</text>
-<text x="80.729" y="-19.502" transform="scale(1, -1)"
+<text x="86.111" y="-20.802" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">2</text>
-<text x="118.75" y="-19.502" transform="scale(1, -1)"
+<text x="126.67" y="-20.802" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">4</text>
-<path d="M45.833,31.538L45.833,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M83.854,31.538L83.854,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M121.88,31.538L121.88,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M64.843,36.538L64.843,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M102.86,36.538L102.86,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M45.833,41.538L121.88,41.538" style="fill:none;stroke:#000000;stroke-width:0.625" />
+<path d="M48.888,33.641L48.888,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M89.444,33.641L89.444,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M130,33.641L130,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M69.166,38.974L69.166,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M109.72,38.974L109.72,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M48.888,44.307L130,44.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
 <g transform="rotate(90)">
-<text x="68.432" y="14.443" transform="scale(1, -1)"
+<text x="72.994" y="15.406" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12pt">Y</text>
 </g>
-<text x="19.27" y="-42.198" transform="scale(1, -1)"
+<text x="20.555" y="-45.012" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">0</text>
-<text x="19.27" y="-67.946" transform="scale(1, -1)"
+<text x="20.555" y="-72.476" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">2</text>
-<text x="19.27" y="-93.694" transform="scale(1, -1)"
+<text x="20.555" y="-99.94" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10pt">4</text>
-<path d="M28.645,48.101L38.645,48.101" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M28.645,73.848L38.645,73.848" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M28.645,99.596L38.645,99.596" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M33.645,60.974L38.645,60.974" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M33.645,86.722L38.645,86.722" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M38.645,48.101L38.645,99.596" style="fill:none;stroke:#000000;stroke-width:0.625" />
-<path d="M45.833,48.101L45.833,48.101L121.88,48.101L121.88,99.596L45.833,99.596ZM55.338,54.538L55.338,54.538L74.348,54.538L74.348,67.411L55.338,67.411ZM112.37,80.285L112.37,80.285L93.359,80.285L93.359,93.159L112.37,93.159Z" style="fill:#0000FF" />
-<path d="M45.833,48.101L121.88,48.101L121.88,99.596L45.833,99.596L45.833,48.101" style="fill:none;stroke:#000000;stroke-width:1.25" />
-<path d="M55.338,54.538L74.348,54.538L74.348,67.411L55.338,67.411L55.338,54.538" style="fill:none;stroke:#000000;stroke-width:1.25" />
-<path d="M112.37,80.285L93.359,80.285L93.359,93.159L112.37,93.159L112.37,80.285" style="fill:none;stroke:#000000;stroke-width:1.25" />
-<path d="M112.5,48.101L112.5,57.915L125,57.915L125,48.101Z" style="fill:#0000FF" />
-<path d="M112.5,48.101L112.5,57.915L125,57.915L125,48.101L112.5,48.101" style="fill:none;stroke:#000000;stroke-width:1.25" />
-<text x="95.562" y="-48.286" transform="scale(1, -1)"
+<path d="M30.555,51.307L41.221,51.307" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M30.555,78.771L41.221,78.771" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M30.555,106.24L41.221,106.24" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M35.888,65.039L41.221,65.039" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M35.888,92.504L41.221,92.504" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M41.221,51.307L41.221,106.24" style="fill:none;stroke:#000000;stroke-width:0.66667" />
+<path d="M48.888,51.307L48.888,51.307L130,51.307L130,106.24L48.888,106.24ZM59.027,58.173L59.027,58.173L79.305,58.173L79.305,71.905L59.027,71.905ZM119.86,85.638L119.86,85.638L99.583,85.638L99.583,99.37L119.86,99.37Z" style="fill:#0000FF" />
+<path d="M48.888,51.307L130,51.307L130,106.24L48.888,106.24L48.888,51.307" style="fill:none;stroke:#000000;stroke-width:1.3333" />
+<path d="M59.027,58.173L79.305,58.173L79.305,71.905L59.027,71.905L59.027,58.173" style="fill:none;stroke:#000000;stroke-width:1.3333" />
+<path d="M119.86,85.638L99.583,85.638L99.583,99.37L119.86,99.37L119.86,85.638" style="fill:none;stroke:#000000;stroke-width:1.3333" />
+<path d="M120,51.307L120,61.776L133.33,61.776L133.33,51.307Z" style="fill:#0000FF" />
+<path d="M120,51.307L120,61.776L133.33,61.776L133.33,51.307L120,51.307" style="fill:none;stroke:#000000;stroke-width:1.3333" />
+<text x="101.93" y="-51.505" transform="scale(1, -1)"
 	style="font-family:Times;font-weight:normal;font-style:normal;font-size:8pt;fill:#FFFFFF">key</text>
 </g>
 </svg>
