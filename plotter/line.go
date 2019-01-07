@@ -72,7 +72,7 @@ func (pts *Line) Plot(c draw.Canvas, plt *plot.Plot) {
 
 	if pts.FillColor != nil && len(ps) > 0 {
 		minY := trY(plt.Y.Min)
-		fillPoly := []vg.Point{vg.Point{X: ps[0].X, Y: minY}}
+		fillPoly := []vg.Point{{X: ps[0].X, Y: minY}}
 		switch pts.StepStyle {
 		case PreStep:
 			fillPoly = append(fillPoly, ps[1:]...)
