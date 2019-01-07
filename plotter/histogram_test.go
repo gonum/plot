@@ -48,6 +48,7 @@ func ExampleHistogram() {
 	}
 	h.Normalize(1)
 	p.Add(h)
+	p.Y.Min = 0
 
 	// The normal distribution function
 	norm := NewFunction(stdNorm)
