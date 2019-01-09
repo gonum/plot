@@ -1,4 +1,4 @@
-// Copyright ©2015 The gonum Authors. All rights reserved.
+// Copyright ©2015 The Gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -132,5 +132,18 @@ func TestTickerFunc_Ticks(t *testing.T) {
 				t.Errorf("TickerFunc.Ticks() = %v, want %v", got, tt.want)
 			}
 		})
+	}
+}
+
+func TestInvertedScale_Normalize(t *testing.T) {
+	inverter := InvertedScale{Normalizer: LinearScale{}}
+	if got := inverter.Normalize(0, 1, 1); got != 0.0 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 1.0, 0.0, got)
+	}
+	if got := inverter.Normalize(0, 1, .5); got != 0.5 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 0.5, 0.5, got)
+	}
+	if got := inverter.Normalize(0, 1, 0); got != 1.0 {
+		t.Errorf("Expected a normalization inversion %f->%f not %f", 0.0, 1.0, got)
 	}
 }

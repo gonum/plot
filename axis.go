@@ -1,4 +1,4 @@
-// Copyright ©2015 The gonum Authors. All rights reserved.
+// Copyright ©2015 The Gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -169,6 +169,17 @@ var _ Normalizer = LogScale{}
 func (LogScale) Normalize(min, max, x float64) float64 {
 	logMin := log(min)
 	return (log(x) - logMin) / (log(max) - logMin)
+}
+
+// InvertedScale can be used as the value of an Axis.Scale function to
+// invert the axis using any Normalizer.
+type InvertedScale struct{ Normalizer }
+
+var _ Normalizer = InvertedScale{}
+
+// Normalize returns a normalized [0, 1] value for the position of x.
+func (is InvertedScale) Normalize(min, max, x float64) float64 {
+	return is.Normalizer.Normalize(max, min, x)
 }
 
 // Norm returns the value of x, given in the data coordinate
