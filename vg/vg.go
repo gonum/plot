@@ -135,7 +135,7 @@ func (p *Path) QuadTo(p1, pt Point) {
 }
 
 // CubeTo adds a cubic curve element to the path,
-// given by the control points p1 and pt and end point pt.
+// given by the control points p1 and p2 and the end point pt.
 func (p *Path) CubeTo(p1, p2, pt Point) {
 	*p = append(*p, PathComp{Type: CurveComp, Pos: pt, Control: []Point{p1, p2}})
 }
@@ -152,7 +152,7 @@ const (
 	MoveComp = iota
 	LineComp
 	ArcComp
-	CurveComp // This is new
+	CurveComp
 	CloseComp
 )
 
