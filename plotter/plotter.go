@@ -127,11 +127,11 @@ func XYRange(xys XYer) (xmin, xmax, ymin, ymax float64) {
 	return
 }
 
-// XY is an x and y value.
-type XY struct{ X, Y float64 }
-
 // XYs implements the XYer interface.
 type XYs []XY
+
+// XY is an x and y value.
+type XY struct{ X, Y float64 }
 
 // CopyXYs returns an XYs that is a copy of the x and y values from
 // an XYer, or an error if one of the data points contains a NaN or
@@ -189,11 +189,11 @@ type XYZer interface {
 	XY(int) (float64, float64)
 }
 
-// XYZ is an x, y and z value.
-type XYZ struct{ X, Y, Z float64 }
-
 // XYZs implements the XYZer interface using a slice.
 type XYZs []XYZ
+
+// XYZ is an x, y and z value.
+type XYZ struct{ X, Y, Z float64 }
 
 // Len implements the Len method of the XYZer interface.
 func (xyz XYZs) Len() int {
