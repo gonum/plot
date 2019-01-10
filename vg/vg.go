@@ -128,7 +128,7 @@ func (p *Path) Arc(pt Point, rad Length, s, a float64) {
 	})
 }
 
-// QuadTo adds a quadrative curve element to the path,
+// QuadTo adds a quadratic curve element to the path,
 // given by the control point p1 and end point pt.
 func (p *Path) QuadTo(p1, pt Point) {
 	*p = append(*p, PathComp{Type: CurveComp, Pos: pt, Control: []Point{p1}})
