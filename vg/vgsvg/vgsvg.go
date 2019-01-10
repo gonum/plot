@@ -172,11 +172,12 @@ func (c *Canvas) pathData(path vg.Path) string {
 				x, y = arc(buf, c, &comp)
 			}
 		case vg.CurveComp:
-			if len(comp.Control) == 1 {
+			switch len(comp.Control) {
+			case 1:
 				fmt.Fprintf(buf, "Q%.*g,%.*g,%.*g,%.*g",
 					pr, comp.Control[0].X.Dots(DPI), pr, comp.Control[0].Y.Dots(DPI),
 					pr, comp.Pos.X.Dots(DPI), pr, comp.Pos.Y.Dots(DPI))
-			} else if len(comp.Control) == 2 {
+			case 2:
 				fmt.Fprintf(buf, "C%.*g,%.*g,%.*g,%.*g,%.*g,%.*g",
 					pr, comp.Control[0].X.Dots(DPI), pr, comp.Control[0].Y.Dots(DPI),
 					pr, comp.Control[1].X.Dots(DPI), pr, comp.Control[1].Y.Dots(DPI),
