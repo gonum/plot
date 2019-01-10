@@ -32,6 +32,9 @@ type Histogram struct {
 	// LineStyle is the style of the outline of each
 	// bar of the histogram.
 	draw.LineStyle
+
+	// LogY enables support for histograms displayed with a Y log-scale.
+	LogY bool
 }
 
 // NewHistogram returns a new histogram
@@ -122,9 +125,14 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 			ylow = bin.Weight
 		}
 	}
-	if ymin == 0 && !math.IsInf(ylow, +1) {
-		// Reserve a bit of space for the smallest bin to be displayed still.
-		ymin = ylow * 0.5
+	switch h.LogY {
+	case true:
+		if ymin == 0 && !math.IsInf(ylow, +1) {
+			// Reserve a bit of space for the smallest bin to be displayed still.
+			ymin = ylow * 0.5
+		}
+	default:
+		ymin = 0
 	}
 	return
 }

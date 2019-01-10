@@ -48,7 +48,6 @@ func ExampleHistogram() {
 	}
 	h.Normalize(1)
 	p.Add(h)
-	p.Y.Min = 0
 
 	// The normal distribution function
 	norm := NewFunction(stdNorm)
@@ -117,6 +116,7 @@ func ExampleHistogram_logScaleY() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	h1.LogY = true
 	h1.FillColor = color.RGBA{255, 0, 0, 255}
 
 	h2, err := NewHist(Values{
@@ -128,6 +128,7 @@ func ExampleHistogram_logScaleY() {
 		log.Fatal(err)
 	}
 
+	h2.LogY = true
 	h2.FillColor = color.RGBA{0, 0, 255, 255}
 
 	p.Add(h1, h2, NewGrid())
