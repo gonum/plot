@@ -118,12 +118,12 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 		if bin.Weight < ymin {
 			ymin = bin.Weight
 		}
-		if 0 < bin.Weight && bin.Weight < ylow {
+		if bin.Weight != 0 && bin.Weight < ylow {
 			ylow = bin.Weight
 		}
 	}
-	if ymin == 0 {
-		// reserve a bit of space for the smallest bin to be displayed still.
+	if ymin == 0 && !math.IsInf(ylow, +1) {
+		// Reserve a bit of space for the smallest bin to be displayed still.
 		ymin = ylow * 0.5
 	}
 	return
