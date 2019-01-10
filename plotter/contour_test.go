@@ -200,14 +200,14 @@ func circularPermutations(a, b vg.Path) bool {
 
 	var forward bool
 	for i, pc := range b {
-		if reflect.DeepEqual(a[0], pc) == true {
+		if reflect.DeepEqual(a[0], pc) {
 			off = i
 			forward = true
 			break
 		}
 	}
 	for i, pc := range a {
-		if reflect.DeepEqual(b[(off+i)%len(a)], pc) == false {
+		if !reflect.DeepEqual(b[(off+i)%len(a)], pc) {
 			forward = false
 			break
 		}
@@ -215,14 +215,14 @@ func circularPermutations(a, b vg.Path) bool {
 
 	var reverse bool
 	for i, pc := range b {
-		if reflect.DeepEqual(a[0], pc) == true {
+		if reflect.DeepEqual(a[0], pc) {
 			off = i
 			reverse = true
 			break
 		}
 	}
 	for i, pc := range a {
-		if reflect.DeepEqual(b[(off-i+len(a))%len(a)], pc) == false {
+		if !reflect.DeepEqual(b[(off-i+len(a))%len(a)], pc) {
 			reverse = false
 			break
 		}
