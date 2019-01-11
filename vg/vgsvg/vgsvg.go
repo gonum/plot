@@ -171,6 +171,22 @@ func (c *Canvas) pathData(path vg.Path) string {
 			} else {
 				x, y = arc(buf, c, &comp)
 			}
+		case vg.CurveComp:
+			switch len(comp.Control) {
+			case 1:
+				fmt.Fprintf(buf, "Q%.*g,%.*g,%.*g,%.*g",
+					pr, comp.Control[0].X.Dots(DPI), pr, comp.Control[0].Y.Dots(DPI),
+					pr, comp.Pos.X.Dots(DPI), pr, comp.Pos.Y.Dots(DPI))
+			case 2:
+				fmt.Fprintf(buf, "C%.*g,%.*g,%.*g,%.*g,%.*g,%.*g",
+					pr, comp.Control[0].X.Dots(DPI), pr, comp.Control[0].Y.Dots(DPI),
+					pr, comp.Control[1].X.Dots(DPI), pr, comp.Control[1].Y.Dots(DPI),
+					pr, comp.Pos.X.Dots(DPI), pr, comp.Pos.Y.Dots(DPI))
+			default:
+				panic("vgsvg: invalid number of control points")
+			}
+			x = comp.Pos.X.Dots(DPI)
+			y = comp.Pos.Y.Dots(DPI)
 		case vg.CloseComp:
 			buf.WriteString("Z")
 		default:

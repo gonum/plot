@@ -128,6 +128,18 @@ func (p *Path) Arc(pt Point, rad Length, s, a float64) {
 	})
 }
 
+// QuadTo adds a quadratic curve element to the path,
+// given by the control point p1 and end point pt.
+func (p *Path) QuadTo(p1, pt Point) {
+	*p = append(*p, PathComp{Type: CurveComp, Pos: pt, Control: []Point{p1}})
+}
+
+// CubeTo adds a cubic curve element to the path,
+// given by the control points p1 and p2 and the end point pt.
+func (p *Path) CubeTo(p1, p2, pt Point) {
+	*p = append(*p, PathComp{Type: CurveComp, Pos: pt, Control: []Point{p1, p2}})
+}
+
 // Close closes the path by connecting the current
 // location to the start location with a line.
 func (p *Path) Close() {
@@ -140,6 +152,7 @@ const (
 	MoveComp = iota
 	LineComp
 	ArcComp
+	CurveComp
 	CloseComp
 )
 
@@ -156,6 +169,10 @@ type PathComp struct {
 	// point of an ArcComp.  It is not used in
 	// the CloseComp.
 	Pos Point
+
+	// Control is one or two intermediate points
+	// for a CurveComp used by QuadTo and CubeTo.
+	Control []Point
 
 	// Radius is only used for ArcComps, it is
 	// the radius of the circle defining the arc.
