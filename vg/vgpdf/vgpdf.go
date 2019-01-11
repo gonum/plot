@@ -250,15 +250,17 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 		case vg.ArcComp:
 			c.arc(comp, style)
 		case vg.CurveComp:
-			if len(comp.Control) > 0 {
+			px, py := c.pdfPoint(comp.Pos)
+			switch len(comp.Control) {
+			case 1:
 				cx, cy := c.pdfPoint(comp.Control[0])
-				px, py := c.pdfPoint(comp.Pos)
-				if len(comp.Control) == 1 {
-					c.doc.CurveTo(cx, cy, px, py)
-				} else {
-					dx, dy := c.pdfPoint(comp.Control[1])
-					c.doc.CurveBezierCubicTo(cx, cy, dx, dy, px, py)
-				}
+				c.doc.CurveTo(cx, cy, px, py)
+			case 2:
+				cx, cy := c.pdfPoint(comp.Control[0])
+				dx, dy := c.pdfPoint(comp.Control[1])
+				c.doc.CurveBezierCubicTo(cx, cy, dx, dy, px, py)
+			default:
+				panic("vgpdf: invalid number of control points")
 			}
 		case vg.CloseComp:
 			c.doc.LineTo(xp, yp)

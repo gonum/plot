@@ -273,6 +273,8 @@ func (c *Canvas) outline(p vg.Path) {
 					comp.Control[0].X.Dots(c.DPI()), comp.Control[0].Y.Dots(c.DPI()),
 					comp.Control[1].X.Dots(c.DPI()), comp.Control[1].Y.Dots(c.DPI()),
 					comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()))
+			default:
+				panic("vgimg: invalid number of control points")
 			}
 
 		case vg.CloseComp:

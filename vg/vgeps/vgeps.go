@@ -170,16 +170,19 @@ func (e *Canvas) trace(path vg.Path) {
 				pr, comp.Radius, pr, comp.Start*180/math.Pi, pr,
 				end*180/math.Pi, arcOp)
 		case vg.CurveComp:
-			if len(comp.Control) > 0 {
-				p1 := comp.Control[0]
-				p2 := comp.Control[0]
-				if len(comp.Control) > 1 {
-					p2 = comp.Control[1]
-				}
-				fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %.*g curveto\n",
-					pr, p1.X, pr, p1.Y, pr, p2.X, pr, p2.Y,
-					pr, comp.Pos.X, pr, comp.Pos.Y)
+			var p1, p2 vg.Point
+			switch len(comp.Control) {
+			case 1:
+				p1 = comp.Control[0]
+				p2 = p1
+			case 2:
+				p1 = comp.Control[0]
+				p2 = comp.Control[1]
+			default:
+				panic("vgeps: invalid number of control points")
 			}
+			fmt.Fprintf(e.buf, "%.*g %.*g %.*g %.*g %.*g %.*g curveto\n",
+				pr, p1.X, pr, p1.Y, pr, p2.X, pr, p2.Y, pr, comp.Pos.X, pr, comp.Pos.Y)
 		case vg.CloseComp:
 			e.buf.WriteString("closepath\n")
 		default:
