@@ -259,15 +259,19 @@ func (c *Canvas) wpath(p vg.Path) {
 			r := comp.Radius
 			c.wtex(`\pgfpatharc{%g}{%g}{%gpt}`, start, angle, r)
 		case vg.CurveComp:
-			if len(comp.Control) > 0 {
-				a := comp.Control[0]
-				b := a
-				if len(comp.Control) > 1 {
-					b = comp.Control[1]
-				}
-				c.wtex(`\pgfcurveto{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}`,
-					a.X, a.Y, b.X, b.Y, comp.Pos.X, comp.Pos.Y)
+			var a, b vg.Point
+			switch len(comp.Control) {
+			case 1:
+				a = comp.Control[0]
+				b = a
+			case 2:
+				a = comp.Control[0]
+				b = comp.Control[1]
+			default:
+				panic("vgtex: invalid number of control points")
 			}
+			c.wtex(`\pgfcurveto{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}{\pgfpoint{%gpt}{%gpt}}`,
+				a.X, a.Y, b.X, b.Y, comp.Pos.X, comp.Pos.Y)
 		case vg.CloseComp:
 			c.wtex("%% path-close")
 		default:
