@@ -34,6 +34,11 @@ type Histogram struct {
 	draw.LineStyle
 
 	// LogY allows rendering with a log-scaled Y axis.
+	// When enabled, histogram bins with no entries will be discarded from
+	// the histogram's DataRange.
+	// The lowest Y value for the DataRange will be corrected to leave an
+	// arbitrary amount of height for the smallest bin entry so it is visible
+	// on the final plot.
 	LogY bool
 }
 
