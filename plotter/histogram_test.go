@@ -94,3 +94,51 @@ func TestSingletonHistogram(t *testing.T) {
 	case <-done:
 	}
 }
+
+func ExampleHistogram_logScaleY() {
+	p, err := plot.New()
+	if err != nil {
+		log.Panic(err)
+	}
+	p.Title.Text = "Histogram in log-y"
+	p.Y.Scale = plot.LogScale{}
+	p.Y.Tick.Marker = plot.LogTicks{}
+	p.Y.Label.Text = "Y"
+	p.X.Label.Text = "X"
+
+	h1, err := NewHist(Values{
+		-2, -2,
+		-1,
+		+3, +3, +3, +3,
+		+1, +1, +1, +1, +1, +1, +1, +1, +1, +1,
+		+1, +1, +1, +1, +1, +1, +1, +1, +1, +1,
+	}, 16)
+	if err != nil {
+		log.Fatal(err)
+	}
+	h1.LogY = true
+	h1.FillColor = color.RGBA{255, 0, 0, 255}
+
+	h2, err := NewHist(Values{
+		-3, -3, -3,
+		+2, +2, +2, +2, +2,
+	}, 16)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	h2.LogY = true
+	h2.FillColor = color.RGBA{0, 0, 255, 255}
+
+	p.Add(h1, h2, NewGrid())
+
+	err = p.Save(200, 200, "testdata/histogram_logy.png")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func TestHistogramLogScale(t *testing.T) {
+	cmpimg.CheckPlot(ExampleHistogram_logScaleY, t, "histogram_logy.png")
+}
