@@ -166,9 +166,16 @@ var _ Normalizer = LogScale{}
 
 // Normalize returns the fractional logarithmic distance of
 // x between min and max.
-func (LogScale) Normalize(min, max, x float64) float64 {
-	logMin := logf(min)
-	return (logf(x) - logMin) / (logf(max) - logMin)
+func (ls LogScale) Normalize(min, max, x float64) float64 {
+	logMin := ls.log(min)
+	return (ls.log(x) - logMin) / (ls.log(max) - logMin)
+}
+
+func (LogScale) log(x float64) float64 {
+	if x <= 0 {
+		panic("Values must be greater than 0 for a log scale.")
+	}
+	return math.Log(x)
 }
 
 // InvertedScale can be used as the value of an Axis.Scale function to
@@ -608,13 +615,6 @@ func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
 		}
 	}
 	return maxWidth
-}
-
-func logf(x float64) float64 {
-	if x <= 0 {
-		panic("Values must be greater than 0 for a log scale.")
-	}
-	return math.Log(x)
 }
 
 // formatFloatTick returns a g-formated string representation of v
