@@ -33,7 +33,7 @@ type Histogram struct {
 	// bar of the histogram.
 	draw.LineStyle
 
-	// LogY enables support for histograms displayed with a Y log-scale.
+	// LogY allows rendering with a log-scaled Y axis.
 	LogY bool
 }
 
@@ -107,7 +107,7 @@ func (h *Histogram) DataRange() (xmin, xmax, ymin, ymax float64) {
 	xmax = math.Inf(-1)
 	ymin = math.Inf(+1)
 	ymax = math.Inf(-1)
-	ylow := math.Inf(+1) // smallest non-zero y value
+	ylow := math.Inf(+1) // ylow will hold the smallest non-zero y value.
 	for _, bin := range h.Bins {
 		if bin.Max > xmax {
 			xmax = bin.Max
