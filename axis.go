@@ -166,16 +166,12 @@ var _ Normalizer = LogScale{}
 
 // Normalize returns the fractional logarithmic distance of
 // x between min and max.
-func (ls LogScale) Normalize(min, max, x float64) float64 {
-	logMin := ls.log(min)
-	return (ls.log(x) - logMin) / (ls.log(max) - logMin)
-}
-
-func (LogScale) log(x float64) float64 {
-	if x <= 0 {
+func (LogScale) Normalize(min, max, x float64) float64 {
+	if min <= 0 || max <= 0 || x <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
-	return math.Log(x)
+	logMin := math.Log(min)
+	return (math.Log(x) - logMin) / (math.Log(max) - logMin)
 }
 
 // InvertedScale can be used as the value of an Axis.Scale function to
