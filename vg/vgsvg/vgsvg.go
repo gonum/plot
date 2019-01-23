@@ -35,7 +35,6 @@ const (
 type Canvas struct {
 	svg  *svgo.SVG
 	w, h vg.Length
-	// dpi  float64
 
 	buf   *bytes.Buffer
 	ht    float64
