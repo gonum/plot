@@ -6,13 +6,13 @@
 <g transform="scale(1, -1) translate(0, -100)">
 <path d="M0,0L100,0L100,100L0,100Z" style="fill:#FFFFFF" />
 <text x="51.465" y="-3.8613" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12">X label</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">X label</text>
 <text x="37.916" y="-15.602" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">0.0</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
 <text x="62.708" y="-15.602" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">0.5</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
 <text x="87.5" y="-15.602" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">1.0</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
 <path d="M44.166,25.23L44.166,33.23" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M68.958,25.23L68.958,33.23" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M93.75,25.23L93.75,33.23" style="fill:none;stroke:#000000;stroke-width:0.5" />
@@ -27,14 +27,14 @@
 <path d="M44.166,33.23L93.75,33.23" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <g transform="rotate(90)">
 <text x="49.516" y="11.555" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12">Y label</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">Y label</text>
 </g>
 <text x="15.416" y="-33.759" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">0.0</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
 <text x="15.416" y="-62.065" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">0.5</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
 <text x="15.416" y="-90.371" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10">1.0</text>
+	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
 <path d="M30.416,38.48L38.416,38.48" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M30.416,66.787L38.416,66.787" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M30.416,95.093L38.416,95.093" style="fill:none;stroke:#000000;stroke-width:0.5" />

@@ -296,7 +296,7 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 		panic(fmt.Sprintf("Unknown font: %s", font.Name()))
 	}
 	sty := style(fontStr,
-		elm("font-size", "medium", "%.*g", pr, font.Size.Points()),
+		elm("font-size", "medium", "%.*gpx", pr, font.Size.Points()),
 		elm("fill", "#000000", colorString(c.context().color)))
 	if sty != "" {
 		sty = "\n\t" + sty
