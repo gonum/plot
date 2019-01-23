@@ -67,8 +67,8 @@ func New(w, h vg.Length) *Canvas {
 }
 
 // NewWith returns a new image canvas created according to the specified
-// options. The currently accepted options are UseWH and UseDPI.
-// If size or resolution are not specified, defaults are used.
+// options. The currently accepted options is UseWH. If size is not
+// specified, the default is used.
 func NewWith(opts ...option) *Canvas {
 	buf := new(bytes.Buffer)
 	c := &Canvas{
