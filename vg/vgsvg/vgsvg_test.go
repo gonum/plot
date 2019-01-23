@@ -58,7 +58,7 @@ func TestNewWith(t *testing.T) {
 	}
 	p.Add(scatter)
 
-	c := vgsvg.NewWith(vgsvg.UseDPI(96), vgsvg.UseWH(5*vg.Centimeter, 5*vg.Centimeter))
+	c := vgsvg.NewWith(vgsvg.UseWH(5*vg.Centimeter, 5*vg.Centimeter))
 	p.Draw(draw.New(c))
 
 	b := new(bytes.Buffer)
