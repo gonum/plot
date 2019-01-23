@@ -37,7 +37,6 @@ type Canvas struct {
 	w, h vg.Length
 
 	buf   *bytes.Buffer
-	ht    float64
 	stack []context
 }
 
@@ -83,7 +82,6 @@ func NewWith(opts ...option) *Canvas {
 	for _, opt := range opts {
 		opt(c)
 	}
-	c.ht = c.w.Points()
 
 	// This is like svg.Start, except it uses floats
 	// and specifies the units.
