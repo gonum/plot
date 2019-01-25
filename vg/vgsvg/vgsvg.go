@@ -11,6 +11,7 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"html"
 	"image"
 	"image/color"
 	"image/png"
@@ -290,6 +291,8 @@ func large(a float64) int {
 	return 0
 }
 
+// FillString draws str at position pt using the specified font.
+// Text passed to FillString is escaped with html.EscapeString.
 func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	fontStr, ok := fontMap[font.Name()]
 	if !ok {
@@ -302,7 +305,7 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 		sty = "\n\t" + sty
 	}
 	fmt.Fprintf(c.buf, `<text x="%.*g" y="%.*g" transform="scale(1, -1)"%s>%s</text>`+"\n",
-		pr, pt.X.Points(), pr, -pt.Y.Points(), sty, str)
+		pr, pt.X.Points(), pr, -pt.Y.Points(), sty, html.EscapeString(str))
 }
 
 // DrawImage implements the vg.Canvas.DrawImage method.
