@@ -8,8 +8,13 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
+	"io/ioutil"
+	"math"
+	"os"
+	"path/filepath"
 	"reflect"
 	"testing"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -228,4 +233,53 @@ func printFirstDiff(got, want []recorder.Action) string {
 		fmt.Fprintf(&buf, "line %d:\n\twant: %s\n\tgot is empty", len(got), want[len(got)].Call())
 	}
 	return buf.String()
+}
+
+func TestIssue514(t *testing.T) {
+	done := make(chan int)
+	go func() {
+		defer close(done)
+		p, err := plot.New()
+		if err != nil {
+			t.Fatalf("could not create plot: %v", err)
+		}
+
+		ulp := func(v float64, n int) float64 {
+			switch {
+			case n < 0:
+				return math.Float64frombits(math.Float64bits(v) - uint64(-n))
+			case n > 0:
+				return math.Float64frombits(math.Float64bits(v) + uint64(n))
+			default:
+				return v
+			}
+		}
+		pts, err := plotter.NewScatter(plotter.XYs{
+			{X: 1, Y: 100},
+			{X: 1, Y: ulp(100, +2)},
+		})
+		if err != nil {
+			t.Fatalf("could not create scatter: %v", err)
+		}
+
+		p.Add(pts)
+
+		dir, err := ioutil.TempDir("", "gonum-plot-")
+		if err != nil {
+			t.Fatalf("could not create temporary directory: %v", err)
+		}
+		defer os.RemoveAll(dir)
+
+		fname := filepath.Join(dir, "issue514.svg")
+		if err := p.Save(5*vg.Centimeter, 5*vg.Centimeter, fname); err != nil {
+			t.Fatalf("could not save scatter plot: %v", err)
+		}
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(1 * time.Second):
+		t.Fatalf("could not create plot with small axis range")
+	}
+
 }
