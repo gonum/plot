@@ -8,10 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
-	"io/ioutil"
 	"math"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 	"time"
@@ -236,50 +233,55 @@ func printFirstDiff(got, want []recorder.Action) string {
 }
 
 func TestIssue514(t *testing.T) {
-	done := make(chan int)
-	go func() {
-		defer close(done)
-		p, err := plot.New()
-		if err != nil {
-			t.Fatalf("could not create plot: %v", err)
-		}
+	for _, ulp := range []int{
+		0,
+		+1, +2, +3, +4, +5, +6, +7, +8, +9, +10, +11, +12,
+		-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12,
+	} {
+		t.Run(fmt.Sprintf("ulps%+02d", ulp), func(t *testing.T) {
+			done := make(chan int)
+			go func() {
+				defer close(done)
 
-		ulp := func(v float64, n int) float64 {
-			switch {
-			case n < 0:
-				return math.Float64frombits(math.Float64bits(v) - uint64(-n))
-			case n > 0:
-				return math.Float64frombits(math.Float64bits(v) + uint64(n))
-			default:
-				return v
+				p, err := plot.New()
+				if err != nil {
+					t.Fatalf("could not create plot: %v", err)
+				}
+
+				var (
+					y1 = 100.0
+					y2 = y1
+				)
+
+				switch {
+				case ulp < 0:
+					y2 = math.Float64frombits(math.Float64bits(y1) - uint64(-ulp))
+				case ulp > 0:
+					y2 = math.Float64frombits(math.Float64bits(y1) + uint64(ulp))
+				}
+
+				pts, err := plotter.NewScatter(plotter.XYs{
+					{X: 1, Y: y1},
+					{X: 1, Y: y2},
+				})
+				if err != nil {
+					t.Fatalf("could not create scatter: %v", err)
+				}
+
+				p.Add(pts)
+
+				c := draw.NewCanvas(&recorder.Canvas{}, 100, 100)
+				p.Draw(c)
+			}()
+
+			timeout := time.NewTimer(100 * time.Millisecond)
+			defer timeout.Stop()
+
+			select {
+			case <-done:
+			case <-timeout.C:
+				t.Fatalf("could not create plot with small axis range within allotted time")
 			}
-		}
-		pts, err := plotter.NewScatter(plotter.XYs{
-			{X: 1, Y: 100},
-			{X: 1, Y: ulp(100, +2)},
 		})
-		if err != nil {
-			t.Fatalf("could not create scatter: %v", err)
-		}
-
-		p.Add(pts)
-
-		dir, err := ioutil.TempDir("", "gonum-plot-")
-		if err != nil {
-			t.Fatalf("could not create temporary directory: %v", err)
-		}
-		defer os.RemoveAll(dir)
-
-		fname := filepath.Join(dir, "issue514.svg")
-		if err := p.Save(5*vg.Centimeter, 5*vg.Centimeter, fname); err != nil {
-			t.Fatalf("could not save scatter plot: %v", err)
-		}
-	}()
-
-	select {
-	case <-done:
-	case <-time.After(1 * time.Second):
-		t.Fatalf("could not create plot with small axis range")
 	}
-
 }

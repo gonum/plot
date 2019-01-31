@@ -152,11 +152,12 @@ func (a *Axis) sanitizeRange() {
 		nULP = max - min
 	)
 	const minULP = 20 // arbitrary value found experimentally with gonum/plot#514.
-	// add enough ULP space between min and max
+	// Add enough ULP space between min and max
 	// see https://github.com/gonum/plot/issues/514
-	if nULP <= minULP {
-		a.Min = math.Float64frombits(min - minULP/2)
-		a.Max = math.Float64frombits(max + minULP/2)
+	if nULP < minULP {
+		ulps := minULP - nULP
+		a.Min = math.Float64frombits(min - ulps/2)
+		a.Max = math.Float64frombits(max + ulps/2)
 	}
 }
 
