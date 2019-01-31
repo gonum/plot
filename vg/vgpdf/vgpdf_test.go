@@ -19,9 +19,9 @@ import (
 	"gonum.org/v1/plot/vg/vgpdf"
 )
 
-// ExampleEmbedFonts shows how one can embed (or not) fonts inside
+// Example_embedFonts shows how one can embed (or not) fonts inside
 // a PDF plot.
-func ExampleEmbedFonts() {
+func Example_embedFonts() {
 	p, err := plot.New()
 	if err != nil {
 		log.Fatalf("could not create plot: %v", err)
