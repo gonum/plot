@@ -68,12 +68,7 @@ func New(w, h vg.Length) *Canvas {
 		embed: true,
 	}
 	vg.Initialize(c)
-	c.doc.SetMargins(0, 0, 0)
-	c.doc.AddPage()
-	c.Push()
-	c.Translate(vg.Point{0, h})
-	c.Scale(1, -1)
-
+	c.NextPage()
 	return c
 }
 
@@ -392,4 +387,18 @@ func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
 	j, err = ioutil.ReadFile(filepath.Join(outdir, "font.json"))
 
 	return z, j, err
+}
+
+// NextPage creates a new page in the final PDF document.
+// The new page is the new current page.
+// Modifications applied to the canvas will only be applied to that new page.
+func (c *Canvas) NextPage() {
+	if c.doc.PageNo() > 0 {
+		c.Pop()
+	}
+	c.doc.SetMargins(0, 0, 0)
+	c.doc.AddPage()
+	c.Push()
+	c.Translate(vg.Point{0, c.h})
+	c.Scale(1, -1)
 }
