@@ -19,7 +19,7 @@ var talbotLinHanrahanTests = []struct {
 	wantStep      float64
 	wantMagnitude int
 }{
-	// Expected values confirmed against R reference imlpementation.
+	// Expected values confirmed against R reference implementation.
 	{
 		dMin:        -1.9846500878911073,
 		dMax:        0.4370974820125605,
@@ -219,6 +219,18 @@ var talbotLinHanrahanTests = []struct {
 		wantValues:    []float64{2.9499999999999997, 3.0999999999999996, 3.2499999999999996},
 		wantStep:      15,
 		wantMagnitude: -2,
+	},
+	// The following fails in the reference implementation with a
+	// warning of "probable complete loss of accuracy in modulus".
+	{
+		dMin:        99.99999999999996,
+		dMax:        100,
+		want:        3,
+		containment: free,
+
+		wantValues:    []float64{99.99999999999996, 99.99999999999997, 100},
+		wantStep:      2,
+		wantMagnitude: -14,
 	},
 }
 
