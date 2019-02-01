@@ -145,20 +145,6 @@ func (a *Axis) sanitizeRange() {
 		a.Min--
 		a.Max++
 	}
-
-	var (
-		min  = math.Float64bits(a.Min)
-		max  = math.Float64bits(a.Max)
-		nULP = max - min
-	)
-	const minULP = 20 // arbitrary value found experimentally with gonum/plot#514.
-	// Add enough ULP space between min and max
-	// see https://github.com/gonum/plot/issues/514
-	if nULP < minULP {
-		ulps := minULP - nULP
-		a.Min = math.Float64frombits(min - ulps/2)
-		a.Max = math.Float64frombits(max + ulps/2)
-	}
 }
 
 // LinearScale an be used as the value of an Axis.Scale function to
