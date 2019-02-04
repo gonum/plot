@@ -8,8 +8,10 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
+	"math"
 	"reflect"
 	"testing"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -228,4 +230,58 @@ func printFirstDiff(got, want []recorder.Action) string {
 		fmt.Fprintf(&buf, "line %d:\n\twant: %s\n\tgot is empty", len(got), want[len(got)].Call())
 	}
 	return buf.String()
+}
+
+func TestIssue514(t *testing.T) {
+	for _, ulp := range []int{
+		0,
+		+1, +2, +3, +4, +5, +6, +7, +8, +9, +10, +11, +12, +13, +14, +15, +16, +17, +18, +19, +20, +21, +22,
+		-1, -2, -3, -4, -5, -6, -7, -8, -9, -10, -11, -12, -13, -14, -15, -16, -17, -18, -19, -20, -21, -22,
+	} {
+		t.Run(fmt.Sprintf("ulps%+02d", ulp), func(t *testing.T) {
+			done := make(chan int)
+			go func() {
+				defer close(done)
+
+				p, err := plot.New()
+				if err != nil {
+					t.Fatalf("could not create plot: %v", err)
+				}
+
+				var (
+					y1 = 100.0
+					y2 = y1
+				)
+
+				switch {
+				case ulp < 0:
+					y2 = math.Float64frombits(math.Float64bits(y1) - uint64(-ulp))
+				case ulp > 0:
+					y2 = math.Float64frombits(math.Float64bits(y1) + uint64(ulp))
+				}
+
+				pts, err := plotter.NewScatter(plotter.XYs{
+					{X: 1, Y: y1},
+					{X: 1, Y: y2},
+				})
+				if err != nil {
+					t.Fatalf("could not create scatter: %v", err)
+				}
+
+				p.Add(pts)
+
+				c := draw.NewCanvas(&recorder.Canvas{}, 100, 100)
+				p.Draw(c)
+			}()
+
+			timeout := time.NewTimer(100 * time.Millisecond)
+			defer timeout.Stop()
+
+			select {
+			case <-done:
+			case <-timeout.C:
+				t.Fatalf("could not create plot with small axis range within allotted time")
+			}
+		})
+	}
 }
