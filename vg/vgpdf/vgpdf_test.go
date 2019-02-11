@@ -178,7 +178,7 @@ func Example_multipage() {
 
 	for i, col := range []color.RGBA{{B: 255, A: 255}, {R: 255, A: 255}} {
 		if i > 0 {
-			// add a new page.
+			// Add a new page.
 			c.NextPage()
 		}
 
@@ -198,7 +198,7 @@ func Example_multipage() {
 		p.X.Label.Text = "X axis"
 		p.Y.Label.Text = "Y axis"
 
-		// write plot to page
+		// Write plot to page.
 		p.Draw(draw.New(c))
 	}
 
