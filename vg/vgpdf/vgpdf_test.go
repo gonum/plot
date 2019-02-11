@@ -176,7 +176,12 @@ func TestArc(t *testing.T) {
 func Example_multipage() {
 	c := vgpdf.New(5*vg.Centimeter, 5*vg.Centimeter)
 
-	{
+	for i, col := range []color.RGBA{{B: 255, A: 255}, {R: 255, A: 255}} {
+		if i > 0 {
+			// add a new page.
+			c.NextPage()
+		}
+
 		p, err := plot.New()
 		if err != nil {
 			log.Fatalf("could not create plot: %v", err)
@@ -187,37 +192,13 @@ func Example_multipage() {
 		if err != nil {
 			log.Fatalf("could not create line: %v", err)
 		}
-		line.Color = color.RGBA{B: 255, A: 255}
+		line.Color = col
 		p.Add(line)
-		p.Title.Text = "Plot 1"
+		p.Title.Text = fmt.Sprintf("Plot %d", i+1)
 		p.X.Label.Text = "X axis"
 		p.Y.Label.Text = "Y axis"
 
-		// write plot to page 1
-		p.Draw(draw.New(c))
-	}
-
-	// add a new page.
-	c.NextPage()
-
-	{
-		p, err := plot.New()
-		if err != nil {
-			log.Fatalf("could not create plot: %v", err)
-		}
-
-		pts := plotter.XYs{{0, 0}, {0, 1}, {1, 0}, {1, 1}}
-		line, err := plotter.NewLine(pts)
-		if err != nil {
-			log.Fatalf("could not create line: %v", err)
-		}
-		line.Color = color.RGBA{R: 255, A: 255}
-		p.Add(line)
-		p.Title.Text = "Plot 2"
-		p.X.Label.Text = "X axis"
-		p.Y.Label.Text = "Y axis"
-
-		// write plot to page 2
+		// write plot to page
 		p.Draw(draw.New(c))
 	}
 
