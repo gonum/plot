@@ -35,6 +35,8 @@ const (
 	DefaultHeight = 4 * vg.Inch
 )
 
+const svgID = "svgID"
+
 type Canvas struct {
 	svg  *svgo.SVG
 	w, h vg.Length
@@ -42,7 +44,6 @@ type Canvas struct {
 	buf    *bytes.Buffer
 	stack  []context
 	styles map[string]string
-	svgID  string
 }
 
 type context struct {
@@ -81,9 +82,8 @@ func NewWith(opts ...option) *Canvas {
 		w:      DefaultWidth,
 		h:      DefaultHeight,
 		buf:    buf,
-		stack:  []context{{}},
+		stack:  make([]context, 1),
 		styles: map[string]string{},
-		svgID:  "svgID",
 	}
 
 	for _, opt := range opts {
@@ -101,7 +101,7 @@ func NewWith(opts ...option) *Canvas {
 		pr, c.h,
 		pr, c.w,
 		pr, c.h,
-		c.svgID,
+		svgID,
 	)
 
 	// Swap the origin to the bottom left.
@@ -388,7 +388,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	sort.Slice(styles, func(i, j int) bool { return styles[i].name < styles[j].name })
 	fmt.Fprintln(b, "<style>")
 	for i := range styles {
-		m, err := fmt.Fprintf(b, "  #%s .%s {%s;}\n", c.svgID, styles[i].name, styles[i].style)
+		m, err := fmt.Fprintf(b, "  #%s .%s {%s;}\n", svgID, styles[i].name, styles[i].style)
 		n += int64(m)
 		if err != nil {
 			return n, err
@@ -433,7 +433,7 @@ func (c *Canvas) style(elms ...string) string {
 	if str == "" {
 		return ""
 	}
-	return "class=\"" + c.getClass(str) + "\""
+	return "class=\"" + c.classNameOf(str) + "\""
 }
 
 // elm returns a style element string with the
@@ -483,8 +483,9 @@ func opacityString(clr color.Color) string {
 	return fmt.Sprintf("%.*g", pr, float64(a)/math.MaxUint16)
 }
 
-// return the class name
-func (c *Canvas) getClass(style string) string {
+// classNameOf returns the class name associated to the given style.
+// A different class name is generated for each new style.
+func (c *Canvas) classNameOf(style string) string {
 	if name, ok := c.styles[style]; ok {
 		return name
 	}
