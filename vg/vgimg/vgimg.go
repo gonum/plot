@@ -297,9 +297,12 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 
 	c.ctx.SetFontFace(font.FontFace(c.DPI()))
 
-	c.ctx.Translate(pt.X.Dots(c.DPI()), pt.Y.Dots(c.DPI()))
-	c.ctx.Scale(1, -1)
-	c.ctx.DrawString(str, 0, 0)
+	x := pt.X.Dots(c.DPI())
+	y := pt.Y.Dots(c.DPI())
+	h := c.h.Dots(c.DPI())
+
+	c.ctx.InvertY()
+	c.ctx.DrawString(str, x, h-y)
 }
 
 // DrawImage implements the vg.Canvas.DrawImage method.
