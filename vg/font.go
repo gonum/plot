@@ -21,7 +21,6 @@ import (
 	"golang.org/x/image/font"
 	"golang.org/x/image/math/fixed"
 
-	"github.com/golang/freetype"
 	"github.com/golang/freetype/truetype"
 )
 
@@ -198,7 +197,7 @@ func getFont(name string) (*truetype.Font, error) {
 		return nil, err
 	}
 
-	font, err := freetype.ParseFont(bytes)
+	font, err := truetype.Parse(bytes)
 	if err == nil {
 		fontLock.Lock()
 		loadedFonts[name] = font
