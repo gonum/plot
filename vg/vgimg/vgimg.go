@@ -98,7 +98,6 @@ func NewWith(o ...option) *Canvas {
 	if c.ctx == nil {
 		c.ctx = gg.NewContextForImage(c.img)
 		c.img = c.ctx.Image().(draw.Image)
-		// c.gc.SetDPI(c.dpi) // FIXME(sbinet) customize DPI ?
 		c.ctx.InvertY()
 	}
 	draw.Draw(c.img, c.img.Bounds(), &image.Uniform{c.backgroundColor}, image.ZP, draw.Src)
@@ -161,8 +160,7 @@ func UseImageWithContext(img draw.Image, ctx *gg.Context) option {
 	return func(c *Canvas) uint32 {
 		c.img = img
 		c.ctx = ctx
-		//c.dpi = gc.GetDPI() // FIXME(sbinet) customize DPI ?
-		return setsDPI | setsSize | setsBackground
+		return setsSize | setsBackground
 	}
 }
 
