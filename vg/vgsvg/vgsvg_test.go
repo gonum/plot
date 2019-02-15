@@ -102,13 +102,11 @@ func TestHtmlEscape(t *testing.T) {
 	line.Width = 0.5
 	p.Add(line)
 
-	err = p.Save(5*vg.Centimeter, 5*vg.Centimeter, "testdata/scatter_line.svg")
-	if err != nil {
-		t.Fatal(err)
-	}
+	c := vgsvg.NewWith(vgsvg.UseWH(5*vg.Centimeter, 5*vg.Centimeter))
+	p.Draw(draw.New(c))
 
-	got, err := ioutil.ReadFile("testdata/scatter_line.svg")
-	if err != nil {
+	b := new(bytes.Buffer)
+	if _, err = c.WriteTo(b); err != nil {
 		t.Fatal(err)
 	}
 
@@ -117,11 +115,11 @@ func TestHtmlEscape(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ok, err := cmpimg.Equal("svg", got, want)
+	ok, err := cmpimg.Equal("svg", b.Bytes(), want)
 	if err != nil {
 		t.Fatalf("could not compare images: %v", err)
 	}
 	if !ok {
-		t.Fatalf("images differ:\ngot:\n%s\nwant:\n%s\n", got, want)
+		t.Fatalf("images differ:\ngot:\n%s\nwant:\n%s\n", b.Bytes(), want)
 	}
 }
