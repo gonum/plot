@@ -97,6 +97,7 @@ func NewWith(o ...option) *Canvas {
 	}
 	if c.ctx == nil {
 		c.ctx = gg.NewContextForImage(c.img)
+		c.ctx.SetLineCapButt()
 		c.img = c.ctx.Image().(draw.Image)
 		c.ctx.InvertY()
 	}
