@@ -10,13 +10,12 @@ import (
 	"image/color"
 	"io/ioutil"
 	"log"
-	"os"
-	"path/filepath"
 	"reflect"
 	"sync"
 	"testing"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/internal/cmpimg"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -39,36 +38,39 @@ func TestIssue179(t *testing.T) {
 	p.Draw(draw.New(c))
 	b := bytes.NewBuffer([]byte{})
 	if _, err = c.WriteTo(b); err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
 
-	f, err := os.Open(filepath.Join("testdata", "issue179.jpg"))
+	want, err := ioutil.ReadFile("testdata/issue179_golden.jpg")
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	defer f.Close()
 
-	want, err := ioutil.ReadAll(f)
+	ok, err := cmpimg.Equal("jpg", b.Bytes(), want)
 	if err != nil {
-		t.Error(err)
+		t.Fatal(err)
 	}
-	if !bytes.Equal(b.Bytes(), want) {
-		t.Error("Image mismatch")
+	if !ok {
+		ioutil.WriteFile("testdata/issue179.jpg", b.Bytes(), 0644)
+		t.Fatalf("images differ")
 	}
 }
 
 func TestConcurrentInit(t *testing.T) {
-	vg.MakeFont("Helvetica", 10)
+	ft, err := vg.MakeFont("Helvetica", 10)
+	if err != nil {
+		t.Fatal(err)
+	}
 	var wg sync.WaitGroup
 	wg.Add(2)
 	go func() {
 		c := vgimg.New(215, 215)
-		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
+		c.FillString(ft, vg.Point{}, "hi")
 		wg.Done()
 	}()
 	go func() {
 		c := vgimg.New(215, 215)
-		c.FillString(vg.Font{Size: 10}, vg.Point{}, "hi")
+		c.FillString(ft, vg.Point{}, "hi")
 		wg.Done()
 	}()
 	wg.Wait()
