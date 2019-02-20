@@ -258,7 +258,7 @@ func (c *Canvas) outline(p vg.Path) {
 		case vg.ArcComp:
 			c.ctx.DrawArc(comp.Pos.X.Dots(c.DPI()), comp.Pos.Y.Dots(c.DPI()),
 				comp.Radius.Dots(c.DPI()),
-				comp.Start, comp.Angle,
+				comp.Start, comp.Start+comp.Angle,
 			)
 
 		case vg.CurveComp:
