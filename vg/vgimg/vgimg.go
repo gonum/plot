@@ -195,11 +195,7 @@ func (c *Canvas) SetLineDash(ds []vg.Length, offs vg.Length) {
 	for i, d := range ds {
 		dashes[i] = d.Dots(c.DPI())
 	}
-	// FIXME(sbinet): handle offs (the distance into the dash pattern
-	// to start the dash.)
-	// this needs to be implemented on the gg side.
-	// see:
-	//  - https://github.com/fogleman/gg/issues/64
+	c.ctx.SetDashOffset(offs.Dots(c.DPI()))
 	c.ctx.SetDash(dashes...)
 }
 
