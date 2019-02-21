@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
 )
 
