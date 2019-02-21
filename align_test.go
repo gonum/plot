@@ -9,7 +9,7 @@ import (
 	"os"
 	"testing"
 
-	"gonum.org/v1/plot/internal/cmpimg"
+	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
