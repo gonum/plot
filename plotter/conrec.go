@@ -106,11 +106,12 @@ func conrec(g GridXYZ, heights []float64, fn conrecLine) {
 						xh[0] = 0.50 * (g.X(i) + g.X(i+1))
 						yh[0] = 0.50 * (g.Y(j) + g.Y(j+1))
 					}
-					if h[m] > 0 {
+					switch {
+					case h[m] > 0:
 						sh[m] = 1
-					} else if h[m] < 0 {
+					case h[m] < 0:
 						sh[m] = -1
-					} else {
+					default:
 						sh[m] = 0
 					}
 				}
