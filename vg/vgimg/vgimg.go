@@ -289,6 +289,10 @@ func (c *Canvas) DPI() float64 {
 }
 
 func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
+	if font.Size == 0 {
+		return
+	}
+
 	c.ctx.Push()
 	defer c.ctx.Pop()
 

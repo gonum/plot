@@ -154,6 +154,10 @@ func (c *Canvas) Fill(p vg.Path) {
 }
 
 func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
+	if fnt.Size == 0 {
+		return
+	}
+
 	c.font(fnt, pt)
 	c.doc.SetFont(fnt.Name(), "", c.unit(fnt.Size))
 
