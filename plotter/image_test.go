@@ -63,7 +63,7 @@ func ExampleImage_log() {
 	p.Title.Text = "A Logo"
 
 	// load an image
-	f, err := os.Open("../../gonum/gopher.png")
+	f, err := os.Open("testdata/gopher.png")
 	if err != nil {
 		log.Fatalf("error opening image file: %v\n", err)
 	}

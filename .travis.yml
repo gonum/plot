@@ -17,6 +17,7 @@ matrix:
 env:
   global:
    - DISPLAY: ":99.0"
+   - GO111MODULE: "on"
 
 # Get coverage tools, and start the virtual framebuffer.
 before_install:

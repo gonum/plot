@@ -19,6 +19,7 @@ environment:
   GOPATH: c:\gopath
   GOTOOLDIR: '%GOROOT%\pkg\tool\windows_amd64'
   PATH: '%GOPATH%\bin;%GOROOT%\bin;%PATH%'
+  GO111MODULE: 'on'
 
 build_script:
   - "%GOROOT%\\bin\\go version"
