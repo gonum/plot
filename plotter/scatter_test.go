@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -13,6 +13,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -24,8 +25,8 @@ func ExampleScatter() {
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
-	randomPoints := func(n int) XYs {
-		pts := make(XYs, n)
+	randomPoints := func(n int) plotter.XYs {
+		pts := make(plotter.XYs, n)
 		for i := range pts {
 			if i == 0 {
 				pts[i].X = rnd.Float64()
@@ -49,16 +50,16 @@ func ExampleScatter() {
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	s, err := NewScatter(scatterData)
+	s, err := plotter.NewScatter(scatterData)
 	if err != nil {
 		log.Panic(err)
 	}
 	s.GlyphStyle.Color = color.RGBA{R: 255, B: 128, A: 255}
 	s.GlyphStyle.Radius = vg.Points(3)
 
-	l, err := NewLine(lineData)
+	l, err := plotter.NewLine(lineData)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -66,7 +67,7 @@ func ExampleScatter() {
 	l.LineStyle.Dashes = []vg.Length{vg.Points(5), vg.Points(5)}
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	lpLine, lpPoints, err := NewLinePoints(linePointsData)
+	lpLine, lpPoints, err := plotter.NewLinePoints(linePointsData)
 	if err != nil {
 		log.Panic(err)
 	}

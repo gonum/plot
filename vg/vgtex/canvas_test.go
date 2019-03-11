@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package vgtex
+package vgtex_test
 
 import (
 	"log"
@@ -14,6 +14,7 @@ import (
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
+	"gonum.org/v1/plot/vg/vgtex"
 )
 
 // An example of making a LaTeX plot.
@@ -32,7 +33,7 @@ func Example() {
 	p.X.Label.Text = `$x = \eta$`
 	p.Y.Label.Text = `$y$ is some $\Phi$`
 
-	c := NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
+	c := vgtex.NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
 	p.Draw(draw.New(c))
 	c.FillString(p.Title.Font, vg.Point{2.5 * vg.Centimeter, 2.5 * vg.Centimeter}, "x")
 

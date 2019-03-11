@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"fmt"
@@ -15,6 +15,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
@@ -63,7 +64,7 @@ func ExampleHeatMap() {
 			9, 10, 11, 12,
 		})}
 	pal := palette.Heat(12, 1)
-	h := NewHeatMap(m, pal)
+	h := plotter.NewHeatMap(m, pal)
 
 	p, err := plot.New()
 	if err != nil {
@@ -81,7 +82,7 @@ func ExampleHeatMap() {
 	if err != nil {
 		log.Panic(err)
 	}
-	thumbs := PaletteThumbnailers(pal)
+	thumbs := plotter.PaletteThumbnailers(pal)
 	for i := len(thumbs) - 1; i >= 0; i-- {
 		t := thumbs[i]
 		if i != 0 && i != len(thumbs)-1 {

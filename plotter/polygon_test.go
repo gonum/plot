@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -13,6 +13,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/recorder"
@@ -27,17 +28,17 @@ import (
 // https://github.com/gonum/plot/blob/master/plotter/testdata/polygon_holes_golden.eps.
 func ExamplePolygon_holes() {
 	// Create an outer ring.
-	outer1 := XYs{{X: 0, Y: 0}, {X: 4, Y: 0}, {X: 4, Y: 4}, {X: 0, Y: 4}}
+	outer1 := plotter.XYs{{X: 0, Y: 0}, {X: 4, Y: 0}, {X: 4, Y: 4}, {X: 0, Y: 4}}
 
 	// Create an inner ring with the same
 	// winding order as the outer ring.
-	inner1 := XYs{{X: 0.5, Y: 0.5}, {X: 1.5, Y: 0.5}, {X: 1.5, Y: 1.5}, {X: 0.5, Y: 1.5}}
+	inner1 := plotter.XYs{{X: 0.5, Y: 0.5}, {X: 1.5, Y: 0.5}, {X: 1.5, Y: 1.5}, {X: 0.5, Y: 1.5}}
 
 	// Create an inner polygon with the opposite
 	// winding order as the outer polygon.
-	inner2 := XYs{{X: 3.5, Y: 2.5}, {X: 2.5, Y: 2.5}, {X: 2.5, Y: 3.5}, {X: 3.5, Y: 3.5}}
+	inner2 := plotter.XYs{{X: 3.5, Y: 2.5}, {X: 2.5, Y: 2.5}, {X: 2.5, Y: 3.5}, {X: 3.5, Y: 3.5}}
 
-	poly, err := NewPolygon(outer1, inner1, inner2)
+	poly, err := plotter.NewPolygon(outer1, inner1, inner2)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -93,8 +94,8 @@ func TestPolygon_holes(t *testing.T) {
 // https://github.com/gonum/plot/blob/master/plotter/testdata/polygon_hexagons_golden.png.
 func ExamplePolygon_hexagons() {
 	// hex returns a hexagon centered at (x,y) with radius r.
-	hex := func(x, y, r float64) XYs {
-		g := make(XYs, 6)
+	hex := func(x, y, r float64) plotter.XYs {
+		g := make(plotter.XYs, 6)
 		for i := range g {
 			g[i].X = x + r*math.Cos(math.Pi/3*float64(i))
 			g[i].Y = y + r*math.Sin(math.Pi/3*float64(i))
@@ -136,8 +137,8 @@ func ExamplePolygon_hexagons() {
 		for ix := 0; ix < nx; ix++ {
 			y := ymin
 			for iy := 0; iy < ny; iy++ {
-				var poly *Polygon
-				poly, err = NewPolygon(hex(x, y, r))
+				var poly *plotter.Polygon
+				poly, err = plotter.NewPolygon(hex(x, y, r))
 				if err != nil {
 					log.Panic(err)
 				}
@@ -164,8 +165,8 @@ func TestPolygon_hexagons(t *testing.T) {
 // This test ensures that the plotter doesn't panic if there are
 // polygons wholly outside of the plotting range.
 func TestPolygon_clip(t *testing.T) {
-	poly, err := NewPolygon(
-		XYs{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}},
+	poly, err := plotter.NewPolygon(
+		plotter.XYs{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}},
 	)
 	if err != nil {
 		t.Fatal(err)

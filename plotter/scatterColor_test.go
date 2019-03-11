@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"fmt"
@@ -16,6 +16,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
@@ -28,8 +29,8 @@ func ExampleScatter_color() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomTriples returns some random but correlated x, y, z triples
-	randomTriples := func(n int) XYZs {
-		data := make(XYZs, n)
+	randomTriples := func(n int) plotter.XYZs {
+		data := make(plotter.XYZs, n)
 		for i := range data {
 			if i == 0 {
 				data[i].X = rnd.Float64()
@@ -67,9 +68,9 @@ func ExampleScatter_color() {
 	p.Title.Text = "Colored Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	sc, err := NewScatter(scatterData)
+	sc, err := plotter.NewScatter(scatterData)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -89,7 +90,7 @@ func ExampleScatter_color() {
 	p.Add(sc)
 
 	//Create a legend
-	thumbs := PaletteThumbnailers(colors.Palette(n))
+	thumbs := plotter.PaletteThumbnailers(colors.Palette(n))
 	for i := len(thumbs) - 1; i >= 0; i-- {
 		t := thumbs[i]
 		if i != 0 && i != len(thumbs)-1 {

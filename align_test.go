@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plot
+package plot_test
 
 import (
 	"math"
 	"os"
 	"testing"
 
+	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -17,16 +18,16 @@ import (
 
 func ExampleAlign() {
 	const rows, cols = 4, 3
-	plots := make([][]*Plot, rows)
+	plots := make([][]*plot.Plot, rows)
 	for j := 0; j < rows; j++ {
-		plots[j] = make([]*Plot, cols)
+		plots[j] = make([]*plot.Plot, cols)
 		for i := 0; i < cols; i++ {
 			if i == 0 && j == 2 {
 				// This shows what happens when there are nil plots.
 				continue
 			}
 
-			p, err := New()
+			p, err := plot.New()
 			if err != nil {
 				panic(err)
 			}
@@ -72,7 +73,7 @@ func ExampleAlign() {
 		PadRight:  vg.Points(2),
 	}
 
-	canvases := Align(plots, t, dc)
+	canvases := plot.Align(plots, t, dc)
 	for j := 0; j < rows; j++ {
 		for i := 0; i < cols; i++ {
 			if plots[j][i] != nil {

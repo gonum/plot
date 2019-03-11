@@ -2,13 +2,14 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plot
+package plot_test
 
 import (
 	"image/color"
 	"os"
 	"testing"
 
+	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -49,7 +50,7 @@ func ExampleLegend_standalone() {
 	green := exampleThumbnailer{Color: color.NRGBA{G: 255, A: 255}}
 	blue := exampleThumbnailer{Color: color.NRGBA{B: 255, A: 255}}
 
-	l, err := NewLegend()
+	l, err := plot.NewLegend()
 	if err != nil {
 		panic(err)
 	}
@@ -59,7 +60,7 @@ func ExampleLegend_standalone() {
 	l.Padding = vg.Millimeter
 
 	// purpleRectangle draws a purple rectangle around the given Legend.
-	purpleRectangle := func(l Legend) {
+	purpleRectangle := func(l plot.Legend) {
 		r := l.Rectangle(dc)
 		dc.StrokeLines(draw.LineStyle{
 			Color: color.NRGBA{R: 255, B: 255, A: 255},

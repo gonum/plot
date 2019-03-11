@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -20,10 +21,10 @@ func ExampleBoxPlot() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// Create the sample data.
-	n := 100
-	uniform := make(ValueLabels, n)
-	normal := make(ValueLabels, n)
-	expon := make(ValueLabels, n)
+	const n = 100
+	uniform := make(plotter.ValueLabels, n)
+	normal := make(plotter.ValueLabels, n)
+	expon := make(plotter.ValueLabels, n)
 	for i := 0; i < n; i++ {
 		uniform[i].Value = rnd.Float64()
 		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
@@ -34,15 +35,15 @@ func ExampleBoxPlot() {
 	}
 
 	// Make boxes for our data and add them to the plot.
-	uniBox, err := NewBoxPlot(vg.Points(20), 0, uniform)
+	uniBox, err := plotter.NewBoxPlot(vg.Points(20), 0, uniform)
 	if err != nil {
 		log.Panic(err)
 	}
-	normBox, err := NewBoxPlot(vg.Points(20), 1, normal)
+	normBox, err := plotter.NewBoxPlot(vg.Points(20), 1, normal)
 	if err != nil {
 		log.Panic(err)
 	}
-	expBox, err := NewBoxPlot(vg.Points(20), 2, expon)
+	expBox, err := plotter.NewBoxPlot(vg.Points(20), 2, expon)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -127,16 +128,16 @@ func ExampleBoxPlot() {
 
 	w := vg.Points(20)
 	for x := 0.0; x < 3.0; x++ {
-		b0, err := NewBoxPlot(w, x, uniform)
+		b0, err := plotter.NewBoxPlot(w, x, uniform)
 		if err != nil {
 			log.Panic(err)
 		}
 		b0.Offset = -w - vg.Points(3)
-		b1, err := NewBoxPlot(w, x, normal)
+		b1, err := plotter.NewBoxPlot(w, x, normal)
 		if err != nil {
 			log.Panic(err)
 		}
-		b2, err := NewBoxPlot(w, x, expon)
+		b2, err := plotter.NewBoxPlot(w, x, expon)
 		if err != nil {
 			log.Panic(err)
 		}
@@ -144,7 +145,7 @@ func ExampleBoxPlot() {
 		p3.Add(b0, b1, b2)
 	}
 	// Add a GlyphBox plotter for debugging.
-	p3.Add(NewGlyphBoxes())
+	p3.Add(plotter.NewGlyphBoxes())
 
 	// Set the X axis of the plot to nominal with
 	// the given names for x=0, x=1 and x=2.

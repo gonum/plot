@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"log"
@@ -12,6 +12,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg/draw"
 )
 
@@ -19,8 +20,8 @@ import (
 func ExampleErrors() {
 	rnd := rand.New(rand.NewSource(1))
 
-	randomError := func(n int) Errors {
-		err := make(Errors, n)
+	randomError := func(n int) plotter.Errors {
+		err := make(plotter.Errors, n)
 		for i := range err {
 			err[i].Low = rnd.Float64()
 			err[i].High = rnd.Float64()
@@ -29,8 +30,8 @@ func ExampleErrors() {
 	}
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
-	randomPoints := func(n int) XYs {
-		pts := make(XYs, n)
+	randomPoints := func(n int) plotter.XYs {
+		pts := make(plotter.XYs, n)
 		for i := range pts {
 			if i == 0 {
 				pts[i].X = rnd.Float64()
@@ -43,32 +44,32 @@ func ExampleErrors() {
 	}
 
 	type errPoints struct {
-		XYs
-		YErrors
-		XErrors
+		plotter.XYs
+		plotter.YErrors
+		plotter.XErrors
 	}
 
 	n := 15
 	data := errPoints{
 		XYs:     randomPoints(n),
-		YErrors: YErrors(randomError(n)),
-		XErrors: XErrors(randomError(n)),
+		YErrors: plotter.YErrors(randomError(n)),
+		XErrors: plotter.XErrors(randomError(n)),
 	}
 
 	p, err := plot.New()
 	if err != nil {
 		log.Panic(err)
 	}
-	scatter, err := NewScatter(data)
+	scatter, err := plotter.NewScatter(data)
 	if err != nil {
 		log.Panic(err)
 	}
 	scatter.Shape = draw.CrossGlyph{}
-	xerrs, err := NewXErrorBars(data)
+	xerrs, err := plotter.NewXErrorBars(data)
 	if err != nil {
 		log.Panic(err)
 	}
-	yerrs, err := NewYErrorBars(data)
+	yerrs, err := plotter.NewYErrorBars(data)
 	if err != nil {
 		log.Panic(err)
 	}
