@@ -67,8 +67,8 @@ func New(w, h vg.Length) *Canvas {
 		fonts: make(map[vg.Font]struct{}),
 		embed: true,
 	}
-	vg.Initialize(c)
 	c.NextPage()
+	vg.Initialize(c)
 	return c
 }
 
