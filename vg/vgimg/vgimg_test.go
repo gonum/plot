@@ -90,3 +90,52 @@ func TestUseBackgroundColor(t *testing.T) {
 		})
 	}
 }
+
+func TestIssue540(t *testing.T) {
+	p, err := plot.New()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	xys := plotter.XYs{
+		plotter.XY{0, 0},
+		plotter.XY{1, 1},
+		plotter.XY{2, 2},
+	}
+
+	p.Title.Text = "My title"
+	p.X.Tick.Label.Font.Size = 0 // hide X-axis labels
+	p.Y.Tick.Label.Font.Size = 0 // hide Y-axis labels
+
+	lines, points, err := plotter.NewLinePoints(xys)
+	if err != nil {
+		log.Fatal(err)
+	}
+	lines.Color = color.RGBA{B: 255, A: 255}
+
+	p.Add(lines, points)
+	p.Add(plotter.NewGrid())
+
+	err = p.Save(100, 100, "testdata/issue540.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want, err := ioutil.ReadFile("testdata/issue540_golden.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := ioutil.ReadFile("testdata/issue540.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err := cmpimg.Equal("png", got, want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !ok {
+		t.Fatalf("images differ")
+	}
+}
