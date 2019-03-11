@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -14,6 +14,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -27,7 +28,7 @@ func Example_timeSeries() {
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
-	randomPoints := func(n int) XYs {
+	randomPoints := func(n int) plotter.XYs {
 		const (
 			month = 1
 			day   = 1
@@ -36,7 +37,7 @@ func Example_timeSeries() {
 			sec   = 1
 			nsec  = 1
 		)
-		pts := make(XYs, n)
+		pts := make(plotter.XYs, n)
 		for i := range pts {
 			date := time.Date(2007+i, month, day, hour, min, sec, nsec, time.UTC).Unix()
 			pts[i].X = float64(date)
@@ -55,9 +56,9 @@ func Example_timeSeries() {
 	p.Title.Text = "Time Series"
 	p.X.Tick.Marker = xticks
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"
-	p.Add(NewGrid())
+	p.Add(plotter.NewGrid())
 
-	line, points, err := NewLinePoints(data)
+	line, points, err := plotter.NewLinePoints(data)
 	if err != nil {
 		log.Panic(err)
 	}

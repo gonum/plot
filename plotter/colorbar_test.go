@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -12,6 +12,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette/moreland"
+	"gonum.org/v1/plot/plotter"
 )
 
 func ExampleColorBar_horizontal() {
@@ -19,7 +20,7 @@ func ExampleColorBar_horizontal() {
 	if err != nil {
 		log.Panic(err)
 	}
-	l := &ColorBar{ColorMap: moreland.ExtendedBlackBody()}
+	l := &plotter.ColorBar{ColorMap: moreland.ExtendedBlackBody()}
 	l.ColorMap.SetMin(0.5)
 	l.ColorMap.SetMax(1.5)
 	p.Add(l)
@@ -46,7 +47,7 @@ func ExampleColorBar_horizontal_log() {
 	if err != nil {
 		log.Panic(err)
 	}
-	l := &ColorBar{ColorMap: colorMap}
+	l := &plotter.ColorBar{ColorMap: colorMap}
 	l.ColorMap.SetMin(1)
 	l.ColorMap.SetMax(100)
 	p.Add(l)
@@ -70,7 +71,7 @@ func ExampleColorBar_vertical() {
 	if err != nil {
 		log.Panic(err)
 	}
-	l := &ColorBar{ColorMap: moreland.ExtendedBlackBody()}
+	l := &plotter.ColorBar{ColorMap: moreland.ExtendedBlackBody()}
 	l.ColorMap.SetMin(0.5)
 	l.ColorMap.SetMax(1.5)
 	l.Vertical = true

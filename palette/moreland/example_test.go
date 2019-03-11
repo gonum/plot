@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package moreland
+package moreland_test
 
 import (
 	"log"
@@ -14,6 +14,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette"
+	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -78,39 +79,39 @@ func Example() {
 	palettes := []paletteHolder{
 		{
 			name: "SmoothBlueRed",
-			cmap: SmoothBlueRed().Palette(255),
+			cmap: moreland.SmoothBlueRed().Palette(255),
 		},
 		{
 			name: "SmoothBlueTan",
-			cmap: SmoothBlueTan().Palette(255),
+			cmap: moreland.SmoothBlueTan().Palette(255),
 		},
 		{
 			name: "SmoothGreenPurple",
-			cmap: SmoothGreenPurple().Palette(255),
+			cmap: moreland.SmoothGreenPurple().Palette(255),
 		},
 		{
 			name: "SmoothGreenRed",
-			cmap: SmoothGreenRed().Palette(255),
+			cmap: moreland.SmoothGreenRed().Palette(255),
 		},
 		{
 			name: "SmoothPurpleOrange",
-			cmap: SmoothPurpleOrange().Palette(255),
+			cmap: moreland.SmoothPurpleOrange().Palette(255),
 		},
 		{
 			name: "BlackBody",
-			cmap: BlackBody().Palette(255),
+			cmap: moreland.BlackBody().Palette(255),
 		},
 		{
 			name: "ExtendedBlackBody",
-			cmap: ExtendedBlackBody().Palette(255),
+			cmap: moreland.ExtendedBlackBody().Palette(255),
 		},
 		{
 			name: "Kindlmann",
-			cmap: Kindlmann().Palette(255),
+			cmap: moreland.Kindlmann().Palette(255),
 		},
 		{
 			name: "ExtendedKindlmann",
-			cmap: ExtendedKindlmann().Palette(255),
+			cmap: moreland.ExtendedKindlmann().Palette(255),
 		},
 	}
 

@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -14,6 +14,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -25,8 +26,8 @@ func ExampleScatter_bubbles() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomTriples returns some random but correlated x, y, z triples
-	randomTriples := func(n int) XYZs {
-		data := make(XYZs, n)
+	randomTriples := func(n int) plotter.XYZs {
+		data := make(plotter.XYZs, n)
 		for i := range data {
 			if i == 0 {
 				data[i].X = rnd.Float64()
@@ -61,7 +62,7 @@ func ExampleScatter_bubbles() {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	sc, err := NewScatter(scatterData)
+	sc, err := plotter.NewScatter(scatterData)
 	if err != nil {
 		log.Panic(err)
 	}

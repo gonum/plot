@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/png"
@@ -12,6 +12,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -37,7 +38,7 @@ func ExampleImage() {
 		log.Fatalf("error decoding image file: %v\n", err)
 	}
 
-	p.Add(NewImage(img, 100, 100, 200, 200))
+	p.Add(plotter.NewImage(img, 100, 100, 200, 200))
 
 	const (
 		w = 5 * vg.Centimeter
@@ -74,7 +75,7 @@ func ExampleImage_log() {
 		log.Fatalf("error decoding image file: %v\n", err)
 	}
 
-	p.Add(NewImage(img, 100, 100, 10000, 10000))
+	p.Add(plotter.NewImage(img, 100, 100, 10000, 10000))
 
 	// Transform axes.
 	p.X.Scale = plot.LogScale{}

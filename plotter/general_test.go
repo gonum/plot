@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"log"
@@ -10,6 +10,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -20,8 +21,8 @@ func Example() {
 		log.Panic(err)
 	}
 
-	DefaultLineStyle.Width = vg.Points(1)
-	DefaultGlyphStyle.Radius = vg.Points(3)
+	plotter.DefaultLineStyle.Width = vg.Points(1)
+	plotter.DefaultGlyphStyle.Radius = vg.Points(3)
 
 	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
 		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
@@ -30,34 +31,34 @@ func Example() {
 		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
 	})
 
-	pts := XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
-	line, err := NewLine(pts)
+	pts := plotter.XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
+	line, err := plotter.NewLine(pts)
 	if err != nil {
 		log.Panic(err)
 	}
-	scatter, err := NewScatter(pts)
-	if err != nil {
-		log.Panic(err)
-	}
-	p.Add(line, scatter)
-
-	pts = XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
-	line, err = NewLine(pts)
-	if err != nil {
-		log.Panic(err)
-	}
-	scatter, err = NewScatter(pts)
+	scatter, err := plotter.NewScatter(pts)
 	if err != nil {
 		log.Panic(err)
 	}
 	p.Add(line, scatter)
 
-	pts = XYs{{0.5, 0.5}, {1, 0.5}}
-	line, err = NewLine(pts)
+	pts = plotter.XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
+	line, err = plotter.NewLine(pts)
 	if err != nil {
 		log.Panic(err)
 	}
-	scatter, err = NewScatter(pts)
+	scatter, err = plotter.NewScatter(pts)
+	if err != nil {
+		log.Panic(err)
+	}
+	p.Add(line, scatter)
+
+	pts = plotter.XYs{{0.5, 0.5}, {1, 0.5}}
+	line, err = plotter.NewLine(pts)
+	if err != nil {
+		log.Panic(err)
+	}
+	scatter, err = plotter.NewScatter(pts)
 	if err != nil {
 		log.Panic(err)
 	}

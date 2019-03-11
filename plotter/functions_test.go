@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -12,20 +12,21 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
 // ExampleFunction draws some functions.
 func ExampleFunction() {
-	quad := NewFunction(func(x float64) float64 { return x * x })
+	quad := plotter.NewFunction(func(x float64) float64 { return x * x })
 	quad.Color = color.RGBA{B: 255, A: 255}
 
-	exp := NewFunction(func(x float64) float64 { return math.Pow(2, x) })
+	exp := plotter.NewFunction(func(x float64) float64 { return math.Pow(2, x) })
 	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
 	exp.Width = vg.Points(2)
 	exp.Color = color.RGBA{G: 255, A: 255}
 
-	sin := NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
+	sin := plotter.NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
 	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
 	sin.Width = vg.Points(4)
 	sin.Color = color.RGBA{R: 255, A: 255}

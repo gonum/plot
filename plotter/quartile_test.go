@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"log"
@@ -12,6 +12,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -20,9 +21,9 @@ func ExampleQuartPlot() {
 
 	// Create the example data.
 	n := 100
-	uniform := make(Values, n)
-	normal := make(Values, n)
-	expon := make(Values, n)
+	uniform := make(plotter.Values, n)
+	normal := make(plotter.Values, n)
+	expon := make(plotter.Values, n)
 	for i := 0; i < n; i++ {
 		uniform[i] = rnd.Float64()
 		normal[i] = rnd.NormFloat64()
@@ -30,15 +31,15 @@ func ExampleQuartPlot() {
 	}
 
 	// Create the QuartPlots
-	qp1, err := NewQuartPlot(0, uniform)
+	qp1, err := plotter.NewQuartPlot(0, uniform)
 	if err != nil {
 		log.Panic(err)
 	}
-	qp2, err := NewQuartPlot(1, normal)
+	qp2, err := plotter.NewQuartPlot(1, normal)
 	if err != nil {
 		log.Panic(err)
 	}
-	qp3, err := NewQuartPlot(2, expon)
+	qp3, err := plotter.NewQuartPlot(2, expon)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -96,23 +97,23 @@ func ExampleQuartPlot() {
 
 	w := vg.Points(10)
 	for x := 0.0; x < 3.0; x++ {
-		b0, err := NewQuartPlot(x, uniform)
+		b0, err := plotter.NewQuartPlot(x, uniform)
 		if err != nil {
 			log.Panic(err)
 		}
 		b0.Offset = -w
-		b1, err := NewQuartPlot(x, normal)
+		b1, err := plotter.NewQuartPlot(x, normal)
 		if err != nil {
 			log.Panic(err)
 		}
-		b2, err := NewQuartPlot(x, expon)
+		b2, err := plotter.NewQuartPlot(x, expon)
 		if err != nil {
 			log.Panic(err)
 		}
 		b2.Offset = w
 		p3.Add(b0, b1, b2)
 	}
-	p3.Add(NewGlyphBoxes())
+	p3.Add(plotter.NewGlyphBoxes())
 
 	p3.NominalX("Group 0", "Group 1", "Group 2")
 

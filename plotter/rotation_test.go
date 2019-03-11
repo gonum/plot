@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -12,6 +12,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -22,8 +23,8 @@ func Example_rotation() {
 	xmax := 2 * math.Pi
 
 	// Sin creates a sine curve.
-	sin := func(n int, xmax float64) XYs {
-		xy := make(XYs, n)
+	sin := func(n int, xmax float64) plotter.XYs {
+		xy := make(plotter.XYs, n)
 		for i := 0; i < n; i++ {
 			xy[i].X = xmax / float64(n) * float64(i)
 			xy[i].Y = math.Sin(xy[i].X) * 100
@@ -45,19 +46,19 @@ func Example_rotation() {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "100 × Sine X"
 
-	l, err := NewLine(linePoints)
+	l, err := plotter.NewLine(linePoints)
 	if err != nil {
 		log.Panic(err)
 	}
 	l.LineStyle.Width = vg.Points(1)
 	l.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-	labelData := XYLabels{
+	labelData := plotter.XYLabels{
 		XYs:    labelPoints,
 		Labels: []string{"0", "pi/4", "pi/2", "3pi/4", "pi", "5pi/4", "3pi/2", "7pi/4", "2pi"},
 	}
 
-	labels, err := NewLabels(labelData)
+	labels, err := plotter.NewLabels(labelData)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -81,7 +82,7 @@ func Example_rotation() {
 	p.Add(l, labels)
 
 	// Add boundary boxes for debugging.
-	p.Add(NewGlyphBoxes())
+	p.Add(plotter.NewGlyphBoxes())
 
 	p.NominalX("0", "The number 1", "Number 2", "The number 3", "Number 4",
 		"The number 5", "Number 6")

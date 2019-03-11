@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -13,12 +13,13 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
 func ExampleBarChart() {
 	// Create the plot values and labels.
-	values := Values{0.5, 10, 20, 30}
+	values := plotter.Values{0.5, 10, 20, 30}
 	verticalLabels := []string{"A", "B", "C", "D"}
 	horizontalLabels := []string{"Label A", "Label B", "Label C", "Label D"}
 
@@ -27,7 +28,7 @@ func ExampleBarChart() {
 	if err != nil {
 		log.Panic(err)
 	}
-	verticalBarChart, err := NewBarChart(values, 0.5*vg.Centimeter)
+	verticalBarChart, err := plotter.NewBarChart(values, 0.5*vg.Centimeter)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -43,7 +44,7 @@ func ExampleBarChart() {
 	if err != nil {
 		log.Panic(err)
 	}
-	horizontalBarChart, err := NewBarChart(values, 0.5*vg.Centimeter)
+	horizontalBarChart, err := plotter.NewBarChart(values, 0.5*vg.Centimeter)
 	horizontalBarChart.Horizontal = true // Specify a horizontal BarChart.
 	if err != nil {
 		log.Panic(err)
@@ -56,10 +57,10 @@ func ExampleBarChart() {
 	}
 
 	// Now, make a different type of BarChart.
-	groupA := Values{20, 35, 30, 35, 27}
-	groupB := Values{25, 32, 34, 20, 25}
-	groupC := Values{12, 28, 15, 21, 8}
-	groupD := Values{30, 42, 6, 9, 12}
+	groupA := plotter.Values{20, 35, 30, 35, 27}
+	groupB := plotter.Values{25, 32, 34, 20, 25}
+	groupC := plotter.Values{12, 28, 15, 21, 8}
+	groupD := plotter.Values{30, 42, 6, 9, 12}
 
 	p, err := plot.New()
 	if err != nil {
@@ -70,21 +71,21 @@ func ExampleBarChart() {
 
 	w := vg.Points(8)
 
-	barsA, err := NewBarChart(groupA, w)
+	barsA, err := plotter.NewBarChart(groupA, w)
 	if err != nil {
 		log.Panic(err)
 	}
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB, err := NewBarChart(groupB, w)
+	barsB, err := plotter.NewBarChart(groupB, w)
 	if err != nil {
 		log.Panic(err)
 	}
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.Offset = w / 2
 
-	barsC, err := NewBarChart(groupC, w)
+	barsC, err := plotter.NewBarChart(groupC, w)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -92,7 +93,7 @@ func ExampleBarChart() {
 	barsC.Color = color.RGBA{B: 255, A: 255}
 	barsC.Offset = -w / 2
 
-	barsD, err := NewBarChart(groupD, w)
+	barsD, err := plotter.NewBarChart(groupD, w)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -109,7 +110,7 @@ func ExampleBarChart() {
 	p.NominalX("Zero", "One", "Two", "Three", "Four", "",
 		"Six", "Seven", "Eight", "Nine", "Ten")
 
-	p.Add(NewGlyphBoxes())
+	p.Add(plotter.NewGlyphBoxes())
 	err = p.Save(300, 250, "testdata/barChart2.png")
 	if err != nil {
 		log.Panic(err)
@@ -125,28 +126,28 @@ func ExampleBarChart() {
 
 	w = vg.Points(15)
 
-	barsA, err = NewBarChart(groupA, w)
+	barsA, err = plotter.NewBarChart(groupA, w)
 	if err != nil {
 		log.Panic(err)
 	}
 	barsA.Color = color.RGBA{R: 255, A: 255}
 	barsA.Offset = -w / 2
 
-	barsB, err = NewBarChart(groupB, w)
+	barsB, err = plotter.NewBarChart(groupB, w)
 	if err != nil {
 		log.Panic(err)
 	}
 	barsB.Color = color.RGBA{R: 196, G: 196, A: 255}
 	barsB.StackOn(barsA)
 
-	barsC, err = NewBarChart(groupC, w)
+	barsC, err = plotter.NewBarChart(groupC, w)
 	if err != nil {
 		log.Panic(err)
 	}
 	barsC.Offset = w / 2
 	barsC.Color = color.RGBA{B: 255, A: 255}
 
-	barsD, err = NewBarChart(groupD, w)
+	barsD, err = plotter.NewBarChart(groupD, w)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -161,7 +162,7 @@ func ExampleBarChart() {
 	p.Legend.Top = true
 	p.NominalX("Zero", "One", "Two", "Three", "Four")
 
-	p.Add(NewGlyphBoxes())
+	p.Add(plotter.NewGlyphBoxes())
 	err = p.Save(250, 250, "testdata/stackedBarChart.png")
 	if err != nil {
 		log.Panic(err)
@@ -180,9 +181,9 @@ func ExampleBarChart_positiveNegative() {
 
 	// Create random data points between -1 and 1.
 	const n = 6
-	data1 := make(Values, n)
-	data2 := make(Values, n)
-	net := make(XYs, n) // net = data1 + data2
+	data1 := make(plotter.Values, n)
+	data2 := make(plotter.Values, n)
+	net := make(plotter.XYs, n) // net = data1 + data2
 	for i := 0; i < n; i++ {
 		data1[i] = rnd.Float64()*2 - 1
 		data2[i] = rnd.Float64()*2 - 1
@@ -192,9 +193,9 @@ func ExampleBarChart_positiveNegative() {
 
 	// splitBySign splits an array into two arrays containing the positive and
 	// negative values, respectively, from the original array.
-	splitBySign := func(d Values) (pos, neg Values) {
-		pos = make(Values, len(d))
-		neg = make(Values, len(d))
+	splitBySign := func(d plotter.Values) (pos, neg plotter.Values) {
+		pos = make(plotter.Values, len(d))
+		neg = make(plotter.Values, len(d))
 		for i, v := range d {
 			if v > 0 {
 				pos[i] = v
@@ -209,24 +210,24 @@ func ExampleBarChart_positiveNegative() {
 	data2Pos, data2Neg := splitBySign(data2)
 
 	const barWidth = 0.3 * vg.Centimeter
-	pos1, err := NewBarChart(data1Pos, barWidth)
+	pos1, err := plotter.NewBarChart(data1Pos, barWidth)
 	if err != nil {
 		log.Panic(err)
 	}
-	pos2, err := NewBarChart(data2Pos, barWidth)
+	pos2, err := plotter.NewBarChart(data2Pos, barWidth)
 	if err != nil {
 		log.Panic(err)
 	}
-	neg1, err := NewBarChart(data1Neg, barWidth)
+	neg1, err := plotter.NewBarChart(data1Neg, barWidth)
 	if err != nil {
 		log.Panic(err)
 	}
-	neg2, err := NewBarChart(data2Neg, barWidth)
+	neg2, err := plotter.NewBarChart(data2Neg, barWidth)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	netDots, err := NewScatter(net)
+	netDots, err := plotter.NewScatter(net)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -245,7 +246,7 @@ func ExampleBarChart_positiveNegative() {
 	pos1.Horizontal, pos2.Horizontal, neg1.Horizontal, neg2.Horizontal = true, true, true, true
 
 	// Create a line at zero.
-	zero, err := NewLine(XYs{{0, 0}, {0, 5}})
+	zero, err := plotter.NewLine(plotter.XYs{{0, 0}, {0, 5}})
 	if err != nil {
 		log.Panic(err)
 	}

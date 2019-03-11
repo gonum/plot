@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"image/color"
@@ -15,6 +15,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -32,7 +33,7 @@ func ExampleHistogram() {
 	}
 
 	n := 10000
-	vals := make(Values, n)
+	vals := make(plotter.Values, n)
 	for i := 0; i < n; i++ {
 		vals[i] = rnd.NormFloat64()
 	}
@@ -42,7 +43,7 @@ func ExampleHistogram() {
 		log.Panic(err)
 	}
 	p.Title.Text = "Histogram"
-	h, err := NewHist(vals, 16)
+	h, err := plotter.NewHist(vals, 16)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -50,7 +51,7 @@ func ExampleHistogram() {
 	p.Add(h)
 
 	// The normal distribution function
-	norm := NewFunction(stdNorm)
+	norm := plotter.NewFunction(stdNorm)
 	norm.Color = color.RGBA{R: 255, A: 255}
 	norm.Width = vg.Points(2)
 	p.Add(norm)
@@ -74,7 +75,7 @@ func TestSingletonHistogram(t *testing.T) {
 			t.Fatalf("unexpected error from plot.New: %v", err)
 		}
 
-		hist, err := NewHist(Values([]float64{1.0}), 60)
+		hist, err := plotter.NewHist(plotter.Values([]float64{1.0}), 60)
 		if err != nil {
 			t.Fatalf("unexpected error from NewHist: %v", err)
 		}
@@ -106,7 +107,7 @@ func ExampleHistogram_logScaleY() {
 	p.Y.Label.Text = "Y"
 	p.X.Label.Text = "X"
 
-	h1, err := NewHist(Values{
+	h1, err := plotter.NewHist(plotter.Values{
 		-2, -2,
 		-1,
 		+3, +3, +3, +3,
@@ -119,7 +120,7 @@ func ExampleHistogram_logScaleY() {
 	h1.LogY = true
 	h1.FillColor = color.RGBA{255, 0, 0, 255}
 
-	h2, err := NewHist(Values{
+	h2, err := plotter.NewHist(plotter.Values{
 		-3, -3, -3,
 		+2, +2, +2, +2, +2,
 	}, 16)
@@ -131,7 +132,7 @@ func ExampleHistogram_logScaleY() {
 	h2.LogY = true
 	h2.FillColor = color.RGBA{0, 0, 255, 255}
 
-	p.Add(h1, h2, NewGrid())
+	p.Add(h1, h2, plotter.NewGrid())
 
 	err = p.Save(200, 200, "testdata/histogram_logy.png")
 	if err != nil {

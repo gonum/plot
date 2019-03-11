@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package plotter
+package plotter_test
 
 import (
 	"fmt"
@@ -13,6 +13,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/recorder"
@@ -35,7 +36,7 @@ func ExampleSankey_simple() {
 	)
 	categoryLabels := []string{"Tree type", "Consumer", "Fate"}
 
-	flows := []Flow{
+	flows := []plotter.Flow{
 		{
 			SourceCategory:   treeType,
 			SourceLabel:      "Large",
@@ -129,7 +130,7 @@ func ExampleSankey_simple() {
 		},
 	}
 
-	sankey, err := NewSankey(flows...)
+	sankey, err := plotter.NewSankey(flows...)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -164,7 +165,7 @@ func ExampleSankey_grouped() {
 	)
 	categoryLabels := []string{"Tree type", "Consumer", "Fate"}
 
-	flows := []Flow{
+	flows := []plotter.Flow{
 		{
 			SourceCategory:   treeType,
 			SourceLabel:      "LargeLargeLargeLargeLargeLargeLargeLargeLarge",
@@ -335,7 +336,7 @@ func ExampleSankey_grouped() {
 		},
 	}
 
-	sankey, err := NewSankey(flows...)
+	sankey, err := plotter.NewSankey(flows...)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -403,7 +404,7 @@ func ExampleSankey_grouped() {
 	p.X.Max = 3.05 // give room for the legend
 
 	// Add boundary boxes for debugging.
-	p.Add(NewGlyphBoxes())
+	p.Add(plotter.NewGlyphBoxes())
 
 	p.Draw(dc)
 	pngimg := vgimg.PngCanvas{Canvas: c}
@@ -423,7 +424,7 @@ func TestSankey_grouped(t *testing.T) {
 // This test checks whether the Sankey plotter makes any changes to
 // the input Flows.
 func TestSankey_idempotent(t *testing.T) {
-	flows := []Flow{
+	flows := []plotter.Flow{
 		{
 			SourceCategory:   0,
 			SourceLabel:      "Large",
@@ -439,7 +440,7 @@ func TestSankey_idempotent(t *testing.T) {
 			Value:            5,
 		},
 	}
-	s, err := NewSankey(flows...)
+	s, err := plotter.NewSankey(flows...)
 	if err != nil {
 		t.Fatal(err)
 	}
