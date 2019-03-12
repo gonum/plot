@@ -74,6 +74,7 @@ type Canvas interface {
 
 	// FillString fills in text at the specified
 	// location using the given font.
+	// If the font size is zero, the text is not drawn.
 	FillString(f Font, pt Point, text string)
 
 	// DrawImage draws the image, scaled to fit
