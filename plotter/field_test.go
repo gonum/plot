@@ -48,6 +48,7 @@ func ExampleField() {
 			}
 		},
 	})
+	f.LineStyle.Width = 0.2
 
 	p, err := plot.New()
 	if err != nil {

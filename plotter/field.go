@@ -44,9 +44,13 @@ type Field struct {
 	// but should not be used to determine size or
 	// directions of the glyph.
 	//
-	// If DrawGlyph is nil, a simple black arrow will
-	// be drawn.
+	// If DrawGlyph is nil, a simple arrow will be
+	// drawn.
 	DrawGlyph func(c vg.Canvas, v XY)
+
+	// LineStyle is the style of the line used to
+	// render vectors if DrawGlyph is nil.
+	LineStyle draw.LineStyle
 
 	// max define the dynamic range of the field.
 	max float64
@@ -68,13 +72,18 @@ func NewField(f FieldXY) *Field {
 	}
 
 	return &Field{
-		FieldXY: f,
-		max:     max,
+		FieldXY:   f,
+		LineStyle: DefaultLineStyle,
+		max:       max,
 	}
 }
 
 // Plot implements the Plot method of the plot.Plotter interface.
 func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
+	c.Push()
+	c.SetLineStyle(f.LineStyle)
+	defer c.Pop()
+
 	trX, trY := plt.Transforms(&c)
 
 	cols, rows := f.FieldXY.Dims()
