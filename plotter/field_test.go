@@ -27,13 +27,13 @@ func (f field) Dims() (c, r int)           { return f.c, f.r }
 func (f field) Vector(c, r int) plotter.XY { return f.fn(f.X(c), f.Y(r)) }
 func (f field) X(c int) float64 {
 	if c < 0 || c >= f.c {
-		panic("index out of range")
+		panic("column index out of range")
 	}
 	return float64(c - f.c/2)
 }
 func (f field) Y(r int) float64 {
 	if r < 0 || r >= f.r {
-		panic("index out of range")
+		panic("row index out of range")
 	}
 	return float64(r - f.r/2)
 }

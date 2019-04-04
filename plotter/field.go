@@ -18,11 +18,11 @@ type FieldXY interface {
 	// Dims returns the dimensions of the grid.
 	Dims() (c, r int)
 
-	// Vector returns the value of a grid value at (c, r).
-	// It will panic if c or r are out of bounds for the grid.
+	// Vector returns the value of a vector field at (c, r).
+	// It will panic if c or r are out of bounds for the field.
 	Vector(c, r int) XY
 
-	// X returns the coordinate for the column at the index x.
+	// X returns the coordinate for the column at the index c.
 	// It will panic if c is out of bounds for the grid.
 	X(c int) float64
 
@@ -52,8 +52,7 @@ type Field struct {
 	max float64
 }
 
-// NewField creates as new heat map plotter for the given data,
-// using the provided palette.
+// NewField creates a new vector field plotter.
 func NewField(f FieldXY) *Field {
 	max := math.Inf(-1)
 	c, r := f.Dims()
