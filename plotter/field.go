@@ -81,8 +81,8 @@ func NewField(f FieldXY) *Field {
 // Plot implements the Plot method of the plot.Plotter interface.
 func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
 	c.Push()
-	c.SetLineStyle(f.LineStyle)
 	defer c.Pop()
+	c.SetLineStyle(f.LineStyle)
 
 	trX, trY := plt.Transforms(&c)
 
