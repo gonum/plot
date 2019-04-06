@@ -44,6 +44,9 @@ type Field struct {
 	// but should not be used to determine size or
 	// directions of the glyph.
 	//
+	// If the magnitude of v is zero, no scaling or
+	// rotation is performed.
+	//
 	// If DrawGlyph is nil, a simple arrow will be
 	// drawn.
 	DrawGlyph func(c vg.Canvas, v XY)
@@ -124,12 +127,18 @@ func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
 
 			c.Push()
 			c.Translate(vg.Point{X: (x + dx) / 2, Y: (y + dy) / 2})
+
 			v := f.FieldXY.Vector(i, j)
-			c.Rotate(math.Atan2(v.Y, v.X))
 			s := math.Hypot(v.X, v.Y) / (2 * f.max)
-			v.X *= s
-			v.Y *= s
-			c.Scale(s*float64(dx-x), s*float64(dy-y))
+			// Do not scale when the vector is zero, otherwise the
+			// user cannot render special-case glyphs for that case.
+			if s != 0 {
+				c.Rotate(math.Atan2(v.Y, v.X))
+				c.Scale(s*float64(dx-x), s*float64(dy-y))
+			}
+			v.X /= f.max
+			v.Y /= f.max
+
 			if f.DrawGlyph == nil {
 				drawVector(c, v)
 			} else {
