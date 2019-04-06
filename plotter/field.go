@@ -38,21 +38,24 @@ type Field struct {
 
 	// DrawGlyph is the user hook to draw a field
 	// vector glyph. The function should draw a unit
-	// vector to (1, 0) on the vg.Canvas, c.
+	// vector to (1, 0) on the vg.Canvas, c with the
+	// sty LineStyle. The Field plotter will rotate
+	// and scale the unit vector appropriately.
+	// If the magnitude of v is zero, no scaling or
+	// rotation is performed.
+	//
 	// The direction and magnitude of v can be used
 	// to determine properties of the glyph drawing
 	// but should not be used to determine size or
 	// directions of the glyph.
 	//
-	// If the magnitude of v is zero, no scaling or
-	// rotation is performed.
-	//
 	// If DrawGlyph is nil, a simple arrow will be
 	// drawn.
-	DrawGlyph func(c vg.Canvas, v XY)
+	DrawGlyph func(c vg.Canvas, sty draw.LineStyle, v XY)
 
 	// LineStyle is the style of the line used to
-	// render vectors if DrawGlyph is nil.
+	// render vectors when DrawGlyph is nil.
+	// Otherwise it is passed to DrawGlyph.
 	LineStyle draw.LineStyle
 
 	// max define the dynamic range of the field.
@@ -142,7 +145,7 @@ func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
 			if f.DrawGlyph == nil {
 				drawVector(c, v)
 			} else {
-				f.DrawGlyph(c, v)
+				f.DrawGlyph(c, f.LineStyle, v)
 			}
 			c.Pop()
 		}

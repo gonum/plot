@@ -99,7 +99,7 @@ func ExampleField_colors() {
 
 	// Provide a DrawGlyph function to render a custom
 	// vector instead of the default monochrome arrow.
-	f.DrawGlyph = func(c vg.Canvas, v plotter.XY) {
+	f.DrawGlyph = func(c vg.Canvas, sty draw.LineStyle, v plotter.XY) {
 		c.Push()
 		defer c.Pop()
 		mag := math.Hypot(v.X, v.Y)
@@ -107,8 +107,8 @@ func ExampleField_colors() {
 		if mag == 0 {
 			// Draw a black dot for zero vectors.
 			c.SetColor(color.Black)
-			pa.Move(vg.Point{X: f.LineStyle.Width})
-			pa.Arc(vg.Point{}, f.LineStyle.Width, 0, 2*math.Pi)
+			pa.Move(vg.Point{X: sty.Width})
+			pa.Arc(vg.Point{}, sty.Width, 0, 2*math.Pi)
 			pa.Close()
 			c.Fill(pa)
 			return
@@ -177,7 +177,7 @@ func ExampleField_gophers() {
 
 	// Provide a DrawGlyph function to render a custom
 	// vector glyph instead of the default arrow.
-	f.DrawGlyph = func(c vg.Canvas, v plotter.XY) {
+	f.DrawGlyph = func(c vg.Canvas, _ draw.LineStyle, v plotter.XY) {
 		// The canvas is unscaled if the vector has a zero
 		// magnitude, so return in that case.
 		if math.Hypot(v.X, v.Y) == 0 {
