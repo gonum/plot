@@ -32,14 +32,14 @@ func (g offsetUnitGrid) Z(c, r int) float64 { return g.Data.At(r, c) }
 func (g offsetUnitGrid) X(c int) float64 {
 	_, n := g.Data.Dims()
 	if c < 0 || c >= n {
-		panic("index out of range")
+		panic("column index out of range")
 	}
 	return float64(c) + g.XOffset
 }
 func (g offsetUnitGrid) Y(r int) float64 {
 	m, _ := g.Data.Dims()
 	if r < 0 || r >= m {
-		panic("index out of range")
+		panic("row index out of range")
 	}
 	return float64(r) + g.YOffset
 }
