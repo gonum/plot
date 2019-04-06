@@ -24,7 +24,7 @@ type GridXYZ interface {
 	// It will panic if c or r are out of bounds for the grid.
 	Z(c, r int) float64
 
-	// X returns the coordinate for the column at the index x.
+	// X returns the coordinate for the column at the index c.
 	// It will panic if c is out of bounds for the grid.
 	X(c int) float64
 
