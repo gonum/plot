@@ -129,3 +129,39 @@ func ExampleHeatMap() {
 func TestHeatMap(t *testing.T) {
 	cmpimg.CheckPlot(ExampleHeatMap, t, "heatMap.png")
 }
+
+func TestHeatMapDims(t *testing.T) {
+	pal := palette.Heat(12, 1)
+
+	for _, test := range []struct {
+		rows int
+		cols int
+	}{
+		{rows: 1, cols: 2},
+		{rows: 2, cols: 1},
+		{rows: 2, cols: 2},
+	} {
+		func() {
+			defer func() {
+				r := recover()
+				if r != nil {
+					t.Errorf("unexpected panic for rows=%d cols=%d: %v", test.rows, test.cols, r)
+				}
+			}()
+
+			m := offsetUnitGrid{Data: mat.NewDense(test.rows, test.cols, nil)}
+			h := plotter.NewHeatMap(m, pal)
+
+			p, err := plot.New()
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			p.Add(h)
+
+			img := vgimg.New(250, 175)
+			dc := draw.New(img)
+
+			p.Draw(dc)
+		}()
+	}
+}
