@@ -97,7 +97,11 @@ func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
 		var right, left float64
 		switch i {
 		case 0:
-			right = (f.FieldXY.X(1) - f.FieldXY.X(0)) / 2
+			if cols == 1 {
+				right = 0.5
+			} else {
+				right = (f.FieldXY.X(1) - f.FieldXY.X(0)) / 2
+			}
 			left = -right
 		case cols - 1:
 			right = (f.FieldXY.X(cols-1) - f.FieldXY.X(cols-2)) / 2
@@ -111,7 +115,11 @@ func (f *Field) Plot(c draw.Canvas, plt *plot.Plot) {
 			var up, down float64
 			switch j {
 			case 0:
-				up = (f.FieldXY.Y(1) - f.FieldXY.Y(0)) / 2
+				if rows == 1 {
+					up = 0.5
+				} else {
+					up = (f.FieldXY.Y(1) - f.FieldXY.Y(0)) / 2
+				}
 				down = -up
 			case rows - 1:
 				up = (f.FieldXY.Y(rows-1) - f.FieldXY.Y(rows-2)) / 2
@@ -170,16 +178,16 @@ func (f *Field) DataRange() (xmin, xmax, ymin, ymax float64) {
 	c, r := f.FieldXY.Dims()
 	switch c {
 	case 1: // Make a unit length when there is no neighbour.
-		xmax = 0.5
-		xmin = -0.5
+		xmax = f.FieldXY.X(0) + 0.5
+		xmin = f.FieldXY.X(0) - 0.5
 	default:
 		xmax = f.FieldXY.X(c-1) + (f.FieldXY.X(c-1)-f.FieldXY.X(c-2))/2
 		xmin = f.FieldXY.X(0) - (f.FieldXY.X(1)-f.FieldXY.X(0))/2
 	}
 	switch r {
 	case 1: // Make a unit length when there is no neighbour.
-		ymax = 0.5
-		ymin = -0.5
+		ymax = f.FieldXY.Y(0) + 0.5
+		ymin = f.FieldXY.Y(0) - 0.5
 	default:
 		ymax = f.FieldXY.Y(r-1) + (f.FieldXY.Y(r-1)-f.FieldXY.Y(r-2))/2
 		ymin = f.FieldXY.Y(0) - (f.FieldXY.Y(1)-f.FieldXY.Y(0))/2

@@ -218,3 +218,44 @@ func ExampleField_gophers() {
 func TestFieldGophers(t *testing.T) {
 	cmpimg.CheckPlot(ExampleField_gophers, t, "gopher_field.png")
 }
+
+func TestFieldDims(t *testing.T) {
+	for _, test := range []struct {
+		rows int
+		cols int
+	}{
+		{rows: 1, cols: 2},
+		{rows: 2, cols: 1},
+		{rows: 2, cols: 2},
+	} {
+		func() {
+			defer func() {
+				r := recover()
+				if r != nil {
+					t.Errorf("unexpected panic for rows=%d cols=%d: %v", test.rows, test.cols, r)
+				}
+			}()
+
+			f := plotter.NewField(field{
+				r: test.rows, c: test.cols,
+				fn: func(x, y float64) plotter.XY {
+					return plotter.XY{
+						X: y,
+						Y: -x,
+					}
+				},
+			})
+
+			p, err := plot.New()
+			if err != nil {
+				t.Errorf("unexpected error: %v", err)
+			}
+			p.Add(f)
+
+			img := vgimg.New(250, 175)
+			dc := draw.New(img)
+
+			p.Draw(dc)
+		}()
+	}
+}
