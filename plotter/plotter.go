@@ -119,6 +119,27 @@ type XYer interface {
 	XY(int) (x, y float64)
 }
 
+// XYers wraps a set of (x, y) pair sets.
+type XYers interface {
+	// Len returns the number of XYers.
+	Len() int
+
+	// LenAt returns the length of XYer i.
+	LenAt(i int) int
+
+	// XYer returns a set of x, y pairs.
+	XY(i, j int) (x, y float64)
+}
+
+// xyerAt implements the XYer interface for an item in an XYers.
+type xyerAt struct {
+	XYers
+	i int
+}
+
+func (xy xyerAt) Len() int                { return xy.XYers.LenAt(xy.i) }
+func (xy xyerAt) XY(j int) (x, y float64) { return xy.XYers.XY(xy.i, j) }
+
 // XYRange returns the minimum and maximum
 // x and y values.
 func XYRange(xys XYer) (xmin, xmax, ymin, ymax float64) {
