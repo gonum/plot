@@ -158,7 +158,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 			outline = c.ClipLinesX(pts)
 		}
 		c.StrokeLines(b.LineStyle, outline...)
-		// 增加在bar上显示具体数据
+		// show the value of each bar on top of it
 		strvalue := fmt.Sprintln(ht)
 		ft, _ := vg.MakeFont(plot.DefaultFont, 10)
 		c.FillText(draw.TextStyle{Color: color.Black, Font: ft}, vg.Point{X: topx, Y: topy}, strvalue)
