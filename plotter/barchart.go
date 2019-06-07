@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"errors"
+	"fmt"
 	"image/color"
 	"math"
 
@@ -120,6 +121,10 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		valMin := trVal(bottom)
 		valMax := trVal(bottom + ht)
 
+		// value point
+		topx := catMin
+		topy := valMax
+
 		var pts []vg.Point
 		var poly []vg.Point
 		if !b.Horizontal {
@@ -138,6 +143,9 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 				{valMax, catMin},
 			}
 			poly = c.ClipPolygonX(pts)
+
+			topx = valMax
+			topy = catMin
 		}
 		c.FillPolygon(b.Color, poly)
 
@@ -150,6 +158,11 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 			outline = c.ClipLinesX(pts)
 		}
 		c.StrokeLines(b.LineStyle, outline...)
+		// 增加在bar上显示具体数据
+		strvalue := fmt.Sprintln(ht)
+		ft, _ := vg.MakeFont(plot.DefaultFont, 10)
+		c.FillText(draw.TextStyle{Color: color.Black, Font: ft}, vg.Point{X: topx, Y: topy}, strvalue)
+
 	}
 }
 
