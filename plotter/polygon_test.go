@@ -19,6 +19,16 @@ import (
 	"gonum.org/v1/plot/vg/recorder"
 )
 
+// rings implements the XYers interface.
+type rings []plotter.XYs
+
+func (r rings) Len() int        { return len(r) }
+func (r rings) LenAt(i int) int { return len(r[i]) }
+func (r rings) XY(i, j int) (x, y float64) {
+	p := r[i][j]
+	return p.X, p.Y
+}
+
 // ExamplePolygon_holes draws a polygon with holes, showing how
 // the different built-in vg backends render polygons with holes.
 // The output of this example is at
@@ -38,7 +48,7 @@ func ExamplePolygon_holes() {
 	// winding order as the outer polygon.
 	inner2 := plotter.XYs{{X: 3.5, Y: 2.5}, {X: 2.5, Y: 2.5}, {X: 2.5, Y: 3.5}, {X: 3.5, Y: 3.5}}
 
-	poly, err := plotter.NewPolygon(outer1, inner1, inner2)
+	poly, err := plotter.NewPolygon(rings{outer1, inner1, inner2})
 	if err != nil {
 		log.Panic(err)
 	}
@@ -94,13 +104,13 @@ func TestPolygon_holes(t *testing.T) {
 // https://github.com/gonum/plot/blob/master/plotter/testdata/polygon_hexagons_golden.png.
 func ExamplePolygon_hexagons() {
 	// hex returns a hexagon centered at (x,y) with radius r.
-	hex := func(x, y, r float64) plotter.XYs {
+	hex := func(x, y, r float64) rings {
 		g := make(plotter.XYs, 6)
 		for i := range g {
 			g[i].X = x + r*math.Cos(math.Pi/3*float64(i))
 			g[i].Y = y + r*math.Sin(math.Pi/3*float64(i))
 		}
-		return g
+		return rings{g}
 	}
 
 	p, err := plot.New()
@@ -166,7 +176,7 @@ func TestPolygon_hexagons(t *testing.T) {
 // polygons wholly outside of the plotting range.
 func TestPolygon_clip(t *testing.T) {
 	poly, err := plotter.NewPolygon(
-		plotter.XYs{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}},
+		rings{{{0, 0}, {1, 0}, {1, 1}, {0, 1}, {0, 0}}},
 	)
 	if err != nil {
 		t.Fatal(err)

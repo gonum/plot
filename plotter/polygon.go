@@ -34,11 +34,11 @@ type Polygon struct {
 // differently, but all built-in backends treat inner rings
 // with the opposite winding order from the outer ring as
 // holes.
-func NewPolygon(xys ...XYer) (*Polygon, error) {
-	data := make([]XYs, len(xys))
-	for i, d := range xys {
+func NewPolygon(rings XYers) (*Polygon, error) {
+	data := make([]XYs, rings.Len())
+	for i := 0; i < rings.Len(); i++ {
 		var err error
-		data[i], err = CopyXYs(d)
+		data[i], err = CopyXYs(xyerAt{XYers: rings, i: i})
 		if err != nil {
 			return nil, err
 		}
