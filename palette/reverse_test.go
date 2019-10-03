@@ -15,5 +15,5 @@ func TestReverse(t *testing.T) {
 }
 
 func TestReverse_Palette(t *testing.T) {
-	cmpimg.CheckPlot(ExampleReverse_Palette, t, "reverse_palette.png")
+	cmpimg.CheckPlot(ExampleReverse_palette, t, "reverse_palette.png")
 }
