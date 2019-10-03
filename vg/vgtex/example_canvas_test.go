@@ -46,6 +46,6 @@ func Example() {
 	}
 	err = f.Close()
 	if err != nil {
-	    log.Fatal(err)
+		log.Fatal(err)
 	}
 }
