@@ -23,13 +23,13 @@ func Example() {
 	plotter.DefaultGlyphStyle.Radius = vg.Points(3)
 
 	p.Y.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+		{Value: 0, Label: "0"}, {Value: 0.25, Label: ""}, {Value: 0.5, Label: "0.5"}, {Value: 0.75, Label: ""}, {Value: 1, Label: "1"},
 	})
 	p.X.Tick.Marker = plot.ConstantTicks([]plot.Tick{
-		{0, "0"}, {0.25, ""}, {0.5, "0.5"}, {0.75, ""}, {1, "1"},
+		{Value: 0, Label: "0"}, {Value: 0.25, Label: ""}, {Value: 0.5, Label: "0.5"}, {Value: 0.75, Label: ""}, {Value: 1, Label: "1"},
 	})
 
-	pts := plotter.XYs{{0, 0}, {0, 1}, {0.5, 1}, {0.5, 0.6}, {0, 0.6}}
+	pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 0.5, Y: 1}, {X: 0.5, Y: 0.6}, {X: 0, Y: 0.6}}
 	line, err := plotter.NewLine(pts)
 	if err != nil {
 		log.Panic(err)
@@ -40,7 +40,7 @@ func Example() {
 	}
 	p.Add(line, scatter)
 
-	pts = plotter.XYs{{1, 0}, {0.75, 0}, {0.75, 0.75}}
+	pts = plotter.XYs{{X: 1, Y: 0}, {X: 0.75, Y: 0}, {X: 0.75, Y: 0.75}}
 	line, err = plotter.NewLine(pts)
 	if err != nil {
 		log.Panic(err)
@@ -51,7 +51,7 @@ func Example() {
 	}
 	p.Add(line, scatter)
 
-	pts = plotter.XYs{{0.5, 0.5}, {1, 0.5}}
+	pts = plotter.XYs{{X: 0.5, Y: 0.5}, {X: 1, Y: 0.5}}
 	line, err = plotter.NewLine(pts)
 	if err != nil {
 		log.Panic(err)

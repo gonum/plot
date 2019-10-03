@@ -21,10 +21,10 @@ type exampleThumbnailer struct {
 // Thumbnail fulfills the plot.Thumbnailer interface.
 func (et exampleThumbnailer) Thumbnail(c *draw.Canvas) {
 	pts := []vg.Point{
-		{c.Min.X, c.Min.Y},
-		{c.Min.X, c.Max.Y},
-		{c.Max.X, c.Max.Y},
-		{c.Max.X, c.Min.Y},
+		{X: c.Min.X, Y: c.Min.Y},
+		{X: c.Min.X, Y: c.Max.Y},
+		{X: c.Max.X, Y: c.Max.Y},
+		{X: c.Max.X, Y: c.Min.Y},
 	}
 	poly := c.ClipPolygonY(pts)
 	c.FillPolygon(et.Color, poly)
@@ -64,8 +64,8 @@ func ExampleLegend_standalone() {
 			Color: color.NRGBA{R: 255, B: 255, A: 255},
 			Width: vg.Points(1),
 		}, []vg.Point{
-			{r.Min.X, r.Min.Y}, {r.Min.X, r.Max.Y}, {r.Max.X, r.Max.Y},
-			{r.Max.X, r.Min.Y}, {r.Min.X, r.Min.Y},
+			{X: r.Min.X, Y: r.Min.Y}, {X: r.Min.X, Y: r.Max.Y}, {X: r.Max.X, Y: r.Max.Y},
+			{X: r.Max.X, Y: r.Min.Y}, {X: r.Min.X, Y: r.Min.Y},
 		})
 	}
 

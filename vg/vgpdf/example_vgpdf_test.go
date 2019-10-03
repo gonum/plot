@@ -25,7 +25,7 @@ func Example_embedFonts() {
 		log.Fatalf("could not create plot: %v", err)
 	}
 
-	pts := plotter.XYs{{0, 0}, {0, 1}, {1, 0}, {1, 1}}
+	pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
 	line, err := plotter.NewLine(pts)
 	if err != nil {
 		log.Fatalf("could not create line: %v", err)
@@ -72,7 +72,7 @@ func Example_multipage() {
 			log.Fatalf("could not create plot: %v", err)
 		}
 
-		pts := plotter.XYs{{0, 0}, {0, 1}, {1, 0}, {1, 1}}
+		pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
 		line, err := plotter.NewLine(pts)
 		if err != nil {
 			log.Fatalf("could not create line: %v", err)
