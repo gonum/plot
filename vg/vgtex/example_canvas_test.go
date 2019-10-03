@@ -44,4 +44,8 @@ func Example() {
 	if _, err = c.WriteTo(f); err != nil {
 		log.Fatal(err)
 	}
+	err = f.Close()
+	if err != nil {
+	    log.Fatal(err)
+	}
 }

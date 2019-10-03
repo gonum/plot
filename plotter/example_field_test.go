@@ -118,6 +118,7 @@ func ExampleField_colors() {
 	if err != nil {
 		log.Panic(err)
 	}
+	defer w.Close()
 	png := vgimg.PngCanvas{Canvas: img}
 	if _, err = png.WriteTo(w); err != nil {
 		log.Panic(err)

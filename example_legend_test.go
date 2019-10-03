@@ -88,7 +88,7 @@ func ExampleLegend_standalone() {
 	if err != nil {
 		panic(err)
 	}
-
+defer w.Close()
 	png := vgimg.PngCanvas{Canvas: c}
 	if _, err := png.WriteTo(w); err != nil {
 		panic(err)

@@ -84,7 +84,7 @@ func ExampleAlign() {
 	if err != nil {
 		panic(err)
 	}
-
+defer w.Close()
 	png := vgimg.PngCanvas{Canvas: img}
 	if _, err := png.WriteTo(w); err != nil {
 		panic(err)
