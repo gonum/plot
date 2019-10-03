@@ -5,19 +5,15 @@
 package plotter_test
 
 import (
+	"golang.org/x/exp/rand"
 	"image/color"
 	"log"
-	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/plotter"
 )
 
-// See https://github.com/gonum/plot/issues/488
-func clippedFilledLine() {
+func ExampleLine_filledLine() {
 	rnd := rand.New(rand.NewSource(1))
 
 	// randomPoints returns some random x, y points
@@ -51,17 +47,9 @@ func clippedFilledLine() {
 	filled.FillColor = color.RGBA{R: 196, G: 255, B: 196, A: 255}
 
 	p.Add(filled)
-	// testing clipping
-	p.X.Min, p.X.Max = 1, 3
-	p.Y.Max = -1
 
-	err = p.Save(200, 200, "testdata/clippedFilledLine.png")
+	err = p.Save(200, 200, "testdata/filledLine.png")
 	if err != nil {
 		log.Panic(err)
 	}
-}
-
-func TestFilledLine(t *testing.T) {
-	cmpimg.CheckPlot(ExampleLine_filledLine, t, "filledLine.png")
-	cmpimg.CheckPlot(clippedFilledLine, t, "clippedFilledLine.png")
 }

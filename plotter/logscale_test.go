@@ -1,4 +1,4 @@
-// Copyright ©2015 The Gonum Authors. All rights reserved.
+// Copyright ©2017 The Gonum Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
@@ -10,6 +10,6 @@ import (
 	"gonum.org/v1/plot/cmpimg"
 )
 
-func TestErrors(t *testing.T) {
-	cmpimg.CheckPlot(ExampleErrors, t, "errorBars.png")
+func TestLogScale(t *testing.T) {
+	cmpimg.CheckPlot(Example_logScale, t, "logscale.png")
 }

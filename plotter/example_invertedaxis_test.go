@@ -5,15 +5,12 @@
 package plotter_test
 
 import (
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 	"image/color"
 	"log"
 	"math"
-	"testing"
-
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/cmpimg"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
 )
 
 func Example_invertedScale() {
@@ -53,8 +50,4 @@ func Example_invertedScale() {
 	if err != nil {
 		log.Panic(err)
 	}
-}
-
-func TestInvertedScale(t *testing.T) {
-	cmpimg.CheckPlot(Example_invertedScale, t, "invertedlogscale.png")
 }

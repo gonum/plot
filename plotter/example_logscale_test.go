@@ -5,15 +5,12 @@
 package plotter_test
 
 import (
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 	"image/color"
 	"log"
 	"math"
-	"testing"
-
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/cmpimg"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
 )
 
 // Example_logScale shows how to create a plot with a log-scale on the Y-axis.
@@ -46,8 +43,4 @@ func Example_logScale() {
 	if err != nil {
 		log.Panic(err)
 	}
-}
-
-func TestLogScale(t *testing.T) {
-	cmpimg.CheckPlot(Example_logScale, t, "logscale.png")
 }
