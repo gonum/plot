@@ -6,10 +6,11 @@ package plotter_test
 
 import (
 	"fmt"
-	"golang.org/x/exp/rand"
 	"log"
 	"math"
 	"os"
+
+	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette/moreland"
@@ -116,10 +117,10 @@ func ExampleScatter_color() {
 	p.Draw(dc)
 
 	w, err := os.Create("testdata/scatterColor.png")
-	defer w.Close()
 	if err != nil {
 		log.Panic(err)
 	}
+	defer w.Close()
 	png := vgimg.PngCanvas{Canvas: img}
 	if _, err = png.WriteTo(w); err != nil {
 		log.Panic(err)

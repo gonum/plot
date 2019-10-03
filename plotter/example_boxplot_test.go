@@ -6,8 +6,9 @@ package plotter_test
 
 import (
 	"fmt"
-	"golang.org/x/exp/rand"
 	"log"
+
+	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"

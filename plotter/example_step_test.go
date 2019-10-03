@@ -5,9 +5,10 @@
 package plotter_test
 
 import (
-	"golang.org/x/exp/rand"
 	"image/color"
 	"log"
+
+	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"

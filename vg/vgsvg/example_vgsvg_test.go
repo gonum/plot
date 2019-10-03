@@ -5,10 +5,11 @@
 package vgsvg_test
 
 import (
+	"log"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
-	"log"
 )
 
 func Example() {

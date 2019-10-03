@@ -5,12 +5,13 @@
 package plot_test
 
 import (
+	"math"
+	"os"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
-	"math"
-	"os"
 )
 
 func ExampleAlign() {

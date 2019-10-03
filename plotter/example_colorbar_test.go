@@ -5,11 +5,12 @@
 package plotter_test
 
 import (
+	"image/color"
+	"log"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
-	"image/color"
-	"log"
 )
 
 func ExampleColorBar_horizontal() {

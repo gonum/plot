@@ -5,17 +5,18 @@
 package plotter_test
 
 import (
+	"image/color"
+	"image/png"
+	"log"
+	"math"
+	"os"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
-	"image/color"
-	"image/png"
-	"log"
-	"math"
-	"os"
 )
 
 func ExampleField() {

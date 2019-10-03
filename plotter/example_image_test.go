@@ -5,12 +5,13 @@
 package plotter_test
 
 import (
-	"gonum.org/v1/plot"
-	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
 	"image/png"
 	"log"
 	"os"
+
+	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 )
 
 // An example of embedding an image in a plot.
@@ -40,7 +41,7 @@ func ExampleImage() {
 		h = 5 * vg.Centimeter
 	)
 
-	err = p.Save(5*vg.Centimeter, 5*vg.Centimeter, "testdata/image_plot.png")
+	err = p.Save(w, h, "testdata/image_plot.png")
 	if err != nil {
 		log.Fatalf("error saving image plot: %v\n", err)
 	}
@@ -79,7 +80,7 @@ func ExampleImage_log() {
 		h = 5 * vg.Centimeter
 	)
 
-	err = p.Save(5*vg.Centimeter, 5*vg.Centimeter, "testdata/image_plot_log.png")
+	err = p.Save(w, h, "testdata/image_plot_log.png")
 	if err != nil {
 		log.Fatalf("error saving image plot: %v\n", err)
 	}

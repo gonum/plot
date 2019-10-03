@@ -6,11 +6,12 @@ package palette_test
 
 import (
 	"fmt"
+	"log"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
-	"log"
 )
 
 // This example creates a color bar and a second color bar where the
@@ -38,7 +39,7 @@ func ExampleReverse() {
 }
 
 // This example creates a color palette from a reversed ColorMap.
-func ExampleReverse_Palette() {
+func ExampleReverse_palette() {
 	p, err := plot.New()
 	if err != nil {
 		log.Panic(err)

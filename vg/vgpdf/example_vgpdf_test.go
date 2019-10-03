@@ -6,14 +6,15 @@ package vgpdf_test
 
 import (
 	"fmt"
+	"image/color"
+	"log"
+	"os"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgpdf"
-	"image/color"
-	"log"
-	"os"
 )
 
 // Example_embedFonts shows how one can embed (or not) fonts inside

@@ -5,8 +5,9 @@
 package plotter_test
 
 import (
-	"gonum.org/v1/plot/cmpimg"
 	"testing"
+
+	"gonum.org/v1/plot/cmpimg"
 )
 
 func TestTimeSeries(t *testing.T) {

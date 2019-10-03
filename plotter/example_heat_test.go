@@ -6,6 +6,9 @@ package plotter_test
 
 import (
 	"fmt"
+	"log"
+	"os"
+
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
@@ -13,8 +16,6 @@ import (
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
-	"log"
-	"os"
 )
 
 func ExampleHeatMap() {

@@ -5,13 +5,14 @@
 package plotter_test
 
 import (
+	"image/color"
+	"log"
+	"math"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	"image/color"
-	"log"
-	"math"
 )
 
 // Example_rotation gives some examples of rotating text.

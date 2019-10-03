@@ -5,12 +5,13 @@
 package plot_test
 
 import (
+	"image/color"
+	"os"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
-	"image/color"
-	"os"
 )
 
 type exampleThumbnailer struct {

@@ -6,14 +6,15 @@ package plotter_test
 
 import (
 	"fmt"
+	"image/color"
+	"log"
+	"os"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
-	"image/color"
-	"log"
-	"os"
 )
 
 // ExampleSankey_sample creates a simple sankey diagram.

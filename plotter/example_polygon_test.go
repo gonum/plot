@@ -5,13 +5,14 @@
 package plotter_test
 
 import (
+	"image/color"
+	"log"
+	"math"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette/moreland"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
-	"image/color"
-	"log"
-	"math"
 )
 
 // ExamplePolygon_holes draws a polygon with holes, showing how

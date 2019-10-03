@@ -5,10 +5,11 @@
 package plotter_test
 
 import (
+	"log"
+
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
-	"log"
 )
 
 // Draw the plot logo.
