@@ -17,7 +17,7 @@ import (
 
 // An example of making a LaTeX plot.
 func Example() {
-	scatter, err := plotter.NewScatter(plotter.XYs{{1, 1}, {0, 1}, {0, 0}})
+	scatter, err := plotter.NewScatter(plotter.XYs{{X: 1, Y: 1}, {X: 0, Y: 1}, {X: 0, Y: 0}})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,7 +33,7 @@ func Example() {
 
 	c := vgtex.NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
 	p.Draw(draw.New(c))
-	c.FillString(p.Title.Font, vg.Point{2.5 * vg.Centimeter, 2.5 * vg.Centimeter}, "x")
+	c.FillString(p.Title.Font, vg.Point{X: 2.5 * vg.Centimeter, Y: 2.5 * vg.Centimeter}, "x")
 
 	f, err := os.Create("testdata/scatter.tex")
 	if err != nil {
