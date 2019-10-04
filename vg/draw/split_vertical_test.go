@@ -5,8 +5,6 @@
 package draw_test
 
 import (
-	"fmt"
-
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -16,11 +14,4 @@ import (
 // bottom of c.
 func SplitVertical(c draw.Canvas, y vg.Length) (lower, upper draw.Canvas) {
 	return draw.Crop(c, 0, 0, 0, c.Min.Y-c.Max.Y+y), draw.Crop(c, 0, 0, y, 0)
-}
-
-func ExampleCrop_splitVertical() {
-	var c draw.Canvas
-	// Split c along a horizontal line centered on the canvas.
-	bottom, top := SplitHorizontal(c, c.Size().Y/2)
-	fmt.Println(bottom.Rectangle.Size(), top.Rectangle.Size())
 }

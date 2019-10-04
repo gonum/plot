@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package palette_test
+package plotter_test
 
 import (
 	"testing"
@@ -10,10 +10,6 @@ import (
 	"gonum.org/v1/plot/cmpimg"
 )
 
-func TestReverse(t *testing.T) {
-	cmpimg.CheckPlot(ExampleReverse, t, "reverse.png")
-}
-
-func TestReverse_Palette(t *testing.T) {
-	cmpimg.CheckPlot(ExampleReverse_palette, t, "reverse_palette.png")
+func TestLogScale(t *testing.T) {
+	cmpimg.CheckPlot(Example_logScale, t, "logscale.png")
 }
