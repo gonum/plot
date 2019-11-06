@@ -1,5 +1,7 @@
 module gonum.org/v1/plot
 
+go 1.12
+
 require (
 	github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af
 	github.com/fogleman/gg v1.2.1-0.20190220221249-0403632d5b90
