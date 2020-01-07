@@ -9,15 +9,21 @@ import (
 	"bytes"
 	"compress/gzip"
 	"fmt"
+	"image/color"
+	"image/png"
 	"io"
 	"log"
+	"math"
 	"net/http"
+	"os"
 
 	"github.com/golang/freetype/truetype"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
+	"gonum.org/v1/plot/vg/vgimg"
 )
 
 func Example_addFont() {
@@ -98,5 +104,89 @@ func untargz(name string, r io.Reader) ([]byte, error) {
 			return nil, fmt.Errorf("could not extract %q file from tar archive: %v", name, err)
 		}
 		return buf.Bytes(), nil
+	}
+}
+
+func Example_inMemoryCanvas() {
+	p, err := plot.New()
+	if err != nil {
+		log.Fatalf("could not create plot: %+v", err)
+	}
+
+	p.Title.Text = "sin(x)"
+	p.X.Label.Text = "x"
+	p.Y.Label.Text = "f(x)"
+
+	p.X.Min = -2 * math.Pi
+	p.X.Max = +2 * math.Pi
+
+	fct := plotter.NewFunction(func(x float64) float64 {
+		return math.Sin(x)
+	})
+	fct.Color = color.RGBA{R: 255, A: 255}
+
+	p.Add(fct, plotter.NewGrid())
+
+	c := vgimg.New(10*vg.Centimeter, 5*vg.Centimeter)
+	p.Draw(draw.New(c))
+
+	// Save image.
+	f, err := os.Create("testdata/sine.png")
+	if err != nil {
+		log.Fatalf("could not create output image file: %+v", err)
+	}
+	defer f.Close()
+
+	err = png.Encode(f, c.Image())
+	if err != nil {
+		log.Fatalf("could not encode image to PNG: %+v", err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		log.Fatalf("could not close output image file: %+v", err)
+	}
+}
+
+func Example_writerToCanvas() {
+	p, err := plot.New()
+	if err != nil {
+		log.Fatalf("could not create plot: %+v", err)
+	}
+
+	p.Title.Text = "cos(x)"
+	p.X.Label.Text = "x"
+	p.Y.Label.Text = "f(x)"
+
+	p.X.Min = -2 * math.Pi
+	p.X.Max = +2 * math.Pi
+
+	fct := plotter.NewFunction(func(x float64) float64 {
+		return math.Cos(x)
+	})
+	fct.Color = color.RGBA{B: 255, A: 255}
+
+	p.Add(fct, plotter.NewGrid())
+
+	c := vgimg.PngCanvas{
+		Canvas: vgimg.New(10*vg.Centimeter, 5*vg.Centimeter),
+	}
+	p.Draw(draw.New(c))
+
+	// Save image.
+	f, err := os.Create("testdata/cosine.png")
+	if err != nil {
+		log.Fatalf("could not create output image file: %+v", err)
+	}
+	defer f.Close()
+
+	_, err = c.WriteTo(f)
+	if err != nil {
+		log.Fatalf("could not encode image to PNG: %+v", err)
+	}
+
+	err = f.Close()
+	if err != nil {
+		log.Fatalf("could not close output image file: %+v", err)
 	}
 }
