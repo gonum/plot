@@ -162,3 +162,10 @@ func TestParseLength(t *testing.T) {
 		}
 	}
 }
+func TestInMemoryCanvas(t *testing.T) {
+	cmpimg.CheckPlot(Example_inMemoryCanvas, t, "sine.png")
+}
+
+func TestWriterToCanvas(t *testing.T) {
+	cmpimg.CheckPlot(Example_writerToCanvas, t, "cosine.png")
+}
