@@ -146,6 +146,10 @@ func UseDPI(dpi int) option {
 // the canvas from. The
 // minimum point of the given image
 // should probably be 0,0.
+//
+// Note that a copy of the input image is performed.
+// This means that modifications applied to the canvas are not reflected
+// on the original image.
 func UseImage(img draw.Image) option {
 	return func(c *Canvas) uint32 {
 		c.img = img
