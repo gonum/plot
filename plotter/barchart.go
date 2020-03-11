@@ -49,6 +49,10 @@ type BarChart struct {
 	// stackedOn is the bar chart upon which
 	// this bar chart is stacked.
 	stackedOn *BarChart
+
+	// ShowValue determines whether the value of the bars should be
+	// shown above it or not.
+	ShowValue bool
 }
 
 // NewBarChart returns a new bar chart with a single bar for each value.
@@ -155,10 +159,12 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 			outline = c.ClipLinesX(pts)
 		}
 		c.StrokeLines(b.LineStyle, outline...)
-		// Display the value of each bar above it
-		barLabel := fmt.Sprintf("%f", ht)
-		ft, _ := vg.MakeFont(plot.DefaultFont, 10)
-		c.FillText(draw.TextStyle{Color: color.Black, Font: ft}, vg.Point{X: labelX, Y: labelY}, barLabel)
+		if b.ShowValue {
+			// Display the value of each bar above it
+			barLabel := fmt.Sprintf("%f", ht)
+			ft, _ := vg.MakeFont(plot.DefaultFont, 10)
+			c.FillText(draw.TextStyle{Color: color.Black, Font: ft}, vg.Point{X: labelX, Y: labelY}, barLabel)
+		}
 	}
 }
 
