@@ -161,7 +161,7 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		c.StrokeLines(b.LineStyle, outline...)
 		if b.ShowValue {
 			// Display the value of each bar above it
-			barLabel := fmt.Sprintf("%f", ht)
+			barLabel := fmt.Sprintf("%.2f", ht)
 			ft, _ := vg.MakeFont(plot.DefaultFont, 10)
 			c.FillText(draw.TextStyle{Color: color.Black, Font: ft}, vg.Point{X: labelX, Y: labelY}, barLabel)
 		}
