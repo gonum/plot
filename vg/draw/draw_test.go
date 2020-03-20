@@ -5,6 +5,7 @@
 package draw
 
 import (
+	"fmt"
 	"image/color"
 	"reflect"
 	"testing"
@@ -113,5 +114,46 @@ func TestTile(t *testing.T) {
 				t.Errorf(str, j, i, tile.Rectangle, rectangles[j][i])
 			}
 		}
+	}
+}
+
+func TestFormattedCanvas(t *testing.T) {
+	for _, test := range []struct {
+		format string
+		err    error
+	}{
+		{format: "eps"},
+		{format: "jpg"},
+		{format: "jpeg"},
+		{format: "pdf"},
+		{format: "png"},
+		{format: "svg"},
+		{format: "tex"},
+		{format: "tiff"},
+		{format: "tif"},
+		{
+			format: "",
+			err:    fmt.Errorf("unsupported format: \"\""),
+		},
+		{
+			format: "abc",
+			err:    fmt.Errorf("unsupported format: \"abc\""),
+		},
+	} {
+		t.Run(test.format, func(t *testing.T) {
+			_, err := NewFormattedCanvas(10, 10, test.format)
+			switch {
+			case err != nil && test.err != nil:
+				if got, want := err.Error(), test.err.Error(); got != want {
+					t.Fatalf("invalid error.\ngot= %v\nwant=%v", got, want)
+				}
+			case err != nil && test.err == nil:
+				t.Fatalf("unexpected error: %+v", err)
+			case err == nil && test.err != nil:
+				t.Fatalf("expected an error (got=%v)", err)
+			case err == nil && test.err == nil:
+				// ok
+			}
+		})
 	}
 }
