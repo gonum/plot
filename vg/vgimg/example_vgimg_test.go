@@ -24,8 +24,16 @@ func ExampleUseDPI() {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
+	const (
+		width  = 10 * vg.Centimeter
+		height = 10 * vg.Centimeter
+	)
+
+	// Create a new canvas with the given dimensions,
+	// and specify an explicit DPI value (dot per inch)
+	// for the plot.
 	img := vgimg.NewWith(
-		vgimg.UseWH(10*vg.Centimeter, 10*vg.Centimeter),
+		vgimg.UseWH(width, height),
 		vgimg.UseDPI(72),
 	)
 
@@ -43,6 +51,11 @@ func ExampleUseImage() {
 	p.Y.Label.Text = "Y"
 
 	img := image.NewRGBA(image.Rect(0, 100, 0, 100))
+	// Create a new canvas using the given image to specify the dimensions
+	// of the plot.
+	//
+	// Note that modifications applied to the canvas will not be reflected on
+	// the input image.
 	c := vgimg.NewWith(
 		vgimg.UseImage(img),
 	)
@@ -60,8 +73,15 @@ func ExampleUseBackgroundColor() {
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
 
-	c := vgimg.NewWith(
-		vgimg.UseWH(10*vg.Centimeter, 10*vg.Centimeter),
+	const (
+		width  = 10 * vg.Centimeter
+		height = 10 * vg.Centimeter
+	)
+
+	// Create a new canvas with the given dimensions,
+	// and specify an explicit background color for the plot.
+	img := vgimg.NewWith(
+		vgimg.UseWH(width, height),
 		vgimg.UseBackgroundColor(color.Transparent),
 	)
 
