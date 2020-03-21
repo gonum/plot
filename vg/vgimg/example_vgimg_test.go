@@ -32,12 +32,12 @@ func ExampleUseDPI() {
 	// Create a new canvas with the given dimensions,
 	// and specify an explicit DPI value (dot per inch)
 	// for the plot.
-	img := vgimg.NewWith(
+	c := vgimg.NewWith(
 		vgimg.UseWH(width, height),
 		vgimg.UseDPI(72),
 	)
 
-	dc := draw.New(img)
+	dc := draw.New(c)
 	p.Draw(dc)
 }
 
@@ -80,7 +80,7 @@ func ExampleUseBackgroundColor() {
 
 	// Create a new canvas with the given dimensions,
 	// and specify an explicit background color for the plot.
-	img := vgimg.NewWith(
+	c := vgimg.NewWith(
 		vgimg.UseWH(width, height),
 		vgimg.UseBackgroundColor(color.Transparent),
 	)
