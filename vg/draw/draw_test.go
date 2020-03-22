@@ -151,8 +151,6 @@ func TestFormattedCanvas(t *testing.T) {
 				t.Fatalf("unexpected error: %+v", err)
 			case err == nil && test.err != nil:
 				t.Fatalf("expected an error (got=%v)", err)
-			case err == nil && test.err == nil:
-				// ok
 			}
 		})
 	}
