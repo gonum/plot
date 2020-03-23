@@ -15,6 +15,7 @@ import (
 	"gonum.org/v1/plot/vg/vgimg"
 	"gonum.org/v1/plot/vg/vgpdf"
 	"gonum.org/v1/plot/vg/vgsvg"
+	"gonum.org/v1/plot/vg/vgtex"
 )
 
 // A Canvas is a vector graphics canvas along with
@@ -268,7 +269,7 @@ func New(c vg.CanvasSizer) Canvas {
 //
 // Supported formats are:
 //
-//  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+//  eps, jpg|jpeg, pdf, png, svg, tex and tif|tiff.
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
 	var c vg.CanvasWriterTo
 	switch format {
@@ -286,6 +287,9 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 
 	case "svg":
 		c = vgsvg.New(w, h)
+
+	case "tex":
+		c = vgtex.NewDocument(w, h)
 
 	case "tif", "tiff":
 		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
