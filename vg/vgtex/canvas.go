@@ -165,7 +165,7 @@ func (c *Canvas) Fill(p vg.Path) {
 func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
 	c.wcolor()
 	pt.X += 0.5 * f.Width(text)
-	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{%s}`, pt.X, pt.Y, text)
+	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{{\fontsize{%gpt}{%gpt}\selectfont %s}}`, pt.X, pt.Y, f.Size, f.Size, text)
 }
 
 // DrawImage implements the vg.Canvas.DrawImage method.

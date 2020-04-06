@@ -30,12 +30,15 @@ func Example() {
 	p.Add(scatter)
 	// p.HideAxes()
 	p.Title.Text = `A scatter plot: $\sqrt{\frac{e^{3i\pi}}{2\cos 3\pi}}$`
+	p.Title.TextStyle.Font.Size = 16
 	p.X.Label.Text = `$x = \eta$`
 	p.Y.Label.Text = `$y$ is some $\Phi$`
 
+	txtFont := p.X.Label.TextStyle.Font
+
 	c := vgtex.NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
 	p.Draw(draw.New(c))
-	c.FillString(p.Title.Font, vg.Point{X: 2.5 * vg.Centimeter, Y: 2.5 * vg.Centimeter}, "x")
+	c.FillString(txtFont, vg.Point{X: 2.5 * vg.Centimeter, Y: 2.5 * vg.Centimeter}, "x")
 
 	f, err := os.Create("testdata/scatter.tex")
 	if err != nil {
