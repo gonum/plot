@@ -439,7 +439,7 @@ func (p *Plot) NominalY(names ...string) {
 //
 // Supported formats are:
 //
-//  eps, jpg|jpeg, pdf, png, svg, and tif|tiff.
+//  eps, jpg|jpeg, pdf, png, svg, tex and tif|tiff.
 func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 	c, err := draw.NewFormattedCanvas(w, h, format)
 	if err != nil {
@@ -454,7 +454,7 @@ func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 //
 // Supported extensions are:
 //
-//  .eps, .jpg, .jpeg, .pdf, .png, .svg, .tif and .tiff.
+//  .eps, .jpg, .jpeg, .pdf, .png, .svg, .tex, .tif and .tiff.
 func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 	f, err := os.Create(file)
 	if err != nil {
