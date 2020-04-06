@@ -229,16 +229,15 @@ func (c *Canvas) wcolor() {
 		col = color.Black
 	}
 	r, g, b, a := col.RGBA()
-	alpha := 255.0 / float64(a)
 	// FIXME(sbinet) \color will last until the end of the current TeX group
 	// use \pgfsetcolor and \pgfsetstrokecolor instead.
 	// it needs a named color: define it on the fly (storing it at the beginning
 	// of the document.)
 	c.wtex(
 		`\color[rgb]{%g,%g,%g}`,
-		float64(r)*alpha/255.0,
-		float64(g)*alpha/255.0,
-		float64(b)*alpha/255.0,
+		float64(r)/math.MaxUint16,
+		float64(g)/math.MaxUint16,
+		float64(b)/math.MaxUint16,
 	)
 
 	opacity := float64(a) / math.MaxUint16

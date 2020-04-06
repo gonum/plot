@@ -5,6 +5,7 @@
 package vgtex_test
 
 import (
+	"image/color"
 	"log"
 	"os"
 
@@ -21,6 +22,7 @@ func Example() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	scatter.Color = color.RGBA{R: 255, A: 200}
 	p, err := plot.New()
 	if err != nil {
 		log.Fatal(err)
