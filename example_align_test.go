@@ -92,7 +92,7 @@ func ExampleAlign() {
 	}
 }
 
-func ExampleAxisLabels() {
+func ExampleAxis_labelsPosition() {
 	p, err := plot.New()
 	if err != nil {
 		log.Fatalf("could not create plot: %+v", err)

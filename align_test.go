@@ -15,5 +15,5 @@ func TestAlign(t *testing.T) {
 }
 
 func TestAxisLabels(t *testing.T) {
-	cmpimg.CheckPlot(ExampleAxisLabels, t, "axis_labels.png")
+	cmpimg.CheckPlot(ExampleAxis_labelsPosition, t, "axis_labels.png")
 }
