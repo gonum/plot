@@ -13,3 +13,7 @@ import (
 func TestAlign(t *testing.T) {
 	cmpimg.CheckPlot(ExampleAlign, t, "align.png")
 }
+
+func TestAxisLabels(t *testing.T) {
+	cmpimg.CheckPlot(ExampleAxisLabels, t, "axis_labels.png")
+}
