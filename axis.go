@@ -49,7 +49,13 @@ type Axis struct {
 		draw.TextStyle
 
 		// Position is where the axis label string should be drawn.
-		Position draw.Position
+		// The default value is draw.PosCenter, displaying the label
+		// at the center of the axis.
+		// Use draw.PosRight to display the label string at the far
+		// right of an X-axis.
+		// Use draw.PosTop to display the label string at the top
+		// of an Y-axis.
+		Position float64
 	}
 
 	// LineStyle is the style of the axis line.

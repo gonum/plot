@@ -72,14 +72,12 @@ const (
 )
 
 // Position specifies the text position.
-type Position float64
-
 const (
-	PosLeft   Position = -1
-	PosBottom Position = -1
-	PosCenter Position = 0
-	PosRight  Position = +1
-	PosTop    Position = +1
+	PosLeft   = -1
+	PosBottom = -1
+	PosCenter = 0
+	PosTop    = +1
+	PosRight  = +1
 )
 
 // LineStyle describes what a line will look like.
