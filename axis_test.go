@@ -5,9 +5,13 @@
 package plot
 
 import (
+	"fmt"
 	"math"
 	"reflect"
 	"testing"
+
+	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/vg"
 )
 
 var axisSmallTickTests = []struct {
@@ -145,5 +149,30 @@ func TestInvertedScale_Normalize(t *testing.T) {
 	}
 	if got := inverter.Normalize(0, 1, 0); got != 1.0 {
 		t.Errorf("Expected a normalization inversion %f->%f not %f", 0.0, 1.0, got)
+	}
+}
+
+func TestAxisPadding(t *testing.T) {
+	for _, padding := range []int{0, 5, 10} {
+		t.Run(fmt.Sprintf("padding-%d", padding), func(t *testing.T) {
+			cmpimg.CheckPlot(func() {
+				p, err := New()
+				if err != nil {
+					t.Fatalf("error: %+v", err)
+				}
+
+				p.Title.Text = fmt.Sprintf("padding=%d", padding)
+				p.X.Label.Text = "X-Axis"
+				p.X.Label.Padding = vg.Points(float64(padding))
+				p.Y.Label.Text = "Y-Axis"
+				p.Y.Label.Padding = vg.Points(float64(padding))
+
+				const size = 5 * vg.Centimeter
+				err = p.Save(size, size, fmt.Sprintf("testdata/axis_padding_%02d.png", padding))
+				if err != nil {
+					t.Fatalf("error: %+v", err)
+				}
+			}, t, fmt.Sprintf("axis_padding_%02d.png", padding))
+		})
 	}
 }
