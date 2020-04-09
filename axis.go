@@ -51,10 +51,8 @@ type Axis struct {
 		// Position is where the axis label string should be drawn.
 		// The default value is draw.PosCenter, displaying the label
 		// at the center of the axis.
-		// Use draw.PosRight to display the label string at the far
-		// right of an X-axis.
-		// Use draw.PosTop to display the label string at the top
-		// of an Y-axis.
+		// Valid values are [-1,+1], with +1 being the far right/top
+		// of the axis, and -1 the far left/bottom of the axis.
 		Position float64
 	}
 
