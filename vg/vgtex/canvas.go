@@ -211,6 +211,7 @@ func (c *Canvas) wstyle() {
 
 func (c *Canvas) wdash() {
 	if len(c.context().dashArray) == 0 {
+		c.wtex(`\pgfsetdash{}{0pt}`)
 		return
 	}
 	str := `\pgfsetdash{`
