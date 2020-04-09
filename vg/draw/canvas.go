@@ -71,6 +71,15 @@ const (
 	YBottom YAlignment = 0
 )
 
+// Position specifies the text position.
+const (
+	PosLeft   = -1
+	PosBottom = -1
+	PosCenter = 0
+	PosTop    = +1
+	PosRight  = +1
+)
+
 // LineStyle describes what a line will look like.
 type LineStyle struct {
 	// Color is the color of the line.
