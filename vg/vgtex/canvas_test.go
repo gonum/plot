@@ -42,7 +42,7 @@ func TestLineLatex(t *testing.T) {
 			})
 			f2.LineStyle.Color = color.RGBA{R: 255, A: 255}
 			f2.LineStyle.Width = 2
-			f2.LineStyle.Dashes = []vg.Length{2, 1, 3}
+			f2.LineStyle.Dashes = []vg.Length{4, 2}
 
 			f3 := plotter.NewFunction(func(float64) float64 {
 				return +7
