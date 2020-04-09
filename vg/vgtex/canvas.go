@@ -147,18 +147,20 @@ func (c *Canvas) Stroke(p vg.Path) {
 	if c.context().linew <= 0 {
 		return
 	}
+	c.Push()
 	c.wstyle()
 	c.wpath(p)
 	c.wtex(`\pgfusepath{stroke}`)
-	c.wtex("")
+	c.Pop()
 }
 
 // Fill implements the vg.Canvas.Fill method.
 func (c *Canvas) Fill(p vg.Path) {
+	c.Push()
 	c.wstyle()
 	c.wpath(p)
 	c.wtex(`\pgfusepath{fill, stroke}`)
-	c.wtex("")
+	c.Pop()
 }
 
 // FillString implements the vg.Canvas.FillString method.
