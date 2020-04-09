@@ -39,12 +39,7 @@ type Axis struct {
 		// Text is the axis label string.
 		Text string
 
-		// Padding is the amount of padding
-		// between the top of the label and
-		// the bottom of the X-axis.
-		// Padding is the amount of padding
-		// between the right of the label and
-		// the left of the Y-axis.
+		// Padding is the distance between the label and the axis.
 		Padding vg.Length
 
 		// TextStyle is the style of the axis label text.
