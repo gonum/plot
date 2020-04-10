@@ -40,6 +40,11 @@ type Legend struct {
 	// final position.
 	XOffs, YOffs vg.Length
 
+	// YPosition specify the vertical position of a legend entry.
+	// Valid values are [-1,+1], with +1 being the top of the
+	// entry vertical space, and -1 the bottom.
+	YPosition float64
+
 	// ThumbnailWidth is the width of legend thumbnails.
 	ThumbnailWidth vg.Length
 
@@ -77,6 +82,7 @@ func NewLegend() (Legend, error) {
 		return Legend{}, err
 	}
 	return Legend{
+		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
 		TextStyle:      draw.TextStyle{Font: font},
 	}, nil
@@ -114,6 +120,17 @@ func (l *Legend) Draw(c draw.Canvas) {
 			t.Thumbnail(icon)
 		}
 		yoffs := (enth - sty.Rectangle(e.text).Max.Y) / 2
+		switch l.YPosition {
+		case draw.PosBottom:
+			// no-op
+		case draw.PosCenter:
+			delta := -sty.Font.Extents().Descent / 2
+			yoffs += delta
+		case draw.PosTop:
+			// FIXME(sbinet): does this make sense?
+			// delta := sty.Font.Extents().Ascent
+			// yoffs += delta
+		}
 		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
 		icon.Min.Y -= enth + l.Padding
 		icon.Max.Y -= enth + l.Padding
