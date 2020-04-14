@@ -56,6 +56,7 @@ func ExampleLegend_standalone() {
 	l.Add("green", green)
 	l.Add("blue", blue)
 	l.Padding = vg.Millimeter
+	l.YPosition = draw.PosCenter
 
 	// purpleRectangle draws a purple rectangle around the given Legend.
 	purpleRectangle := func(l plot.Legend) {

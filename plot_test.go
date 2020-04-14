@@ -86,7 +86,7 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			Point:  vg.Point{X: 70.09452736318407, Y: 30.18905472636816},
+			Point:  vg.Point{X: 70.09452736318407, Y: 31.733830845771145},
 			String: "A",
 		},
 		&recorder.SetColor{
@@ -121,7 +121,7 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			Point:  vg.Point{X: 70.65671641791045, Y: 20.18905472636816},
+			Point:  vg.Point{X: 70.65671641791045, Y: 21.733830845771145},
 			String: "B",
 		},
 		&recorder.SetColor{
@@ -158,7 +158,7 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			Point:  vg.Point{X: 70.65671641791045, Y: 10.189054726368159},
+			Point:  vg.Point{X: 70.65671641791045, Y: 11.733830845771145},
 			String: "C",
 		},
 		&recorder.SetColor{
@@ -193,7 +193,7 @@ func TestLegendAlignment(t *testing.T) {
 		&recorder.FillString{
 			Font:   string("Times-Roman"),
 			Size:   fontSize,
-			Point:  vg.Point{X: 70.09452736318407, Y: 0.189054726368159},
+			Point:  vg.Point{X: 70.09452736318407, Y: 1.7338308457711449},
 			String: "D",
 		},
 	}
