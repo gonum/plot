@@ -116,7 +116,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 		},
 	}
 
-	if l.YPosition < -1 || 1 < l.YPosition {
+	if l.YPosition < draw.PosBottom || draw.PosTop < l.YPosition {
 		panic("plot: invalid vertical offset for the legend's entries")
 	}
 	yoff := vg.Length(l.YPosition-draw.PosBottom) / 2
