@@ -159,15 +159,17 @@ func (c *Canvas) Fill(p vg.Path) {
 	c.Push()
 	c.wstyle()
 	c.wpath(p)
-	c.wtex(`\pgfusepath{fill, stroke}`)
+	c.wtex(`\pgfusepath{fill}`)
 	c.Pop()
 }
 
 // FillString implements the vg.Canvas.FillString method.
 func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
+	c.Push()
 	c.wcolor()
 	pt.X += 0.5 * f.Width(text)
 	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{{\fontsize{%gpt}{%gpt}\selectfont %s}}`, pt.X, pt.Y, f.Size, f.Size, text)
+	c.Pop()
 }
 
 // DrawImage implements the vg.Canvas.DrawImage method.

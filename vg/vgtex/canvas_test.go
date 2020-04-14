@@ -64,3 +64,36 @@ func TestLineLatex(t *testing.T) {
 	cmpimg.CheckPlot(test("testdata/linestyle.tex"), t, "linestyle.tex")
 	cmpimg.CheckPlot(test("testdata/linestyle.png"), t, "linestyle.png")
 }
+
+func TestFillStyle(t *testing.T) {
+	cmpimg.CheckPlot(func() {
+		p, err := plot.New()
+		if err != nil {
+			t.Fatalf("error: %+v", err)
+		}
+		p.Title.Text = "Fill style"
+		p.Legend.Top = true
+		p.Legend.Left = true
+
+		const n = 10
+		xys := make(plotter.XYs, n)
+		for i := range xys {
+			xys[i].X = float64(i)
+			xys[i].Y = float64(i)
+		}
+		h, err := plotter.NewHistogram(xys, n)
+		if err != nil {
+			t.Fatalf("could not create histogram: %+v", err)
+		}
+		h.FillColor = color.NRGBA{R: 255, A: 100}
+		h.LineStyle.Color = color.Transparent
+		p.Add(h)
+		p.Legend.Add("h", h)
+
+		const size = 5 * vg.Centimeter
+		err = p.Save(size, size, "testdata/fillstyle.tex")
+		if err != nil {
+			t.Fatalf("error: %+v", err)
+		}
+	}, t, "fillstyle.tex")
+}
