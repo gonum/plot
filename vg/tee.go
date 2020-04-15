@@ -24,8 +24,6 @@ type teeCanvas struct {
 // SetLineWidth sets the width of stroked paths.
 // If the width is not positive then stroked lines
 // are not drawn.
-//
-// The initial line width is 1 point.
 func (tee teeCanvas) SetLineWidth(w Length) {
 	for _, c := range tee.cs {
 		c.SetLineWidth(w)
@@ -37,8 +35,6 @@ func (tee teeCanvas) SetLineWidth(w Length) {
 // alternating dashes and gaps, and the offset
 // specifies the distance into the dash pattern
 // to start the dash.
-//
-// The initial dash pattern is a solid line.
 func (tee teeCanvas) SetLineDash(pattern []Length, offset Length) {
 	for _, c := range tee.cs {
 		c.SetLineDash(pattern, offset)
@@ -50,34 +46,28 @@ func (tee teeCanvas) SetLineDash(pattern []Length, offset Length) {
 // the same, so if you want different fill
 // and stroke colors then you must set a color,
 // draw fills, set a new color and then draw lines.
-//
-// The initial color is black.  If SetColor is
-// called with a nil color then black is used.
 func (tee teeCanvas) SetColor(c color.Color) {
 	for _, canvas := range tee.cs {
 		canvas.SetColor(c)
 	}
 }
 
-// Rotate applies a rotation transform to the
-// context.  The parameter is specified in
-// radians.
+// Rotate applies a rotation transform to the context.
+// The parameter is specified in radians.
 func (tee teeCanvas) Rotate(rad float64) {
 	for _, c := range tee.cs {
 		c.Rotate(rad)
 	}
 }
 
-// Translate applies a translational transform
-// to the context.
+// Translate applies a translational transform to the context.
 func (tee teeCanvas) Translate(pt Point) {
 	for _, c := range tee.cs {
 		c.Translate(pt)
 	}
 }
 
-// Scale applies a scaling transform to the
-// context.
+// Scale applies a scaling transform to the context.
 func (tee teeCanvas) Scale(x, y float64) {
 	for _, c := range tee.cs {
 		c.Scale(x, y)
@@ -134,6 +124,4 @@ func (tee teeCanvas) DrawImage(rect Rectangle, img image.Image) {
 	}
 }
 
-var (
-	_ Canvas = (*teeCanvas)(nil)
-)
+var _ Canvas = (*teeCanvas)(nil)
