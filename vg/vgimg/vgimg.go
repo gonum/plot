@@ -20,6 +20,7 @@ import (
 	"golang.org/x/image/tiff"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/vgop"
 )
 
 // Canvas implements the vg.Canvas interface,
@@ -393,4 +394,36 @@ func (c TiffCanvas) WriteTo(w io.Writer) (int64, error) {
 	}
 	err := b.Flush()
 	return wc.n, err
+}
+
+func (c *Canvas) Write(ops []vgop.Op) {
+	for _, op := range ops {
+		switch op := op.(type) {
+		case vgop.LineWidth:
+			c.SetLineWidth(op.Width)
+		case vgop.LineDash:
+			c.SetLineDash(op.Pattern, op.Offset)
+		case vgop.Color:
+			c.SetColor(op.Color)
+		case vgop.Rotate:
+			c.Rotate(op.Radians)
+		case vgop.Translate:
+			c.Translate(op.Point)
+		case vgop.Scale:
+			c.Scale(op.X, op.Y)
+		case vgop.Push:
+			c.Push()
+		case vgop.Pop:
+			c.Pop()
+		case vgop.Stroke:
+			c.Stroke(op.Path)
+		case vgop.Fill:
+			c.Fill(op.Path)
+		case vgop.FillString:
+			c.FillString(op.Font, op.Point, op.Text)
+		case vgop.DrawImage:
+			c.DrawImage(op.Rect, op.Image)
+		}
+	}
+
 }
