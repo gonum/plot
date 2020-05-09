@@ -6,6 +6,7 @@ package draw // import "gonum.org/v1/plot/vg/draw"
 
 import (
 	"fmt"
+	"image"
 	"image/color"
 	"math"
 	"strings"
@@ -13,6 +14,7 @@ import (
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/vgeps"
 	"gonum.org/v1/plot/vg/vgimg"
+	"gonum.org/v1/plot/vg/vgop"
 	"gonum.org/v1/plot/vg/vgpdf"
 	"gonum.org/v1/plot/vg/vgsvg"
 	"gonum.org/v1/plot/vg/vgtex"
@@ -22,8 +24,155 @@ import (
 // an associated Rectangle defining a section of the canvas
 // to which drawing should take place.
 type Canvas struct {
-	vg.Canvas
+	Canvas vg.Canvas
 	vg.Rectangle
+
+	ops []vgop.Op
+}
+
+type vgopwriter interface {
+	Write(ops []vgop.Op)
+}
+
+func (c *Canvas) Write(ops []vgop.Op) {
+	c.ops = append(c.ops, ops...)
+}
+
+func (c *Canvas) Draw() {
+	switch cnv := c.Canvas.(type) {
+	case vgopwriter:
+		//log.Printf("using vgop writer")
+		cnv.Write(c.ops)
+	default:
+		//log.Printf("using vg.canvas")
+		for _, op := range c.ops {
+			switch op := op.(type) {
+			case vgop.LineWidth:
+				c.Canvas.SetLineWidth(op.Width)
+			case vgop.LineDash:
+				c.Canvas.SetLineDash(op.Pattern, op.Offset)
+			case vgop.Color:
+				c.Canvas.SetColor(op.Color)
+			case vgop.Rotate:
+				c.Canvas.Rotate(op.Radians)
+			case vgop.Translate:
+				c.Canvas.Translate(op.Point)
+			case vgop.Scale:
+				c.Canvas.Scale(op.X, op.Y)
+			case vgop.Push:
+				c.Canvas.Push()
+			case vgop.Pop:
+				c.Canvas.Pop()
+			case vgop.Stroke:
+				c.Canvas.Stroke(op.Path)
+			case vgop.Fill:
+				c.Canvas.Fill(op.Path)
+			case vgop.FillString:
+				c.Canvas.FillString(op.Font, op.Point, op.Text)
+			case vgop.DrawImage:
+				c.Canvas.DrawImage(op.Rect, op.Image)
+			}
+		}
+	}
+}
+
+// SetLineWidth sets the width of stroked paths.
+// If the width is not positive then stroked lines
+// are not drawn.
+//
+// The initial line width is 1 point.
+func (c *Canvas) SetLineWidth(w vg.Length) {
+	c.ops = append(c.ops, vgop.LineWidth{Width: w})
+}
+
+// SetLineDash sets the dash pattern for lines.
+// The pattern slice specifies the lengths of
+// alternating dashes and gaps, and the offset
+// specifies the distance into the dash pattern
+// to start the dash.
+//
+// The initial dash pattern is a solid line.
+func (c *Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
+	c.ops = append(c.ops, vgop.LineDash{
+		Pattern: pattern,
+		Offset:  offset,
+	})
+}
+
+// SetColor sets the current drawing color.
+// Note that fill color and stroke color are
+// the same, so if you want different fill
+// and stroke colors then you must set a color,
+// draw fills, set a new color and then draw lines.
+//
+// The initial color is black.  If SetColor is
+// called with a nil color then black is used.
+func (c *Canvas) SetColor(col color.Color) {
+	c.ops = append(c.ops, vgop.Color{Color: col})
+}
+
+// Rotate applies a rotation transform to the
+// context.  The parameter is specified in
+// radians.
+func (c *Canvas) Rotate(rad float64) {
+	c.ops = append(c.ops, vgop.Rotate{Radians: rad})
+}
+
+// Translate applies a translational transform
+// to the context.
+func (c *Canvas) Translate(pt vg.Point) {
+	c.ops = append(c.ops, vgop.Translate{Point: pt})
+}
+
+// Scale applies a scaling transform to the
+// context.
+func (c *Canvas) Scale(x, y float64) {
+	c.ops = append(c.ops, vgop.Scale{X: x, Y: y})
+}
+
+// Push saves the current line width, the
+// current dash pattern, the current
+// transforms, and the current color
+// onto a stack so that the state can later
+// be restored by calling Pop().
+func (c *Canvas) Push() {
+	c.ops = append(c.ops, vgop.Push{})
+}
+
+// Pop restores the context saved by the
+// corresponding call to Push().
+func (c *Canvas) Pop() {
+	c.ops = append(c.ops, vgop.Pop{})
+}
+
+// Stroke strokes the given path.
+func (c *Canvas) Stroke(p vg.Path) {
+	c.ops = append(c.ops, vgop.Stroke{Path: p})
+}
+
+// Fill fills the given path.
+func (c *Canvas) Fill(p vg.Path) {
+	c.ops = append(c.ops, vgop.Fill{Path: p})
+}
+
+// FillString fills in text at the specified
+// location using the given font.
+// If the font size is zero, the text is not drawn.
+func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
+	c.ops = append(c.ops, vgop.FillString{
+		Font:  f,
+		Point: pt,
+		Text:  text,
+	})
+}
+
+// DrawImage draws the image, scaled to fit
+// the destination rectangle.
+func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	c.ops = append(c.ops, vgop.DrawImage{
+		Rect:  rect,
+		Image: img,
+	})
 }
 
 // TextStyle describes what text will look like.
