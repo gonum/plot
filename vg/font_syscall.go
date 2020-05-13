@@ -24,7 +24,7 @@ func initFontDirs() []string {
 	dirs := filepath.SplitList(os.Getenv("VGFONTPATH"))
 
 	cfg := &packages.Config{
-		Mode: packages.NeedName | packages.NeedFiles,
+		Mode: packages.NeedFiles,
 	}
 	pkgs, err := packages.Load(cfg, fonts)
 	if err == nil {
