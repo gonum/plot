@@ -7,31 +7,29 @@
 package vg
 
 import (
-	"go/build"
 	"os"
+	"path"
 	"path/filepath"
-)
 
-const (
-	// importString is the import string expected for
-	// this package.  It is used to find the font
-	// directory included with the package source.
-	importString = "gonum.org/v1/plot/vg"
+	"golang.org/x/tools/go/packages"
 )
 
 func init() {
 	FontDirs = initFontDirs()
 }
 
-// InitFontDirs returns the initial value for the FontDirectories variable.
+// initFontDirs returns the initial value for the FontDirs variable.
 func initFontDirs() []string {
+	const fonts = "gonum.org/v1/plot/vg/fonts"
+
 	dirs := filepath.SplitList(os.Getenv("VGFONTPATH"))
 
-	if pkg, err := build.Import(importString, "", build.FindOnly); err == nil {
-		p := filepath.Join(pkg.Dir, "fonts")
-		if _, err := os.Stat(p); err == nil {
-			dirs = append(dirs, p)
-		}
+	cfg := &packages.Config{
+		Mode: packages.NeedName | packages.NeedFiles,
+	}
+	pkgs, err := packages.Load(cfg, fonts)
+	if err == nil {
+		dirs = append(dirs, path.Dir(pkgs[0].GoFiles[0]))
 	}
 
 	if len(dirs) == 0 {
