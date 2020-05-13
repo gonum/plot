@@ -8,7 +8,6 @@ package vg
 
 import (
 	"os"
-	"path"
 	"path/filepath"
 
 	"golang.org/x/tools/go/packages"
@@ -29,7 +28,7 @@ func initFontDirs() []string {
 	}
 	pkgs, err := packages.Load(cfg, fonts)
 	if err == nil {
-		dirs = append(dirs, path.Dir(pkgs[0].GoFiles[0]))
+		dirs = append(dirs, filepath.Dir(pkgs[0].GoFiles[0]))
 	}
 
 	if len(dirs) == 0 {
