@@ -406,3 +406,34 @@ func (c *Canvas) NextPage() {
 	c.Translate(vg.Point{0, c.h})
 	c.Scale(1, -1)
 }
+
+func (c *Canvas) Write(ops []vg.Op) {
+	for _, op := range ops {
+		switch op := op.(type) {
+		case vg.LineWidth:
+			c.SetLineWidth(op.Width)
+		case vg.LineDash:
+			c.SetLineDash(op.Pattern, op.Offset)
+		case vg.Color:
+			c.SetColor(op.Color)
+		case vg.Rotate:
+			c.Rotate(op.Radians)
+		case vg.Translate:
+			c.Translate(op.Point)
+		case vg.Scale:
+			c.Scale(op.X, op.Y)
+		case vg.Push:
+			c.Push()
+		case vg.Pop:
+			c.Pop()
+		case vg.Stroke:
+			c.Stroke(op.Path)
+		case vg.Fill:
+			c.Fill(op.Path)
+		case vg.FillString:
+			c.FillString(op.Font, op.Point, op.Text)
+		case vg.DrawImage:
+			c.DrawImage(op.Rect, op.Image)
+		}
+	}
+}

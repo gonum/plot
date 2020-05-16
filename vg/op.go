@@ -2,13 +2,11 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package vgop // import "gonum.org/v1/plot/vg/vgop"
+package vg
 
 import (
 	"image"
 	"image/color"
-
-	"gonum.org/v1/plot/vg"
 )
 
 type Op interface {
@@ -16,12 +14,12 @@ type Op interface {
 }
 
 type LineWidth struct {
-	Width vg.Length
+	Width Length
 }
 
 type LineDash struct {
-	Pattern []vg.Length
-	Offset  vg.Length
+	Pattern []Length
+	Offset  Length
 }
 
 type Color struct {
@@ -33,7 +31,7 @@ type Rotate struct {
 }
 
 type Translate struct {
-	Point vg.Point
+	Point Point
 }
 
 type Scale struct {
@@ -44,21 +42,21 @@ type Push struct{}
 type Pop struct{}
 
 type Stroke struct {
-	Path vg.Path
+	Path Path
 }
 
 type Fill struct {
-	Path vg.Path
+	Path Path
 }
 
 type FillString struct {
-	Font  vg.Font
-	Point vg.Point
+	Font  Font
+	Point Point
 	Text  string
 }
 
 type DrawImage struct {
-	Rect  vg.Rectangle
+	Rect  Rectangle
 	Image image.Image
 }
 

@@ -14,7 +14,6 @@ import (
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/vgeps"
 	"gonum.org/v1/plot/vg/vgimg"
-	"gonum.org/v1/plot/vg/vgop"
 	"gonum.org/v1/plot/vg/vgpdf"
 	"gonum.org/v1/plot/vg/vgsvg"
 	"gonum.org/v1/plot/vg/vgtex"
@@ -24,56 +23,12 @@ import (
 // an associated Rectangle defining a section of the canvas
 // to which drawing should take place.
 type Canvas struct {
-	Canvas vg.Canvas
+	Canvas vg.Writer
 	vg.Rectangle
-
-	ops []vgop.Op
 }
 
-type vgopwriter interface {
-	Write(ops []vgop.Op)
-}
-
-func (c *Canvas) Write(ops []vgop.Op) {
-	c.ops = append(c.ops, ops...)
-}
-
-func (c *Canvas) Draw() {
-	switch cnv := c.Canvas.(type) {
-	case vgopwriter:
-		//log.Printf("using vgop writer")
-		cnv.Write(c.ops)
-	default:
-		//log.Printf("using vg.canvas")
-		for _, op := range c.ops {
-			switch op := op.(type) {
-			case vgop.LineWidth:
-				c.Canvas.SetLineWidth(op.Width)
-			case vgop.LineDash:
-				c.Canvas.SetLineDash(op.Pattern, op.Offset)
-			case vgop.Color:
-				c.Canvas.SetColor(op.Color)
-			case vgop.Rotate:
-				c.Canvas.Rotate(op.Radians)
-			case vgop.Translate:
-				c.Canvas.Translate(op.Point)
-			case vgop.Scale:
-				c.Canvas.Scale(op.X, op.Y)
-			case vgop.Push:
-				c.Canvas.Push()
-			case vgop.Pop:
-				c.Canvas.Pop()
-			case vgop.Stroke:
-				c.Canvas.Stroke(op.Path)
-			case vgop.Fill:
-				c.Canvas.Fill(op.Path)
-			case vgop.FillString:
-				c.Canvas.FillString(op.Font, op.Point, op.Text)
-			case vgop.DrawImage:
-				c.Canvas.DrawImage(op.Rect, op.Image)
-			}
-		}
-	}
+func (c Canvas) Write(ops []vg.Op) {
+	c.Canvas.Write(ops)
 }
 
 // SetLineWidth sets the width of stroked paths.
@@ -81,8 +36,8 @@ func (c *Canvas) Draw() {
 // are not drawn.
 //
 // The initial line width is 1 point.
-func (c *Canvas) SetLineWidth(w vg.Length) {
-	c.ops = append(c.ops, vgop.LineWidth{Width: w})
+func (c Canvas) SetLineWidth(w vg.Length) {
+	c.Canvas.Write([]vg.Op{vg.LineWidth{Width: w}})
 }
 
 // SetLineDash sets the dash pattern for lines.
@@ -92,11 +47,11 @@ func (c *Canvas) SetLineWidth(w vg.Length) {
 // to start the dash.
 //
 // The initial dash pattern is a solid line.
-func (c *Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
-	c.ops = append(c.ops, vgop.LineDash{
+func (c Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
+	c.Canvas.Write([]vg.Op{vg.LineDash{
 		Pattern: pattern,
 		Offset:  offset,
-	})
+	}})
 }
 
 // SetColor sets the current drawing color.
@@ -107,27 +62,27 @@ func (c *Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
 //
 // The initial color is black.  If SetColor is
 // called with a nil color then black is used.
-func (c *Canvas) SetColor(col color.Color) {
-	c.ops = append(c.ops, vgop.Color{Color: col})
+func (c Canvas) SetColor(col color.Color) {
+	c.Canvas.Write([]vg.Op{vg.Color{Color: col}})
 }
 
 // Rotate applies a rotation transform to the
 // context.  The parameter is specified in
 // radians.
-func (c *Canvas) Rotate(rad float64) {
-	c.ops = append(c.ops, vgop.Rotate{Radians: rad})
+func (c Canvas) Rotate(rad float64) {
+	c.Canvas.Write([]vg.Op{vg.Rotate{Radians: rad}})
 }
 
 // Translate applies a translational transform
 // to the context.
-func (c *Canvas) Translate(pt vg.Point) {
-	c.ops = append(c.ops, vgop.Translate{Point: pt})
+func (c Canvas) Translate(pt vg.Point) {
+	c.Canvas.Write([]vg.Op{vg.Translate{Point: pt}})
 }
 
 // Scale applies a scaling transform to the
 // context.
-func (c *Canvas) Scale(x, y float64) {
-	c.ops = append(c.ops, vgop.Scale{X: x, Y: y})
+func (c Canvas) Scale(x, y float64) {
+	c.Canvas.Write([]vg.Op{vg.Scale{X: x, Y: y}})
 }
 
 // Push saves the current line width, the
@@ -135,45 +90,50 @@ func (c *Canvas) Scale(x, y float64) {
 // transforms, and the current color
 // onto a stack so that the state can later
 // be restored by calling Pop().
-func (c *Canvas) Push() {
-	c.ops = append(c.ops, vgop.Push{})
+func (c Canvas) Push() {
+	c.Canvas.Write([]vg.Op{vg.Push{}})
 }
 
 // Pop restores the context saved by the
 // corresponding call to Push().
-func (c *Canvas) Pop() {
-	c.ops = append(c.ops, vgop.Pop{})
+func (c Canvas) Pop() {
+	c.Canvas.Write([]vg.Op{vg.Pop{}})
 }
 
 // Stroke strokes the given path.
-func (c *Canvas) Stroke(p vg.Path) {
-	c.ops = append(c.ops, vgop.Stroke{Path: p})
+func (c Canvas) Stroke(p vg.Path) {
+	c.Canvas.Write([]vg.Op{vg.Stroke{Path: p}})
 }
 
 // Fill fills the given path.
-func (c *Canvas) Fill(p vg.Path) {
-	c.ops = append(c.ops, vgop.Fill{Path: p})
+func (c Canvas) Fill(p vg.Path) {
+	c.Canvas.Write([]vg.Op{vg.Fill{Path: p}})
 }
 
 // FillString fills in text at the specified
 // location using the given font.
 // If the font size is zero, the text is not drawn.
-func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
-	c.ops = append(c.ops, vgop.FillString{
+func (c Canvas) FillString(f vg.Font, pt vg.Point, text string) {
+	c.Canvas.Write([]vg.Op{vg.FillString{
 		Font:  f,
 		Point: pt,
 		Text:  text,
-	})
+	}})
 }
 
 // DrawImage draws the image, scaled to fit
 // the destination rectangle.
-func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
-	c.ops = append(c.ops, vgop.DrawImage{
+func (c Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	c.Canvas.Write([]vg.Op{vg.DrawImage{
 		Rect:  rect,
 		Image: img,
-	})
+	}})
 }
+
+var (
+	_ vg.Canvas = (*Canvas)(nil)
+	_ vg.Writer = (*Canvas)(nil)
+)
 
 // TextStyle describes what text will look like.
 type TextStyle struct {
@@ -460,6 +420,10 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
 func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
+	return NewCanvasWriter(vg.WriterFrom(c), w, h)
+}
+
+func NewCanvasWriter(c vg.Writer, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
 		Rectangle: vg.Rectangle{
@@ -558,7 +522,7 @@ func (ts Tiles) At(c Canvas, x, y int) Canvas {
 	xmax := xmin + tileW
 
 	return Canvas{
-		Canvas: vg.Canvas(c),
+		Canvas: c,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{X: xmin, Y: ymin},
 			Max: vg.Point{X: xmax, Y: ymax},

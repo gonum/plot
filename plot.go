@@ -169,7 +169,6 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 
 	p.Legend.Draw(draw.Crop(c, ywidth, 0, xheight, 0))
-	c.Draw()
 }
 
 // DataCanvas returns a new draw.Canvas that
@@ -214,7 +213,7 @@ func padX(p *Plot, c draw.Canvas) draw.Canvas {
 	n := (lx*maxx - rx*minx) / (lx - rx)
 	m := ((lx-1)*maxx - rx*minx + minx) / (lx - rx)
 	return draw.Canvas{
-		Canvas: vg.Canvas(c),
+		Canvas: c,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{X: n, Y: c.Min.Y},
 			Max: vg.Point{X: m, Y: c.Max.Y},
@@ -270,7 +269,7 @@ func padY(p *Plot, c draw.Canvas) draw.Canvas {
 	n := (by*maxy - ty*miny) / (by - ty)
 	m := ((by-1)*maxy - ty*miny + miny) / (by - ty)
 	return draw.Canvas{
-		Canvas: vg.Canvas(c),
+		Canvas: c,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{Y: n, X: c.Min.X},
 			Max: vg.Point{Y: m, X: c.Max.X},
@@ -446,7 +445,11 @@ func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.Draw(draw.New(c))
+
+	wc := draw.NewWriter(vg.WriterFrom(c))
+	defer wc.Flush()
+
+	p.Draw(draw.NewCanvasWriter(wc, w, h))
 	return c, nil
 }
 
