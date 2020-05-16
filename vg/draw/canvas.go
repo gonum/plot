@@ -37,7 +37,7 @@ func (c Canvas) Write(ops []vg.Op) {
 //
 // The initial line width is 1 point.
 func (c Canvas) SetLineWidth(w vg.Length) {
-	c.Canvas.Write([]vg.Op{vg.LineWidth{Width: w}})
+	c.writeOp(vg.LineWidth{Width: w})
 }
 
 // SetLineDash sets the dash pattern for lines.
@@ -48,10 +48,10 @@ func (c Canvas) SetLineWidth(w vg.Length) {
 //
 // The initial dash pattern is a solid line.
 func (c Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
-	c.Canvas.Write([]vg.Op{vg.LineDash{
+	c.writeOp(vg.LineDash{
 		Pattern: pattern,
 		Offset:  offset,
-	}})
+	})
 }
 
 // SetColor sets the current drawing color.
@@ -63,26 +63,26 @@ func (c Canvas) SetLineDash(pattern []vg.Length, offset vg.Length) {
 // The initial color is black.  If SetColor is
 // called with a nil color then black is used.
 func (c Canvas) SetColor(col color.Color) {
-	c.Canvas.Write([]vg.Op{vg.Color{Color: col}})
+	c.writeOp(vg.Color{Color: col})
 }
 
 // Rotate applies a rotation transform to the
 // context.  The parameter is specified in
 // radians.
 func (c Canvas) Rotate(rad float64) {
-	c.Canvas.Write([]vg.Op{vg.Rotate{Radians: rad}})
+	c.writeOp(vg.Rotate{Radians: rad})
 }
 
 // Translate applies a translational transform
 // to the context.
 func (c Canvas) Translate(pt vg.Point) {
-	c.Canvas.Write([]vg.Op{vg.Translate{Point: pt}})
+	c.writeOp(vg.Translate{Point: pt})
 }
 
 // Scale applies a scaling transform to the
 // context.
 func (c Canvas) Scale(x, y float64) {
-	c.Canvas.Write([]vg.Op{vg.Scale{X: x, Y: y}})
+	c.writeOp(vg.Scale{X: x, Y: y})
 }
 
 // Push saves the current line width, the
@@ -91,43 +91,47 @@ func (c Canvas) Scale(x, y float64) {
 // onto a stack so that the state can later
 // be restored by calling Pop().
 func (c Canvas) Push() {
-	c.Canvas.Write([]vg.Op{vg.Push{}})
+	c.writeOp(vg.Push{})
 }
 
 // Pop restores the context saved by the
 // corresponding call to Push().
 func (c Canvas) Pop() {
-	c.Canvas.Write([]vg.Op{vg.Pop{}})
+	c.writeOp(vg.Pop{})
 }
 
 // Stroke strokes the given path.
 func (c Canvas) Stroke(p vg.Path) {
-	c.Canvas.Write([]vg.Op{vg.Stroke{Path: p}})
+	c.writeOp(vg.Stroke{Path: p})
 }
 
 // Fill fills the given path.
 func (c Canvas) Fill(p vg.Path) {
-	c.Canvas.Write([]vg.Op{vg.Fill{Path: p}})
+	c.writeOp(vg.Fill{Path: p})
 }
 
 // FillString fills in text at the specified
 // location using the given font.
 // If the font size is zero, the text is not drawn.
 func (c Canvas) FillString(f vg.Font, pt vg.Point, text string) {
-	c.Canvas.Write([]vg.Op{vg.FillString{
+	c.writeOp(vg.FillString{
 		Font:  f,
 		Point: pt,
 		Text:  text,
-	}})
+	})
 }
 
 // DrawImage draws the image, scaled to fit
 // the destination rectangle.
 func (c Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
-	c.Canvas.Write([]vg.Op{vg.DrawImage{
+	c.writeOp(vg.DrawImage{
 		Rect:  rect,
 		Image: img,
-	}})
+	})
+}
+
+func (c Canvas) writeOp(op vg.Op) {
+	c.Canvas.Write([]vg.Op{op})
 }
 
 var (
@@ -377,7 +381,7 @@ func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 }
 
 // New returns a new (bounded) draw.Canvas.
-func New(c vg.CanvasSizer) Canvas {
+func New(c vg.WriteSizer) Canvas {
 	w, h := c.Size()
 	return NewCanvas(c, w, h)
 }
@@ -419,11 +423,7 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
-func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
-	return NewCanvasWriter(vg.WriterFrom(c), w, h)
-}
-
-func NewCanvasWriter(c vg.Writer, w, h vg.Length) Canvas {
+func NewCanvas(c vg.Writer, w, h vg.Length) Canvas {
 	return Canvas{
 		Canvas: c,
 		Rectangle: vg.Rectangle{

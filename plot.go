@@ -446,10 +446,7 @@ func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 		return nil, err
 	}
 
-	wc := draw.NewWriter(vg.WriterFrom(c))
-	defer wc.Flush()
-
-	p.Draw(draw.NewCanvasWriter(wc, w, h))
+	p.Draw(draw.New(c))
 	return c, nil
 }
 

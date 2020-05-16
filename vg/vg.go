@@ -83,14 +83,14 @@ type Canvas interface {
 }
 
 // CanvasSizer is a Canvas with a defined size.
-type CanvasSizer interface {
-	Canvas
+type WriteSizer interface {
+	Writer
 	Size() (x, y Length)
 }
 
 // CanvasWriterTo is a CanvasSizer with a WriteTo method.
 type CanvasWriterTo interface {
-	CanvasSizer
+	WriteSizer
 	io.WriterTo
 }
 
