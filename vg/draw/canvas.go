@@ -147,7 +147,7 @@ type CircleGlyph struct{}
 
 // DrawGlyph implements the GlyphDrawer interface.
 func (CircleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
-	var p vg.Path
+	p := make(vg.Path, 0, 3)
 	p.Move(vg.Point{X: pt.X + sty.Radius, Y: pt.Y})
 	p.Arc(pt, sty.Radius, 0, 2*math.Pi)
 	p.Close()
@@ -160,7 +160,7 @@ type RingGlyph struct{}
 // DrawGlyph implements the Glyph interface.
 func (RingGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
-	var p vg.Path
+	p := make(vg.Path, 0, 3)
 	p.Move(vg.Point{X: pt.X + sty.Radius, Y: pt.Y})
 	p.Arc(pt, sty.Radius, 0, 2*math.Pi)
 	p.Close()
@@ -180,7 +180,7 @@ type SquareGlyph struct{}
 func (SquareGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
-	var p vg.Path
+	p := make(vg.Path, 0, 5)
 	p.Move(vg.Point{X: pt.X - x, Y: pt.Y - x})
 	p.Line(vg.Point{X: pt.X + x, Y: pt.Y - x})
 	p.Line(vg.Point{X: pt.X + x, Y: pt.Y + x})
@@ -195,7 +195,7 @@ type BoxGlyph struct{}
 // DrawGlyph implements the Glyph interface.
 func (BoxGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	x := (sty.Radius-sty.Radius*cosπover4)/2 + sty.Radius*cosπover4
-	var p vg.Path
+	p := make(vg.Path, 0, 5)
 	p.Move(vg.Point{X: pt.X - x, Y: pt.Y - x})
 	p.Line(vg.Point{X: pt.X + x, Y: pt.Y - x})
 	p.Line(vg.Point{X: pt.X + x, Y: pt.Y + x})
@@ -211,7 +211,7 @@ type TriangleGlyph struct{}
 func (TriangleGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
-	var p vg.Path
+	p := make(vg.Path, 0, 4)
 	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
 	p.Line(vg.Point{X: pt.X - r*cosπover6, Y: pt.Y - r*sinπover6})
 	p.Line(vg.Point{X: pt.X + r*cosπover6, Y: pt.Y - r*sinπover6})
@@ -225,7 +225,7 @@ type PyramidGlyph struct{}
 // DrawGlyph implements the Glyph interface.
 func (PyramidGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	r := sty.Radius + (sty.Radius-sty.Radius*sinπover6)/2
-	var p vg.Path
+	p := make(vg.Path, 0, 4)
 	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
 	p.Line(vg.Point{X: pt.X - r*cosπover6, Y: pt.Y - r*sinπover6})
 	p.Line(vg.Point{X: pt.X + r*cosπover6, Y: pt.Y - r*sinπover6})
@@ -240,11 +240,11 @@ type PlusGlyph struct{}
 func (PlusGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius
-	var p vg.Path
+	p := make(vg.Path, 0, 2)
 	p.Move(vg.Point{X: pt.X, Y: pt.Y + r})
 	p.Line(vg.Point{X: pt.X, Y: pt.Y - r})
 	c.Stroke(p)
-	p = vg.Path{}
+	p = p[:0]
 	p.Move(vg.Point{X: pt.X - r, Y: pt.Y})
 	p.Line(vg.Point{X: pt.X + r, Y: pt.Y})
 	c.Stroke(p)
@@ -257,11 +257,11 @@ type CrossGlyph struct{}
 func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 	c.SetLineStyle(LineStyle{Color: sty.Color, Width: vg.Points(0.5)})
 	r := sty.Radius * cosπover4
-	var p vg.Path
+	p := make(vg.Path, 0, 2)
 	p.Move(vg.Point{X: pt.X - r, Y: pt.Y - r})
 	p.Line(vg.Point{X: pt.X + r, Y: pt.Y + r})
 	c.Stroke(p)
-	p = vg.Path{}
+	p = p[:0]
 	p.Move(vg.Point{X: pt.X - r, Y: pt.Y + r})
 	p.Line(vg.Point{X: pt.X + r, Y: pt.Y - r})
 	c.Stroke(p)
@@ -441,7 +441,7 @@ func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]vg.Point) {
 		if len(l) == 0 {
 			continue
 		}
-		var p vg.Path
+		p := make(vg.Path, 0, len(l))
 		p.Move(l[0])
 		for _, pt := range l[1:] {
 			p.Line(pt)
@@ -467,11 +467,12 @@ func (c *Canvas) ClipLinesXY(lines ...[]vg.Point) [][]vg.Point {
 // represent the given line clipped in the
 // X direction.
 func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
-	var lines1 [][]vg.Point
+	var lines1 = make([][]vg.Point, 0, len(lines))
 	for _, line := range lines {
 		ls := clipLine(isLeft, vg.Point{X: c.Max.X, Y: c.Min.Y}, vg.Point{X: -1, Y: 0}, line)
 		lines1 = append(lines1, ls...)
 	}
+	clipped = make([][]vg.Point, 0, len(lines1))
 	for _, line := range lines1 {
 		ls := clipLine(isRight, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 1, Y: 0}, line)
 		clipped = append(clipped, ls...)
@@ -483,11 +484,12 @@ func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
 // represent the given line clipped in the
 // Y direction.
 func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
-	var lines1 [][]vg.Point
+	var lines1 = make([][]vg.Point, 0, len(lines))
 	for _, line := range lines {
 		ls := clipLine(isAbove, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 0, Y: -1}, line)
 		lines1 = append(lines1, ls...)
 	}
+	clipped = make([][]vg.Point, 0, len(lines1))
 	for _, line := range lines1 {
 		ls := clipLine(isBelow, vg.Point{X: c.Min.X, Y: c.Max.Y}, vg.Point{X: 0, Y: 1}, line)
 		clipped = append(clipped, ls...)
@@ -499,7 +501,7 @@ func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
 // clipping line specified by the norm, clip point,
 // and in function.
 func clipLine(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Point) (lines [][]vg.Point) {
-	var l []vg.Point
+	var l = make([]vg.Point, 0, len(pts))
 	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
@@ -535,7 +537,7 @@ func (c *Canvas) FillPolygon(clr color.Color, pts []vg.Point) {
 	}
 
 	c.SetColor(clr)
-	var p vg.Path
+	p := make(vg.Path, 0, len(pts)+1)
 	p.Move(pts[0])
 	for _, pt := range pts[1:] {
 		p.Line(pt)
@@ -571,6 +573,7 @@ func (c *Canvas) ClipPolygonY(pts []vg.Point) []vg.Point {
 // clipping line specified by the norm, clip point,
 // and in function.
 func clipPoly(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Point) (clipped []vg.Point) {
+	clipped = make([]vg.Point, 0, len(pts))
 	for i := 0; i < len(pts); i++ {
 		j := i + 1
 		if i == len(pts)-1 {
@@ -592,7 +595,8 @@ func clipPoly(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Po
 			clipped = append(clipped, isect(cur, next, clip, norm))
 		}
 	}
-	return
+	n := len(clipped)
+	return clipped[:n:n]
 }
 
 // slop is some slop for floating point equality

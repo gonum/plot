@@ -65,7 +65,7 @@ func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	if pts.Color != nil && len(ps) > 0 {
 		c.SetColor(pts.Color)
-		var pa vg.Path
+		pa := make(vg.Path, 0, 4*len(ps))
 		for _, ring := range ps {
 			if len(ring) == 0 {
 				continue
