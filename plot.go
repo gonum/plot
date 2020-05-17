@@ -22,7 +22,7 @@ var (
 	DefaultFont = "Times-Roman"
 
 	// DefaultTextHandler is the default text handler used for text processing.
-	DefaultTextHandler = text.Plain{}
+	DefaultTextHandler draw.TextHandler = text.Plain{}
 )
 
 // Plot is the basic type representing a plot.
@@ -153,8 +153,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 	if p.Title.Text != "" {
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y}, p.Title.Text)
-		const dpi = 72 // FIXME(sbinet): get it from draw.Canvas
-		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font, dpi)
+		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font, c.DPI())
 		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
 	}

@@ -106,6 +106,11 @@ func NewWith(opts ...option) *Canvas {
 	return c
 }
 
+func (c *Canvas) DPI() float64 {
+	// FIXME(sbinet): add a way to specify a value?
+	return 72
+}
+
 func (c *Canvas) Size() (w, h vg.Length) {
 	return c.w, c.h
 }

@@ -609,8 +609,7 @@ func isect(p0, p1, clip, norm vg.Point) vg.Point {
 // FillText fills lines of text in the draw area.
 // pt specifies the location where the text is to be drawn.
 func (c *Canvas) FillText(sty TextStyle, pt vg.Point, txt string) {
-	const dpi = 72 // FIXME(sbinet): get it from underlying vg.Canvas
-	sty.handler().Draw(c, txt, sty, pt, dpi)
+	sty.handler().Draw(c, txt, sty, pt, c.DPI())
 }
 
 func max(d ...vg.Length) vg.Length {

@@ -112,6 +112,11 @@ func (c *Canvas) append(a Action) {
 	c.Actions = append(c.Actions, a)
 }
 
+func (c *Canvas) DPI() float64 {
+	// FIXME(sbinet): add a way to specify a value?
+	return 72
+}
+
 // SetLineWidth corresponds to the vg.Canvas.SetWidth method.
 type SetLineWidth struct {
 	Width vg.Length
