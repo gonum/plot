@@ -65,6 +65,8 @@ func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 	if pts.Color != nil && len(ps) > 0 {
 		c.SetColor(pts.Color)
+		// allocate enough space for at least 4 path components per ring.
+		// 3 is the minimum but 4 is more common.
 		pa := make(vg.Path, 0, 4*len(ps))
 		for _, ring := range ps {
 			if len(ring) == 0 {

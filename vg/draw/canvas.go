@@ -467,7 +467,7 @@ func (c *Canvas) ClipLinesXY(lines ...[]vg.Point) [][]vg.Point {
 // represent the given line clipped in the
 // X direction.
 func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
-	var lines1 = make([][]vg.Point, 0, len(lines))
+	lines1 := make([][]vg.Point, 0, len(lines))
 	for _, line := range lines {
 		ls := clipLine(isLeft, vg.Point{X: c.Max.X, Y: c.Min.Y}, vg.Point{X: -1, Y: 0}, line)
 		lines1 = append(lines1, ls...)
@@ -484,7 +484,7 @@ func (c *Canvas) ClipLinesX(lines ...[]vg.Point) (clipped [][]vg.Point) {
 // represent the given line clipped in the
 // Y direction.
 func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
-	var lines1 = make([][]vg.Point, 0, len(lines))
+	lines1 := make([][]vg.Point, 0, len(lines))
 	for _, line := range lines {
 		ls := clipLine(isAbove, vg.Point{X: c.Min.X, Y: c.Min.Y}, vg.Point{X: 0, Y: -1}, line)
 		lines1 = append(lines1, ls...)
@@ -501,7 +501,7 @@ func (c *Canvas) ClipLinesY(lines ...[]vg.Point) (clipped [][]vg.Point) {
 // clipping line specified by the norm, clip point,
 // and in function.
 func clipLine(in func(vg.Point, vg.Point) bool, clip, norm vg.Point, pts []vg.Point) (lines [][]vg.Point) {
-	var l = make([]vg.Point, 0, len(pts))
+	l := make([]vg.Point, 0, len(pts))
 	for i := 1; i < len(pts); i++ {
 		cur, next := pts[i-1], pts[i]
 		curIn, nextIn := in(cur, clip), in(next, clip)
