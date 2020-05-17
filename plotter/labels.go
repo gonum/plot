@@ -62,7 +62,10 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 
 	styles := make([]draw.TextStyle, d.Len())
 	for i := range styles {
-		styles[i] = draw.TextStyle{Font: fnt}
+		styles[i] = draw.TextStyle{
+			Font:    fnt,
+			Handler: plot.DefaultTextHandler,
+		}
 	}
 
 	return &Labels{

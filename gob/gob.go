@@ -10,6 +10,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/text"
 )
 
 func init() {
@@ -43,4 +44,7 @@ func init() {
 	gob.Register(plotter.XYZs{})
 	gob.Register(plotter.XYValues{})
 
+	// vg/draw.TextStyle
+	gob.Register(plot.DefaultTextHandler)
+	gob.Register(text.Plain{})
 }

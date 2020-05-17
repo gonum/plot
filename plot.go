@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -19,6 +20,9 @@ import (
 var (
 	// DefaultFont is the name of the default font for plot text.
 	DefaultFont = "Times-Roman"
+
+	// DefaultTextHandler is the default text handler used for text processing.
+	DefaultTextHandler = text.Plain{}
 )
 
 // Plot is the basic type representing a plot.
@@ -103,10 +107,11 @@ func New() (*Plot, error) {
 		Legend:          legend,
 	}
 	p.Title.TextStyle = draw.TextStyle{
-		Color:  color.Black,
-		Font:   titleFont,
-		XAlign: draw.XCenter,
-		YAlign: draw.YTop,
+		Color:   color.Black,
+		Font:    titleFont,
+		XAlign:  draw.XCenter,
+		YAlign:  draw.YTop,
+		Handler: DefaultTextHandler,
 	}
 	return p, nil
 }
@@ -148,7 +153,9 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 	if p.Title.Text != "" {
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y}, p.Title.Text)
-		c.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		const dpi = 72 // FIXME(sbinet): get it from draw.Canvas
+		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font, dpi)
+		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
 	}
 

@@ -28,7 +28,10 @@ func TestLegendAlignment(t *testing.T) {
 	}
 	l := plot.Legend{
 		ThumbnailWidth: vg.Points(20),
-		TextStyle:      draw.TextStyle{Font: font},
+		TextStyle: draw.TextStyle{
+			Font:    font,
+			Handler: plot.DefaultTextHandler,
+		},
 	}
 	for _, n := range []string{"A", "B", "C", "D"} {
 		b, err := plotter.NewBarChart(plotter.Values{0}, 1)
