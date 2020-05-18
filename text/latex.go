@@ -25,7 +25,12 @@ type Latex struct{}
 //  - depth is the vertical space below the baseline, a negative number.
 func (hdlr Latex) Box(txt string, fnt vg.Font, dpi float64) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
-	box, err := mtex.Parse(txt, fnt.Size.Points(), 72, ttf.New(cnv))
+	fnts := &ttf.Fonts{
+		Rm:      fnt.Font(),
+		Default: fnt.Font(),
+		It:      fnt.Font(), // FIXME(sbinet): need a gonum/plot font set
+	}
+	box, err := mtex.Parse(txt, fnt.Size.Points(), 72, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
@@ -44,7 +49,12 @@ func (hdlr Latex) Box(txt string, fnt vg.Font, dpi float64) (width, height, dept
 // dots-per-inch on the canvas.
 func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Point, dpi float64) {
 	cnv := drawtex.New()
-	box, err := mtex.Parse(txt, sty.Font.Size.Points(), 72, ttf.New(cnv))
+	fnts := &ttf.Fonts{
+		Rm:      sty.Font.Font(),
+		Default: sty.Font.Font(),
+		It:      sty.Font.Font(), // FIXME(sbinet): need a gonum/plot font set
+	}
+	box, err := mtex.Parse(txt, sty.Font.Size.Points(), 72, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
