@@ -73,7 +73,7 @@ func (pts *Polygon) Plot(c draw.Canvas, plt *plot.Plot) {
 				continue
 			}
 			pa.Move(ring[0])
-			for _, p := range ring {
+			for _, p := range ring[1:] {
 				pa.Line(p)
 			}
 			pa.Close()
