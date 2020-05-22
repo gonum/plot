@@ -197,10 +197,10 @@ func (b *BarChart) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 // Thumbnail fulfills the plot.Thumbnailer interface.
 func (b *BarChart) Thumbnail(c *draw.Canvas) {
 	pts := []vg.Point{
-		{c.Min.X, c.Min.Y},
-		{c.Min.X, c.Max.Y},
-		{c.Max.X, c.Max.Y},
-		{c.Max.X, c.Min.Y},
+		{X: c.Min.X, Y: c.Min.Y},
+		{X: c.Min.X, Y: c.Max.Y},
+		{X: c.Max.X, Y: c.Max.Y},
+		{X: c.Max.X, Y: c.Min.Y},
 	}
 	poly := c.ClipPolygonY(pts)
 	c.FillPolygon(b.Color, poly)
