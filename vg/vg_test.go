@@ -85,7 +85,10 @@ func lines(w vg.Length) (*plot.Plot, error) {
 		return nil, err
 	}
 
-	pts := plotter.XYs{{0, 0}, {0, 1}, {1, 0}, {1, 1}}
+	pts := plotter.XYs{
+		{X: 0, Y: 0}, {X: 0, Y: 1},
+		{X: 1, Y: 0}, {X: 1, Y: 1},
+	}
 	line, err := plotter.NewLine(pts)
 	line.Width = w
 	if err != nil {

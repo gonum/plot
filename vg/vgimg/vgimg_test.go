@@ -23,7 +23,9 @@ import (
 )
 
 func TestIssue179(t *testing.T) {
-	scatter, err := plotter.NewScatter(plotter.XYs{{1, 1}, {0, 1}, {0, 0}})
+	scatter, err := plotter.NewScatter(plotter.XYs{
+		{X: 1, Y: 1}, {X: 0, Y: 1}, {X: 0, Y: 0},
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +53,7 @@ func TestIssue179(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !ok {
-		ioutil.WriteFile("testdata/issue179.jpg", b.Bytes(), 0644)
+		_ = ioutil.WriteFile("testdata/issue179.jpg", b.Bytes(), 0644)
 		t.Fatalf("images differ")
 	}
 }

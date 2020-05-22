@@ -66,7 +66,10 @@ func TestHeatMapWithContour(t *testing.T) {
 	plt.Y.Padding = 0
 	plt.X.Max = 3.5
 	plt.Y.Max = 2.5
-	plt.Save(7, 7, "heat.svg")
+	err := plt.Save(7, 7, "heat.svg")
+	if err != nil {
+		t.Fatalf("could not save plot: %+v", err)
+	}
 }
 
 func TestComplexContours(t *testing.T) {
@@ -96,7 +99,10 @@ func TestComplexContours(t *testing.T) {
 		plt.Y.Padding = 0
 		plt.X.Max = 79.5
 		plt.Y.Max = 79.5
-		plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
+		err := plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
+		if err != nil {
+			t.Fatalf("could not save plot: %+v", err)
+		}
 	}
 }
 
