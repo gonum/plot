@@ -279,7 +279,7 @@ func (c *Canvas) wpath(p vg.Path) {
 		case vg.CloseComp:
 			c.wtex("%% path-close")
 		default:
-			panic(fmt.Errorf("vgtex: unknown path component type: %v\n", comp.Type))
+			panic(fmt.Errorf("vgtex: unknown path component type: %v", comp.Type))
 		}
 	}
 }

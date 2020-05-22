@@ -143,12 +143,6 @@ func TestExtendedBlackBody(t *testing.T) {
 	}
 }
 
-// floatToUint32 converts a float64 in the range [0, 1] to a uint32 in the range
-// [0, 0xffff].
-func floatToUint32(f float64) uint32 {
-	return uint32(f * 0xffff)
-}
-
 func BenchmarkLuminance_At(b *testing.B) {
 	pBase := ExtendedBlackBody()
 	for n := 2; n < 12; n += 2 {

@@ -24,12 +24,14 @@ func TestSingletonHistogram(t *testing.T) {
 		defer close(done)
 		p, err := plot.New()
 		if err != nil {
-			t.Fatalf("unexpected error from plot.New: %v", err)
+			t.Errorf("unexpected error from plot.New: %v", err)
+			return
 		}
 
 		hist, err := plotter.NewHist(plotter.Values([]float64{1.0}), 60)
 		if err != nil {
-			t.Fatalf("unexpected error from NewHist: %v", err)
+			t.Errorf("unexpected error from NewHist: %v", err)
+			return
 		}
 		hist.Normalize(1)
 
@@ -37,7 +39,8 @@ func TestSingletonHistogram(t *testing.T) {
 
 		_, err = p.WriterTo(4*vg.Inch, 4*vg.Inch, "png")
 		if err != nil {
-			t.Fatalf("unexpected error from WriterTo: %v", err)
+			t.Errorf("unexpected error from WriterTo: %v", err)
+			return
 		}
 	}()
 

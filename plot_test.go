@@ -245,7 +245,8 @@ func TestIssue514(t *testing.T) {
 
 				p, err := plot.New()
 				if err != nil {
-					t.Fatalf("could not create plot: %v", err)
+					t.Errorf("could not create plot: %v", err)
+					return
 				}
 
 				var (
@@ -265,7 +266,8 @@ func TestIssue514(t *testing.T) {
 					{X: 1, Y: y2},
 				})
 				if err != nil {
-					t.Fatalf("could not create scatter: %v", err)
+					t.Errorf("could not create scatter: %v", err)
+					return
 				}
 
 				p.Add(pts)

@@ -87,7 +87,7 @@ func (h *Histogram) Plot(c draw.Canvas, p *plot.Plot) {
 	for _, bin := range h.Bins {
 		ymin := c.Min.Y
 		ymax := c.Min.Y
-		if 0 != bin.Weight {
+		if bin.Weight != 0 {
 			ymax = trY(bin.Weight)
 		}
 		xmin := trX(bin.Min)

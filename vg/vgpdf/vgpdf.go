@@ -269,7 +269,6 @@ func (c *Canvas) pdfPath(path vg.Path, style string) {
 		}
 	}
 	c.doc.DrawPath(style)
-	return
 }
 
 func (c *Canvas) arc(comp vg.PathComp, style string) {
