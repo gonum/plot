@@ -55,7 +55,7 @@ type BarChart struct {
 // to the index of their value in the Valuer.
 func NewBarChart(vs Valuer, width vg.Length) (*BarChart, error) {
 	if width <= 0 {
-		return nil, errors.New("Width parameter was not positive")
+		return nil, errors.New("plotter: width parameter was not positive")
 	}
 	values, err := CopyValues(vs)
 	if err != nil {

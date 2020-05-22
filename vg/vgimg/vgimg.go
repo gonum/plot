@@ -101,7 +101,7 @@ func NewWith(o ...option) *Canvas {
 		c.img = c.ctx.Image().(draw.Image)
 		c.ctx.InvertY()
 	}
-	draw.Draw(c.img, c.img.Bounds(), &image.Uniform{c.backgroundColor}, image.ZP, draw.Src)
+	draw.Draw(c.img, c.img.Bounds(), &image.Uniform{c.backgroundColor}, image.Point{}, draw.Src)
 	c.color = []color.Color{color.Black}
 	vg.Initialize(c)
 	return c

@@ -10,8 +10,6 @@ import (
 	"gonum.org/v1/plot/cmpimg"
 )
 
-const runImageLaTeX = false
-
 func TestImagePlot(t *testing.T) {
 	cmpimg.CheckPlot(ExampleImage, t, "image_plot.png")
 }

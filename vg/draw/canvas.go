@@ -421,11 +421,7 @@ func (ts Tiles) At(c Canvas, x, y int) Canvas {
 func (c *Canvas) SetLineStyle(sty LineStyle) {
 	c.SetColor(sty.Color)
 	c.SetLineWidth(sty.Width)
-	var dashDots []vg.Length
-	for _, dash := range sty.Dashes {
-		dashDots = append(dashDots, dash)
-	}
-	c.SetLineDash(dashDots, sty.DashOffs)
+	c.SetLineDash(sty.Dashes, sty.DashOffs)
 }
 
 // StrokeLines draws a line connecting a set of points

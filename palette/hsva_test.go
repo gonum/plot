@@ -38,17 +38,17 @@ func TestColor(t *testing.T) {
 					t.Errorf("unexpected values for V: want [0, 1] got:%f", hsva.V)
 				}
 
-				cFromHSVR, cFromHSVG, cFromHSVB, cFromHSVA := hsva.RGBA()
-				if cFromHSVR < 0 || cFromHSVR > 0xFFFF {
+				var cFromHSVR, cFromHSVG, cFromHSVB, cFromHSVA uint32 = hsva.RGBA()
+				if cFromHSVR > 0xFFFF {
 					t.Errorf("unexpected values for H: want [0x0, 0xFFFF] got:%f", hsva.H)
 				}
-				if cFromHSVG < 0 || cFromHSVG > 0xFFFF {
+				if cFromHSVG > 0xFFFF {
 					t.Errorf("unexpected values for S: want [0x0, 0xFFFF] got:%f", hsva.S)
 				}
-				if cFromHSVB < 0 || cFromHSVB > 0xFFFF {
+				if cFromHSVB > 0xFFFF {
 					t.Errorf("unexpected values for V: want [0x0, 0xFFFF] got:%f", hsva.V)
 				}
-				if cFromHSVA < 0 || cFromHSVA > 0xFFFF {
+				if cFromHSVA > 0xFFFF {
 					t.Errorf("unexpected values for V: want [0x0, 0xFFFF] got:%f", hsva.V)
 				}
 

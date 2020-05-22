@@ -47,7 +47,7 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 	}
 
 	if d.Len() != len(xys) {
-		return nil, errors.New("Number of points does not match the number of labels")
+		return nil, errors.New("plotter: number of points does not match the number of labels")
 	}
 
 	strs := make([]string, d.Len())

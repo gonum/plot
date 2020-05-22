@@ -95,7 +95,7 @@ type BoxPlot struct {
 // values that are not outside the fences.
 func NewBoxPlot(w vg.Length, loc float64, values Valuer) (*BoxPlot, error) {
 	if w < 0 {
-		return nil, errors.New("Negative boxplot width")
+		return nil, errors.New("plotter: negative boxplot width")
 	}
 
 	b := new(BoxPlot)
