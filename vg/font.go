@@ -237,9 +237,8 @@ func fontData(name string) ([]byte, error) {
 // If the first font file found is unreadable or cannot be parsed, then
 // subsequent directories are not tried, and the font will fail to load.
 //
-// The default slice is initialised with the contents of the
-// VGFONTPATH environment variable if it is defined;
-// it's exported and mutable.
+// The default slice is initialised with the contents of the VGFONTPATH
+// environment variable if it is defined.
 // This slice may be changed to load fonts from different locations.
 var FontDirs []string
 
