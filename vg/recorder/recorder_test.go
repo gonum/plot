@@ -23,13 +23,19 @@ func TestRecorder(t *testing.T) {
 	rec.Stroke(vg.Path{{Type: vg.MoveComp, Pos: vg.Point{X: 3, Y: 4}}})
 	rec.Push()
 	rec.Pop()
-	rec.Translate(vg.Point{3, 4})
+	rec.Translate(vg.Point{X: 3, Y: 4})
 	rec.KeepCaller = false
 	rec.SetLineWidth(100)
 	rec.SetLineDash([]vg.Length{2, 5}, 6)
 	rec.SetColor(color.RGBA{R: 0x65, G: 0x23, B: 0xf2})
 	rec.Fill(vg.Path{{Type: vg.MoveComp, Pos: vg.Point{X: 3, Y: 4}}, {Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 3}}, {Type: vg.CloseComp}})
-	rec.DrawImage(vg.Rectangle{vg.Point{0, 0}, vg.Point{10, 10}}, img)
+	rec.DrawImage(
+		vg.Rectangle{
+			Min: vg.Point{X: 0, Y: 0},
+			Max: vg.Point{X: 10, Y: 10},
+		},
+		img,
+	)
 	if len(rec.Actions) != len(want) {
 		t.Fatalf("unexpected number of actions recorded: got:%d want:%d", len(rec.Actions), len(want))
 	}

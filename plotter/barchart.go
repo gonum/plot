@@ -124,18 +124,18 @@ func (b *BarChart) Plot(c draw.Canvas, plt *plot.Plot) {
 		var poly []vg.Point
 		if !b.Horizontal {
 			pts = []vg.Point{
-				{catMin, valMin},
-				{catMin, valMax},
-				{catMax, valMax},
-				{catMax, valMin},
+				{X: catMin, Y: valMin},
+				{X: catMin, Y: valMax},
+				{X: catMax, Y: valMax},
+				{X: catMax, Y: valMin},
 			}
 			poly = c.ClipPolygonY(pts)
 		} else {
 			pts = []vg.Point{
-				{valMin, catMin},
-				{valMin, catMax},
-				{valMax, catMax},
-				{valMax, catMin},
+				{X: valMin, Y: catMin},
+				{X: valMin, Y: catMax},
+				{X: valMax, Y: catMax},
+				{X: valMax, Y: catMin},
 			}
 			poly = c.ClipPolygonX(pts)
 		}
