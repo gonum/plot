@@ -100,9 +100,9 @@ func TestIssue540(t *testing.T) {
 	}
 
 	xys := plotter.XYs{
-		plotter.XY{0, 0},
-		plotter.XY{1, 1},
-		plotter.XY{2, 2},
+		plotter.XY{X: 0, Y: 0},
+		plotter.XY{X: 1, Y: 1},
+		plotter.XY{X: 2, Y: 2},
 	}
 
 	p.Title.Text = "My title"

@@ -449,7 +449,7 @@ func (c *Canvas) StrokeLines(sty LineStyle, lines ...[]vg.Point) {
 // StrokeLine2 draws a line between two points in the given
 // Canvas.
 func (c *Canvas) StrokeLine2(sty LineStyle, x0, y0, x1, y1 vg.Length) {
-	c.StrokeLines(sty, []vg.Point{{x0, y0}, {x1, y1}})
+	c.StrokeLines(sty, []vg.Point{{X: x0, Y: y0}, {X: x1, Y: y1}})
 }
 
 // ClipLinesXY returns a slice of lines that
