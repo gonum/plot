@@ -447,9 +447,9 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 		off += 2
 	}
 	prec := minInt(6, maxInt(off, -mag))
-	var ticks []Tick
-	for _, v := range labels {
-		ticks = append(ticks, Tick{Value: v, Label: strconv.FormatFloat(v, fc, prec, 64)})
+	ticks := make([]Tick, len(labels))
+	for i, v := range labels {
+		ticks[i] = Tick{Value: v, Label: strconv.FormatFloat(v, fc, prec, 64)}
 	}
 
 	var minorDelta float64
