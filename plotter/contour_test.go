@@ -56,7 +56,10 @@ func TestHeatMapWithContour(t *testing.T) {
 	c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
 	c.LineStyles[0].Width *= 5
 
-	plt, _ := plot.New()
+	plt, err := plot.New()
+	if err != nil {
+		t.Fatalf("could not create plot: %+v", err)
+	}
 
 	plt.Add(h)
 	plt.Add(c)
@@ -66,7 +69,7 @@ func TestHeatMapWithContour(t *testing.T) {
 	plt.Y.Padding = 0
 	plt.X.Max = 3.5
 	plt.Y.Max = 2.5
-	err := plt.Save(7, 7, "heat.svg")
+	err = plt.Save(7, 7, "heat.svg")
 	if err != nil {
 		t.Fatalf("could not save plot: %+v", err)
 	}
@@ -92,14 +95,18 @@ func TestComplexContours(t *testing.T) {
 		levels := []float64{-1, 3, 7, 9, 13, 15, 19, 23, 27, 31}
 		c := NewContour(m, levels, palette.Rainbow(10, palette.Blue, palette.Red, 1, 1, 1))
 
-		plt, _ := plot.New()
+		plt, err := plot.New()
+		if err != nil {
+			t.Fatalf("could not create plot: %+v", err)
+		}
+
 		plt.Add(c)
 
 		plt.X.Padding = 0
 		plt.Y.Padding = 0
 		plt.X.Max = 79.5
 		plt.Y.Max = 79.5
-		err := plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
+		err = plt.Save(7, 7, fmt.Sprintf("complex_contour-%v.svg", n))
 		if err != nil {
 			t.Fatalf("could not save plot: %+v", err)
 		}
