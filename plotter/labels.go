@@ -122,3 +122,7 @@ type XYLabels struct {
 func (l XYLabels) Label(i int) string {
 	return l.Labels[i]
 }
+
+var (
+	_ XYLabeller = (*XYLabels)(nil)
+)
