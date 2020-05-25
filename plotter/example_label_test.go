@@ -49,6 +49,11 @@ func ExampleLabels() {
 	}
 }
 
+// ExampleLabels_inCanvasCoordinates shows how to write a label
+// in a plot using the canvas coordinates (instead of the data coordinates.)
+// It can be useful in the situation where one wants to draw some label
+// always in the same location of a plot, irrespective of the minute
+// details of a particular plot data range.
 func ExampleLabels_inCanvasCoordinates() {
 	p, err := plot.New()
 	if err != nil {
@@ -90,7 +95,7 @@ func ExampleLabels_inCanvasCoordinates() {
 	dc := draw.New(cnv)
 	p.Draw(dc)
 
-	// put an 'X' in the middle of the data-canvas
+	// Put an 'X' in the middle of the data-canvas.
 	{
 		fnt, err := vg.MakeFont(plotter.DefaultFont, vg.Points(12))
 		if err != nil {
