@@ -12,12 +12,15 @@ import (
 	"github.com/go-latex/latex/font/ttf"
 	"github.com/go-latex/latex/mtex"
 	"github.com/go-latex/latex/tex"
+
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
 
 // Latex parses, formats and renders LaTeX.
 type Latex struct{}
+
+var _ draw.TextHandler = (*Latex)(nil)
 
 // Box returns the bounding box of the given text where:
 //  - width is the horizontal space from the origin.
@@ -83,12 +86,9 @@ type latex struct {
 	pt  vg.Point
 }
 
-func (r *latex) Render(width, height, dpi float64, c *drawtex.Canvas) error {
-	//var (
-	//	w = width * dpi
-	//	h = height * dpi
-	//)
+var _ mtex.Renderer = (*latex)(nil)
 
+func (r *latex) Render(width, height, dpi float64, c *drawtex.Canvas) error {
 	r.cnv.SetColor(r.sty.Color)
 	r.cnv = &draw.Canvas{
 		Canvas: r.cnv.Canvas,
@@ -136,8 +136,3 @@ func (r *latex) drawRect(dpi float64, op drawtex.RectOp) {
 
 	r.cnv.FillPolygon(r.sty.Color, pts)
 }
-
-var (
-	_ draw.TextHandler = (*Latex)(nil)
-	_ mtex.Renderer    = (*latex)(nil)
-)

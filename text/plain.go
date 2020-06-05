@@ -4,13 +4,9 @@
 
 package text // import "gonum.org/v1/plot/text"
 
-import (
-	"gonum.org/v1/plot/vg/draw"
-)
+import "gonum.org/v1/plot/vg/draw"
 
 // Plain is a text/plain handler.
 type Plain = draw.PlainTextHandler
 
-var (
-	_ draw.TextHandler = (*Plain)(nil)
-)
+var _ draw.TextHandler = (*Plain)(nil)
