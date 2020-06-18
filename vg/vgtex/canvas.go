@@ -92,11 +92,6 @@ func (c *Canvas) context() *context {
 	return &c.stack[len(c.stack)-1]
 }
 
-func (c *Canvas) DPI() float64 {
-	// FIXME(sbinet): add a way to specify a value?
-	return 72
-}
-
 // Size returns the width and height of the canvas.
 func (c *Canvas) Size() (w, h vg.Length) {
 	return c.w, c.h

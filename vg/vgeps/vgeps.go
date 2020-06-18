@@ -67,8 +67,6 @@ func NewTitle(w, h vg.Length, title string) *Canvas {
 	return c
 }
 
-func (c *Canvas) DPI() float64 { return DPI }
-
 func (c *Canvas) Size() (w, h vg.Length) {
 	return c.w, c.h
 }

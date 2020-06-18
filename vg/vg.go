@@ -17,8 +17,6 @@ import (
 // graphics.
 // The origin is in the bottom left corner.
 type Canvas interface {
-	DPI() float64
-
 	// SetLineWidth sets the width of stroked paths.
 	// If the width is not positive then stroked lines
 	// are not drawn.

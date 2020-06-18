@@ -18,7 +18,7 @@ type PlainTextHandler struct{}
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
 //  - depth is the vertical space below the baseline, a negative number.
-func (hdlr PlainTextHandler) Box(txt string, fnt vg.Font, dpi float64) (width, height, depth vg.Length) {
+func (hdlr PlainTextHandler) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
 	ext := fnt.Extents()
 
 	nl := hdlr.textNLines(txt)
@@ -37,9 +37,9 @@ func (hdlr PlainTextHandler) Box(txt string, fnt vg.Font, dpi float64) (width, h
 	return width, height, depth
 }
 
-// Draw renders the given text with the provided style, position and
-// dots-per-inch on the canvas.
-func (hdlr PlainTextHandler) Draw(c *Canvas, txt string, sty TextStyle, pt vg.Point, dpi float64) {
+// Draw renders the given text with the provided style and position
+// on the canvas.
+func (hdlr PlainTextHandler) Draw(c *Canvas, txt string, sty TextStyle, pt vg.Point) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return

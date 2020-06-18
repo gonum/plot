@@ -18,7 +18,9 @@ import (
 )
 
 // Latex parses, formats and renders LaTeX.
-type Latex struct{}
+type Latex struct {
+	DPI float64
+}
 
 var _ draw.TextHandler = (*Latex)(nil)
 
@@ -26,7 +28,7 @@ var _ draw.TextHandler = (*Latex)(nil)
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
 //  - depth is the vertical space below the baseline, a negative number.
-func (hdlr Latex) Box(txt string, fnt vg.Font, dpi float64) (width, height, depth vg.Length) {
+func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
 		Rm:      fnt.Font(),
@@ -48,9 +50,13 @@ func (hdlr Latex) Box(txt string, fnt vg.Font, dpi float64) (width, height, dept
 	return width, height, -depth
 }
 
-// Draw renders the given text with the provided style, position and
-// dots-per-inch on the canvas.
-func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Point, dpi float64) {
+// Draw renders the given text with the provided style and position
+// on the canvas.
+func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Point) {
+	dpi := hdlr.DPI
+	if dpi == 0 {
+		dpi = 72
+	}
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
 		Rm:      sty.Font.Font(),

@@ -153,7 +153,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 	if p.Title.Text != "" {
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y}, p.Title.Text)
-		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font, c.DPI())
+		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font)
 		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
 	}

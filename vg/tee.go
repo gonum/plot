@@ -21,11 +21,6 @@ type teeCanvas struct {
 	cs []Canvas
 }
 
-func (tee teeCanvas) DPI() float64 {
-	// FIXME(sbinet): panic if DPIs are different?
-	return tee.cs[0].DPI()
-}
-
 // SetLineWidth sets the width of stroked paths.
 // If the width is not positive then stroked lines
 // are not drawn.
