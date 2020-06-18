@@ -114,10 +114,11 @@ func makeAxis(o orientation) (Axis, error) {
 		Scale:   LinearScale{},
 	}
 	a.Label.TextStyle = draw.TextStyle{
-		Color:  color.Black,
-		Font:   labelFont,
-		XAlign: draw.XCenter,
-		YAlign: draw.YBottom,
+		Color:   color.Black,
+		Font:    labelFont,
+		XAlign:  draw.XCenter,
+		YAlign:  draw.YBottom,
+		Handler: DefaultTextHandler,
 	}
 	a.Label.Position = draw.PosCenter
 
@@ -135,10 +136,11 @@ func makeAxis(o orientation) (Axis, error) {
 	}
 
 	a.Tick.Label = draw.TextStyle{
-		Color:  color.Black,
-		Font:   tickFont,
-		XAlign: xalign,
-		YAlign: yalign,
+		Color:   color.Black,
+		Font:    tickFont,
+		XAlign:  xalign,
+		YAlign:  yalign,
+		Handler: DefaultTextHandler,
 	}
 	a.Tick.LineStyle = draw.LineStyle{
 		Color: color.Black,

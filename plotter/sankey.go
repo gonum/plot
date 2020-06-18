@@ -183,6 +183,7 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 		Rotation: math.Pi / 2,
 		XAlign:   draw.XCenter,
 		YAlign:   draw.YCenter,
+		Handler:  plot.DefaultTextHandler,
 	}
 	s.StockBarWidth = s.TextStyle.Font.Extents().Height * 1.15
 

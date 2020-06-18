@@ -84,7 +84,10 @@ func NewLegend() (Legend, error) {
 	return Legend{
 		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
-		TextStyle:      draw.TextStyle{Font: font},
+		TextStyle: draw.TextStyle{
+			Font:    font,
+			Handler: DefaultTextHandler,
+		},
 	}, nil
 }
 
@@ -92,10 +95,11 @@ func NewLegend() (Legend, error) {
 func (l *Legend) Draw(c draw.Canvas) {
 	iconx := c.Min.X
 	sty := l.TextStyle
-	textx := iconx + l.ThumbnailWidth + sty.Rectangle(" ").Max.X
+	em := sty.Rectangle(" ")
+	textx := iconx + l.ThumbnailWidth + em.Max.X
 	if !l.Left {
 		iconx = c.Max.X - l.ThumbnailWidth
-		textx = iconx - l.TextStyle.Rectangle(" ").Max.X
+		textx = iconx - em.Max.X
 		sty.XAlign--
 	}
 	textx += l.XOffs
