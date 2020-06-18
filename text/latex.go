@@ -19,8 +19,7 @@ import (
 
 // Latex parses, formats and renders LaTeX.
 type Latex struct {
-	// DPI is the dot-per-inch used to control the font resolution used
-	// by LaTeX.
+	// DPI is the dot-per-inch controlling the font resolution used by LaTeX.
 	// If zero, the resolution defaults to 72.
 	DPI float64
 }
