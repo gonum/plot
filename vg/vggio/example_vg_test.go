@@ -56,12 +56,6 @@ func ExampleCanvas() {
 					p.Draw(draw.New(cnv))
 					cnv.Paint(e)
 
-				case system.DestroyEvent:
-					if e.Err != nil {
-						log.Fatalf("could not destroy window: %+v", e.Err)
-					}
-					os.Exit(0)
-
 				case key.Event:
 					switch e.Name {
 					case "Q", key.NameEscape:
