@@ -26,11 +26,9 @@ type Canvas struct {
 	gtx layout.Context
 }
 
-const (
-	// DefaultDPI is the default dot resolution for image
-	// drawing in dots per inch.
-	DefaultDPI = 96
-)
+// DefaultDPI is the default dot resolution for image
+// drawing in dots per inch.
+const DefaultDPI = 96
 
 // New returns a new image canvas with the provided dimensions and options.
 // The currently accepted options are UseDPI and UseBackgroundColor.
