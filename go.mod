@@ -3,7 +3,7 @@ module gonum.org/v1/plot
 go 1.13
 
 require (
-	gioui.org v0.0.0-20200618124658-602d54dc5ef7
+	gioui.org v0.0.0-20200628203458-851255f7a67b
 	github.com/ajstarks/svgo v0.0.0-20180226025133-644b8db467af
 	github.com/fogleman/gg v1.3.0
 	github.com/go-latex/latex v0.0.0-20200518072620-0806b477ea35

@@ -11,7 +11,6 @@ import (
 	"gioui.org/f32"
 	"gioui.org/io/system"
 	"gioui.org/layout"
-	"gioui.org/op"
 	"gioui.org/op/paint"
 
 	"gonum.org/v1/plot/vg"
@@ -33,7 +32,7 @@ const DefaultDPI = 96
 // New returns a new image canvas with the provided dimensions and options.
 // The currently accepted options are UseDPI and UseBackgroundColor.
 // If the resolution or background color are not specified, defaults are used.
-func New(e system.FrameEvent, w, h vg.Length, opts ...option) *Canvas {
+func New(gtx layout.Context, w, h vg.Length, opts ...option) *Canvas {
 	cfg := &config{
 		dpi: DefaultDPI,
 		bkg: color.White,
@@ -42,7 +41,7 @@ func New(e system.FrameEvent, w, h vg.Length, opts ...option) *Canvas {
 		opt(cfg)
 	}
 	c := &Canvas{
-		gtx: layout.NewContext(new(op.Ops), e),
+		gtx: gtx,
 		Canvas: vgimg.NewWith(
 			vgimg.UseDPI(cfg.dpi),
 			vgimg.UseWH(w, h),
