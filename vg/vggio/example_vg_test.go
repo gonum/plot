@@ -12,6 +12,8 @@ import (
 	"gioui.org/app"
 	"gioui.org/io/key"
 	"gioui.org/io/system"
+	"gioui.org/layout"
+	"gioui.org/op"
 	"gioui.org/unit"
 
 	"gonum.org/v1/plot"
@@ -52,9 +54,13 @@ func ExampleCanvas() {
 					p.X.Label.Text = "X"
 					p.Y.Label.Text = "Y"
 
-					cnv := vggio.New(e, w, h, vggio.UseDPI(dpi))
+					gtx := layout.NewContext(new(op.Ops), e)
+					cnv := vggio.New(gtx, w, h, vggio.UseDPI(dpi))
 					p.Draw(draw.New(cnv))
 					cnv.Paint(e)
+
+				case system.DestroyEvent:
+					os.Exit(0)
 
 				case key.Event:
 					switch e.Name {
