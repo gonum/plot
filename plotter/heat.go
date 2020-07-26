@@ -247,8 +247,6 @@ func (r *RasterHeatMap) Plot(c draw.Canvas, p *plot.Plot) {
 		Max: image.Point{X: cols, Y: rows},
 	})
 
-	var pImg *Image
-
 	pal := r.HeatMap.Palette.Colors()
 	ps := float64(len(pal)-1) / (r.HeatMap.Max - r.HeatMap.Min)
 	for i := 0; i < cols; i++ {
@@ -272,7 +270,7 @@ func (r *RasterHeatMap) Plot(c draw.Canvas, p *plot.Plot) {
 	}
 
 	xmin, xmax, ymin, ymax := r.DataRange()
-	pImg = NewImage(img, xmin, ymin, xmax, ymax)
+	pImg := NewImage(img, xmin, ymin, xmax, ymax)
 	pImg.Plot(c, p)
 }
 
