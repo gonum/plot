@@ -9,7 +9,7 @@ import (
 	"gonum.org/v1/plot/plotter"
 )
 
-func main() {
+func ExampleRasterHeatMap() {
 	m := offsetUnitGrid{
 		XOffset: -2,
 		YOffset: -1,
