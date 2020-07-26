@@ -2,11 +2,14 @@ package plotter_test
 
 import (
 	"log"
+	"os"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg/draw"
+	"gonum.org/v1/plot/vg/vgimg"
 )
 
 func ExampleRasterHeatMap() {
@@ -24,10 +27,20 @@ func ExampleRasterHeatMap() {
 	if err != nil {
 		log.Panic(err)
 	}
+
+	img := vgimg.New(250, 175)
+	dc := draw.New(img)
+
 	raster := plotter.NewRasterHeatMap(&m, pal)
 	plt.Add(raster)
-	err = plt.Save(200, 200, "demoRaster.png")
+	plt.Draw(dc)
+	w, err := os.Create("testdata/rasterHeatMap.png")
+	//w, err := os.Create("/home/davidkleiven/rasterHeatMap.png")
 	if err != nil {
+		log.Panic(err)
+	}
+	png := vgimg.PngCanvas{Canvas: img}
+	if _, err = png.WriteTo(w); err != nil {
 		log.Panic(err)
 	}
 }
