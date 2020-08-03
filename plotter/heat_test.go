@@ -90,3 +90,7 @@ func TestHeatMapDims(t *testing.T) {
 		}()
 	}
 }
+
+func TestRasterHeatMap(t *testing.T) {
+	cmpimg.CheckPlot(ExampleHeatMap_rasterized, t, "rasterHeatMap.png")
+}
