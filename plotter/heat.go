@@ -135,7 +135,7 @@ func (h *HeatMap) plotRasterized(c draw.Canvas, plt *plot.Plot) {
 			}
 
 			if col != nil {
-				img.Set(i, j, col)
+				img.Set(i, rows-j-1, col)
 			}
 		}
 	}
