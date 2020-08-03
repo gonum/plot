@@ -32,20 +32,12 @@ func ExampleHeatMap_rasterized() {
 		log.Panic(err)
 	}
 
-	img := vgimg.New(250, 175)
-	dc := draw.New(img)
-
 	raster := plotter.NewHeatMap(&m, pal)
 	raster.Rasterized = true
 	plt.Add(raster)
-	plt.Draw(dc)
-	w, err := os.Create("testdata/rasterHeatMap.png")
 
+	err := plt.Save(5*vg.Centimeter, 3.5*vg.Centimeter, "testdata/rasterHeatMap.png")
 	if err != nil {
-		log.Panic(err)
-	}
-	png := vgimg.PngCanvas{Canvas: img}
-	if _, err = png.WriteTo(w); err != nil {
 		log.Panic(err)
 	}
 }
