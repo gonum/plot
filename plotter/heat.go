@@ -59,8 +59,8 @@ type HeatMap struct {
 	// heat map.
 	Min, Max float64
 
-	// Rasterized is a flag that indicates whether the heatmap
-	// should be produced using raster-based drawing or not
+	// Rasterized indicates whether the heatmap
+	// should be produced using raster-based drawing or not.
 	Rasterized bool
 }
 
