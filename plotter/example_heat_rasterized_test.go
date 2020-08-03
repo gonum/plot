@@ -11,7 +11,6 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg"
 )
 
 func ExampleHeatMap_rasterized() {
@@ -34,7 +33,7 @@ func ExampleHeatMap_rasterized() {
 	raster.Rasterized = true
 	plt.Add(raster)
 
-	err = plt.Save(5*vg.Centimeter, 3.5*vg.Centimeter, "testdata/rasterHeatMap.png")
+	err = plt.Save(250, 175, "testdata/rasterHeatMap.png")
 	if err != nil {
 		log.Panic(err)
 	}
