@@ -16,7 +16,7 @@ import (
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
-func ExampleRasterizedHeatMap() {
+func ExampleHeatMap_rasterized() {
 	m := offsetUnitGrid{
 		XOffset: -2,
 		YOffset: -1,
