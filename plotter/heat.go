@@ -60,7 +60,7 @@ type HeatMap struct {
 	Min, Max float64
 
 	// Rasterized indicates whether the heatmap
-	// should be produced using raster-based drawing or not.
+	// should be produced using raster-based drawing.
 	Rasterized bool
 }
 
@@ -98,6 +98,15 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 		Palette: p,
 		Min:     min,
 		Max:     max,
+	}
+}
+
+// Plot implements the Plot method of the plot.Plotter interface.
+func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
+	if h.Rasterized {
+		h.plotRasterized(c, plt)
+	} else {
+		h.plotVectorized(c, plt)
 	}
 }
 
@@ -218,15 +227,6 @@ func (h *HeatMap) plotVectorized(c draw.Canvas, plt *plot.Plot) {
 				c.Fill(pa)
 			}
 		}
-	}
-}
-
-// Plot implements the Plot method of the plot.Plotter interface.
-func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
-	if h.Rasterized {
-		h.plotRasterized(c, plt)
-	} else {
-		h.plotVectorized(c, plt)
 	}
 }
 
