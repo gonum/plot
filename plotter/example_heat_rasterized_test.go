@@ -6,14 +6,12 @@ package plotter_test
 
 import (
 	"log"
-	"os"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/plotter"
-	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/vgimg"
+	"gonum.org/v1/plot/vg"
 )
 
 func ExampleHeatMap_rasterized() {
