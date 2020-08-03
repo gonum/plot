@@ -101,7 +101,7 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	}
 }
 
-// plotRasterized plots the heatmap using raster-based drawing
+// plotRasterized plots the heatmap using raster-based drawing.
 func (h *HeatMap) plotRasterized(c draw.Canvas, plt *plot.Plot) {
 	cols, rows := h.GridXYZ.Dims()
 	img := image.NewRGBA64(image.Rectangle{
