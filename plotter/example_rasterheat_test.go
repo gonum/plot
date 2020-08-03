@@ -35,7 +35,8 @@ func ExampleRasterHeatMap() {
 	img := vgimg.New(250, 175)
 	dc := draw.New(img)
 
-	raster := plotter.NewRasterHeatMap(&m, pal)
+	raster := plotter.NewHeatMap(&m, pal)
+	raster.Rasterized = true
 	plt.Add(raster)
 	plt.Draw(dc)
 	w, err := os.Create("testdata/rasterHeatMap.png")

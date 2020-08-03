@@ -58,6 +58,10 @@ type HeatMap struct {
 	// Min and Max define the dynamic range of the
 	// heat map.
 	Min, Max float64
+
+	// Rasterized is a flag that indicates whether the heatmap
+	// should be produced using raster-based drawing or not
+	Rasterized bool
 }
 
 // NewHeatMap creates as new heat map plotter for the given data,
@@ -97,8 +101,43 @@ func NewHeatMap(g GridXYZ, p palette.Palette) *HeatMap {
 	}
 }
 
-// Plot implements the Plot method of the plot.Plotter interface.
-func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
+// plotRasterized plots the heatmap using raster-based drawing
+func (h *HeatMap) plotRasterized(c draw.Canvas, plt *plot.Plot) {
+	cols, rows := h.GridXYZ.Dims()
+	img := image.NewRGBA64(image.Rectangle{
+		Min: image.Point{X: 0, Y: 0},
+		Max: image.Point{X: cols, Y: rows},
+	})
+
+	pal := h.Palette.Colors()
+	ps := float64(len(pal)-1) / (h.Max - h.Min)
+	for i := 0; i < cols; i++ {
+		for j := 0; j < rows; j++ {
+			var col color.Color
+			switch v := h.GridXYZ.Z(i, j); {
+			case v < h.Min:
+				col = h.Underflow
+			case v > h.Max:
+				col = h.Overflow
+			case math.IsNaN(v), math.IsInf(ps, 0):
+				col = h.NaN
+			default:
+				col = pal[int((v-h.Min)*ps+0.5)] // Apply palette scaling.
+			}
+
+			if col != nil {
+				img.Set(i, j, col)
+			}
+		}
+	}
+
+	xmin, xmax, ymin, ymax := h.DataRange()
+	pImg := NewImage(img, xmin, ymin, xmax, ymax)
+	pImg.Plot(c, plt)
+}
+
+//  plotVectorized plots the heatmap using vector-based drawing
+func (h *HeatMap) plotVectorized(c draw.Canvas, plt *plot.Plot) {
 	if h.Min > h.Max {
 		panic("contour: invalid Z range: min greater than max")
 	}
@@ -182,6 +221,15 @@ func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
 	}
 }
 
+// Plot implements the Plot method of the plot.Plotter interface.
+func (h *HeatMap) Plot(c draw.Canvas, plt *plot.Plot) {
+	if h.Rasterized {
+		h.plotRasterized(c, plt)
+	} else {
+		h.plotVectorized(c, plt)
+	}
+}
+
 // DataRange implements the DataRange method
 // of the plot.DataRanger interface.
 func (h *HeatMap) DataRange() (xmin, xmax, ymin, ymax float64) {
@@ -223,59 +271,4 @@ func (h *HeatMap) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 		}
 	}
 	return b
-}
-
-// RasterHeatMap implements the plotter interface. It is similar to HeatMap,
-// apart from that the plot method uses a raster-based method when drawing
-type RasterHeatMap struct {
-	HeatMap *HeatMap
-}
-
-// NewRasterHeatMap creates as new heat map plotter for the given data,
-// using the provided palette.
-func NewRasterHeatMap(g GridXYZ, p palette.Palette) *RasterHeatMap {
-	return &RasterHeatMap{
-		HeatMap: NewHeatMap(g, p),
-	}
-}
-
-// Plot implements the Plot method of the plot.Plotter interface.
-func (r *RasterHeatMap) Plot(c draw.Canvas, p *plot.Plot) {
-	cols, rows := r.HeatMap.GridXYZ.Dims()
-	img := image.NewRGBA64(image.Rectangle{
-		Min: image.Point{X: 0, Y: 0},
-		Max: image.Point{X: cols, Y: rows},
-	})
-
-	pal := r.HeatMap.Palette.Colors()
-	ps := float64(len(pal)-1) / (r.HeatMap.Max - r.HeatMap.Min)
-	for i := 0; i < cols; i++ {
-		for j := 0; j < rows; j++ {
-			var col color.Color
-			switch v := r.HeatMap.GridXYZ.Z(i, j); {
-			case v < r.HeatMap.Min:
-				col = r.HeatMap.Underflow
-			case v > r.HeatMap.Max:
-				col = r.HeatMap.Overflow
-			case math.IsNaN(v), math.IsInf(ps, 0):
-				col = r.HeatMap.NaN
-			default:
-				col = pal[int((v-r.HeatMap.Min)*ps+0.5)] // Apply palette scaling.
-			}
-
-			if col != nil {
-				img.Set(i, j, col)
-			}
-		}
-	}
-
-	xmin, xmax, ymin, ymax := r.DataRange()
-	pImg := NewImage(img, xmin, ymin, xmax, ymax)
-	pImg.Plot(c, p)
-}
-
-// DataRange implements the DataRange method
-// of the plot.DataRanger interface.
-func (r *RasterHeatMap) DataRange() (xmin, xmax, ymin, ymax float64) {
-	return r.HeatMap.DataRange()
 }
