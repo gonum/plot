@@ -8,7 +8,7 @@ import (
 	"image/color"
 	"testing"
 
-	"gonum.org/v1/gonum/floats"
+	"gonum.org/v1/gonum/floats/scalar"
 )
 
 // TestRgb_sRGBA tests the conversion from linear RGB space to sRGB space.
@@ -33,10 +33,10 @@ func TestRgb_sRGBA(t *testing.T) {
 }
 
 func sRGBAEqualWithin(a, b sRGBA, tol float64) bool {
-	return floats.EqualWithinAbsOrRel(a.R, b.R, tol, tol) &&
-		floats.EqualWithinAbsOrRel(a.G, b.G, tol, tol) &&
-		floats.EqualWithinAbsOrRel(a.B, b.B, tol, tol) &&
-		floats.EqualWithinAbsOrRel(a.A, b.A, tol, tol)
+	return scalar.EqualWithinAbsOrRel(a.R, b.R, tol, tol) &&
+		scalar.EqualWithinAbsOrRel(a.G, b.G, tol, tol) &&
+		scalar.EqualWithinAbsOrRel(a.B, b.B, tol, tol) &&
+		scalar.EqualWithinAbsOrRel(a.A, b.A, tol, tol)
 }
 
 // TestSRGBa_rgb tests the conversion from sRGB space to linear RGB space.
