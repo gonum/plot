@@ -42,7 +42,7 @@ func (g deciGrid) Y(r int) float64 {
 
 func main() {
 	var levels []float64
-	for l := 100.5; l < volcano.Matrix.(*mat.Dense).Max(); l += 5 {
+	for l := 100.5; l < mat.Max(volcano.Matrix.(*mat.Dense)); l += 5 {
 		levels = append(levels, l)
 	}
 	c := plotter.NewContour(volcano, levels, palette.Rainbow(len(levels), (palette.Yellow+palette.Red)/2, palette.Blue, 1, 1, 1))
@@ -83,7 +83,7 @@ func main() {
 		".tiff",
 		".jpg",
 	} {
-		if err := p.Save(4, 4, name+ext); err != nil {
+		if err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, name+ext); err != nil {
 			panic(err)
 		}
 	}
