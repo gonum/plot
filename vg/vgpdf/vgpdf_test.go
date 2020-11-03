@@ -61,6 +61,15 @@ func TestEmbedFonts(t *testing.T) {
 				t.Fatalf("could not write canvas: %v", err)
 			}
 
+			if *cmpimg.GenerateTestData {
+				// Recreate Golden images and exit.
+				err = ioutil.WriteFile(tc.name, buf.Bytes(), 0o644)
+				if err != nil {
+					t.Fatal(err)
+				}
+				return
+			}
+
 			want, err := ioutil.ReadFile(tc.name)
 			if err != nil {
 				t.Fatalf("failed to read golden plot: %v", err)
@@ -94,6 +103,21 @@ func TestArc(t *testing.T) {
 
 	c.EmbedFonts(false)
 	p.Draw(draw.New(c))
+
+	if *cmpimg.GenerateTestData {
+		// Recreate Golden images and exit.
+		f, err := os.Create("testdata/arc_golden.pdf")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer f.Close()
+
+		_, err = c.WriteTo(f)
+		if err != nil {
+			t.Fatalf("could not write canvas: %v", err)
+		}
+		return
+	}
 
 	f, err := os.Create("testdata/arc.pdf")
 	if err != nil {
@@ -159,6 +183,15 @@ func TestIssue540(t *testing.T) {
 
 	p.Add(lines, points)
 	p.Add(plotter.NewGrid())
+
+	if *cmpimg.GenerateTestData {
+		// Recreate Golden images and exit.
+		err = p.Save(100, 100, "testdata/issue540_golden.pdf")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
 
 	err = p.Save(100, 100, "testdata/issue540.pdf")
 	if err != nil {

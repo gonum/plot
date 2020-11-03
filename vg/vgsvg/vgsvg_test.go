@@ -88,6 +88,15 @@ func TestHtmlEscape(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	if *cmpimg.GenerateTestData {
+		// Recreate Golden images and exit.
+		err = ioutil.WriteFile("testdata/scatter_line_golden.svg", b.Bytes(), 0o644)
+		if err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
 	want, err := ioutil.ReadFile("testdata/scatter_line_golden.svg")
 	if err != nil {
 		t.Fatal(err)

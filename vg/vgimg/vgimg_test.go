@@ -118,6 +118,15 @@ func TestIssue540(t *testing.T) {
 	p.Add(lines, points)
 	p.Add(plotter.NewGrid())
 
+	if *cmpimg.GenerateTestData {
+		// Recreate Golden images and exit.
+		err = p.Save(100, 100, "testdata/issue540_golden.png")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return
+	}
+
 	err = p.Save(100, 100, "testdata/issue540.png")
 	if err != nil {
 		t.Fatal(err)
