@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        go-version: [1.15.x, 1.14.x]
+        platform: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.platform }}
+    env:
+        GO111MODULE: on
+        GOPATH: ${{ github.workspace }}
+        DISPLAY: ":99.0"
+    defaults:
+        run:
+            working-directory: ${{ env.GOPATH }}/src/gonum.org/v1/plot
+
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: ${{ matrix.go-version }}
+
+    - name: Cache-Go
+      uses: actions/cache@v1
+      with:
+        path: |
+            ~/go/pkg/mod              # Module download cache
+            ~/.cache/go-build         # Build cache (Linux)
+            ~/Library/Caches/go-build # Build cache (Mac)
+            '%LocalAppData%\go-build' # Build cache (Windows)
+
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+          path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
+
+    - name: Install Linux packages
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -qq pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev xvfb xdotool
+        # start a virtual frame buffer
+        Xvfb :99 -screen 0 1920x1024x24 &
+
+    - name: Check copyrights+formatting
+      run: |
+          # Required for format check.
+          go get golang.org/x/tools/cmd/goimports
+          # Required for imports check.
+          go get gonum.org/v1/tools/cmd/check-imports
+          # Required for copyright header check.
+          go get gonum.org/v1/tools/cmd/check-copyright
+
+          ./.travis/check-copyright.sh
+          ./.travis/check-formatting.sh
+
+    - name: Build
+      run: |
+        go install -v ./...
+
+    - name: Test Linux
+      if: matrix.platform == 'ubuntu-latest'
+      run: |
+        go test -v ./...
+        test -z "$(gofmt -d .)"
+        ./.travis/check-imports.sh
+        ./.github/workflows/test-coverage.sh
+
+    - name: Test Windows
+      if: matrix.platform == 'windows-latest'
+      run: |
+        go test -v ./...
+
+    - name: Test Darwin
+      if: matrix.platform == 'macos-latest'
+      run: |
+        go test -v ./...
+
+    - name: Upload-Coverage
+      if: matrix.platform == 'ubuntu-latest'
+      uses: codecov/codecov-action@v1
