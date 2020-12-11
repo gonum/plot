@@ -22,7 +22,7 @@ There is a discussion list on Google Groups: gonum-dev@googlegroups.com.
 * The `plot` package provides simple interface for laying out a plot and provides primitives for drawing to it.
 * The `plotter` package provides a standard set of `Plotter`s which use the primitives provided by the `plot` package for drawing lines, scatter plots, box plots, error bars, etc. to a plot. You do not need to use the `plotter` package to make use of `gonum/plot`, however: see the wiki for a tutorial on making your own custom plotters.
 * The `plotutil` package contains a few routines that allow some common plot types to be made very easily. This package is quite new so it is not as well tested as the others and it is bound to change.
-* The `vg` package provides a generic vector graphics API that sits on top of other vector graphics back-ends such as a custom EPS back-end, draw2d, SVGo, X-Window and gopdf.
+* The `vg` package provides a generic vector graphics API that sits on top of other vector graphics back-ends such as a custom EPS back-end, draw2d, SVGo, X-Window, gopdf, and [Gio](https://gioui.org).
 
 ## Documentation
 
