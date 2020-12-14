@@ -12,6 +12,7 @@ package vg
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"sync"
@@ -19,14 +20,14 @@ import (
 	"gonum.org/v1/plot/vg/fonts"
 
 	"golang.org/x/image/font"
+	"golang.org/x/image/font/opentype"
+	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
-
-	"github.com/golang/freetype/truetype"
 )
 
 var (
 	// FontMap maps Postscript/PDF font names to compatible
-	// free fonts (TrueType converted ghostscript fonts).
+	// free fonts (OpenType converted ghostscript fonts).
 	// Fonts that are not keys of this map are not supported.
 	FontMap = map[string]string{
 
@@ -50,11 +51,14 @@ var (
 	}
 
 	// loadedFonts is indexed by a font name and it
-	// caches the associated *truetype.Font.
-	loadedFonts = make(map[string]*truetype.Font)
+	// caches the associated *opentype.Font.
+	loadedFonts = make(map[string]*opentype.Font)
 
 	// FontLock protects access to the loadedFonts map.
 	fontLock sync.RWMutex
+
+	// default hinting for OpenType fonts
+	defaultHinting = font.HintingNone
 )
 
 // A Font represents one of the supported font
@@ -68,23 +72,24 @@ type Font struct {
 	// name is the name of this font.
 	name string
 
-	// This is a little bit of a hack, but the truetype
+	// This is a little bit of a hack, but the opentype
 	// font is currently only needed to determine the
 	// dimensions of strings drawn in this font.
 	// The actual drawing of the strings is handled
 	// separately by different back-ends:
 	// Both Postscript and PDF are capable of drawing
-	// their own fonts and draw2d loads its own copy of
-	// the truetype fonts for its own output.
+	// their own fonts and Gio loads its own copy of
+	// the opentype fonts for its own output.
 	//
 	// This isn't a necessity--some future backend is
 	// free to use this field--however it is a consequence
 	// of the fact that the current backends were
 	// developed independently of this package.
 
-	// font is the truetype font pointer for this
-	// font.
-	font *truetype.Font
+	// font is the opentype font pointer for this font.
+	font *opentype.Font
+
+	hinting font.Hinting
 }
 
 // MakeFont returns a font object.  The name of the font must
@@ -97,6 +102,7 @@ func MakeFont(name string, size Length) (font Font, err error) {
 	font.Size = size
 	font.name = name
 	font.font, err = getFont(name)
+	font.hinting = defaultHinting
 	return
 }
 
@@ -105,16 +111,20 @@ func (f *Font) Name() string {
 	return f.name
 }
 
-// Font returns the corresponding truetype.Font.
-func (f *Font) Font() *truetype.Font {
+// Font returns the corresponding opentype.Font.
+func (f *Font) Font() *opentype.Font {
 	return f.font
 }
 
 func (f *Font) FontFace(dpi float64) font.Face {
-	return truetype.NewFace(f.font, &truetype.Options{
+	face, err := opentype.NewFace(f.font, &opentype.FaceOptions{
 		Size: f.Size.Points(),
 		DPI:  dpi,
 	})
+	if err != nil {
+		panic(err)
+	}
+	return face
 }
 
 // SetName sets the name of the font, effectively
@@ -149,42 +159,73 @@ type FontExtents struct {
 
 // Extents returns the FontExtents for a font.
 func (f *Font) Extents() FontExtents {
-	bounds := f.font.Bounds(fixed.Int26_6(f.Font().FUnitsPerEm()))
-	scale := f.Size / Points(float64(f.Font().FUnitsPerEm()))
+	var (
+		// TODO(sbinet): re-use a Font-level sfnt.Buffer instead?
+		buf  sfnt.Buffer
+		ppem = fixed.Int26_6(f.font.UnitsPerEm())
+	)
+
+	met, err := f.font.Metrics(&buf, ppem, f.hinting)
+	if err != nil {
+		panic(fmt.Errorf("could not extract font extents: %v", err))
+	}
+	scale := f.Size / Points(float64(ppem))
 	return FontExtents{
-		Ascent:  Points(float64(bounds.Max.Y)) * scale,
-		Descent: Points(float64(bounds.Min.Y)) * scale,
-		Height:  Points(float64(bounds.Max.Y-bounds.Min.Y)) * scale,
+		Ascent:  Points(float64(met.Ascent)) * scale,
+		Descent: Points(float64(-met.Descent)) * scale, // sfnt-descent is >0
+		Height:  Points(float64(met.Height)) * scale,
 	}
 }
 
 // Width returns width of a string when drawn using the font.
 func (f *Font) Width(s string) Length {
-	// scale converts truetype.FUnit to float64
-	scale := f.Size / Points(float64(f.font.FUnitsPerEm()))
+	var (
+		ppem = fixed.Int26_6(f.font.UnitsPerEm())
 
-	width := 0
-	prev, hasPrev := truetype.Index(0), false
+		// scale converts sfnt.Unit to float64
+		scale = f.Size / Points(float64(ppem))
+
+		width     = 0
+		hasPrev   = false
+		buf       sfnt.Buffer
+		prev, idx sfnt.GlyphIndex
+	)
 	for _, rune := range s {
-		index := f.font.Index(rune)
-		if hasPrev {
-			width += int(f.font.Kern(fixed.Int26_6(f.font.FUnitsPerEm()), prev, index))
+		var err error
+		idx, err = f.font.GlyphIndex(&buf, rune)
+		if err != nil {
+			panic(fmt.Errorf("could not get glyph index: %v", err))
 		}
-		width += int(f.font.HMetric(fixed.Int26_6(f.font.FUnitsPerEm()), index).AdvanceWidth)
-		prev, hasPrev = index, true
+		if hasPrev {
+			kern, err := f.font.Kern(&buf, prev, idx, ppem, f.hinting)
+			switch {
+			case err == nil:
+				width += int(kern)
+			case errors.Is(err, sfnt.ErrNotFound):
+				// no-op
+			default:
+				panic(fmt.Errorf("could not get kerning: %v", err))
+			}
+		}
+		adv, err := f.font.GlyphAdvance(&buf, idx, ppem, f.hinting)
+		if err != nil {
+			panic(fmt.Errorf("could not retrieve glyph's advance: %v", err))
+		}
+		width += int(adv)
+		prev, hasPrev = idx, true
 	}
 	return Points(float64(width)) * scale
 }
 
-// AddFont associates a truetype.Font with the given name.
-func AddFont(name string, font *truetype.Font) {
+// AddFont associates an opentype.Font with the given name.
+func AddFont(name string, font *opentype.Font) {
 	fontLock.Lock()
 	loadedFonts[name] = font
 	fontLock.Unlock()
 }
 
-// getFont returns the truetype.Font for the given font name or an error.
-func getFont(name string) (*truetype.Font, error) {
+// getFont returns the opentype.Font for the given font name or an error.
+func getFont(name string) (*opentype.Font, error) {
 	fontLock.RLock()
 	f, ok := loadedFonts[name]
 	fontLock.RUnlock()
@@ -197,14 +238,14 @@ func getFont(name string) (*truetype.Font, error) {
 		return nil, err
 	}
 
-	font, err := truetype.Parse(bytes)
-	if err == nil {
-		fontLock.Lock()
-		loadedFonts[name] = font
-		fontLock.Unlock()
-	} else {
-		err = errors.New("Failed to parse font file: " + err.Error())
+	font, err := sfnt.Parse(bytes)
+	if err != nil {
+		return nil, fmt.Errorf("could not parse font file %q: %w", name, err)
 	}
+
+	fontLock.Lock()
+	loadedFonts[name] = font
+	fontLock.Unlock()
 
 	return font, err
 }
