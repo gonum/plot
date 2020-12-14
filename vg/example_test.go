@@ -17,7 +17,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/golang/freetype/truetype"
+	"golang.org/x/image/font/opentype"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -41,7 +41,7 @@ func Example_addFont() {
 		log.Fatalf("could not untar archive: %+v", err)
 	}
 
-	fontTTF, err := truetype.Parse(ttf)
+	fontTTF, err := opentype.Parse(ttf)
 	if err != nil {
 		log.Fatal(err)
 	}
