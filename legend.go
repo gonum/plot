@@ -106,7 +106,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 	iconx += l.XOffs
 
 	descent := sty.Font.Extents().Descent
-	enth := l.entryHeight() + descent
+	enth := l.entryHeight()
 	y := c.Max.Y - enth
 	if !l.Top {
 		y = c.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
@@ -131,7 +131,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
-		yoffs := (enth - sty.Rectangle(e.text).Max.Y) / 2
+		yoffs := (enth + descent - sty.Rectangle(e.text).Max.Y) / 2
 		yoffs += yoff
 		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
 		icon.Min.Y -= enth + l.Padding
