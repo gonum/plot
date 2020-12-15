@@ -319,8 +319,9 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, txt string) {
 	c.ctx.push()
 	defer c.ctx.pop()
 
+	e := font.Extents()
 	x := pt.X.Dots(c.ctx.dpi)
-	y := pt.Y.Dots(c.ctx.dpi) // FIXME(sbinet): set to baseline.
+	y := pt.Y.Dots(c.ctx.dpi) + e.Descent.Dots(c.ctx.dpi)
 	h := c.ctx.h.Dots(c.ctx.dpi)
 
 	c.ctx.invertY()
