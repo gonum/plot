@@ -300,7 +300,10 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 	c.ctx.Push()
 	defer c.ctx.Pop()
 
-	c.ctx.SetFontFace(font.FontFace(c.DPI()))
+	face := font.FontFace(c.DPI())
+	defer face.Close()
+
+	c.ctx.SetFontFace(face)
 
 	x := pt.X.Dots(c.DPI())
 	y := pt.Y.Dots(c.DPI())
