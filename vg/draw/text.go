@@ -73,8 +73,11 @@ func (sty TextStyle) Height(txt string) vg.Length {
 	if nl == 0 {
 		return vg.Length(0)
 	}
-	e := sty.Font.Extents()
-	return e.Height * vg.Length(nl)
+	var (
+		e       = sty.Font.Extents()
+		linegap = (e.Height - e.Ascent + e.Descent) * vg.Length(nl-1)
+	)
+	return (e.Ascent-e.Descent)*vg.Length(nl) + linegap
 }
 
 // Rectangle returns a rectangle giving the bounds of
@@ -83,8 +86,10 @@ func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
 	e := sty.Font.Extents()
 	w := sty.Width(txt)
 	h := sty.Height(txt)
+	desc := vg.Length(e.Height - e.Ascent) // descent + linegap
 	xoff := vg.Length(sty.XAlign) * w
-	yoff := vg.Length(sty.YAlign)*h + e.Descent
+	yoff := vg.Length(sty.YAlign)*h - desc
+
 	// lower left corner
 	p1 := rotatePoint(sty.Rotation, vg.Point{X: xoff, Y: yoff})
 	// upper left corner
