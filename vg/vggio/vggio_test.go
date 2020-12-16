@@ -17,10 +17,13 @@ import (
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
+
+const deltaGio = 10 // empirical value from experimentation.
 
 func TestCanvas(t *testing.T) {
 	if runtime.GOOS == "darwin" {
@@ -35,69 +38,72 @@ func TestCanvas(t *testing.T) {
 		dpi = 96
 	)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-	p.Title.Text = "My title"
-	p.X.Label.Text = "X"
-	p.Y.Label.Text = "Y"
+	cmpimg.CheckPlotApprox(func() {
+		p, err := plot.New()
+		if err != nil {
+			log.Fatalf("could not create plot: %+v", err)
+		}
+		p.Title.Text = "My title"
+		p.X.Label.Text = "X"
+		p.Y.Label.Text = "Y"
 
-	quad := plotter.NewFunction(func(x float64) float64 { return x * x })
-	quad.Color = color.RGBA{B: 255, A: 255}
+		quad := plotter.NewFunction(func(x float64) float64 { return x * x })
+		quad.Color = color.RGBA{B: 255, A: 255}
 
-	exp := plotter.NewFunction(func(x float64) float64 { return math.Pow(2, x) })
-	exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
-	exp.Width = vg.Points(2)
-	exp.Color = color.RGBA{G: 255, A: 255}
+		exp := plotter.NewFunction(func(x float64) float64 { return math.Pow(2, x) })
+		exp.Dashes = []vg.Length{vg.Points(2), vg.Points(2)}
+		exp.Width = vg.Points(2)
+		exp.Color = color.RGBA{G: 255, A: 255}
 
-	sin := plotter.NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
-	sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
-	sin.Width = vg.Points(4)
-	sin.Color = color.RGBA{R: 255, A: 255}
+		sin := plotter.NewFunction(func(x float64) float64 { return 10*math.Sin(x) + 50 })
+		sin.Dashes = []vg.Length{vg.Points(4), vg.Points(5)}
+		sin.Width = vg.Points(4)
+		sin.Color = color.RGBA{R: 255, A: 255}
 
-	p.Add(quad, exp, sin)
-	p.Legend.Add("x^2", quad)
-	p.Legend.Add("2^x", exp)
-	p.Legend.Add("10*sin(x)+50", sin)
-	p.Legend.ThumbnailWidth = 0.5 * vg.Inch
+		p.Add(quad, exp, sin)
+		p.Legend.Add("x^2", quad)
+		p.Legend.Add("2^x", exp)
+		p.Legend.Add("10*sin(x)+50", sin)
+		p.Legend.ThumbnailWidth = 0.5 * vg.Inch
 
-	p.X.Min = 0
-	p.X.Max = 10
-	p.Y.Min = 0
-	p.Y.Max = 100
+		p.X.Min = 0
+		p.X.Max = 10
+		p.Y.Min = 0
+		p.Y.Max = 100
 
-	p.Add(plotter.NewGrid())
+		p.Add(plotter.NewGrid())
 
-	gtx := layout.Context{
-		Ops: new(op.Ops),
-		Constraints: layout.Exact(image.Pt(
-			int(w.Dots(dpi)),
-			int(h.Dots(dpi)),
-		)),
-	}
-	cnv := New(gtx, w, h, UseDPI(dpi))
-	p.Draw(draw.New(cnv))
+		gtx := layout.Context{
+			Ops: new(op.Ops),
+			Constraints: layout.Exact(image.Pt(
+				int(w.Dots(dpi)),
+				int(h.Dots(dpi)),
+			)),
+		}
+		cnv := New(gtx, w, h, UseDPI(dpi))
+		p.Draw(draw.New(cnv))
 
-	img, err := cnv.Screenshot()
-	if err != nil {
-		t.Fatalf("could not create screenshot: %+v", err)
-	}
-	f, err := os.Create(fname)
-	if err != nil {
-		t.Fatalf("could not create output file: %+v", err)
-	}
-	defer f.Close()
+		img, err := cnv.Screenshot()
+		if err != nil {
+			t.Fatalf("could not create screenshot: %+v", err)
+		}
+		f, err := os.Create(fname)
+		if err != nil {
+			t.Fatalf("could not create output file: %+v", err)
+		}
+		defer f.Close()
 
-	err = png.Encode(f, img)
-	if err != nil {
-		t.Fatalf("could not encode screenshot: %+v", err)
-	}
+		err = png.Encode(f, img)
+		if err != nil {
+			t.Fatalf("could not encode screenshot: %+v", err)
+		}
 
-	err = f.Close()
-	if err != nil {
-		t.Fatalf("could not save screenshot: %+v", err)
-	}
+		err = f.Close()
+		if err != nil {
+			t.Fatalf("could not save screenshot: %+v", err)
+		}
+	}, t, deltaGio, "func.png",
+	)
 }
 
 func TestCollectionName(t *testing.T) {
