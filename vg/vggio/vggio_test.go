@@ -131,3 +131,141 @@ func TestCollectionName(t *testing.T) {
 		}
 	}
 }
+
+func TestLabels(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("TODO: github actions for darwin with headless setup.")
+	}
+
+	const fname = "testdata/labels.png"
+
+	const (
+		w   = 20 * vg.Centimeter
+		h   = 15 * vg.Centimeter
+		dpi = 96
+	)
+
+	cmpimg.CheckPlotApprox(func() {
+		p, err := plot.New()
+		if err != nil {
+			t.Fatalf("could not create plot: %+v", err)
+		}
+
+		p.Title.Text = "Labels"
+		p.X.Min = -1
+		p.X.Max = +1
+		p.Y.Min = -1
+		p.Y.Max = +1
+
+		const (
+			left   = 0.00
+			middle = 0.02
+			right  = 0.04
+		)
+
+		labels, err := plotter.NewLabels(plotter.XYLabels{
+			XYs: []plotter.XY{
+				{X: -0.8 + left, Y: -0.5},   // Aq + y-align bottom
+				{X: -0.6 + middle, Y: -0.5}, // Aq + y-align center
+				{X: -0.4 + right, Y: -0.5},  // Aq + y-align top
+
+				{X: -0.8 + left, Y: +0.5}, // ditto for Aq\nAq
+				{X: -0.6 + middle, Y: +0.5},
+				{X: -0.4 + right, Y: +0.5},
+
+				{X: +0.0 + left, Y: +0}, // ditto for Bg\nBg\nBg
+				{X: +0.2 + middle, Y: +0},
+				{X: +0.4 + right, Y: +0},
+			},
+			Labels: []string{
+				"Aq", "Aq", "Aq",
+				"Aq\nAq", "Aq\nAq", "Aq\nAq",
+
+				"Bg\nBg\nBg",
+				"Bg\nBg\nBg",
+				"Bg\nBg\nBg",
+			},
+		})
+		if err != nil {
+			t.Fatalf("could not creates labels plotter: %+v", err)
+		}
+		for i := range labels.TextStyle {
+			sty := &labels.TextStyle[i]
+			sty.Font.Size = vg.Length(34)
+		}
+		labels.TextStyle[0].YAlign = draw.YBottom
+		labels.TextStyle[1].YAlign = draw.YCenter
+		labels.TextStyle[2].YAlign = draw.YTop
+
+		labels.TextStyle[3].YAlign = draw.YBottom
+		labels.TextStyle[4].YAlign = draw.YCenter
+		labels.TextStyle[5].YAlign = draw.YTop
+
+		labels.TextStyle[6].YAlign = draw.YBottom
+		labels.TextStyle[7].YAlign = draw.YCenter
+		labels.TextStyle[8].YAlign = draw.YTop
+
+		lred, err := plotter.NewLabels(plotter.XYLabels{
+			XYs: []plotter.XY{
+				{X: -0.8 + left, Y: +0.5},
+				{X: +0.0 + left, Y: +0},
+			},
+			Labels: []string{
+				"Aq", "Bg",
+			},
+		})
+		if err != nil {
+			t.Fatalf("could not creates labels plotter: %+v", err)
+		}
+		for i := range lred.TextStyle {
+			sty := &lred.TextStyle[i]
+			sty.Font.Size = vg.Length(34)
+			sty.Color = color.RGBA{R: 255, A: 255}
+			sty.YAlign = draw.YBottom
+		}
+
+		m5 := plotter.NewFunction(func(float64) float64 { return -0.5 })
+		m5.LineStyle.Color = color.RGBA{R: 255, A: 255}
+
+		l0 := plotter.NewFunction(func(float64) float64 { return 0 })
+		l0.LineStyle.Color = color.RGBA{G: 255, A: 255}
+
+		p5 := plotter.NewFunction(func(float64) float64 { return +0.5 })
+		p5.LineStyle.Color = color.RGBA{B: 255, A: 255}
+
+		p.Add(labels, lred, m5, l0, p5)
+		p.Add(plotter.NewGrid())
+		p.Add(plotter.NewGlyphBoxes())
+
+		gtx := layout.Context{
+			Ops: new(op.Ops),
+			Constraints: layout.Exact(image.Pt(
+				int(w.Dots(dpi)),
+				int(h.Dots(dpi)),
+			)),
+		}
+		cnv := New(gtx, w, h, UseDPI(dpi))
+		p.Draw(draw.New(cnv))
+
+		img, err := cnv.Screenshot()
+		if err != nil {
+			t.Fatalf("could not create screenshot: %+v", err)
+		}
+		f, err := os.Create(fname)
+		if err != nil {
+			t.Fatalf("could not create output file: %+v", err)
+		}
+		defer f.Close()
+
+		err = png.Encode(f, img)
+		if err != nil {
+			t.Fatalf("could not encode screenshot: %+v", err)
+		}
+
+		err = f.Close()
+		if err != nil {
+			t.Fatalf("could not save screenshot: %+v", err)
+		}
+	}, t, deltaGio, "labels.png",
+	)
+}
