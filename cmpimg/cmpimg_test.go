@@ -7,6 +7,7 @@ package cmpimg
 import (
 	"bytes"
 	"encoding/base64"
+	"fmt"
 	"image"
 	"image/png"
 	"io/ioutil"
@@ -49,5 +50,60 @@ func TestDiff(t *testing.T) {
 	gotDiff := base64.StdEncoding.EncodeToString(buf.Bytes())
 	if gotDiff != wantDiffEncoded {
 		t.Errorf("unexpected encoded diff value:\ngot:%s\nwant:%s", gotDiff, wantDiffEncoded)
+	}
+}
+
+func TestEqual(t *testing.T) {
+	got, err := ioutil.ReadFile("testdata/approx_got_golden.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err := Equal("png", got, got)
+	if err != nil {
+		t.Fatalf("could not compare images: %+v", err)
+	}
+	if !ok {
+		t.Fatalf("same image does not compare equal")
+	}
+}
+
+func TestEqualApprox(t *testing.T) {
+	got, err := ioutil.ReadFile("testdata/approx_got_golden.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	want, err := ioutil.ReadFile("testdata/approx_want_golden.png")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tc := range []struct {
+		delta uint8
+		ok    bool
+	}{
+		{0, false},
+		{1, false},
+		{2, false},
+		{3, false},
+		{4, false},
+		{5, false},
+		{6, false},
+		{7, true},
+		{8, true},
+		{9, true},
+		{10, true},
+		{255, true},
+	} {
+		t.Run(fmt.Sprintf("delta=%d", int(tc.delta)), func(t *testing.T) {
+			ok, err := EqualApprox("png", got, want, tc.delta)
+			if err != nil {
+				t.Fatalf("could not compare images: %+v", err)
+			}
+			if ok != tc.ok {
+				t.Fatalf("got=%v, want=%v", ok, tc.ok)
+			}
+		})
 	}
 }

@@ -30,6 +30,15 @@ import (
 //
 // Equal may return an error if the decoding of the raw image somehow failed.
 func Equal(typ string, raw1, raw2 []byte) (bool, error) {
+	return EqualApprox(typ, raw1, raw2, 0)
+}
+
+// EqualApprox takes the raw representation of two images, raw1 and raw2,
+// together with the underlying image type ("eps", "jpeg", "jpg", "pdf", "png", "svg", "tiff"),
+// and returns whether the two images are equal or not.
+//
+// EqualApprox may return an error if the decoding of the raw image somehow failed.
+func EqualApprox(typ string, raw1, raw2 []byte, delta uint8) (bool, error) {
 	switch typ {
 	case "svg", "tex":
 		return bytes.Equal(raw1, raw2), nil
@@ -73,7 +82,10 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		return reflect.DeepEqual(v1, v2), nil
+		if delta == 0 {
+			return reflect.DeepEqual(v1, v2), nil
+		}
+		return cmpImg(v1, v2, delta), nil
 
 	default:
 		return false, fmt.Errorf("cmpimg: unknown image type %q", typ)
@@ -98,6 +110,66 @@ func cmpPdf(pdf1, pdf2 *pdf.Reader) bool {
 	t1 := pdf1.Trailer().String()
 	t2 := pdf2.Trailer().String()
 	return t1 == t2
+}
+
+func cmpImg(v1, v2 image.Image, delta uint8) bool {
+	img1, ok := v1.(*image.RGBA)
+	if !ok {
+		img1 = newRGBAFrom(v1)
+	}
+
+	img2, ok := v2.(*image.RGBA)
+	if !ok {
+		img2 = newRGBAFrom(v2)
+	}
+
+	if len(img1.Pix) != len(img2.Pix) {
+		return false
+	}
+
+	diff := func(p1, p2 uint8) bool {
+		if p1 > p2 {
+			p1, p2 = p2, p1
+		}
+		return (p2 - p1) < delta
+	}
+
+	equalApprox := func(c1, c2 color.RGBA) bool {
+		var (
+			r1 = c1.R
+			g1 = c1.G
+			b1 = c1.B
+			a1 = c1.A
+
+			r2 = c2.R
+			g2 = c2.G
+			b2 = c2.B
+			a2 = c2.A
+		)
+		return diff(r1, r2) && diff(g1, g2) && diff(b1, b2) && diff(a1, a2)
+	}
+
+	bnd := img1.Bounds()
+	for x := bnd.Min.X; x < bnd.Max.X; x++ {
+		for y := bnd.Min.Y; y < bnd.Max.Y; y++ {
+			c1 := img1.RGBAAt(x, y)
+			c2 := img2.RGBAAt(x, y)
+			if !equalApprox(c1, c2) {
+				return false
+			}
+		}
+	}
+	return true
+
+}
+
+func newRGBAFrom(src image.Image) *image.RGBA {
+	var (
+		bnds = src.Bounds()
+		dst  = image.NewRGBA(bnds)
+	)
+	draw.Draw(dst, bnds, src, image.Point{}, draw.Src)
+	return dst
 }
 
 // Diff calculates an intensity-scaled difference between images a and b

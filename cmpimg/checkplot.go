@@ -26,10 +26,18 @@ func goldenPath(path string) string {
 }
 
 // CheckPlot checks a generated plot against a previously created reference.
-// If generateTestData = true, it regenerates the reference.
+// If GenerateTestData = true, it regenerates the reference.
 // For image.Image formats, a base64 encoded png representation is output to
 // the testing log when a difference is identified.
 func CheckPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
+	CheckPlotApprox(ExampleFunc, t, 0, filenames...)
+}
+
+// CheckPlotApprox checks a generated plot against a previously created reference.
+// If GenerateTestData = true, it regenerates the reference.
+// For image.Image formats, a base64 encoded png representation is output to
+// the testing log when a difference is identified.
+func CheckPlotApprox(ExampleFunc func(), t *testing.T, delta uint8, filenames ...string) {
 	t.Helper()
 
 	paths := make([]string, len(filenames))
@@ -68,7 +76,7 @@ func CheckPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
 			continue
 		}
 		typ := filepath.Ext(path)[1:] // remove the dot in e.g. ".pdf"
-		ok, err := Equal(typ, got, want)
+		ok, err := EqualApprox(typ, got, want, delta)
 		if err != nil {
 			t.Errorf("failed to compare image for %s: %v", path, err)
 			continue
