@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package vgpdf implements the vg.Canvas interface
-// using gofpdf (github.com/jung-kurt/gofpdf).
+// using gofpdf (github.com/phpdave11/gofpdf).
 package vgpdf // import "gonum.org/v1/plot/vg/vgpdf"
 
 import (
@@ -20,7 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
-	pdf "github.com/jung-kurt/gofpdf"
+	pdf "github.com/phpdave11/gofpdf"
 
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/fonts"

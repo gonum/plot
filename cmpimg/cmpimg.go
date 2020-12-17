@@ -16,7 +16,7 @@ import (
 	"reflect"
 	"strings"
 
-	"rsc.io/pdf"
+	"github.com/phpdave11/gofpdf"
 
 	_ "image/jpeg"
 	_ "image/png"
@@ -59,19 +59,7 @@ func EqualApprox(typ string, raw1, raw2 []byte, delta uint8) (bool, error) {
 		return true, nil
 
 	case "pdf":
-		r1 := bytes.NewReader(raw1)
-		pdf1, err := pdf.NewReader(r1, r1.Size())
-		if err != nil {
-			return false, err
-		}
-
-		r2 := bytes.NewReader(raw2)
-		pdf2, err := pdf.NewReader(r2, r2.Size())
-		if err != nil {
-			return false, err
-		}
-
-		return cmpPdf(pdf1, pdf2), nil
+		return cmpPdf(raw1, raw2), nil
 
 	case "jpeg", "jpg", "png", "tiff":
 		v1, _, err := image.Decode(bytes.NewReader(raw1))
@@ -92,24 +80,8 @@ func EqualApprox(typ string, raw1, raw2 []byte, delta uint8) (bool, error) {
 	}
 }
 
-func cmpPdf(pdf1, pdf2 *pdf.Reader) bool {
-	n1 := pdf1.NumPage()
-	n2 := pdf2.NumPage()
-	if n1 != n2 {
-		return false
-	}
-
-	for i := 1; i <= n1; i++ {
-		p1 := pdf1.Page(i).Content()
-		p2 := pdf2.Page(i).Content()
-		if !reflect.DeepEqual(p1, p2) {
-			return false
-		}
-	}
-
-	t1 := pdf1.Trailer().String()
-	t2 := pdf2.Trailer().String()
-	return t1 == t2
+func cmpPdf(pdf1, pdf2 []byte) bool {
+	return gofpdf.CompareBytes(pdf1, pdf1, false) == nil
 }
 
 func cmpImg(v1, v2 image.Image, delta uint8) bool {
