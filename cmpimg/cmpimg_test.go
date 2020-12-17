@@ -80,23 +80,17 @@ func TestEqualApprox(t *testing.T) {
 	}
 
 	for _, tc := range []struct {
-		delta uint8
+		delta float64
 		ok    bool
 	}{
 		{0, false},
-		{1, false},
-		{2, false},
-		{3, false},
-		{4, false},
-		{5, false},
-		{6, false},
-		{7, true},
-		{8, true},
-		{9, true},
-		{10, true},
-		{255, true},
+		{0.01, false},
+		{0.02, false},
+		{0.05, true},
+		{0.1, true},
+		{1, true},
 	} {
-		t.Run(fmt.Sprintf("delta=%d", int(tc.delta)), func(t *testing.T) {
+		t.Run(fmt.Sprintf("delta=%g", tc.delta), func(t *testing.T) {
 			ok, err := EqualApprox("png", got, want, tc.delta)
 			if err != nil {
 				t.Fatalf("could not compare images: %+v", err)

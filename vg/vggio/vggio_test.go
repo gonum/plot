@@ -23,7 +23,7 @@ import (
 	"gonum.org/v1/plot/vg/draw"
 )
 
-const deltaGio = 10 // empirical value from experimentation.
+const deltaGio = 0.05 // empirical value from experimentation.
 
 func TestCanvas(t *testing.T) {
 	if runtime.GOOS == "darwin" {

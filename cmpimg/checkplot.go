@@ -34,10 +34,12 @@ func CheckPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
 }
 
 // CheckPlotApprox checks a generated plot against a previously created reference.
+// The normalized delta parameter describes how tight the matching should be
+// performed, where delta=0 expresses a perfect match, and delta=1 a very loose match.
 // If GenerateTestData = true, it regenerates the reference.
 // For image.Image formats, a base64 encoded png representation is output to
 // the testing log when a difference is identified.
-func CheckPlotApprox(ExampleFunc func(), t *testing.T, delta uint8, filenames ...string) {
+func CheckPlotApprox(ExampleFunc func(), t *testing.T, delta float64, filenames ...string) {
 	t.Helper()
 
 	paths := make([]string, len(filenames))
