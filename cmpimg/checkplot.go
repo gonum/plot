@@ -107,6 +107,16 @@ func CheckPlotApprox(ExampleFunc func(), t *testing.T, delta uint8, filenames ..
 					t.Errorf("failed to encode difference png: %v", err)
 					continue
 				}
+				t.Log("image diff:")
+				t.Log("IMAGE:" + base64.StdEncoding.EncodeToString(buf.Bytes()))
+
+				buf.Reset()
+				err = png.Encode(&buf, v1)
+				if err != nil {
+					t.Errorf("failed to encode result png: %+v", err)
+					continue
+				}
+				t.Log("image check:")
 				t.Log("IMAGE:" + base64.StdEncoding.EncodeToString(buf.Bytes()))
 			}
 		}
