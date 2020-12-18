@@ -7,11 +7,13 @@ package plotter_test
 import (
 	"log"
 	"math"
+	"testing"
 
 	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/palette"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
@@ -76,4 +78,8 @@ func (g unitGrid) Y(r int) float64 {
 		panic("index out of range")
 	}
 	return float64(r)
+}
+
+func TestContour(t *testing.T) {
+	cmpimg.CheckPlotApprox(ExampleContour, t, 0.01, "contour.png")
 }
