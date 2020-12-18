@@ -89,6 +89,7 @@ type Font struct {
 	// font is the opentype font pointer for this font.
 	font *opentype.Font
 
+	// hinting specifies how a vector font's glyph nodes is quantized.
 	hinting font.Hinting
 }
 
@@ -180,10 +181,10 @@ func (f *Font) Extents() FontExtents {
 // Width returns width of a string when drawn using the font.
 func (f *Font) Width(s string) Length {
 	var (
-		ppem = fixed.Int26_6(f.font.UnitsPerEm())
+		pixelsPerEm = fixed.Int26_6(f.font.UnitsPerEm())
 
 		// scale converts sfnt.Unit to float64
-		scale = f.Size / Points(float64(ppem))
+		scale = f.Size / Points(float64(pixelsPerEm))
 
 		width     = 0
 		hasPrev   = false
@@ -197,7 +198,7 @@ func (f *Font) Width(s string) Length {
 			panic(fmt.Errorf("could not get glyph index: %v", err))
 		}
 		if hasPrev {
-			kern, err := f.font.Kern(&buf, prev, idx, ppem, f.hinting)
+			kern, err := f.font.Kern(&buf, prev, idx, pixelsPerEm, f.hinting)
 			switch {
 			case err == nil:
 				width += int(kern)
@@ -207,7 +208,7 @@ func (f *Font) Width(s string) Length {
 				panic(fmt.Errorf("could not get kerning: %v", err))
 			}
 		}
-		adv, err := f.font.GlyphAdvance(&buf, idx, ppem, f.hinting)
+		adv, err := f.font.GlyphAdvance(&buf, idx, pixelsPerEm, f.hinting)
 		if err != nil {
 			panic(fmt.Errorf("could not retrieve glyph's advance: %v", err))
 		}
