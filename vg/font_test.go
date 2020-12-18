@@ -18,6 +18,8 @@ func TestFontExtends(t *testing.T) {
 		font string
 		want map[Length]FontExtents
 	}{
+		// values obtained when gonum/plot used the package
+		// github.com/freetype/truetype for handling fonts.
 		{
 			font: "Times-Roman",
 			want: map[Length]FontExtents{
@@ -126,6 +128,8 @@ func TestFontWidth(t *testing.T) {
 		txt  string
 		want Length
 	}{
+		// values obtained when gonum/plot used the package
+		// github.com/freetype/truetype for handling fonts.
 		{" ", 3},
 		{"i", 3.333984375},
 		{"q", 6},
@@ -170,13 +174,15 @@ func TestFontKern(t *testing.T) {
 		txt  string
 		want fixed.Int26_6
 	}{
+		// values obtained when gonum/plot used the package
+		// github.com/freetype/truetype for handling fonts.
 		{"AV", -264},
-		{"A∇", 0},
+		{"A∇", 0}, // Liberation has no kerning information for greek symbols
 		{"AΔ", 0},
 		{"AA", 0},
 		{"VA", -264},
-		{"∇A", 0},
-		{"∇Δ", 0},
+		{"∇A", 0}, // Liberation has no kerning information for greek symbols
+		{"∇Δ", 0}, // Liberation has no kerning information for greek symbols
 	} {
 		t.Run(tc.txt, func(t *testing.T) {
 			var (
