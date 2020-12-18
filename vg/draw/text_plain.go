@@ -52,8 +52,9 @@ func (hdlr PlainTextHandler) Draw(c *Canvas, txt string, sty TextStyle, pt vg.Po
 		c.Rotate(sty.Rotation)
 	}
 
-	cos := vg.Length(math.Cos(sty.Rotation))
-	sin := vg.Length(math.Sin(sty.Rotation))
+	sin64, cos64 := math.Sincos(sty.Rotation)
+	cos := vg.Length(cos64)
+	sin := vg.Length(sin64)
 	pt.X, pt.Y = pt.Y*sin+pt.X*cos, pt.Y*cos-pt.X*sin
 
 	nl := hdlr.textNLines(txt)
