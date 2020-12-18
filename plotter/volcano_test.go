@@ -11,5 +11,5 @@ import (
 )
 
 func TestVolcano(t *testing.T) {
-	cmpimg.CheckPlotApprox(Example_volcano, t, 5, "volcano.png")
+	cmpimg.CheckPlotApprox(Example_volcano, t, 0.01, "volcano.png")
 }
