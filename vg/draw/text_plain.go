@@ -14,25 +14,23 @@ import (
 // PlainTextHandler is a text/plain handler.
 type PlainTextHandler struct{}
 
-// Box returns the bounding box of the given text where:
+var _ TextHandler = (*PlainTextHandler)(nil)
+
+// Lines splits a given block of text into separate lines.
+func (hdlr PlainTextHandler) Lines(txt string) []string {
+	txt = strings.TrimRight(txt, "\n")
+	return strings.Split(txt, "\n")
+}
+
+// Box returns the bounding box of the given non-multiline text where:
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
-//  - depth is the vertical space below the baseline, a negative number.
+//  - depth is the vertical space below the baseline, a positive number.
 func (hdlr PlainTextHandler) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
 	ext := fnt.Extents()
-
-	nl := hdlr.textNLines(txt)
-	if nl != 0 {
-		height = ext.Height*vg.Length(nl-1) + ext.Ascent
-		depth = ext.Descent
-	}
-
-	for _, line := range strings.Split(strings.TrimRight(txt, "\n"), "\n") {
-		w := fnt.Width(line)
-		if w > width {
-			width = w
-		}
-	}
+	width = fnt.Width(txt)
+	height = ext.Ascent
+	depth = ext.Descent
 
 	return width, height, depth
 }
@@ -57,12 +55,12 @@ func (hdlr PlainTextHandler) Draw(c *Canvas, txt string, sty TextStyle, pt vg.Po
 	sin := vg.Length(sin64)
 	pt.X, pt.Y = pt.Y*sin+pt.X*cos, pt.Y*cos-pt.X*sin
 
-	nl := hdlr.textNLines(txt)
+	lines := hdlr.Lines(txt)
 	ht := sty.Height(txt)
 	pt.Y += ht*vg.Length(sty.YAlign) - sty.Font.Extents().Ascent
-	for i, line := range strings.Split(txt, "\n") {
+	for i, line := range lines {
 		xoffs := vg.Length(sty.XAlign) * sty.Font.Width(line)
-		n := vg.Length(nl - i)
+		n := vg.Length(len(lines) - i)
 		c.FillString(sty.Font, pt.Add(vg.Point{X: xoffs, Y: n * sty.Font.Size}), line)
 	}
 
@@ -70,22 +68,3 @@ func (hdlr PlainTextHandler) Draw(c *Canvas, txt string, sty TextStyle, pt vg.Po
 		c.Pop()
 	}
 }
-
-// textNLines returns the number of lines in the text.
-func (PlainTextHandler) textNLines(txt string) int {
-	txt = strings.TrimRight(txt, "\n")
-	if len(txt) == 0 {
-		return 0
-	}
-	n := 1
-	for _, r := range txt {
-		if r == '\n' {
-			n++
-		}
-	}
-	return n
-}
-
-var (
-	_ TextHandler = (*PlainTextHandler)(nil)
-)

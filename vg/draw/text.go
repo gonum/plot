@@ -7,17 +7,19 @@ package draw // import "gonum.org/v1/plot/vg/draw"
 import (
 	"image/color"
 	"math"
-	"strings"
 
 	"gonum.org/v1/plot/vg"
 )
 
 // TextHandler parses, formats and renders text.
 type TextHandler interface {
-	// Box returns the bounding box of the given text where:
+	// Lines splits a given block of text into separate lines.
+	Lines(txt string) []string
+
+	// Box returns the bounding box of the given non-multiline text where:
 	//  - width is the horizontal space from the origin.
 	//  - height is the vertical space above the baseline.
-	//  - depth is the vertical space below the baseline, a negative number.
+	//  - depth is the vertical space below the baseline, a positive number.
 	Box(txt string, fnt vg.Font) (width, height, depth vg.Length)
 
 	// Draw renders the given text with the provided style and position
@@ -57,35 +59,44 @@ func (sty TextStyle) handler() TextHandler {
 // Width returns the width of lines of text
 // when using the given font before any text rotation is applied.
 func (sty TextStyle) Width(txt string) (max vg.Length) {
-	txt = strings.TrimRight(txt, "\n")
-	for _, line := range strings.Split(txt, "\n") {
-		if w := sty.Font.Width(line); w > max {
-			max = w
-		}
-	}
-	return
+	w, _ := sty.box(txt)
+	return w
 }
 
 // Height returns the height of the text when using
 // the given font before any text rotation is applied.
 func (sty TextStyle) Height(txt string) vg.Length {
-	nl := sty.textNLines(txt)
-	if nl == 0 {
-		return vg.Length(0)
-	}
+	_, h := sty.box(txt)
+	return h
+}
+
+// box returns the bounding box of a possibly multi-line text.
+func (sty TextStyle) box(txt string) (w, h vg.Length) {
 	var (
+		hdlr    = sty.handler()
+		lines   = hdlr.Lines(txt)
 		e       = sty.Font.Extents()
-		linegap = (e.Height - e.Ascent - e.Descent) * vg.Length(nl-1)
+		linegap = (e.Height - e.Ascent - e.Descent)
 	)
-	return (e.Ascent+e.Descent)*vg.Length(nl) + linegap
+	for i, line := range lines {
+		ww, hh, dd := hdlr.Box(line, sty.Font)
+		if ww > w {
+			w = ww
+		}
+		h += hh + dd
+		if i > 0 {
+			h += linegap
+		}
+	}
+
+	return w, h
 }
 
 // Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at (0, 0).
 func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
 	e := sty.Font.Extents()
-	w := sty.Width(txt)
-	h := sty.Height(txt)
+	w, h := sty.box(txt)
 	desc := vg.Length(e.Height - e.Ascent) // descent + linegap
 	xoff := vg.Length(sty.XAlign) * w
 	yoff := vg.Length(sty.YAlign)*h - desc
@@ -111,21 +122,6 @@ func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
 	}
 }
 
-// textNLines returns the number of lines in the text.
-func (sty TextStyle) textNLines(txt string) int {
-	txt = strings.TrimRight(txt, "\n")
-	if len(txt) == 0 {
-		return 0
-	}
-	n := 1
-	for _, r := range txt {
-		if r == '\n' {
-			n++
-		}
-	}
-	return n
-}
-
 // rotatePoint applies rotation theta (in radians) about the origin to point p.
 func rotatePoint(theta float64, p vg.Point) vg.Point {
 	if theta == 0 {
@@ -134,8 +130,10 @@ func rotatePoint(theta float64, p vg.Point) vg.Point {
 	x := float64(p.X)
 	y := float64(p.Y)
 
+	sin, cos := math.Sincos(theta)
+
 	return vg.Point{
-		X: vg.Length(x*math.Cos(theta) - y*math.Sin(theta)),
-		Y: vg.Length(y*math.Cos(theta) + x*math.Sin(theta)),
+		X: vg.Length(x*cos - y*sin),
+		Y: vg.Length(y*cos + x*sin),
 	}
 }
