@@ -153,7 +153,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 	}
 	if p.Title.Text != "" {
 		descent := p.Title.TextStyle.Font.Extents().Descent
-		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y - descent}, p.Title.Text)
+		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y + descent}, p.Title.Text)
 		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font)
 		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
@@ -183,7 +183,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 // the plot data will be drawn.
 func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	if p.Title.Text != "" {
-		da.Max.Y -= p.Title.Height(p.Title.Text) - p.Title.Font.Extents().Descent
+		da.Max.Y -= p.Title.Height(p.Title.Text) + p.Title.Font.Extents().Descent
 		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()

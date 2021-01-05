@@ -125,13 +125,13 @@ func (l *Legend) Draw(c draw.Canvas) {
 		panic("plot: invalid vertical offset for the legend's entries")
 	}
 	yoff := vg.Length(l.YPosition-draw.PosBottom) / 2
-	yoff -= descent
+	yoff += descent
 
 	for _, e := range l.entries {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
-		yoffs := (enth + descent - sty.Rectangle(e.text).Max.Y) / 2
+		yoffs := (enth - descent - sty.Rectangle(e.text).Max.Y) / 2
 		yoffs += yoff
 		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
 		icon.Min.Y -= enth + l.Padding

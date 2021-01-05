@@ -321,7 +321,7 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, txt string) {
 
 	e := font.Extents()
 	x := pt.X.Dots(c.ctx.dpi)
-	y := pt.Y.Dots(c.ctx.dpi) + e.Descent.Dots(c.ctx.dpi)
+	y := pt.Y.Dots(c.ctx.dpi) - e.Descent.Dots(c.ctx.dpi)
 	h := c.ctx.h.Dots(c.ctx.dpi)
 
 	c.ctx.invertY()

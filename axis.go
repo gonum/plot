@@ -230,7 +230,7 @@ type horizontalAxis struct {
 // size returns the height of the axis.
 func (a horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		h -= a.Label.Font.Extents().Descent
+		h += a.Label.Font.Extents().Descent
 		h += a.Label.Height(a.Label.Text)
 		h += a.Label.Padding
 	}
@@ -263,7 +263,7 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 	}
 	if a.Label.Text != "" {
 		descent := a.Label.Font.Extents().Descent
-		c.FillText(a.Label.TextStyle, vg.Point{X: x, Y: y - descent}, a.Label.Text)
+		c.FillText(a.Label.TextStyle, vg.Point{X: x, Y: y + descent}, a.Label.Text)
 		y += a.Label.Height(a.Label.Text)
 		y += a.Label.Padding
 	}
@@ -276,7 +276,7 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 		if !c.ContainsX(x) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + ticklabelheight - descent}, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + ticklabelheight + descent}, t.Label)
 	}
 
 	if len(marks) > 0 {
@@ -325,7 +325,7 @@ type verticalAxis struct {
 // size returns the width of the axis.
 func (a verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		w -= a.Label.Font.Extents().Descent
+		w += a.Label.Font.Extents().Descent
 		w += a.Label.Height(a.Label.Text)
 		w += a.Label.Padding
 	}
@@ -364,8 +364,8 @@ func (a verticalAxis) draw(c draw.Canvas) {
 			y -= a.Label.Font.Width(a.Label.Text) / 2
 		}
 		descent := a.Label.Font.Extents().Descent
-		c.FillText(sty, vg.Point{X: x + descent, Y: y}, a.Label.Text)
-		x -= descent
+		c.FillText(sty, vg.Point{X: x - descent, Y: y}, a.Label.Text)
+		x += descent
 		x += a.Label.Padding
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
@@ -380,7 +380,7 @@ func (a verticalAxis) draw(c draw.Canvas) {
 		if !c.ContainsY(y) || t.IsMinor() {
 			continue
 		}
-		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y - descent}, t.Label)
+		c.FillText(a.Tick.Label, vg.Point{X: x, Y: y + descent}, t.Label)
 		major = true
 	}
 	if major {
