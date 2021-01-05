@@ -24,7 +24,7 @@ func (hdlr PlainTextHandler) Box(txt string, fnt vg.Font) (width, height, depth 
 	nl := hdlr.textNLines(txt)
 	if nl != 0 {
 		height = ext.Height*vg.Length(nl-1) + ext.Ascent
-		depth = -ext.Descent
+		depth = ext.Descent
 	}
 
 	for _, line := range strings.Split(strings.TrimRight(txt, "\n"), "\n") {

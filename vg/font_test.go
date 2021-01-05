@@ -25,17 +25,17 @@ func TestFontExtends(t *testing.T) {
 			want: map[Length]FontExtents{
 				10: FontExtents{
 					Ascent:  8.9111328125,
-					Descent: -2.1630859375,
+					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
 				12: FontExtents{
 					Ascent:  10.693359375,
-					Descent: -2.595703125,
+					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
 				24: FontExtents{
 					Ascent:  21.38671875,
-					Descent: -5.19140625,
+					Descent: 5.19140625,
 					Height:  27.59765625,
 				},
 			},
@@ -45,17 +45,17 @@ func TestFontExtends(t *testing.T) {
 			want: map[Length]FontExtents{
 				10: FontExtents{
 					Ascent:  8.9111328125,
-					Descent: -2.1630859375,
+					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
 				12: FontExtents{
 					Ascent:  10.693359375,
-					Descent: -2.595703125,
+					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
 				24: FontExtents{
 					Ascent:  21.38671875,
-					Descent: -5.19140625,
+					Descent: 5.19140625,
 					Height:  27.59765625,
 				},
 			},
@@ -65,17 +65,17 @@ func TestFontExtends(t *testing.T) {
 			want: map[Length]FontExtents{
 				10: FontExtents{
 					Ascent:  8.9111328125,
-					Descent: -2.1630859375,
+					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
 				12: FontExtents{
 					Ascent:  10.693359375,
-					Descent: -2.595703125,
+					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
 				24: FontExtents{
 					Ascent:  21.38671875,
-					Descent: -5.19140625,
+					Descent: 5.19140625,
 					Height:  27.59765625,
 				},
 			},
@@ -85,17 +85,17 @@ func TestFontExtends(t *testing.T) {
 			want: map[Length]FontExtents{
 				10: FontExtents{
 					Ascent:  8.9111328125,
-					Descent: -2.1630859375,
+					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
 				12: FontExtents{
 					Ascent:  10.693359375,
-					Descent: -2.595703125,
+					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
 				24: FontExtents{
 					Ascent:  21.38671875,
-					Descent: -5.19140625,
+					Descent: 5.19140625,
 					Height:  27.59765625,
 				},
 			},

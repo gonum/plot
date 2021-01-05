@@ -149,7 +149,7 @@ type FontExtents struct {
 
 	// Descent is the distance that the text
 	// extends below the baseline.  The descent
-	// is given as a negative value.
+	// is given as a positive value.
 	Descent Length
 
 	// Height is the distance from the lowest
@@ -173,7 +173,7 @@ func (f *Font) Extents() FontExtents {
 	scale := f.Size / Points(float64(ppem))
 	return FontExtents{
 		Ascent:  Points(float64(met.Ascent)) * scale,
-		Descent: Points(float64(-met.Descent)) * scale, // sfnt-descent is >0
+		Descent: Points(float64(met.Descent)) * scale,
 		Height:  Points(float64(met.Height)) * scale,
 	}
 }
