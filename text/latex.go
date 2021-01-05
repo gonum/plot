@@ -7,6 +7,7 @@ package text
 import (
 	"fmt"
 	"math"
+	"strings"
 
 	"github.com/go-latex/latex/drawtex"
 	"github.com/go-latex/latex/font/ttf"
@@ -26,10 +27,16 @@ type Latex struct {
 
 var _ draw.TextHandler = (*Latex)(nil)
 
-// Box returns the bounding box of the given text where:
+// Lines splits a given block of text into separate lines.
+func (hdlr Latex) Lines(txt string) []string {
+	txt = strings.TrimRight(txt, "\n")
+	return strings.Split(txt, "\n")
+}
+
+// Box returns the bounding box of the given non-multiline text where:
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
-//  - depth is the vertical space below the baseline, a negative number.
+//  - depth is the vertical space below the baseline, a positive number.
 func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
@@ -49,7 +56,7 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 	height = vg.Length(box.Height())
 	depth = vg.Length(box.Depth())
 
-	return width, height, -depth
+	return width, height, depth
 }
 
 // Draw renders the given text with the provided style and position
