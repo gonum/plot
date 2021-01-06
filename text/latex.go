@@ -44,7 +44,7 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 		Default: fnt.Font(),
 		It:      fnt.Font(), // FIXME(sbinet): need a gonum/plot font set
 	}
-	box, err := mtex.Parse(txt, fnt.Size.Points(), 72, ttf.NewFrom(cnv, fnts))
+	box, err := mtex.Parse(txt, fnt.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
@@ -56,23 +56,20 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 	height = vg.Length(box.Height())
 	depth = vg.Length(box.Depth())
 
-	return width, height, depth
+	dpi := vg.Length(hdlr.dpi() / latexDPI)
+	return width * dpi, height * dpi, depth * dpi
 }
 
 // Draw renders the given text with the provided style and position
 // on the canvas.
 func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Point) {
-	dpi := hdlr.DPI
-	if dpi == 0 {
-		dpi = 72
-	}
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
 		Rm:      sty.Font.Font(),
 		Default: sty.Font.Font(),
 		It:      sty.Font.Font(), // FIXME(sbinet): need a gonum/plot font set
 	}
-	box, err := mtex.Parse(txt, sty.Font.Size.Points(), 72, ttf.NewFrom(cnv, fnts))
+	box, err := mtex.Parse(txt, sty.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
@@ -84,34 +81,67 @@ func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Poi
 	h := box.Height()
 	d := box.Depth()
 
+	dpi := hdlr.dpi() / latexDPI
 	o := latex{
 		cnv: c,
 		sty: sty,
 		pt:  pt,
+		w:   vg.Length(w * dpi),
+		h:   vg.Length((h + d) * dpi),
+		cos: 1,
+		sin: 0,
 	}
-	err = o.Render(w/72, math.Ceil(h+math.Max(d, 0))/72, dpi, cnv)
+	e := sty.Font.Extents()
+	o.xoff = vg.Length(sty.XAlign) * o.w
+	o.yoff = o.h + o.h*vg.Length(sty.YAlign) - (e.Height - e.Ascent)
+
+	if sty.Rotation != 0 {
+		sin64, cos64 := math.Sincos(sty.Rotation)
+		o.cos = vg.Length(cos64)
+		o.sin = vg.Length(sin64)
+
+		o.cnv.Push()
+		defer o.cnv.Pop()
+		o.cnv.Rotate(sty.Rotation)
+	}
+
+	err = o.Render(w/latexDPI, (h+d)/latexDPI, dpi, cnv)
 	if err != nil {
 		panic(fmt.Errorf("could not render math expression: %w", err))
 	}
+}
+
+// latexDPI is the default LaTeX resolution used for computing the LaTeX
+// layout of equations and regular text.
+// Dimensions are then rescaled to the desired resolution.
+const latexDPI = 72.0
+
+func (hdlr Latex) dpi() float64 {
+	if hdlr.DPI == 0 {
+		return latexDPI
+	}
+	return hdlr.DPI
 }
 
 type latex struct {
 	cnv *draw.Canvas
 	sty draw.TextStyle
 	pt  vg.Point
+
+	w vg.Length
+	h vg.Length
+
+	cos vg.Length
+	sin vg.Length
+
+	xoff vg.Length
+	yoff vg.Length
 }
 
 var _ mtex.Renderer = (*latex)(nil)
 
 func (r *latex) Render(width, height, dpi float64, c *drawtex.Canvas) error {
 	r.cnv.SetColor(r.sty.Color)
-	r.cnv = &draw.Canvas{
-		Canvas: r.cnv.Canvas,
-		Rectangle: vg.Rectangle{
-			Min: vg.Point{X: r.pt.X, Y: r.pt.Y},
-			Max: vg.Point{X: r.pt.X + vg.Length(width), Y: r.pt.Y + vg.Length(height)},
-		},
-	}
 
 	for _, op := range c.Ops() {
 		switch op := op.(type) {
@@ -131,23 +161,43 @@ func (r *latex) drawGlyph(dpi float64, op drawtex.GlyphOp) {
 	fnt := r.sty.Font
 	fnt.Size = vg.Length(op.Glyph.Size)
 
-	x := vg.Length(op.X * dpi / 72)
-	y := vg.Length(op.Y * dpi / 72)
-	r.cnv.FillString(fnt, vg.Point{X: x, Y: y}, op.Glyph.Symbol)
+	pt := r.pt
+	if r.sty.Rotation != 0 {
+		pt.X, pt.Y = r.rotate(pt.X, pt.Y)
+	}
+
+	pt = pt.Add(vg.Point{
+		X: r.xoff + vg.Length(op.X*dpi),
+		Y: r.yoff - vg.Length(op.Y*dpi),
+	})
+
+	r.cnv.FillString(fnt, pt, op.Glyph.Symbol)
 }
 
 func (r *latex) drawRect(dpi float64, op drawtex.RectOp) {
-	x1 := vg.Length(op.X1 * dpi / 72)
-	x2 := vg.Length(op.X2 * dpi / 72)
-	y1 := vg.Length(op.Y1 * dpi / 72)
-	y2 := vg.Length(op.Y2 * dpi / 72)
+	x1 := r.xoff + vg.Length(op.X1*dpi)
+	x2 := r.xoff + vg.Length(op.X2*dpi)
+	y1 := r.yoff - vg.Length(op.Y1*dpi)
+	y2 := r.yoff - vg.Length(op.Y2*dpi)
+
+	pt := r.pt
+	if r.sty.Rotation != 0 {
+		pt.X, pt.Y = r.rotate(pt.X, pt.Y)
+	}
+
 	pts := []vg.Point{
-		{X: x1, Y: y1},
-		{X: x2, Y: y1},
-		{X: x2, Y: y2},
-		{X: x2, Y: y2},
-		{X: x1, Y: y1},
+		vg.Point{X: x1, Y: y1}.Add(pt),
+		vg.Point{X: x2, Y: y1}.Add(pt),
+		vg.Point{X: x2, Y: y2}.Add(pt),
+		vg.Point{X: x1, Y: y2}.Add(pt),
+		vg.Point{X: x1, Y: y1}.Add(pt),
 	}
 
 	r.cnv.FillPolygon(r.sty.Color, pts)
+}
+
+func (r *latex) rotate(x, y vg.Length) (vg.Length, vg.Length) {
+	u := x*r.cos + y*r.sin
+	v := y*r.cos - x*r.sin
+	return u, v
 }
