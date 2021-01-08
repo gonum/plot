@@ -302,7 +302,7 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 			return fn(w, h), nil
 		}
 	}
-	return nil, fmt.Errorf("unsupported format: %q. supported formats: %v", format, Formats())
+	return nil, fmt.Errorf("unsupported format: %q", format)
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.

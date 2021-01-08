@@ -21,7 +21,9 @@ import (
 )
 
 func init() {
-	draw.RegisterFormat("eps", func(w, h vg.Length) vg.CanvasWriterTo { return New(w, h) })
+	draw.RegisterFormat("eps", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
 }
 
 // DPI is the nominal resolution of drawing in EPS.
