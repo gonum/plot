@@ -26,7 +26,8 @@ var formats = struct {
 func Formats() []string {
 	formats.Lock()
 	defer formats.Unlock()
-	var list []string
+
+	list := make([]string, 0, len(formats.m))
 	for name := range formats.m {
 		list = append(list, name)
 	}
