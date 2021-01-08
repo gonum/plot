@@ -11,4 +11,5 @@ import (
 	_ "gonum.org/v1/plot/vg/vgimg"
 	_ "gonum.org/v1/plot/vg/vgpdf"
 	_ "gonum.org/v1/plot/vg/vgsvg"
+	_ "gonum.org/v1/plot/vg/vgtex"
 )
