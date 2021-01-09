@@ -24,20 +24,25 @@ import (
 )
 
 func init() {
-	pf := func(w, h vg.Length) vg.CanvasWriterTo {
+	vgdraw.RegisterFormat("png", func(w, h vg.Length) vg.CanvasWriterTo {
 		return PngCanvas{Canvas: New(w, h)}
-	}
-	vgdraw.RegisterFormat("png", pf)
-	jf := func(w, h vg.Length) vg.CanvasWriterTo {
+	})
+
+	vgdraw.RegisterFormat("jpg", func(w, h vg.Length) vg.CanvasWriterTo {
 		return JpegCanvas{Canvas: New(w, h)}
-	}
-	vgdraw.RegisterFormat("jpg", jf)
-	vgdraw.RegisterFormat("jpeg", jf)
-	tf := func(w, h vg.Length) vg.CanvasWriterTo {
+	})
+
+	vgdraw.RegisterFormat("jpeg", func(w, h vg.Length) vg.CanvasWriterTo {
+		return JpegCanvas{Canvas: New(w, h)}
+	})
+
+	vgdraw.RegisterFormat("tif", func(w, h vg.Length) vg.CanvasWriterTo {
 		return TiffCanvas{Canvas: New(w, h)}
-	}
-	vgdraw.RegisterFormat("tif", tf)
-	vgdraw.RegisterFormat("tiff", tf)
+	})
+
+	vgdraw.RegisterFormat("tiff", func(w, h vg.Length) vg.CanvasWriterTo {
+		return TiffCanvas{Canvas: New(w, h)}
+	})
 }
 
 // Canvas implements the vg.Canvas interface,

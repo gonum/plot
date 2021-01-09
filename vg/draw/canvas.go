@@ -16,16 +16,16 @@ import (
 
 // formats holds the registered canvas image formats
 var formats = struct {
-	sync.Mutex
+	sync.RWMutex
 	m map[string]func(w, h vg.Length) vg.CanvasWriterTo
 }{
 	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
 }
 
-// Formats returns a sorted list of the registered formats.
+// Formats returns a sorted list of the registered vg formats.
 func Formats() []string {
-	formats.Lock()
-	defer formats.Unlock()
+	formats.RLock()
+	defer formats.RUnlock()
 
 	list := make([]string, 0, len(formats.m))
 	for name := range formats.m {
@@ -38,10 +38,12 @@ func Formats() []string {
 // RegisterFormat registers an image format for use by NewFormattedCanvas.
 // name is the name of the format, like "jpeg" or "png".
 // fn is the construction function to call for the format.
-// If RegisterFormat is called with fn being nil, it panics.
+//
+// RegisterFormat panics if fn is nil.
 func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
 	formats.Lock()
 	defer formats.Unlock()
+
 	if fn == nil {
 		panic("draw: RegisterFormat with nil function")
 	}
@@ -296,12 +298,14 @@ func New(c vg.CanvasSizer) Canvas {
 //     gonum.org/v1/plot/vg/vgsvg // provides svg
 //     gonum.org/v1/plot/vg/vgtex // provides tex
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
-	formats.Lock()
-	defer formats.Unlock()
+	formats.RLock()
+	defer formats.RUnlock()
+
 	for name, fn := range formats.m {
-		if format == name {
-			return fn(w, h), nil
+		if format != name {
+			continue
 		}
+		return fn(w, h), nil
 	}
 	return nil, fmt.Errorf("unsupported format: %q", format)
 }

@@ -28,7 +28,9 @@ import (
 )
 
 func init() {
-	draw.RegisterFormat("pdf", func(w, h vg.Length) vg.CanvasWriterTo { return New(w, h) })
+	draw.RegisterFormat("pdf", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
 }
 
 // DPI is the nominal resolution of drawing in PDF.
