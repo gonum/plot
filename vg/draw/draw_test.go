@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package draw
+package draw_test
 
 import (
 	"fmt"
@@ -11,29 +11,36 @@ import (
 	"testing"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/recorder"
+
+	_ "gonum.org/v1/plot/vg/vgeps"
+	_ "gonum.org/v1/plot/vg/vgimg"
+	_ "gonum.org/v1/plot/vg/vgpdf"
+	_ "gonum.org/v1/plot/vg/vgsvg"
+	_ "gonum.org/v1/plot/vg/vgtex"
 )
 
 func TestCrop(t *testing.T) {
-	ls := LineStyle{
+	ls := draw.LineStyle{
 		Color: color.NRGBA{0, 20, 0, 123},
 		Width: 0.1 * vg.Inch,
 	}
 	var r1 recorder.Canvas
-	c1 := NewCanvas(&r1, 6, 3)
-	c11 := Crop(c1, 0, -3, 0, 0)
-	c12 := Crop(c1, 3, 0, 0, 0)
+	c1 := draw.NewCanvas(&r1, 6, 3)
+	c11 := draw.Crop(c1, 0, -3, 0, 0)
+	c12 := draw.Crop(c1, 3, 0, 0, 0)
 
 	var r2 recorder.Canvas
-	c2 := NewCanvas(&r2, 6, 3)
-	c21 := Canvas{
+	c2 := draw.NewCanvas(&r2, 6, 3)
+	c21 := draw.Canvas{
 		Canvas: c2.Canvas,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{X: 0, Y: 0},
 			Max: vg.Point{X: 3, Y: 3},
 		},
 	}
-	c22 := Canvas{
+	c22 := draw.Canvas{
 		Canvas: c2.Canvas,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{X: 3, Y: 0},
@@ -64,13 +71,13 @@ func TestCrop(t *testing.T) {
 
 func TestTile(t *testing.T) {
 	var r recorder.Canvas
-	c := NewCanvas(&r, 13, 7)
+	c := draw.NewCanvas(&r, 13, 7)
 	const (
 		rows = 2
 		cols = 3
 		pad  = 1
 	)
-	tiles := Tiles{
+	tiles := draw.Tiles{
 		Rows: rows, Cols: cols,
 		PadTop: pad, PadBottom: pad,
 		PadRight: pad, PadLeft: pad,
@@ -141,7 +148,7 @@ func TestFormattedCanvas(t *testing.T) {
 		},
 	} {
 		t.Run(test.format, func(t *testing.T) {
-			_, err := NewFormattedCanvas(10, 10, test.format)
+			_, err := draw.NewFormattedCanvas(10, 10, test.format)
 			switch {
 			case err != nil && test.err != nil:
 				if got, want := err.Error(), test.err.Error(); got != want {

@@ -23,8 +23,15 @@ import (
 	pdf "github.com/phpdave11/gofpdf"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/fonts"
 )
+
+func init() {
+	draw.RegisterFormat("pdf", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
+}
 
 // DPI is the nominal resolution of drawing in PDF.
 const DPI = 72

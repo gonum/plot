@@ -8,14 +8,47 @@ import (
 	"fmt"
 	"image/color"
 	"math"
+	"sort"
+	"sync"
 
 	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/vgeps"
-	"gonum.org/v1/plot/vg/vgimg"
-	"gonum.org/v1/plot/vg/vgpdf"
-	"gonum.org/v1/plot/vg/vgsvg"
-	"gonum.org/v1/plot/vg/vgtex"
 )
+
+// formats holds the registered canvas image formats
+var formats = struct {
+	sync.RWMutex
+	m map[string]func(w, h vg.Length) vg.CanvasWriterTo
+}{
+	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
+}
+
+// Formats returns the sorted list of registered vg formats.
+func Formats() []string {
+	formats.RLock()
+	defer formats.RUnlock()
+
+	list := make([]string, 0, len(formats.m))
+	for name := range formats.m {
+		list = append(list, name)
+	}
+	sort.Strings(list)
+	return list
+}
+
+// RegisterFormat registers an image format for use by NewFormattedCanvas.
+// name is the name of the format, like "jpeg" or "png".
+// fn is the construction function to call for the format.
+//
+// RegisterFormat panics if fn is nil.
+func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
+	formats.Lock()
+	defer formats.Unlock()
+
+	if fn == nil {
+		panic("draw: RegisterFormat with nil function")
+	}
+	formats.m[name] = fn
+}
 
 // A Canvas is a vector graphics canvas along with
 // an associated Rectangle defining a section of the canvas
@@ -256,39 +289,25 @@ func New(c vg.CanvasSizer) Canvas {
 }
 
 // NewFormattedCanvas creates a new vg.CanvasWriterTo with the specified
-// image format.
+// image format. Supported formats need to be registered by importing one or
+// more of the following packages:
 //
-// Supported formats are:
-//
-//  eps, jpg|jpeg, pdf, png, svg, tex and tif|tiff.
+//     gonum.org/v1/plot/vg/vgeps // provides eps
+//     gonum.org/v1/plot/vg/vgimg // provides png, jpg|jpeg, tif|tiff
+//     gonum.org/v1/plot/vg/vgpdf // provides pdf
+//     gonum.org/v1/plot/vg/vgsvg // provides svg
+//     gonum.org/v1/plot/vg/vgtex // provides tex
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
-	var c vg.CanvasWriterTo
-	switch format {
-	case "eps":
-		c = vgeps.New(w, h)
+	formats.RLock()
+	defer formats.RUnlock()
 
-	case "jpg", "jpeg":
-		c = vgimg.JpegCanvas{Canvas: vgimg.New(w, h)}
-
-	case "pdf":
-		c = vgpdf.New(w, h)
-
-	case "png":
-		c = vgimg.PngCanvas{Canvas: vgimg.New(w, h)}
-
-	case "svg":
-		c = vgsvg.New(w, h)
-
-	case "tex":
-		c = vgtex.NewDocument(w, h)
-
-	case "tif", "tiff":
-		c = vgimg.TiffCanvas{Canvas: vgimg.New(w, h)}
-
-	default:
-		return nil, fmt.Errorf("unsupported format: %q", format)
+	for name, fn := range formats.m {
+		if format != name {
+			continue
+		}
+		return fn(w, h), nil
 	}
-	return c, nil
+	return nil, fmt.Errorf("unsupported format: %q", format)
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.

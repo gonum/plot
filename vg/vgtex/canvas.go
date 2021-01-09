@@ -23,6 +23,7 @@ import (
 	"time"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
 
 const degPerRadian = 180 / math.Pi
@@ -35,6 +36,12 @@ const (
 `
 	defaultFooter = "\\end{document}\n"
 )
+
+func init() {
+	draw.RegisterFormat("tex", func(w, h vg.Length) vg.CanvasWriterTo {
+		return NewDocument(w, h)
+	})
+}
 
 // Canvas implements the vg.Canvas interface, translating drawing
 // primitives from gonum/plot to PGF.

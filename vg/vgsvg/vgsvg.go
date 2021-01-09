@@ -21,7 +21,14 @@ import (
 	svgo "github.com/ajstarks/svgo"
 
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
 )
+
+func init() {
+	draw.RegisterFormat("svg", func(w, h vg.Length) vg.CanvasWriterTo {
+		return New(w, h)
+	})
+}
 
 // pr is the precision to use when outputting float64s.
 const pr = 5
