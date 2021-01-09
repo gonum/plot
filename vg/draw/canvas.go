@@ -22,7 +22,7 @@ var formats = struct {
 	m: make(map[string]func(w, h vg.Length) vg.CanvasWriterTo),
 }
 
-// Formats returns a sorted list of the registered vg formats.
+// Formats returns the sorted list of registered vg formats.
 func Formats() []string {
 	formats.RLock()
 	defer formats.RUnlock()
