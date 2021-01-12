@@ -56,6 +56,17 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 	height = vg.Length(box.Height())
 	depth = vg.Length(box.Depth())
 
+	// Add a bit of space, with a linegap as mtex.Box is returning
+	// a very tight bounding box.
+	// See gonum/plot#661.
+	if depth != 0 {
+		var (
+			e       = fnt.Extents()
+			linegap = e.Height - (e.Ascent + e.Descent)
+		)
+		depth += linegap
+	}
+
 	dpi := vg.Length(hdlr.dpi() / latexDPI)
 	return width * dpi, height * dpi, depth * dpi
 }
