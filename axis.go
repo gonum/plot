@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -46,7 +47,7 @@ type Axis struct {
 		// For the vertical axis, one quarter turn
 		// counterclockwise will be added to the label
 		// text before drawing.
-		draw.TextStyle
+		text.TextStyle
 
 		// Position is where the axis label string should be drawn.
 		// The default value is draw.PosCenter, displaying the label
@@ -66,7 +67,7 @@ type Axis struct {
 
 	Tick struct {
 		// Label is the TextStyle on the tick labels.
-		Label draw.TextStyle
+		Label text.TextStyle
 
 		// LineStyle is the LineStyle of the tick lines.
 		draw.LineStyle
@@ -113,7 +114,7 @@ func makeAxis(o orientation) (Axis, error) {
 		Padding: vg.Points(5),
 		Scale:   LinearScale{},
 	}
-	a.Label.TextStyle = draw.TextStyle{
+	a.Label.TextStyle = text.TextStyle{
 		Color:   color.Black,
 		Font:    labelFont,
 		XAlign:  draw.XCenter,
@@ -135,7 +136,7 @@ func makeAxis(o orientation) (Axis, error) {
 		yalign = draw.YTop
 	}
 
-	a.Tick.Label = draw.TextStyle{
+	a.Tick.Label = text.TextStyle{
 		Color:   color.Black,
 		Font:    tickFont,
 		XAlign:  xalign,
@@ -632,7 +633,7 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 }
 
 // tickLabelHeight returns height of the tick mark labels.
-func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
+func tickLabelHeight(sty text.TextStyle, ticks []Tick) vg.Length {
 	maxHeight := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {
@@ -648,7 +649,7 @@ func tickLabelHeight(sty draw.TextStyle, ticks []Tick) vg.Length {
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
-func tickLabelWidth(sty draw.TextStyle, ticks []Tick) vg.Length {
+func tickLabelWidth(sty text.TextStyle, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {

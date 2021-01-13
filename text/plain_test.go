@@ -9,7 +9,6 @@ import (
 
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
-	"gonum.org/v1/plot/vg/draw"
 )
 
 func TestPlainText(t *testing.T) {
@@ -148,7 +147,7 @@ func TestPlainText(t *testing.T) {
 				fnt = tr12
 			}
 
-			sty := draw.TextStyle{
+			sty := text.TextStyle{
 				Font:    fnt,
 				Handler: text.Plain{},
 			}

@@ -16,6 +16,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/recorder"
@@ -29,7 +30,7 @@ func TestLegendAlignment(t *testing.T) {
 	}
 	l := plot.Legend{
 		ThumbnailWidth: vg.Points(20),
-		TextStyle: draw.TextStyle{
+		TextStyle: text.TextStyle{
 			Font:    font,
 			Handler: plot.DefaultTextHandler,
 		},
