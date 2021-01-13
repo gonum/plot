@@ -2,38 +2,41 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-package vg
+package font_test
 
 import (
 	"errors"
 	"testing"
 
-	"golang.org/x/image/font"
+	stdfnt "golang.org/x/image/font"
 	"golang.org/x/image/font/sfnt"
 	"golang.org/x/image/math/fixed"
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 )
 
 func TestFontExtends(t *testing.T) {
+	cache := font.NewCache(liberation.Collection())
 	for _, tc := range []struct {
-		font string
-		want map[Length]FontExtents
+		font font.Font
+		want map[font.Length]font.Extents
 	}{
 		// values obtained when gonum/plot used the package
 		// github.com/freetype/truetype for handling fonts.
 		{
-			font: "Times-Roman",
-			want: map[Length]FontExtents{
-				10: FontExtents{
+			font: font.Font{Typeface: "Liberation", Variant: "Serif"},
+			want: map[font.Length]font.Extents{
+				10: font.Extents{
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: FontExtents{
+				12: font.Extents{
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: FontExtents{
+				24: font.Extents{
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -41,19 +44,19 @@ func TestFontExtends(t *testing.T) {
 			},
 		},
 		{
-			font: "Times-Bold",
-			want: map[Length]FontExtents{
-				10: FontExtents{
+			font: font.Font{Typeface: "Liberation", Variant: "Serif", Weight: stdfnt.WeightBold},
+			want: map[font.Length]font.Extents{
+				10: font.Extents{
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: FontExtents{
+				12: font.Extents{
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: FontExtents{
+				24: font.Extents{
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -61,19 +64,19 @@ func TestFontExtends(t *testing.T) {
 			},
 		},
 		{
-			font: "Times-Italic",
-			want: map[Length]FontExtents{
-				10: FontExtents{
+			font: font.Font{Typeface: "Liberation", Variant: "Serif", Style: stdfnt.StyleItalic},
+			want: map[font.Length]font.Extents{
+				10: font.Extents{
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: FontExtents{
+				12: font.Extents{
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: FontExtents{
+				24: font.Extents{
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -81,19 +84,19 @@ func TestFontExtends(t *testing.T) {
 			},
 		},
 		{
-			font: "Times-BoldItalic",
-			want: map[Length]FontExtents{
-				10: FontExtents{
+			font: font.Font{Typeface: "Liberation", Variant: "Serif", Style: stdfnt.StyleItalic, Weight: stdfnt.WeightBold},
+			want: map[font.Length]font.Extents{
+				10: font.Extents{
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: FontExtents{
+				12: font.Extents{
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: FontExtents{
+				24: font.Extents{
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -101,17 +104,13 @@ func TestFontExtends(t *testing.T) {
 			},
 		},
 	} {
-		for _, size := range []Length{10, 12, 24} {
-			fnt, err := MakeFont(tc.font, size)
-			if err != nil {
-				t.Fatal(err)
-			}
-
+		for _, size := range []font.Length{10, 12, 24} {
+			fnt := cache.Lookup(tc.font, size)
 			got := fnt.Extents()
 			if got, want := got, tc.want[size]; got != want {
 				t.Errorf(
 					"invalid font extents for %q, size=%v:\ngot= %#v\nwant=%#v",
-					tc.font, size, got, want,
+					tc.font.Name(), size, got, want,
 				)
 			}
 		}
@@ -119,14 +118,12 @@ func TestFontExtends(t *testing.T) {
 }
 
 func TestFontWidth(t *testing.T) {
-	fnt, err := MakeFont("Times-Roman", 12)
-	if err != nil {
-		t.Fatal(err)
-	}
+	cache := font.NewCache(liberation.Collection())
+	fnt := cache.Lookup(font.Font{Typeface: "Liberation", Variant: "Serif"}, 12)
 
 	for _, tc := range []struct {
 		txt  string
-		want Length
+		want font.Length
 	}{
 		// values obtained when gonum/plot used the package
 		// github.com/freetype/truetype for handling fonts.
@@ -165,10 +162,8 @@ func TestFontWidth(t *testing.T) {
 }
 
 func TestFontKern(t *testing.T) {
-	fnt, err := MakeFont("Times-Roman", 12)
-	if err != nil {
-		t.Fatal(err)
-	}
+	cache := font.NewCache(liberation.Collection())
+	fnt := cache.Lookup(font.Font{Typeface: "Liberation", Variant: "Serif"}, 12)
 
 	for _, tc := range []struct {
 		txt  string
@@ -190,18 +185,18 @@ func TestFontKern(t *testing.T) {
 				t1 = rune(tc.txt[1])
 
 				buf  sfnt.Buffer
-				ppem = fixed.Int26_6(fnt.Font().UnitsPerEm())
+				ppem = fixed.Int26_6(fnt.Face.UnitsPerEm())
 			)
 
-			i0, err := fnt.Font().GlyphIndex(&buf, t0)
+			i0, err := fnt.Face.GlyphIndex(&buf, t0)
 			if err != nil {
 				t.Fatalf("could not find glyph %q: %+v", t0, err)
 			}
-			i1, err := fnt.Font().GlyphIndex(&buf, t1)
+			i1, err := fnt.Face.GlyphIndex(&buf, t1)
 			if err != nil {
 				t.Fatalf("could not find glyph %q: %+v", t1, err)
 			}
-			kern, err := fnt.Font().Kern(&buf, i0, i1, ppem, font.HintingNone)
+			kern, err := fnt.Face.Kern(&buf, i0, i1, ppem, stdfnt.HintingNone)
 			switch {
 			case err == nil:
 				// ok
@@ -215,5 +210,90 @@ func TestFontKern(t *testing.T) {
 				t.Fatalf("invalid kerning: got=%v, want=%v", got, want)
 			}
 		})
+	}
+}
+
+func TestFontName(t *testing.T) {
+	for _, tc := range []struct {
+		font *font.Font
+		want string
+	}{
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Sans",
+				Style:    stdfnt.StyleNormal,
+				Weight:   stdfnt.WeightNormal,
+			},
+			want: "LiberationSans-Regular",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Sans",
+				Style:    stdfnt.StyleItalic,
+				Weight:   stdfnt.WeightNormal,
+			},
+			want: "LiberationSans-Italic",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Sans",
+				Style:    stdfnt.StyleNormal,
+				Weight:   stdfnt.WeightBold,
+			},
+			want: "LiberationSans-Bold",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Sans",
+				Style:    stdfnt.StyleItalic,
+				Weight:   stdfnt.WeightBold,
+			},
+			want: "LiberationSans-BoldItalic",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Mono",
+				Style:    stdfnt.StyleNormal,
+				Weight:   stdfnt.WeightNormal,
+			},
+			want: "LiberationMono-Regular",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Mono",
+				Style:    stdfnt.StyleItalic,
+				Weight:   stdfnt.WeightNormal,
+			},
+			want: "LiberationMono-Italic",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Mono",
+				Style:    stdfnt.StyleNormal,
+				Weight:   stdfnt.WeightBold,
+			},
+			want: "LiberationMono-Bold",
+		},
+		{
+			font: &font.Font{
+				Typeface: "Liberation",
+				Variant:  "Mono",
+				Style:    stdfnt.StyleItalic,
+				Weight:   stdfnt.WeightBold,
+			},
+			want: "LiberationMono-BoldItalic",
+		},
+	} {
+		got := tc.font.Name()
+		if got != tc.want {
+			t.Errorf("invalid name: got=%q, want=%q", got, tc.want)
+		}
 	}
 }
