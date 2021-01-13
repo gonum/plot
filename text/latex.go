@@ -6,6 +6,7 @@ package text
 
 import (
 	"fmt"
+	"image/color"
 	"math"
 	"strings"
 
@@ -73,7 +74,7 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 
 // Draw renders the given text with the provided style and position
 // on the canvas.
-func (hdlr Latex) Draw(c *draw.Canvas, txt string, sty draw.TextStyle, pt vg.Point) {
+func (hdlr Latex) Draw(c vg.Canvas, txt string, sty draw.TextStyle, pt vg.Point) {
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
 		Rm:      sty.Font.Font(),
@@ -135,7 +136,7 @@ func (hdlr Latex) dpi() float64 {
 }
 
 type latex struct {
-	cnv *draw.Canvas
+	cnv vg.Canvas
 	sty draw.TextStyle
 	pt  vg.Point
 
@@ -204,11 +205,27 @@ func (r *latex) drawRect(dpi float64, op drawtex.RectOp) {
 		vg.Point{X: x1, Y: y1}.Add(pt),
 	}
 
-	r.cnv.FillPolygon(r.sty.Color, pts)
+	fillPolygon(r.cnv, r.sty.Color, pts)
 }
 
 func (r *latex) rotate(x, y vg.Length) (vg.Length, vg.Length) {
 	u := x*r.cos + y*r.sin
 	v := y*r.cos - x*r.sin
 	return u, v
+}
+
+// FillPolygon fills a polygon with the given color.
+func fillPolygon(c vg.Canvas, clr color.Color, pts []vg.Point) {
+	if len(pts) == 0 {
+		return
+	}
+
+	c.SetColor(clr)
+	p := make(vg.Path, 0, len(pts)+1)
+	p.Move(pts[0])
+	for _, pt := range pts[1:] {
+		p.Line(pt)
+	}
+	p.Close()
+	c.Fill(p)
 }
