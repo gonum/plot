@@ -38,7 +38,7 @@ type Plot struct {
 		// the top of the plot.
 		Padding vg.Length
 
-		draw.TextStyle
+		text.TextStyle
 	}
 
 	// BackgroundColor is the background color of the plot.
@@ -106,7 +106,7 @@ func New() (*Plot, error) {
 		Y:               y,
 		Legend:          legend,
 	}
-	p.Title.TextStyle = draw.TextStyle{
+	p.Title.TextStyle = text.TextStyle{
 		Color:   color.Black,
 		Font:    titleFont,
 		XAlign:  draw.XCenter,

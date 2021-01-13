@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -31,7 +32,7 @@ type Labels struct {
 
 	// TextStyle is the style of the label text. Each label
 	// can have a different text style.
-	TextStyle []draw.TextStyle
+	TextStyle []text.TextStyle
 
 	// XOffset and YOffset are added directly to the final
 	// label X and Y location respectively.
@@ -60,9 +61,9 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 		return nil, err
 	}
 
-	styles := make([]draw.TextStyle, d.Len())
+	styles := make([]text.TextStyle, d.Len())
 	for i := range styles {
-		styles[i] = draw.TextStyle{
+		styles[i] = text.TextStyle{
 			Font:    fnt,
 			Handler: plot.DefaultTextHandler,
 		}

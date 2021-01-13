@@ -7,6 +7,7 @@ package plot
 import (
 	"math"
 
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -18,7 +19,7 @@ import (
 type Legend struct {
 	// TextStyle is the style given to the legend
 	// entry texts.
-	draw.TextStyle
+	text.TextStyle
 
 	// Padding is the amount of padding to add
 	// between each entry in the legend.  If Padding
@@ -84,7 +85,7 @@ func NewLegend() (Legend, error) {
 	return Legend{
 		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
-		TextStyle: draw.TextStyle{
+		TextStyle: text.TextStyle{
 			Font:    font,
 			Handler: DefaultTextHandler,
 		},
