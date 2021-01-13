@@ -22,7 +22,7 @@ var (
 	DefaultFont = "Times-Roman"
 
 	// DefaultTextHandler is the default text handler used for text processing.
-	DefaultTextHandler draw.TextHandler = text.Plain{}
+	DefaultTextHandler text.Handler = text.Plain{}
 )
 
 // Plot is the basic type representing a plot.
