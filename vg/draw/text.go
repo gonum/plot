@@ -24,7 +24,7 @@ type TextHandler interface {
 
 	// Draw renders the given text with the provided style and position
 	// on the canvas.
-	Draw(c *Canvas, txt string, sty TextStyle, pt vg.Point)
+	Draw(c vg.Canvas, txt string, sty TextStyle, pt vg.Point)
 }
 
 // TextStyle describes what text will look like.
