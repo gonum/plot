@@ -11,6 +11,7 @@ import (
 	"sort"
 	"sync"
 
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -61,38 +62,38 @@ type Canvas struct {
 // XAlignment specifies text alignment in the X direction. Three preset
 // options are available, but an arbitrary alignment
 // can also be specified using XAlignment(desired number).
-type XAlignment float64
+type XAlignment = text.XAlignment
 
 const (
 	// XLeft aligns the left edge of the text with the specified location.
-	XLeft XAlignment = 0
+	XLeft = text.XLeft
 	// XCenter aligns the horizontal center of the text with the specified location.
-	XCenter XAlignment = -0.5
+	XCenter = text.XCenter
 	// XRight aligns the right edge of the text with the specified location.
-	XRight XAlignment = -1
+	XRight = text.XRight
 )
 
 // YAlignment specifies text alignment in the Y direction. Three preset
 // options are available, but an arbitrary alignment
 // can also be specified using YAlignment(desired number).
-type YAlignment float64
+type YAlignment = text.YAlignment
 
 const (
 	// YTop aligns the top of of the text with the specified location.
-	YTop YAlignment = -1
+	YTop = text.YTop
 	// YCenter aligns the vertical center of the text with the specified location.
-	YCenter YAlignment = -0.5
+	YCenter = text.YCenter
 	// YBottom aligns the bottom of the text with the specified location.
-	YBottom YAlignment = 0
+	YBottom = text.YBottom
 )
 
 // Position specifies the text position.
 const (
-	PosLeft   = -1
-	PosBottom = -1
-	PosCenter = 0
-	PosTop    = +1
-	PosRight  = +1
+	PosLeft   = text.PosLeft
+	PosBottom = text.PosBottom
+	PosCenter = text.PosCenter
+	PosTop    = text.PosTop
+	PosRight  = text.PosRight
 )
 
 // LineStyle describes what a line will look like.
@@ -628,25 +629,5 @@ func isect(p0, p1, clip, norm vg.Point) vg.Point {
 // FillText fills lines of text in the draw area.
 // pt specifies the location where the text is to be drawn.
 func (c *Canvas) FillText(sty TextStyle, pt vg.Point, txt string) {
-	sty.handler().Draw(c, txt, sty, pt)
-}
-
-func max(d ...vg.Length) vg.Length {
-	o := vg.Length(math.Inf(-1))
-	for _, dd := range d {
-		if dd > o {
-			o = dd
-		}
-	}
-	return o
-}
-
-func min(d ...vg.Length) vg.Length {
-	o := vg.Length(math.Inf(1))
-	for _, dd := range d {
-		if dd < o {
-			o = dd
-		}
-	}
-	return o
+	sty.Handler.Draw(c, txt, sty, pt)
 }
