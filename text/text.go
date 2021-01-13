@@ -14,8 +14,8 @@ import (
 
 // Handler parses, formats and renders text.
 type Handler interface {
-	// Extents returns the FontExtents for a font.
-	Extents(fnt font.Font) font.FontExtents
+	// Extents returns the Extents of a font.
+	Extents(fnt font.Font) font.Extents
 
 	// Lines splits a given block of text into separate lines.
 	Lines(txt string) []string
