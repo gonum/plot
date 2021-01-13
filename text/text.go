@@ -8,11 +8,15 @@ import (
 	"image/color"
 	"math"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 )
 
 // Handler parses, formats and renders text.
 type Handler interface {
+	// Extents returns the FontExtents for a font.
+	Extents(fnt font.Font) font.FontExtents
+
 	// Lines splits a given block of text into separate lines.
 	Lines(txt string) []string
 
@@ -124,7 +128,7 @@ func (s Style) box(txt string) (w, h vg.Length) {
 // Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at (0, 0).
 func (s Style) Rectangle(txt string) vg.Rectangle {
-	e := s.Font.Extents()
+	e := s.Handler.Extents(s.Font)
 	w, h := s.box(txt)
 	desc := vg.Length(e.Height - e.Ascent) // descent + linegap
 	xoff := vg.Length(s.XAlign) * w
