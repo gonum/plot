@@ -8,13 +8,22 @@ import (
 	"math"
 	"strings"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 )
 
 // Plain is a text/plain handler.
-type Plain struct{}
+type Plain struct {
+	Fonts *font.Cache
+}
 
 var _ Handler = (*Plain)(nil)
+
+// Extents returns the Extents of a font.
+func (hdlr Plain) Extents(fnt font.Font) font.Extents {
+	face := hdlr.Fonts.Lookup(fnt, fnt.Size)
+	return face.Extents()
+}
 
 // Lines splits a given block of text into separate lines.
 func (hdlr Plain) Lines(txt string) []string {

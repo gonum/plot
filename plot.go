@@ -12,6 +12,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -22,7 +24,7 @@ var (
 	DefaultFont = "Times-Roman"
 
 	// DefaultTextHandler is the default text handler used for text processing.
-	DefaultTextHandler text.Handler = text.Plain{}
+	DefaultTextHandler text.Handler
 )
 
 // Plot is the basic type representing a plot.
@@ -486,4 +488,10 @@ func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 
 	_, err = c.WriteTo(f)
 	return err
+}
+
+func init() {
+	DefaultTextHandler = text.Plain{
+		Fonts: font.NewCache(liberation.Collection()),
+	}
 }

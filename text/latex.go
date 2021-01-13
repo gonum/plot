@@ -15,17 +15,27 @@ import (
 	"github.com/go-latex/latex/mtex"
 	"github.com/go-latex/latex/tex"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 )
 
 // Latex parses, formats and renders LaTeX.
 type Latex struct {
+	// Fonts is the cache of font faces used by this text handler.
+	Fonts *font.Cache
+
 	// DPI is the dot-per-inch controlling the font resolution used by LaTeX.
 	// If zero, the resolution defaults to 72.
 	DPI float64
 }
 
 var _ Handler = (*Latex)(nil)
+
+// Extents returns the Extents of a font.
+func (hdlr Latex) Extents(fnt font.Font) font.Extents {
+	face := hdlr.Fonts.Lookup(fnt, fnt.Size)
+	return face.Extents()
+}
 
 // Lines splits a given block of text into separate lines.
 func (hdlr Latex) Lines(txt string) []string {
