@@ -12,6 +12,8 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
@@ -19,7 +21,10 @@ import (
 )
 
 func ExampleLatex() {
-	plot.DefaultTextHandler = text.Latex{}
+	fonts := font.NewCache(liberation.Collection())
+	plot.DefaultTextHandler = text.Latex{
+		Fonts: fonts,
+	}
 
 	p, err := plot.New()
 	if err != nil {
@@ -64,7 +69,7 @@ func ExampleLatex() {
 	labels.TextStyle[2].Font.Size = 24
 	labels.TextStyle[2].Rotation = math.Pi / 4
 	labels.TextStyle[2].YAlign = draw.YCenter
-	labels.TextStyle[2].Handler = text.Plain{}
+	labels.TextStyle[2].Handler = &text.Plain{Fonts: fonts}
 
 	labels.TextStyle[3].Font.Size = 24
 	labels.TextStyle[3].Rotation = math.Pi / 2

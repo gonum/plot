@@ -7,12 +7,16 @@ package text_test
 import (
 	"testing"
 
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 )
 
 func TestPlainText(t *testing.T) {
 	type box struct{ w, h, d vg.Length }
+
+	fonts := font.NewCache(liberation.Collection())
 
 	tr12, err := vg.MakeFont("Times-Roman", 12)
 	if err != nil {
@@ -149,7 +153,7 @@ func TestPlainText(t *testing.T) {
 
 			sty := text.Style{
 				Font:    fnt,
-				Handler: text.Plain{},
+				Handler: &text.Plain{Fonts: fonts},
 			}
 
 			lines := sty.Handler.Lines(tc.txt)
