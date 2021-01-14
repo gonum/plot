@@ -21,7 +21,9 @@ import (
 	"path/filepath"
 
 	pdf "github.com/phpdave11/gofpdf"
+	stdfnt "golang.org/x/image/font"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/fonts"
@@ -45,7 +47,7 @@ type Canvas struct {
 	dpi       int
 	numImages int
 	stack     []context
-	fonts     map[vg.Font]struct{}
+	fonts     map[font.Font]struct{}
 
 	// Switch to embed fonts in PDF file.
 	// The default is to embed fonts.
@@ -71,7 +73,7 @@ func New(w, h vg.Length) *Canvas {
 		h:     h,
 		dpi:   DPI,
 		stack: make([]context, 1),
-		fonts: make(map[vg.Font]struct{}),
+		fonts: make(map[font.Font]struct{}),
 		embed: true,
 	}
 	c.NextPage()
@@ -160,13 +162,20 @@ func (c *Canvas) Fill(p vg.Path) {
 	c.pdfPath(p, "F")
 }
 
-func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
-	if fnt.Size == 0 {
+func (c *Canvas) FillString(fnt font.Face, pt vg.Point, str string) {
+	if fnt.Font.Size == 0 {
 		return
 	}
 
 	c.font(fnt, pt)
-	c.doc.SetFont(fnt.Name(), "", c.unit(fnt.Size))
+	style := ""
+	if fnt.Font.Weight == stdfnt.WeightBold {
+		style += "B"
+	}
+	if fnt.Font.Style == stdfnt.StyleItalic {
+		style += "I"
+	}
+	c.doc.SetFont(fnt.Name(), style, c.unit(fnt.Font.Size))
 
 	c.Push()
 	defer c.Pop()
@@ -182,9 +191,16 @@ func (c *Canvas) FillString(fnt vg.Font, pt vg.Point, str string) {
 	c.doc.CellFormat(w, h, str, "", 0, "BL", false, 0, "")
 }
 
-func (c *Canvas) sbounds(fnt vg.Font, txt string) (left, top, right, bottom float64) {
+func (c *Canvas) sbounds(fnt font.Face, txt string) (left, top, right, bottom float64) {
 	_, h := c.doc.GetFontSize()
-	d := c.doc.GetFontDesc("", "")
+	style := ""
+	if fnt.Font.Weight == stdfnt.WeightBold {
+		style += "B"
+	}
+	if fnt.Font.Style == stdfnt.StyleItalic {
+		style += "I"
+	}
+	d := c.doc.GetFontDesc(fnt.Name(), style)
 	if d.Ascent == 0 {
 		// not defined (standard font?), use average of 81%
 		top = 0.81 * h
@@ -213,11 +229,12 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 }
 
 // font registers a font and a size with the PDF canvas.
-func (c *Canvas) font(fnt vg.Font, pt vg.Point) {
-	if _, ok := c.fonts[fnt]; ok {
+func (c *Canvas) font(fnt font.Face, pt vg.Point) {
+	if _, ok := c.fonts[fnt.Font]; ok {
 		return
 	}
-	if n, ok := vg.FontMap[fnt.Name()]; ok {
+	name := fnt.Name()
+	if n, ok := vg.FontMap[name]; ok {
 		raw, err := fonts.Asset(n + ".ttf")
 		if err != nil {
 			log.Panicf("vgpdf: could not load TTF data from asset for TTF font %q: %v", n+".ttf", err)
@@ -233,8 +250,8 @@ func (c *Canvas) font(fnt vg.Font, pt vg.Point) {
 			log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
 		}
 
-		c.fonts[fnt] = struct{}{}
-		c.doc.AddFontFromBytes(fnt.Name(), "", jdata, zdata)
+		c.fonts[fnt.Font] = struct{}{}
+		c.doc.AddFontFromBytes(name, "", jdata, zdata)
 		return
 	}
 	log.Panicf("vgpdf: could not find font %q in the pre-registered fonts map", fnt.Name())

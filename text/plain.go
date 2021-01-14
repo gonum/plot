@@ -35,9 +35,10 @@ func (hdlr Plain) Lines(txt string) []string {
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
 //  - depth is the vertical space below the baseline, a positive number.
-func (hdlr Plain) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
-	ext := fnt.Extents()
-	width = fnt.Width(txt)
+func (hdlr Plain) Box(txt string, fnt font.Font) (width, height, depth vg.Length) {
+	face := hdlr.Fonts.Lookup(fnt, fnt.Size)
+	ext := face.Extents()
+	width = face.Width(txt)
 	height = ext.Ascent
 	depth = ext.Descent
 
@@ -52,6 +53,7 @@ func (hdlr Plain) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 		return
 	}
 
+	fnt := hdlr.Fonts.Lookup(sty.Font, sty.Font.Size)
 	c.SetColor(sty.Color)
 
 	if sty.Rotation != 0 {
@@ -66,11 +68,11 @@ func (hdlr Plain) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 
 	lines := hdlr.Lines(txt)
 	ht := sty.Height(txt)
-	pt.Y += ht*vg.Length(sty.YAlign) - sty.Font.Extents().Ascent
+	pt.Y += ht*vg.Length(sty.YAlign) - fnt.Extents().Ascent
 	for i, line := range lines {
-		xoffs := vg.Length(sty.XAlign) * sty.Font.Width(line)
+		xoffs := vg.Length(sty.XAlign) * fnt.Width(line)
 		n := vg.Length(len(lines) - i)
-		c.FillString(sty.Font, pt.Add(vg.Point{X: xoffs, Y: n * sty.Font.Size}), line)
+		c.FillString(fnt, pt.Add(vg.Point{X: xoffs, Y: n * sty.Font.Size}), line)
 	}
 
 	if sty.Rotation != 0 {

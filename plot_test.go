@@ -15,6 +15,7 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
@@ -24,14 +25,10 @@ import (
 )
 
 func TestLegendAlignment(t *testing.T) {
-	font, err := vg.MakeFont(plot.DefaultFont, 10)
-	if err != nil {
-		t.Fatalf("failed to create font: %v", err)
-	}
 	l := plot.Legend{
 		ThumbnailWidth: vg.Points(20),
 		TextStyle: text.Style{
-			Font:    font,
+			Font:    font.From(plot.DefaultFont, 10),
 			Handler: plot.DefaultTextHandler,
 		},
 	}
@@ -47,20 +44,20 @@ func TestLegendAlignment(t *testing.T) {
 	c := vgimg.PngCanvas{Canvas: vgimg.New(5*vg.Centimeter, 5*vg.Centimeter)}
 	l.Draw(draw.New(c))
 	var buf bytes.Buffer
-	if _, err = c.WriteTo(&buf); err != nil {
+	if _, err := c.WriteTo(&buf); err != nil {
 		t.Fatal(err)
 	}
 
 	if *cmpimg.GenerateTestData {
 		// Recreate Golden images and exit.
-		err = ioutil.WriteFile("testdata/legendAlignment_golden.png", buf.Bytes(), 0o644)
+		err := ioutil.WriteFile("testdata/legendAlignment_golden.png", buf.Bytes(), 0o644)
 		if err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
 
-	err = ioutil.WriteFile("testdata/legendAlignment.png", buf.Bytes(), 0o644)
+	err := ioutil.WriteFile("testdata/legendAlignment.png", buf.Bytes(), 0o644)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -25,6 +25,7 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	vgfonts "gonum.org/v1/plot/vg/fonts"
 )
@@ -312,24 +313,24 @@ func (c *Canvas) outline(p vg.Path) clip.PathSpec {
 // FillString fills in text at the specified
 // location using the given font.
 // If the font size is zero, the text is not drawn.
-func (c *Canvas) FillString(font vg.Font, pt vg.Point, txt string) {
-	if font.Size == 0 {
+func (c *Canvas) FillString(fnt font.Face, pt vg.Point, txt string) {
+	if fnt.Font.Size == 0 {
 		return
 	}
 	c.ctx.push()
 	defer c.ctx.pop()
 
-	e := font.Extents()
+	e := fnt.Extents()
 	x := pt.X.Dots(c.ctx.dpi)
 	y := pt.Y.Dots(c.ctx.dpi) - e.Descent.Dots(c.ctx.dpi)
 	h := c.ctx.h.Dots(c.ctx.dpi)
 
 	c.ctx.invertY()
-	c.ctx.translate(x, h-y-font.Size.Dots(c.ctx.dpi))
+	c.ctx.translate(x, h-y-fnt.Font.Size.Dots(c.ctx.dpi))
 
 	lbl := material.Label(
-		material.NewTheme(collectionFor(font)),
-		unit.Px(float32(font.Size.Dots(c.ctx.dpi))),
+		material.NewTheme(collectionFor(fnt)),
+		unit.Px(float32(fnt.Font.Size.Dots(c.ctx.dpi))),
 		txt,
 	)
 	lbl.Color = rgba(c.ctx.cur().color)
@@ -417,7 +418,7 @@ func init() {
 	)
 }
 
-func collectionFor(fnt vg.Font) []text.FontFace {
+func collectionFor(fnt font.Face) []text.FontFace {
 	name := collectionName(fnt.Name())
 	coll, ok := dbfonts[name]
 	if !ok {

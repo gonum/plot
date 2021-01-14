@@ -8,6 +8,7 @@ import (
 	"errors"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -56,15 +57,10 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 		strs[i] = d.Label(i)
 	}
 
-	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
-	if err != nil {
-		return nil, err
-	}
-
 	styles := make([]text.Style, d.Len())
 	for i := range styles {
 		styles[i] = text.Style{
-			Font:    fnt,
+			Font:    font.From(DefaultFont, DefaultFontSize),
 			Handler: plot.DefaultTextHandler,
 		}
 	}

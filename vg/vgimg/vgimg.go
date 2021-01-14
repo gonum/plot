@@ -19,6 +19,7 @@ import (
 	"github.com/fogleman/gg"
 	"golang.org/x/image/tiff"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	vgdraw "gonum.org/v1/plot/vg/draw"
 )
@@ -315,8 +316,8 @@ func (c *Canvas) DPI() float64 {
 	return float64(c.dpi)
 }
 
-func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
-	if font.Size == 0 {
+func (c *Canvas) FillString(font font.Face, pt vg.Point, str string) {
+	if font.Font.Size == 0 {
 		return
 	}
 

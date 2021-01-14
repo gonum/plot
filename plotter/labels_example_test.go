@@ -97,11 +97,7 @@ func ExampleLabels_inCanvasCoordinates() {
 
 	// Put an 'X' in the middle of the data-canvas.
 	{
-		fnt, err := vg.MakeFont(plotter.DefaultFont, vg.Points(12))
-		if err != nil {
-			log.Fatalf("could not make font: %+v", err)
-		}
-
+		fnt := p.Fonts.Lookup(plotter.DefaultFont, vg.Points(12))
 		da := p.DataCanvas(dc)
 		da.FillString(fnt, vg.Point{X: da.X(0.5), Y: da.Y(0.5)}, "X")
 	}

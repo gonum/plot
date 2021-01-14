@@ -7,6 +7,8 @@ package text_test
 import (
 	"testing"
 
+	stdfnt "golang.org/x/image/font"
+
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/text"
@@ -18,24 +20,13 @@ func TestPlainText(t *testing.T) {
 
 	fonts := font.NewCache(liberation.Collection())
 
-	tr12, err := vg.MakeFont("Times-Roman", 12)
-	if err != nil {
-		t.Fatalf("could not make font: %+v", err)
-	}
-
-	ti12, err := vg.MakeFont("Times-Italic", 12)
-	if err != nil {
-		t.Fatalf("could not make font: %+v", err)
-	}
-
-	tr42, err := vg.MakeFont("Times-Roman", 42)
-	if err != nil {
-		t.Fatalf("could not make font: %+v", err)
-	}
+	tr12 := font.Font{Variant: "Serif", Size: 12}
+	ti12 := font.Font{Variant: "Serif", Size: 12, Style: stdfnt.StyleItalic}
+	tr42 := font.Font{Variant: "Serif", Size: 42}
 
 	for _, tc := range []struct {
 		txt string
-		fnt vg.Font
+		fnt font.Font
 		box []box
 		w   vg.Length
 		h   vg.Length
@@ -147,7 +138,7 @@ func TestPlainText(t *testing.T) {
 	} {
 		t.Run(tc.txt, func(t *testing.T) {
 			fnt := tc.fnt
-			if fnt == (vg.Font{}) {
+			if fnt == (font.Font{}) {
 				fnt = tr12
 			}
 

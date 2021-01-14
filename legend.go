@@ -7,6 +7,7 @@ package plot
 import (
 	"math"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -78,18 +79,18 @@ type Thumbnailer interface {
 // NewLegend returns a legend with the default
 // parameter settings.
 func NewLegend() (Legend, error) {
-	font, err := vg.MakeFont(DefaultFont, vg.Points(12))
-	if err != nil {
-		return Legend{}, err
-	}
+	return newLegend(DefaultTextHandler), nil
+}
+
+func newLegend(hdlr text.Handler) Legend {
 	return Legend{
 		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
 		TextStyle: text.Style{
-			Font:    font,
-			Handler: DefaultTextHandler,
+			Font:    font.From(DefaultFont, 12),
+			Handler: hdlr,
 		},
-	}, nil
+	}
 }
 
 // Draw draws the legend to the given draw.Canvas.
@@ -106,7 +107,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 	textx += l.XOffs
 	iconx += l.XOffs
 
-	descent := sty.Font.Extents().Descent
+	descent := sty.FontExtents().Descent
 	enth := l.entryHeight()
 	y := c.Max.Y - enth
 	if !l.Top {
