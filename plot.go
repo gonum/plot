@@ -21,7 +21,10 @@ import (
 
 var (
 	// DefaultFont is the name of the default font for plot text.
-	DefaultFont = "Times-Roman"
+	DefaultFont = font.Font{
+		Typeface: "Liberation",
+		Variant:  "Serif",
+	}
 
 	// DefaultTextHandler is the default text handler used for text processing.
 	DefaultTextHandler text.Handler
@@ -55,6 +58,9 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
+	// Fonts is the cache of fonts used by this plot.
+	Fonts *font.Cache
+
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
 	plotters []Plotter
@@ -87,34 +93,24 @@ const (
 // New returns a new plot with some reasonable
 // default settings.
 func New() (*Plot, error) {
-	titleFont, err := vg.MakeFont(DefaultFont, 12)
-	if err != nil {
-		return nil, err
-	}
-	x, err := makeAxis(horizontal)
-	if err != nil {
-		return nil, err
-	}
-	y, err := makeAxis(vertical)
-	if err != nil {
-		return nil, err
-	}
-	legend, err := NewLegend()
-	if err != nil {
-		return nil, err
-	}
+	var (
+		hdlr  = DefaultTextHandler
+		fonts = font.DefaultCache
+	)
+
 	p := &Plot{
 		BackgroundColor: color.White,
-		X:               x,
-		Y:               y,
-		Legend:          legend,
+		X:               makeAxis(horizontal),
+		Y:               makeAxis(vertical),
+		Legend:          newLegend(hdlr),
+		Fonts:           fonts,
 	}
 	p.Title.TextStyle = text.Style{
 		Color:   color.Black,
-		Font:    titleFont,
+		Font:    font.From(DefaultFont, 12),
 		XAlign:  draw.XCenter,
 		YAlign:  draw.YTop,
-		Handler: DefaultTextHandler,
+		Handler: hdlr,
 	}
 	return p, nil
 }
@@ -155,7 +151,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 		c.Fill(c.Rectangle.Path())
 	}
 	if p.Title.Text != "" {
-		descent := p.Title.TextStyle.Font.Extents().Descent
+		descent := p.Title.TextStyle.FontExtents().Descent
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y + descent}, p.Title.Text)
 		_, h, d := p.Title.TextStyle.Handler.Box(p.Title.Text, p.Title.TextStyle.Font)
 		c.Max.Y -= h + d
@@ -186,7 +182,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 // the plot data will be drawn.
 func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	if p.Title.Text != "" {
-		da.Max.Y -= p.Title.TextStyle.Height(p.Title.Text) + p.Title.TextStyle.Font.Extents().Descent
+		da.Max.Y -= p.Title.TextStyle.Height(p.Title.Text) + p.Title.TextStyle.FontExtents().Descent
 		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()
@@ -491,7 +487,8 @@ func (p *Plot) Save(w, h vg.Length, file string) (err error) {
 }
 
 func init() {
+	font.DefaultCache.Add(liberation.Collection())
 	DefaultTextHandler = text.Plain{
-		Fonts: font.NewCache(liberation.Collection()),
+		Fonts: font.DefaultCache,
 	}
 }

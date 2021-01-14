@@ -47,14 +47,15 @@ func (hdlr Latex) Lines(txt string) []string {
 //  - width is the horizontal space from the origin.
 //  - height is the vertical space above the baseline.
 //  - depth is the vertical space below the baseline, a positive number.
-func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) {
+func (hdlr Latex) Box(txt string, fnt font.Font) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
+	face := hdlr.Fonts.Lookup(fnt, fnt.Size)
 	fnts := &ttf.Fonts{
-		Rm:      fnt.Font(),
-		Default: fnt.Font(),
-		It:      fnt.Font(), // FIXME(sbinet): need a gonum/plot font set
+		Rm:      face.Face,
+		Default: face.Face,
+		It:      face.Face, // FIXME(sbinet): need a gonum/plot font set
 	}
-	box, err := mtex.Parse(txt, fnt.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
+	box, err := mtex.Parse(txt, face.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
@@ -71,7 +72,7 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 	// See gonum/plot#661.
 	if depth != 0 {
 		var (
-			e       = fnt.Extents()
+			e       = face.Extents()
 			linegap = e.Height - (e.Ascent + e.Descent)
 		)
 		depth += linegap
@@ -85,10 +86,11 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 // on the canvas.
 func (hdlr Latex) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	cnv := drawtex.New()
+	face := hdlr.Fonts.Lookup(sty.Font, sty.Font.Size)
 	fnts := &ttf.Fonts{
-		Rm:      sty.Font.Font(),
-		Default: sty.Font.Font(),
-		It:      sty.Font.Font(), // FIXME(sbinet): need a gonum/plot font set
+		Rm:      face.Face,
+		Default: face.Face,
+		It:      face.Face, // FIXME(sbinet): need a gonum/plot font set
 	}
 	box, err := mtex.Parse(txt, sty.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
@@ -104,15 +106,16 @@ func (hdlr Latex) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 
 	dpi := hdlr.dpi() / latexDPI
 	o := latex{
-		cnv: c,
-		sty: sty,
-		pt:  pt,
-		w:   vg.Length(w * dpi),
-		h:   vg.Length((h + d) * dpi),
-		cos: 1,
-		sin: 0,
+		cnv:   c,
+		fonts: hdlr.Fonts,
+		sty:   sty,
+		pt:    pt,
+		w:     vg.Length(w * dpi),
+		h:     vg.Length((h + d) * dpi),
+		cos:   1,
+		sin:   0,
 	}
-	e := sty.Font.Extents()
+	e := face.Extents()
 	o.xoff = vg.Length(sty.XAlign) * o.w
 	o.yoff = o.h + o.h*vg.Length(sty.YAlign) - (e.Height - e.Ascent)
 
@@ -145,9 +148,10 @@ func (hdlr Latex) dpi() float64 {
 }
 
 type latex struct {
-	cnv vg.Canvas
-	sty Style
-	pt  vg.Point
+	cnv   vg.Canvas
+	fonts *font.Cache
+	sty   Style
+	pt    vg.Point
 
 	w vg.Length
 	h vg.Length
@@ -179,9 +183,6 @@ func (r *latex) Render(width, height, dpi float64, c *drawtex.Canvas) error {
 }
 
 func (r *latex) drawGlyph(dpi float64, op drawtex.GlyphOp) {
-	fnt := r.sty.Font
-	fnt.Size = vg.Length(op.Glyph.Size)
-
 	pt := r.pt
 	if r.sty.Rotation != 0 {
 		pt.X, pt.Y = r.rotate(pt.X, pt.Y)
@@ -192,6 +193,7 @@ func (r *latex) drawGlyph(dpi float64, op drawtex.GlyphOp) {
 		Y: r.yoff - vg.Length(op.Y*dpi),
 	})
 
+	fnt := r.fonts.Lookup(r.sty.Font, vg.Length(op.Glyph.Size))
 	r.cnv.FillString(fnt, pt, op.Glyph.Symbol)
 }
 

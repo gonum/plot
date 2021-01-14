@@ -44,7 +44,7 @@ func init() {
 	gob.Register(plotter.XYZs{})
 	gob.Register(plotter.XYValues{})
 
-	// vg/draw.TextStyle
-	gob.Register(plot.DefaultTextHandler)
-	gob.Register(text.Plain{})
+	// text.Style
+	gob.Register(&text.Plain{})
+	gob.Register(&text.Latex{})
 }

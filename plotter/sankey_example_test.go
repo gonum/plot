@@ -378,7 +378,7 @@ func ExampleSankey_grouped() {
 			}
 			_, yTr := p.Transforms(&dc)
 			barHeight := yTr(max) - yTr(min)
-			if sankey.TextStyle.Font.Width(label) > barHeight {
+			if sankey.TextStyle.Width(label) > barHeight {
 				return "large", sankey.TextStyle, 0, 0, color.White, sankey.LineStyle
 			}
 		}

@@ -44,7 +44,10 @@ func Example() {
 
 	p.Add(scatter1, scatter2)
 
-	txtFont := p.X.Label.TextStyle.Font
+	txtFont := p.Fonts.Lookup(
+		p.X.Label.TextStyle.Font,
+		p.X.Label.TextStyle.Font.Size,
+	)
 
 	c := vgtex.NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
 	p.Draw(draw.New(c))

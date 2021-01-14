@@ -14,6 +14,8 @@ import (
 	"image/png"
 	"runtime"
 
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/vg"
 )
 
@@ -36,7 +38,8 @@ type Canvas struct {
 	c vg.Canvas
 
 	// fonts holds a collection of font/size descriptions.
-	fonts map[fontID]vg.Font
+	fonts map[fontID]font.Face
+	cache *font.Cache
 }
 
 type fontID struct {
@@ -79,20 +82,26 @@ func (c *Canvas) Reset() {
 // the destination Canvas.
 func (c *Canvas) ReplayOn(dst vg.Canvas) error {
 	if c.fonts == nil {
-		c.fonts = make(map[fontID]vg.Font)
+		c.fonts = make(map[fontID]font.Face)
+	}
+	if c.cache == nil {
+		c.cache = font.NewCache(liberation.Collection())
 	}
 	for _, a := range c.Actions {
 		fa, ok := a.(*FillString)
 		if !ok {
 			continue
 		}
-		f := fontID{name: fa.Font, size: fa.Size}
+		f := fontID{name: fa.Font.Name(), size: fa.Size}
 		if _, exists := c.fonts[f]; !exists {
-			var err error
-			c.fonts[f], err = vg.MakeFont(fa.Font, fa.Size)
-			if err != nil {
-				return err
+			if !c.cache.Has(fa.Font) {
+				return fmt.Errorf("Unknown font: %s.", fa.Font.Typeface)
 			}
+			face := c.cache.Lookup(
+				fa.Font,
+				fa.Size,
+			)
+			c.fonts[f] = face
 		}
 		fa.fonts = c.fonts
 	}
@@ -374,21 +383,21 @@ func (a *Fill) callerLocation() *callerLocation {
 
 // FillString corresponds to the vg.Canvas.FillString method.
 type FillString struct {
-	Font   string
+	Font   font.Font
 	Size   vg.Length
 	Point  vg.Point
 	String string
 
 	l callerLocation
 
-	fonts map[fontID]vg.Font
+	fonts map[fontID]font.Face
 }
 
 // FillString implements the FillString method of the vg.Canvas interface.
-func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
+func (c *Canvas) FillString(font font.Face, pt vg.Point, str string) {
 	c.append(&FillString{
-		Font:   font.Name(),
-		Size:   font.Size,
+		Font:   font.Font,
+		Size:   font.Font.Size,
 		Point:  pt,
 		String: str,
 	})
@@ -396,12 +405,12 @@ func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
 
 // ApplyTo applies the action to the given vg.Canvas.
 func (a *FillString) ApplyTo(c vg.Canvas) {
-	c.FillString(a.fonts[fontID{name: a.Font, size: a.Size}], a.Point, a.String)
+	c.FillString(a.fonts[fontID{name: a.Font.Name(), size: a.Size}], a.Point, a.String)
 }
 
 // Call returns the pseudo method call that generated the action.
 func (a *FillString) Call() string {
-	return fmt.Sprintf("%sFillString(%q, %v, %v, %v, %q)", a.l, a.Font, a.Size, a.Point.X, a.Point.Y, a.String)
+	return fmt.Sprintf("%sFillString(%q, %v, %v, %v, %q)", a.l, a.Font.Name(), a.Size, a.Point.X, a.Point.Y, a.String)
 }
 
 func (a *FillString) callerLocation() *callerLocation {

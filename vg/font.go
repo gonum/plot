@@ -48,6 +48,21 @@ var (
 		"Times-Bold":       "LiberationSerif-Bold",
 		"Times-Italic":     "LiberationSerif-Italic",
 		"Times-BoldItalic": "LiberationSerif-BoldItalic",
+
+		"LiberationMono-Regular":    "LiberationMono-Regular",
+		"LiberationMono-Bold":       "LiberationMono-Bold",
+		"LiberationMono-Italic":     "LiberationMono-Italic",
+		"LiberationMono-BoldItalic": "LiberationMono-BoldItalic",
+
+		"LiberationSans-Regular":    "LiberationSans-Regular",
+		"LiberationSans-Bold":       "LiberationSans-Bold",
+		"LiberationSans-Italic":     "LiberationSans-Italic",
+		"LiberationSans-BoldItalic": "LiberationSans-BoldItalic",
+
+		"LiberationSerif-Regular":    "LiberationSerif-Regular",
+		"LiberationSerif-Bold":       "LiberationSerif-Bold",
+		"LiberationSerif-Italic":     "LiberationSerif-Italic",
+		"LiberationSerif-BoldItalic": "LiberationSerif-BoldItalic",
 	}
 
 	// loadedFonts is indexed by a font name and it

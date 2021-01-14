@@ -16,11 +16,15 @@ import (
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/font"
+	"gonum.org/v1/plot/font/liberation"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
 )
+
+var cache = font.NewCache(liberation.Collection())
 
 func TestIssue179(t *testing.T) {
 	scatter, err := plotter.NewScatter(plotter.XYs{
@@ -59,11 +63,10 @@ func TestIssue179(t *testing.T) {
 }
 
 func TestConcurrentInit(t *testing.T) {
-	ft, err := vg.MakeFont("Helvetica", 10)
-	if err != nil {
-		t.Fatal(err)
-	}
-	var wg sync.WaitGroup
+	var (
+		ft = cache.Lookup(font.Font{Variant: "Sans"}, 10)
+		wg sync.WaitGroup
+	)
 	wg.Add(2)
 	go func() {
 		c := vgimg.New(215, 215)

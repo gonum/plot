@@ -10,12 +10,15 @@ import (
 	"strings"
 	"testing"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 )
 
 func TestRecorder(t *testing.T) {
+	tr := font.Font{Typeface: "Liberation", Variant: "Serif"}
+
 	var rec Canvas
-	rec.Actions = append(rec.Actions, &FillString{Font: "Times-Roman", Size: 12, Point: vg.Point{X: 0, Y: 10}, String: "Text"})
+	rec.Actions = append(rec.Actions, &FillString{Font: tr, Size: 12, Point: vg.Point{X: 0, Y: 10}, String: "Text"})
 	rec.Comment("End of preamble")
 	rec.Scale(1, 2)
 	rec.Rotate(0.72)
@@ -26,7 +29,7 @@ func TestRecorder(t *testing.T) {
 	rec.Translate(vg.Point{X: 3, Y: 4})
 	rec.KeepCaller = false
 	rec.SetLineWidth(100)
-	rec.SetLineDash([]vg.Length{2, 5}, 6)
+	rec.SetLineDash([]font.Length{2, 5}, 6)
 	rec.SetColor(color.RGBA{R: 0x65, G: 0x23, B: 0xf2})
 	rec.Fill(vg.Path{{Type: vg.MoveComp, Pos: vg.Point{X: 3, Y: 4}}, {Type: vg.LineComp, Pos: vg.Point{X: 2, Y: 3}}, {Type: vg.CloseComp}})
 	rec.DrawImage(
@@ -59,9 +62,12 @@ func TestRecorder(t *testing.T) {
 	}
 
 	replay.Reset()
-	rec.Actions = append(rec.Actions, &FillString{Font: "Foo", Size: 12, Point: vg.Point{X: 0, Y: 10}, String: "Bar"})
+	rec.Actions = append(rec.Actions, &FillString{Font: font.Font{Typeface: "Foo"}, Size: 12, Point: vg.Point{X: 0, Y: 10}, String: "Bar"})
 	err = rec.ReplayOn(&replay)
-	if !strings.HasPrefix(err.Error(), "Unknown font: Foo.") {
+	switch {
+	case err == nil:
+		t.Errorf("expected an error")
+	case !strings.HasPrefix(err.Error(), "Unknown font: Foo."):
 		t.Errorf("unexpected error: %v", err)
 	}
 }
@@ -69,16 +75,16 @@ func TestRecorder(t *testing.T) {
 var img image.Image = image.NewGray(image.Rect(0, 0, 20, 20))
 
 var want = []string{
-	`FillString("Times-Roman", 12, 0, 10, "Text")`,
+	`FillString("LiberationSerif-Regular", 12, 0, 10, "Text")`,
 	`Comment("End of preamble")`,
 	`Scale(1, 2)`,
 	`Rotate(0.72)`,
-	`gonum.org/v1/plot/vg/recorder/recorder_test.go:23 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Control:[]vg.Point(nil), Radius:0, Start:0, Angle:0}})`,
-	`gonum.org/v1/plot/vg/recorder/recorder_test.go:24 Push()`,
-	`gonum.org/v1/plot/vg/recorder/recorder_test.go:25 Pop()`,
-	`gonum.org/v1/plot/vg/recorder/recorder_test.go:26 Translate(3, 4)`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:26 Stroke(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Control:[]vg.Point(nil), Radius:0, Start:0, Angle:0}})`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:27 Push()`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:28 Pop()`,
+	`gonum.org/v1/plot/vg/recorder/recorder_test.go:29 Translate(3, 4)`,
 	`SetLineWidth(100)`,
-	`SetLineDash([]vg.Length{2, 5}, 6)`,
+	`SetLineDash([]font.Length{2, 5}, 6)`,
 	`SetColor(color.RGBA{R:0x65, G:0x23, B:0xf2, A:0x0})`,
 	`Fill(vg.Path{vg.PathComp{Type:0, Pos:vg.Point{X:3, Y:4}, Control:[]vg.Point(nil), Radius:0, Start:0, Angle:0}, vg.PathComp{Type:1, Pos:vg.Point{X:2, Y:3}, Control:[]vg.Point(nil), Radius:0, Start:0, Angle:0}, vg.PathComp{Type:4, Pos:vg.Point{X:0, Y:0}, Control:[]vg.Point(nil), Radius:0, Start:0, Angle:0}})`,
 	`DrawImage(vg.Rectangle{Min:vg.Point{X:0, Y:0}, Max:vg.Point{X:10, Y:10}}, {image.Rectangle{Min:image.Point{X:0, Y:0}, Max:image.Point{X:20, Y:20}}, IMAGE:iVBORw0KGgoAAAANSUhEUgAAABQAAAAUCAAAAACo4kLRAAAAFElEQVR4nGJiwAJGBQeVICAAAP//JBgAKeMueQ8AAAAASUVORK5CYII=})`,

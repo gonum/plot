@@ -10,6 +10,7 @@ import (
 	"strconv"
 	"time"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -93,16 +94,7 @@ type Axis struct {
 //
 // The default range is (∞, ­∞), and thus any finite
 // value is less than Min and greater than Max.
-func makeAxis(o orientation) (Axis, error) {
-	labelFont, err := vg.MakeFont(DefaultFont, vg.Points(12))
-	if err != nil {
-		return Axis{}, err
-	}
-
-	tickFont, err := vg.MakeFont(DefaultFont, vg.Points(10))
-	if err != nil {
-		return Axis{}, err
-	}
+func makeAxis(o orientation) Axis {
 
 	a := Axis{
 		Min: math.Inf(+1),
@@ -116,7 +108,7 @@ func makeAxis(o orientation) (Axis, error) {
 	}
 	a.Label.TextStyle = text.Style{
 		Color:   color.Black,
-		Font:    labelFont,
+		Font:    font.From(DefaultFont, 12),
 		XAlign:  draw.XCenter,
 		YAlign:  draw.YBottom,
 		Handler: DefaultTextHandler,
@@ -138,7 +130,7 @@ func makeAxis(o orientation) (Axis, error) {
 
 	a.Tick.Label = text.Style{
 		Color:   color.Black,
-		Font:    tickFont,
+		Font:    font.From(DefaultFont, 10),
 		XAlign:  xalign,
 		YAlign:  yalign,
 		Handler: DefaultTextHandler,
@@ -150,7 +142,7 @@ func makeAxis(o orientation) (Axis, error) {
 	a.Tick.Length = vg.Points(8)
 	a.Tick.Marker = DefaultTicks{}
 
-	return a, nil
+	return a
 }
 
 // sanitizeRange ensures that the range of the
@@ -231,7 +223,7 @@ type horizontalAxis struct {
 // size returns the height of the axis.
 func (a horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		h += a.Label.TextStyle.Font.Extents().Descent
+		h += a.Label.TextStyle.FontExtents().Descent
 		h += a.Label.TextStyle.Height(a.Label.Text)
 		h += a.Label.Padding
 	}
@@ -260,10 +252,10 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 		x = c.Center().X
 	case draw.PosRight:
 		x = c.Max.X
-		x -= a.Label.TextStyle.Font.Width(a.Label.Text) / 2
+		x -= a.Label.TextStyle.Width(a.Label.Text) / 2
 	}
 	if a.Label.Text != "" {
-		descent := a.Label.TextStyle.Font.Extents().Descent
+		descent := a.Label.TextStyle.FontExtents().Descent
 		c.FillText(a.Label.TextStyle, vg.Point{X: x, Y: y + descent}, a.Label.Text)
 		y += a.Label.TextStyle.Height(a.Label.Text)
 		y += a.Label.Padding
@@ -271,7 +263,7 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
 	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
-	descent := a.Tick.Label.Font.Extents().Descent
+	descent := a.Tick.Label.FontExtents().Descent
 	for _, t := range marks {
 		x := c.X(a.Norm(t.Value))
 		if !c.ContainsX(x) || t.IsMinor() {
@@ -326,7 +318,7 @@ type verticalAxis struct {
 // size returns the width of the axis.
 func (a verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		w += a.Label.TextStyle.Font.Extents().Descent
+		w += a.Label.TextStyle.FontExtents().Descent
 		w += a.Label.TextStyle.Height(a.Label.Text)
 		w += a.Label.Padding
 	}
@@ -362,9 +354,9 @@ func (a verticalAxis) draw(c draw.Canvas) {
 			y = c.Center().Y
 		case draw.PosTop:
 			y = c.Max.Y
-			y -= a.Label.TextStyle.Font.Width(a.Label.Text) / 2
+			y -= a.Label.TextStyle.Width(a.Label.Text) / 2
 		}
-		descent := a.Label.TextStyle.Font.Extents().Descent
+		descent := a.Label.TextStyle.FontExtents().Descent
 		c.FillText(sty, vg.Point{X: x - descent, Y: y}, a.Label.Text)
 		x += descent
 		x += a.Label.Padding
@@ -375,7 +367,7 @@ func (a verticalAxis) draw(c draw.Canvas) {
 	}
 
 	major := false
-	descent := a.Tick.Label.Font.Extents().Descent
+	descent := a.Tick.Label.FontExtents().Descent
 	for _, t := range marks {
 		y := c.Y(a.Norm(t.Value))
 		if !c.ContainsY(y) || t.IsMinor() {

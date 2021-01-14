@@ -20,6 +20,7 @@ import (
 	"golang.org/x/image/font/opentype"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
@@ -45,17 +46,24 @@ func Example_addFont() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	const fontName = "Mincho"
-	vg.AddFont(fontName, fontTTF)
-
-	plot.DefaultFont = fontName
-	plotter.DefaultFont = fontName
+	mincho := font.Font{Typeface: "Mincho"}
+	font.DefaultCache.Add([]font.Face{
+		{
+			Font: mincho,
+			Face: fontTTF,
+		},
+	})
+	if !font.DefaultCache.Has(mincho) {
+		log.Fatalf("no font %q!", mincho.Typeface)
+	}
+	plot.DefaultFont = mincho
+	plotter.DefaultFont = mincho
 
 	p, err := plot.New()
 	if err != nil {
 		log.Fatalf("could not create plot: %+v", err)
 	}
-	p.Title.Text = "Hello, 世界"
+	p.Title.Text = "Hello, 世界!"
 	p.X.Label.Text = "世"
 	p.Y.Label.Text = "界"
 

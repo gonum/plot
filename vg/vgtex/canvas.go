@@ -22,6 +22,7 @@ import (
 	"strings"
 	"time"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -171,11 +172,11 @@ func (c *Canvas) Fill(p vg.Path) {
 }
 
 // FillString implements the vg.Canvas.FillString method.
-func (c *Canvas) FillString(f vg.Font, pt vg.Point, text string) {
+func (c *Canvas) FillString(f font.Face, pt vg.Point, text string) {
 	c.Push()
 	c.wcolor()
 	pt.X += 0.5 * f.Width(text)
-	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{{\fontsize{%gpt}{%gpt}\selectfont %s}}`, pt.X, pt.Y, f.Size, f.Size, text)
+	c.wtex(`\pgftext[base,at={\pgfpoint{%gpt}{%gpt}}]{{\fontsize{%gpt}{%gpt}\selectfont %s}}`, pt.X, pt.Y, f.Font.Size, f.Font.Size, text)
 	c.Pop()
 }
 

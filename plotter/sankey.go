@@ -11,6 +11,7 @@ import (
 	"sort"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/tools/bezier"
 	"gonum.org/v1/plot/vg"
@@ -175,18 +176,14 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 
 	s.LineStyle = DefaultLineStyle
 
-	fnt, err := vg.MakeFont(DefaultFont, DefaultFontSize)
-	if err != nil {
-		return nil, err
-	}
 	s.TextStyle = text.Style{
-		Font:     fnt,
+		Font:     font.From(DefaultFont, DefaultFontSize),
 		Rotation: math.Pi / 2,
 		XAlign:   draw.XCenter,
 		YAlign:   draw.YCenter,
 		Handler:  plot.DefaultTextHandler,
 	}
-	s.StockBarWidth = s.TextStyle.Font.Extents().Height * 1.15
+	s.StockBarWidth = s.TextStyle.FontExtents().Height * 1.15
 
 	s.FlowStyle = func(_ string) (color.Color, draw.LineStyle) {
 		return s.Color, s.LineStyle

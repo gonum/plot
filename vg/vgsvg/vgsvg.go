@@ -20,6 +20,7 @@ import (
 
 	svgo "github.com/ajstarks/svgo"
 
+	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 )
@@ -300,13 +301,13 @@ func large(a float64) int {
 
 // FillString draws str at position pt using the specified font.
 // Text passed to FillString is escaped with html.EscapeString.
-func (c *Canvas) FillString(font vg.Font, pt vg.Point, str string) {
+func (c *Canvas) FillString(font font.Face, pt vg.Point, str string) {
 	fontStr, ok := fontMap[font.Name()]
 	if !ok {
 		panic(fmt.Sprintf("Unknown font: %s", font.Name()))
 	}
 	sty := style(fontStr,
-		elm("font-size", "medium", "%.*gpx", pr, font.Size.Points()),
+		elm("font-size", "medium", "%.*gpx", pr, font.Font.Size.Points()),
 		elm("fill", "#000000", colorString(c.context().color)))
 	if sty != "" {
 		sty = "\n\t" + sty
@@ -360,6 +361,20 @@ var (
 		"Times-Bold":            "font-family:Times;font-weight:bold;font-style:normal",
 		"Times-Italic":          "font-family:Times;font-weight:normal;font-style:italic",
 		"Times-BoldItalic":      "font-family:Times;font-weight:bold;font-style:italic",
+
+		// Liberation fonts
+		"LiberationMono-Regular":     "font-family:Courier;font-weight:normal;font-style:normal",
+		"LiberationMono-Bold":        "font-family:Courier;font-weight:bold;font-style:normal",
+		"LiberationMono-Italic":      "font-family:Courier;font-weight:normal;font-style:oblique",
+		"LiberationMono-BoldItalic":  "font-family:Courier;font-weight:bold;font-style:oblique",
+		"LiberationSans-Regular":     "font-family:Helvetica;font-weight:normal;font-style:normal",
+		"LiberationSans-Bold":        "font-family:Helvetica;font-weight:bold;font-style:normal",
+		"LiberationSans-Italic":      "font-family:Helvetica;font-weight:normal;font-style:oblique",
+		"LiberationSans-BoldItalic":  "font-family:Helvetica;font-weight:bold;font-style:oblique",
+		"LiberationSerif-Regular":    "font-family:Times;font-weight:normal;font-style:normal",
+		"LiberationSerif-Bold":       "font-family:Times;font-weight:bold;font-style:normal",
+		"LiberationSerif-Italic":     "font-family:Times;font-weight:normal;font-style:italic",
+		"LiberationSerif-BoldItalic": "font-family:Times;font-weight:bold;font-style:italic",
 	}
 )
 

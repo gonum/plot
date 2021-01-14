@@ -24,7 +24,7 @@ type Handler interface {
 	//  - width is the horizontal space from the origin.
 	//  - height is the vertical space above the baseline.
 	//  - depth is the vertical space below the baseline, a positive number.
-	Box(txt string, fnt vg.Font) (width, height, depth vg.Length)
+	Box(txt string, fnt font.Font) (width, height, depth vg.Length)
 
 	// Draw renders the given text with the provided style and position
 	// on the canvas.
@@ -74,7 +74,7 @@ type Style struct {
 	Color color.Color
 
 	// Font is the font description.
-	Font vg.Font
+	Font font.Font
 
 	// Rotation is the text rotation in radians, performed around the axis
 	// defined by XAlign and YAlign.
@@ -88,6 +88,11 @@ type Style struct {
 	// dialect (Markdown, LaTeX, plain, ...)
 	// The default is a plain text handler.
 	Handler Handler
+}
+
+// FontExtents returns the extents of this Style's font.
+func (s Style) FontExtents() font.Extents {
+	return s.Handler.Extents(s.Font)
 }
 
 // Width returns the width of lines of text
@@ -108,7 +113,7 @@ func (s Style) Height(txt string) vg.Length {
 func (s Style) box(txt string) (w, h vg.Length) {
 	var (
 		lines   = s.Handler.Lines(txt)
-		e       = s.Font.Extents()
+		e       = s.FontExtents()
 		linegap = (e.Height - e.Ascent - e.Descent)
 	)
 	for i, line := range lines {
