@@ -14,6 +14,7 @@ import (
 	"github.com/go-latex/latex/font/ttf"
 	"github.com/go-latex/latex/mtex"
 	"github.com/go-latex/latex/tex"
+	stdfnt "golang.org/x/image/font"
 
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
@@ -50,11 +51,7 @@ func (hdlr Latex) Lines(txt string) []string {
 func (hdlr Latex) Box(txt string, fnt font.Font) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
 	face := hdlr.Fonts.Lookup(fnt, fnt.Size)
-	fnts := &ttf.Fonts{
-		Rm:      face.Face,
-		Default: face.Face,
-		It:      face.Face, // FIXME(sbinet): need a gonum/plot font set
-	}
+	fnts := hdlr.fontsFor(fnt)
 	box, err := mtex.Parse(txt, face.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
@@ -87,12 +84,8 @@ func (hdlr Latex) Box(txt string, fnt font.Font) (width, height, depth vg.Length
 func (hdlr Latex) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	cnv := drawtex.New()
 	face := hdlr.Fonts.Lookup(sty.Font, sty.Font.Size)
-	fnts := &ttf.Fonts{
-		Rm:      face.Face,
-		Default: face.Face,
-		It:      face.Face, // FIXME(sbinet): need a gonum/plot font set
-	}
-	box, err := mtex.Parse(txt, sty.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
+	fnts := hdlr.fontsFor(sty.Font)
+	box, err := mtex.Parse(txt, face.Font.Size.Points(), latexDPI, ttf.NewFrom(cnv, fnts))
 	if err != nil {
 		panic(fmt.Errorf("could not parse math expression: %w", err))
 	}
@@ -132,6 +125,31 @@ func (hdlr Latex) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	err = o.Render(w/latexDPI, (h+d)/latexDPI, dpi, cnv)
 	if err != nil {
 		panic(fmt.Errorf("could not render math expression: %w", err))
+	}
+}
+
+func (hdlr *Latex) fontsFor(fnt font.Font) *ttf.Fonts {
+	rm := fnt
+	rm.Variant = "Serif"
+	rm.Weight = stdfnt.WeightNormal
+	rm.Style = stdfnt.StyleNormal
+
+	it := rm
+	it.Style = stdfnt.StyleItalic
+
+	bf := rm
+	bf.Style = stdfnt.StyleNormal
+	bf.Weight = stdfnt.WeightBold
+
+	bfit := bf
+	bfit.Style = stdfnt.StyleItalic
+
+	return &ttf.Fonts{
+		Rm:      hdlr.Fonts.Lookup(rm, fnt.Size).Face,
+		Default: hdlr.Fonts.Lookup(rm, fnt.Size).Face,
+		It:      hdlr.Fonts.Lookup(it, fnt.Size).Face,
+		Bf:      hdlr.Fonts.Lookup(bf, fnt.Size).Face,
+		BfIt:    hdlr.Fonts.Lookup(bfit, fnt.Size).Face,
 	}
 }
 
@@ -193,7 +211,10 @@ func (r *latex) drawGlyph(dpi float64, op drawtex.GlyphOp) {
 		Y: r.yoff - vg.Length(op.Y*dpi),
 	})
 
-	fnt := r.fonts.Lookup(r.sty.Font, vg.Length(op.Glyph.Size))
+	fnt := font.Face{
+		Font: font.From(r.sty.Font, vg.Length(op.Glyph.Size)),
+		Face: op.Glyph.Font,
+	}
 	r.cnv.FillString(fnt, pt, op.Glyph.Symbol)
 }
 
