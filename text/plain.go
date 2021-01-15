@@ -37,7 +37,7 @@ func (hdlr Plain) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 
 // Draw renders the given text with the provided style and position
 // on the canvas.
-func (hdlr Plain) Draw(c vg.Canvas, txt string, sty TextStyle, pt vg.Point) {
+func (hdlr Plain) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	txt = strings.TrimRight(txt, "\n")
 	if len(txt) == 0 {
 		return

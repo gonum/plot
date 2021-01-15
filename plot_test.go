@@ -30,7 +30,7 @@ func TestLegendAlignment(t *testing.T) {
 	}
 	l := plot.Legend{
 		ThumbnailWidth: vg.Points(20),
-		TextStyle: text.TextStyle{
+		TextStyle: text.Style{
 			Font:    font,
 			Handler: plot.DefaultTextHandler,
 		},

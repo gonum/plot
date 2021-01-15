@@ -19,7 +19,7 @@ import (
 type Legend struct {
 	// TextStyle is the style given to the legend
 	// entry texts.
-	text.TextStyle
+	TextStyle text.Style
 
 	// Padding is the amount of padding to add
 	// between each entry in the legend.  If Padding
@@ -85,7 +85,7 @@ func NewLegend() (Legend, error) {
 	return Legend{
 		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
-		TextStyle: text.TextStyle{
+		TextStyle: text.Style{
 			Font:    font,
 			Handler: DefaultTextHandler,
 		},

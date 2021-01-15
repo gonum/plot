@@ -38,7 +38,8 @@ type Plot struct {
 		// the top of the plot.
 		Padding vg.Length
 
-		text.TextStyle
+		// TextStyle specifies how the plot title text should be displayed.
+		TextStyle text.Style
 	}
 
 	// BackgroundColor is the background color of the plot.
@@ -106,7 +107,7 @@ func New() (*Plot, error) {
 		Y:               y,
 		Legend:          legend,
 	}
-	p.Title.TextStyle = text.TextStyle{
+	p.Title.TextStyle = text.Style{
 		Color:   color.Black,
 		Font:    titleFont,
 		XAlign:  draw.XCenter,
@@ -154,7 +155,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 	if p.Title.Text != "" {
 		descent := p.Title.TextStyle.Font.Extents().Descent
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y + descent}, p.Title.Text)
-		_, h, d := p.Title.Handler.Box(p.Title.Text, p.Title.Font)
+		_, h, d := p.Title.TextStyle.Handler.Box(p.Title.Text, p.Title.TextStyle.Font)
 		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
 	}
@@ -183,7 +184,7 @@ func (p *Plot) Draw(c draw.Canvas) {
 // the plot data will be drawn.
 func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 	if p.Title.Text != "" {
-		da.Max.Y -= p.Title.Height(p.Title.Text) + p.Title.Font.Extents().Descent
+		da.Max.Y -= p.Title.TextStyle.Height(p.Title.Text) + p.Title.TextStyle.Font.Extents().Descent
 		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()

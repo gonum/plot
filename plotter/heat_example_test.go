@@ -75,7 +75,7 @@ func ExampleHeatMap() {
 	// Calculate the width of the legend.
 	r := l.Rectangle(dc)
 	legendWidth := r.Max.X - r.Min.X
-	l.YOffs = -p.Title.Font.Extents().Height // Adjust the legend down a little.
+	l.YOffs = -p.Title.TextStyle.Font.Extents().Height // Adjust the legend down a little.
 
 	l.Draw(dc)
 	dc = draw.Crop(dc, 0, -legendWidth-vg.Millimeter, 0, 0) // Make space for the legend.

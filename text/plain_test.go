@@ -147,7 +147,7 @@ func TestPlainText(t *testing.T) {
 				fnt = tr12
 			}
 
-			sty := text.TextStyle{
+			sty := text.Style{
 				Font:    fnt,
 				Handler: text.Plain{},
 			}
