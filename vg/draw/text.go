@@ -9,4 +9,4 @@ import (
 )
 
 type TextHandler = text.Handler
-type TextStyle = text.TextStyle
+type TextStyle = text.Style

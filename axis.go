@@ -47,7 +47,7 @@ type Axis struct {
 		// For the vertical axis, one quarter turn
 		// counterclockwise will be added to the label
 		// text before drawing.
-		text.TextStyle
+		TextStyle text.Style
 
 		// Position is where the axis label string should be drawn.
 		// The default value is draw.PosCenter, displaying the label
@@ -67,7 +67,7 @@ type Axis struct {
 
 	Tick struct {
 		// Label is the TextStyle on the tick labels.
-		Label text.TextStyle
+		Label text.Style
 
 		// LineStyle is the LineStyle of the tick lines.
 		draw.LineStyle
@@ -114,7 +114,7 @@ func makeAxis(o orientation) (Axis, error) {
 		Padding: vg.Points(5),
 		Scale:   LinearScale{},
 	}
-	a.Label.TextStyle = text.TextStyle{
+	a.Label.TextStyle = text.Style{
 		Color:   color.Black,
 		Font:    labelFont,
 		XAlign:  draw.XCenter,
@@ -136,7 +136,7 @@ func makeAxis(o orientation) (Axis, error) {
 		yalign = draw.YTop
 	}
 
-	a.Tick.Label = text.TextStyle{
+	a.Tick.Label = text.Style{
 		Color:   color.Black,
 		Font:    tickFont,
 		XAlign:  xalign,
@@ -231,8 +231,8 @@ type horizontalAxis struct {
 // size returns the height of the axis.
 func (a horizontalAxis) size() (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		h += a.Label.Font.Extents().Descent
-		h += a.Label.Height(a.Label.Text)
+		h += a.Label.TextStyle.Font.Extents().Descent
+		h += a.Label.TextStyle.Height(a.Label.Text)
 		h += a.Label.Padding
 	}
 
@@ -260,12 +260,12 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 		x = c.Center().X
 	case draw.PosRight:
 		x = c.Max.X
-		x -= a.Label.Font.Width(a.Label.Text) / 2
+		x -= a.Label.TextStyle.Font.Width(a.Label.Text) / 2
 	}
 	if a.Label.Text != "" {
-		descent := a.Label.Font.Extents().Descent
+		descent := a.Label.TextStyle.Font.Extents().Descent
 		c.FillText(a.Label.TextStyle, vg.Point{X: x, Y: y + descent}, a.Label.Text)
-		y += a.Label.Height(a.Label.Text)
+		y += a.Label.TextStyle.Height(a.Label.Text)
 		y += a.Label.Padding
 	}
 
@@ -326,8 +326,8 @@ type verticalAxis struct {
 // size returns the width of the axis.
 func (a verticalAxis) size() (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		w += a.Label.Font.Extents().Descent
-		w += a.Label.Height(a.Label.Text)
+		w += a.Label.TextStyle.Font.Extents().Descent
+		w += a.Label.TextStyle.Height(a.Label.Text)
 		w += a.Label.Padding
 	}
 
@@ -335,7 +335,7 @@ func (a verticalAxis) size() (w vg.Length) {
 	if len(marks) > 0 {
 		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
-			w += a.Label.Width(" ")
+			w += a.Label.TextStyle.Width(" ")
 		}
 		if a.drawTicks() {
 			w += a.Tick.Length
@@ -356,15 +356,15 @@ func (a verticalAxis) draw(c draw.Canvas) {
 	if a.Label.Text != "" {
 		sty := a.Label.TextStyle
 		sty.Rotation += math.Pi / 2
-		x += a.Label.Height(a.Label.Text)
+		x += a.Label.TextStyle.Height(a.Label.Text)
 		switch a.Label.Position {
 		case draw.PosCenter:
 			y = c.Center().Y
 		case draw.PosTop:
 			y = c.Max.Y
-			y -= a.Label.Font.Width(a.Label.Text) / 2
+			y -= a.Label.TextStyle.Font.Width(a.Label.Text) / 2
 		}
-		descent := a.Label.Font.Extents().Descent
+		descent := a.Label.TextStyle.Font.Extents().Descent
 		c.FillText(sty, vg.Point{X: x - descent, Y: y}, a.Label.Text)
 		x += descent
 		x += a.Label.Padding
@@ -633,7 +633,7 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 }
 
 // tickLabelHeight returns height of the tick mark labels.
-func tickLabelHeight(sty text.TextStyle, ticks []Tick) vg.Length {
+func tickLabelHeight(sty text.Style, ticks []Tick) vg.Length {
 	maxHeight := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {
@@ -649,7 +649,7 @@ func tickLabelHeight(sty text.TextStyle, ticks []Tick) vg.Length {
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
-func tickLabelWidth(sty text.TextStyle, ticks []Tick) vg.Length {
+func tickLabelWidth(sty text.Style, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {

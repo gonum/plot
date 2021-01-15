@@ -352,7 +352,7 @@ func ExampleSankey_grouped() {
 
 	// Here we set the StockStyle function to give an example of
 	// setting a custom style for one of the stocks.
-	sankey.StockStyle = func(label string, category int) (string, text.TextStyle, vg.Length, vg.Length, color.Color, draw.LineStyle) {
+	sankey.StockStyle = func(label string, category int) (string, text.Style, vg.Length, vg.Length, color.Color, draw.LineStyle) {
 		if label == "Small" && category == treeType {
 			// Here we demonstrate how to rotate the label text
 			// and change the style of the stock bar.

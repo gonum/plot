@@ -49,7 +49,7 @@ func ExamplePolygon_holes() {
 	p.Y.Label.Text = "Y"
 	p.Add(poly)
 	p.Legend.Add("key", poly)
-	p.Legend.Font.Size = vg.Points(8)
+	p.Legend.TextStyle.Font.Size = vg.Points(8)
 	p.Legend.TextStyle.Color = color.White
 	p.Legend.ThumbnailWidth = vg.Points(10)
 

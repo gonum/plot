@@ -24,7 +24,7 @@ type Handler interface {
 
 	// Draw renders the given text with the provided style and position
 	// on the canvas.
-	Draw(c vg.Canvas, txt string, sty TextStyle, pt vg.Point)
+	Draw(c vg.Canvas, txt string, sty Style, pt vg.Point)
 }
 
 // XAlignment specifies text alignment in the X direction. Three preset
@@ -64,8 +64,8 @@ const (
 	PosRight  = +1
 )
 
-// TextStyle describes what text will look like.
-type TextStyle struct {
+// Style describes what text will look like.
+type Style struct {
 	// Color is the text color.
 	Color color.Color
 
@@ -88,27 +88,27 @@ type TextStyle struct {
 
 // Width returns the width of lines of text
 // when using the given font before any text rotation is applied.
-func (sty TextStyle) Width(txt string) (max vg.Length) {
-	w, _ := sty.box(txt)
+func (s Style) Width(txt string) (max vg.Length) {
+	w, _ := s.box(txt)
 	return w
 }
 
 // Height returns the height of the text when using
 // the given font before any text rotation is applied.
-func (sty TextStyle) Height(txt string) vg.Length {
-	_, h := sty.box(txt)
+func (s Style) Height(txt string) vg.Length {
+	_, h := s.box(txt)
 	return h
 }
 
 // box returns the bounding box of a possibly multi-line text.
-func (sty TextStyle) box(txt string) (w, h vg.Length) {
+func (s Style) box(txt string) (w, h vg.Length) {
 	var (
-		lines   = sty.Handler.Lines(txt)
-		e       = sty.Font.Extents()
+		lines   = s.Handler.Lines(txt)
+		e       = s.Font.Extents()
 		linegap = (e.Height - e.Ascent - e.Descent)
 	)
 	for i, line := range lines {
-		ww, hh, dd := sty.Handler.Box(line, sty.Font)
+		ww, hh, dd := s.Handler.Box(line, s.Font)
 		if ww > w {
 			w = ww
 		}
@@ -123,21 +123,21 @@ func (sty TextStyle) box(txt string) (w, h vg.Length) {
 
 // Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at (0, 0).
-func (sty TextStyle) Rectangle(txt string) vg.Rectangle {
-	e := sty.Font.Extents()
-	w, h := sty.box(txt)
+func (s Style) Rectangle(txt string) vg.Rectangle {
+	e := s.Font.Extents()
+	w, h := s.box(txt)
 	desc := vg.Length(e.Height - e.Ascent) // descent + linegap
-	xoff := vg.Length(sty.XAlign) * w
-	yoff := vg.Length(sty.YAlign)*h - desc
+	xoff := vg.Length(s.XAlign) * w
+	yoff := vg.Length(s.YAlign)*h - desc
 
 	// lower left corner
-	p1 := rotatePoint(sty.Rotation, vg.Point{X: xoff, Y: yoff})
+	p1 := rotatePoint(s.Rotation, vg.Point{X: xoff, Y: yoff})
 	// upper left corner
-	p2 := rotatePoint(sty.Rotation, vg.Point{X: xoff, Y: h + yoff})
+	p2 := rotatePoint(s.Rotation, vg.Point{X: xoff, Y: h + yoff})
 	// lower right corner
-	p3 := rotatePoint(sty.Rotation, vg.Point{X: w + xoff, Y: yoff})
+	p3 := rotatePoint(s.Rotation, vg.Point{X: w + xoff, Y: yoff})
 	// upper right corner
-	p4 := rotatePoint(sty.Rotation, vg.Point{X: w + xoff, Y: h + yoff})
+	p4 := rotatePoint(s.Rotation, vg.Point{X: w + xoff, Y: h + yoff})
 
 	return vg.Rectangle{
 		Max: vg.Point{

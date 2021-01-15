@@ -41,7 +41,7 @@ type Sankey struct {
 	// TextStyle specifies the default stock label
 	// text style. Styles can be modified for
 	// individual stocks.
-	TextStyle text.TextStyle
+	TextStyle text.Style
 
 	flows []Flow
 
@@ -61,7 +61,7 @@ type Sankey struct {
 	// The default function uses the default TextStyle, color and LineStyle
 	// specified above for all stocks; zero horizontal and vertical offsets;
 	// and the stock label as the text to be printed on the plot.
-	StockStyle func(label string, category int) (lbl string, ts text.TextStyle, xOff, yOff vg.Length, c color.Color, ls draw.LineStyle)
+	StockStyle func(label string, category int) (lbl string, ts text.Style, xOff, yOff vg.Length, c color.Color, ls draw.LineStyle)
 
 	// stocks arranges the stocks by category.
 	// The first key is the category and the seond
@@ -179,7 +179,7 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 	if err != nil {
 		return nil, err
 	}
-	s.TextStyle = text.TextStyle{
+	s.TextStyle = text.Style{
 		Font:     fnt,
 		Rotation: math.Pi / 2,
 		XAlign:   draw.XCenter,
@@ -192,7 +192,7 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 		return s.Color, s.LineStyle
 	}
 
-	s.StockStyle = func(label string, category int) (string, text.TextStyle, vg.Length, vg.Length, color.Color, draw.LineStyle) {
+	s.StockStyle = func(label string, category int) (string, text.Style, vg.Length, vg.Length, color.Color, draw.LineStyle) {
 		return label, s.TextStyle, 0, 0, s.Color, s.LineStyle
 	}
 

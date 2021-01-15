@@ -73,7 +73,7 @@ func (hdlr Latex) Box(txt string, fnt vg.Font) (width, height, depth vg.Length) 
 
 // Draw renders the given text with the provided style and position
 // on the canvas.
-func (hdlr Latex) Draw(c vg.Canvas, txt string, sty TextStyle, pt vg.Point) {
+func (hdlr Latex) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	cnv := drawtex.New()
 	fnts := &ttf.Fonts{
 		Rm:      sty.Font.Font(),
@@ -136,7 +136,7 @@ func (hdlr Latex) dpi() float64 {
 
 type latex struct {
 	cnv vg.Canvas
-	sty TextStyle
+	sty Style
 	pt  vg.Point
 
 	w vg.Length

@@ -32,7 +32,7 @@ type Labels struct {
 
 	// TextStyle is the style of the label text. Each label
 	// can have a different text style.
-	TextStyle []text.TextStyle
+	TextStyle []text.Style
 
 	// XOffset and YOffset are added directly to the final
 	// label X and Y location respectively.
@@ -61,9 +61,9 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 		return nil, err
 	}
 
-	styles := make([]text.TextStyle, d.Len())
+	styles := make([]text.Style, d.Len())
 	for i := range styles {
-		styles[i] = text.TextStyle{
+		styles[i] = text.Style{
 			Font:    fnt,
 			Handler: plot.DefaultTextHandler,
 		}
