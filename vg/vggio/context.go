@@ -33,7 +33,7 @@ type context struct {
 	linew   vg.Length   // linew is the current line width.
 	pattern []vg.Length // pattern is the current line style.
 	offset  vg.Length   // offset is the current line style.
-	stk     op.StackOp  // stk is the Gio op context stack.
+	state   op.StateOp  // state is the Gio op context state.
 }
 
 func (ctx *ctxops) cur() *context {
@@ -42,11 +42,11 @@ func (ctx *ctxops) cur() *context {
 
 func (ctx *ctxops) push() {
 	ctx.ctx = append(ctx.ctx, *ctx.cur())
-	ctx.cur().stk = op.Push(ctx.ops)
+	ctx.cur().state = op.Save(ctx.ops)
 }
 
 func (ctx *ctxops) pop() {
-	ctx.cur().stk.Pop()
+	ctx.cur().state.Load()
 	ctx.ctx = ctx.ctx[:len(ctx.ctx)-1]
 }
 
