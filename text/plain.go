@@ -19,6 +19,11 @@ type Plain struct {
 
 var _ Handler = (*Plain)(nil)
 
+// Cache returns the cache of fonts used by the text handler.
+func (hdlr Plain) Cache() *font.Cache {
+	return hdlr.Fonts
+}
+
 // Extents returns the Extents of a font.
 func (hdlr Plain) Extents(fnt font.Font) font.Extents {
 	face := hdlr.Fonts.Lookup(fnt, fnt.Size)

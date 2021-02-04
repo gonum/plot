@@ -14,6 +14,9 @@ import (
 
 // Handler parses, formats and renders text.
 type Handler interface {
+	// Cache returns the cache of fonts used by the text handler.
+	Cache() *font.Cache
+
 	// Extents returns the Extents of a font.
 	Extents(fnt font.Font) font.Extents
 
