@@ -44,7 +44,7 @@ func Example() {
 
 	p.Add(scatter1, scatter2)
 
-	txtFont := p.Fonts.Lookup(
+	txtFont := p.TextHandler.Cache().Lookup(
 		p.X.Label.TextStyle.Font,
 		p.X.Label.TextStyle.Font.Size,
 	)
