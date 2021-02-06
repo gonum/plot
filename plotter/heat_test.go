@@ -77,10 +77,7 @@ func TestHeatMapDims(t *testing.T) {
 			m := offsetUnitGrid{Data: mat.NewDense(test.rows, test.cols, nil)}
 			h := plotter.NewHeatMap(m, pal)
 
-			p, err := plot.New()
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			p := plot.New()
 			p.Add(h)
 
 			img := vgimg.New(250, 175)

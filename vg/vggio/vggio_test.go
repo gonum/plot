@@ -8,7 +8,6 @@ import (
 	"image"
 	"image/color"
 	"image/png"
-	"log"
 	"math"
 	"os"
 	"runtime"
@@ -39,10 +38,7 @@ func TestCanvas(t *testing.T) {
 	)
 
 	cmpimg.CheckPlotApprox(func() {
-		p, err := plot.New()
-		if err != nil {
-			log.Fatalf("could not create plot: %+v", err)
-		}
+		p := plot.New()
 		p.Title.Text = "My title"
 		p.X.Label.Text = "X"
 		p.Y.Label.Text = "Y"
@@ -146,11 +142,7 @@ func TestLabels(t *testing.T) {
 	)
 
 	cmpimg.CheckPlotApprox(func() {
-		p, err := plot.New()
-		if err != nil {
-			t.Fatalf("could not create plot: %+v", err)
-		}
-
+		p := plot.New()
 		p.Title.Text = "Labels"
 		p.X.Min = -1
 		p.X.Max = +1

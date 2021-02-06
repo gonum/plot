@@ -42,11 +42,7 @@ func ExampleContour() {
 		)
 	)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Contour"
 	p.X.Padding = 0
 	p.Y.Padding = 0
@@ -55,7 +51,7 @@ func ExampleContour() {
 
 	p.Add(c)
 
-	err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/contour.png")
+	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/contour.png")
 	if err != nil {
 		log.Fatalf("could not save plot: %+v", err)
 	}

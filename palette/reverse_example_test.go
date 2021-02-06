@@ -17,10 +17,7 @@ import (
 // This example creates a color bar and a second color bar where the
 // direction of the colors are reversed.
 func ExampleReverse() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	l := &plotter.ColorBar{ColorMap: moreland.Kindlmann()}
 	l2 := &plotter.ColorBar{ColorMap: palette.Reverse(moreland.Kindlmann())}
 	l.ColorMap.SetMin(0.5)
@@ -33,17 +30,14 @@ func ExampleReverse() {
 	p.X.Padding = 0
 	p.Title.Text = "A ColorMap and its Reverse"
 
-	if err = p.Save(300, 48, "testdata/reverse.png"); err != nil {
+	if err := p.Save(300, 48, "testdata/reverse.png"); err != nil {
 		log.Panic(err)
 	}
 }
 
 // This example creates a color palette from a reversed ColorMap.
 func ExampleReverse_palette() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	thumbs := plotter.PaletteThumbnailers(palette.Reverse(moreland.Kindlmann()).Palette(10))
 	for i, t := range thumbs {
 		p.Legend.Add(fmt.Sprint(i), t)
@@ -52,7 +46,7 @@ func ExampleReverse_palette() {
 	p.X.Padding = 0
 	p.Y.Padding = 0
 
-	if err = p.Save(35, 120, "testdata/reverse_palette.png"); err != nil {
+	if err := p.Save(35, 120, "testdata/reverse_palette.png"); err != nil {
 		log.Panic(err)
 	}
 }

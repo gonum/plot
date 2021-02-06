@@ -16,10 +16,7 @@ import (
 
 // An example of embedding an image in a plot.
 func ExampleImage() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
+	p := plot.New()
 	p.Title.Text = "A Logo"
 
 	// load an image
@@ -49,10 +46,7 @@ func ExampleImage() {
 
 // An example of embedding an image in a plot with non-linear axes.
 func ExampleImage_log() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("error: %v\n", err)
-	}
+	p := plot.New()
 	p.Title.Text = "A Logo"
 
 	// load an image

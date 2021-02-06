@@ -35,10 +35,7 @@ func TestEmbedFonts(t *testing.T) {
 		},
 	} {
 		t.Run(fmt.Sprintf("embed=%v", tc.embed), func(t *testing.T) {
-			p, err := plot.New()
-			if err != nil {
-				t.Fatalf("could not create plot: %v", err)
-			}
+			p := plot.New()
 
 			pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
 			line, err := plotter.NewLine(pts)
@@ -93,10 +90,7 @@ func TestArc(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := plot.New()
 	p.Add(scat)
 
 	c := vgpdf.New(100, 100)
@@ -160,10 +154,7 @@ func TestMultipage(t *testing.T) {
 }
 
 func TestIssue540(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := plot.New()
 
 	xys := plotter.XYs{
 		plotter.XY{X: 0, Y: 0},

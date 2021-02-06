@@ -14,29 +14,24 @@ import (
 )
 
 func ExampleColorBar_horizontal() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
-	l := &plotter.ColorBar{ColorMap: moreland.ExtendedBlackBody()}
-	l.ColorMap.SetMin(0.5)
-	l.ColorMap.SetMax(1.5)
-	p.Add(l)
+	p := plot.New()
 	p.HideY()
 	p.X.Padding = 0
 	p.Title.Text = "Title"
 
-	if err = p.Save(300, 48, "testdata/colorBarHorizontal.png"); err != nil {
+	l := &plotter.ColorBar{ColorMap: moreland.ExtendedBlackBody()}
+	l.ColorMap.SetMin(0.5)
+	l.ColorMap.SetMax(1.5)
+	p.Add(l)
+
+	if err := p.Save(300, 48, "testdata/colorBarHorizontal.png"); err != nil {
 		log.Panic(err)
 	}
 }
 
 // This example shows how to create a ColorBar on a log-transformed axis.
 func ExampleColorBar_horizontal_log() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	colorMap, err := moreland.NewLuminance([]color.Color{color.Black, color.White})
 	if err != nil {
 		log.Panic(err)
@@ -57,10 +52,7 @@ func ExampleColorBar_horizontal_log() {
 }
 
 func ExampleColorBar_vertical() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	l := &plotter.ColorBar{ColorMap: moreland.ExtendedBlackBody()}
 	l.ColorMap.SetMin(0.5)
 	l.ColorMap.SetMax(1.5)
@@ -70,7 +62,7 @@ func ExampleColorBar_vertical() {
 	p.Y.Padding = 0
 	p.Title.Text = "Title"
 
-	if err = p.Save(40, 300, "testdata/colorBarVertical.png"); err != nil {
+	if err := p.Save(40, 300, "testdata/colorBarVertical.png"); err != nil {
 		log.Panic(err)
 	}
 }

@@ -36,10 +36,7 @@ func Example_rotation() {
 	// These points are our label locations.
 	labelPoints := sin(8, xmax)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Rotation Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "100 × Sine X"

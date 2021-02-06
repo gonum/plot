@@ -92,9 +92,8 @@ const (
 	vertical
 )
 
-// New returns a new plot with some reasonable
-// default settings.
-func New() (*Plot, error) {
+// New returns a new plot with some reasonable default settings.
+func New() *Plot {
 	hdlr := DefaultTextHandler
 	p := &Plot{
 		BackgroundColor: color.White,
@@ -110,7 +109,7 @@ func New() (*Plot, error) {
 		YAlign:  draw.YTop,
 		Handler: hdlr,
 	}
-	return p, nil
+	return p
 }
 
 // Add adds a Plotters to the plot.

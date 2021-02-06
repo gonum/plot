@@ -26,11 +26,7 @@ func ExampleLatex() {
 		Fonts: fonts,
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = `$f(x) = \sqrt{\alpha x \Gamma}$`
 	p.X.Label.Text = `$\frac{\sqrt{x}}{2\pi\Gamma\gamma}$`
 	p.Y.Label.Text = `$\beta$`

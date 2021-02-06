@@ -54,10 +54,7 @@ func ExampleErrors() {
 		XErrors: plotter.XErrors(randomError(n)),
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	scatter, err := plotter.NewScatter(data)
 	if err != nil {
 		log.Panic(err)

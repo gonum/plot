@@ -88,11 +88,7 @@ func TestIssue514(t *testing.T) {
 			go func() {
 				defer close(done)
 
-				p, err := plot.New()
-				if err != nil {
-					t.Errorf("could not create plot: %v", err)
-					return
-				}
+				p := plot.New()
 
 				var (
 					y1 = 100.0

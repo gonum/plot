@@ -21,10 +21,7 @@ import (
 // ExampleSankey_sample creates a simple sankey diagram.
 // The output can be found at https://github.com/gonum/plot/blob/master/plotter/testdata/sankeySimple_golden.png.
 func ExampleSankey_simple() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 
 	// Define the stock categories
 	const (
@@ -144,10 +141,7 @@ func ExampleSankey_simple() {
 // ExampleSankey_grouped creates a sankey diagram with grouped flows.
 // The output can be found at https://github.com/gonum/plot/blob/master/plotter/testdata/sankeyGrouped_golden.png.
 func ExampleSankey_grouped() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	c := vgimg.New(vg.Points(300), vg.Points(180))
 	dc := draw.New(c)
 

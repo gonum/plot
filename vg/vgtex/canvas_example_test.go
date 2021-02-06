@@ -18,10 +18,7 @@ import (
 
 // An example of making a LaTeX plot.
 func Example() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	p := plot.New()
 	// p.HideAxes()
 	p.Title.Text = `A scatter plot: $\sqrt{\frac{e^{3i\pi}}{2\cos 3\pi}}$`
 	p.Title.TextStyle.Font.Size = 16

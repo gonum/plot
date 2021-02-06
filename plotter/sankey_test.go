@@ -46,10 +46,7 @@ func TestSankey_idempotent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := plot.New()
 	p.Add(s)
 	p.HideAxes()
 

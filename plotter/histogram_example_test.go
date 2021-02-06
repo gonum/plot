@@ -35,10 +35,7 @@ func ExampleHistogram() {
 		vals[i] = rnd.NormFloat64()
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Histogram"
 	h, err := plotter.NewHist(vals, 16)
 	if err != nil {
@@ -60,10 +57,7 @@ func ExampleHistogram() {
 }
 
 func ExampleHistogram_logScaleY() {
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Histogram in log-y"
 	p.Y.Scale = plot.LogScale{}
 	p.Y.Tick.Marker = plot.LogTicks{}

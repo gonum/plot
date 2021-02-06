@@ -59,10 +59,7 @@ func ExampleScatter_color() {
 	colors.SetMax(maxZ)
 	colors.SetMin(minZ)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Colored Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

@@ -41,10 +41,7 @@ func ExampleScatter() {
 	lineData := randomPoints(n)
 	linePointsData := randomPoints(n)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Points Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

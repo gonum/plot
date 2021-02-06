@@ -80,20 +80,16 @@ func TestLineWidth(t *testing.T) {
 }
 
 func lines(w vg.Length) (*plot.Plot, error) {
-	p, err := plot.New()
-	if err != nil {
-		return nil, err
-	}
-
+	p := plot.New()
 	pts := plotter.XYs{
 		{X: 0, Y: 0}, {X: 0, Y: 1},
 		{X: 1, Y: 0}, {X: 1, Y: 1},
 	}
 	line, err := plotter.NewLine(pts)
-	line.Width = w
 	if err != nil {
 		return nil, err
 	}
+	line.Width = w
 	p.Add(line)
 	p.X.Label.Text = "X label"
 	p.Y.Label.Text = "Y label"

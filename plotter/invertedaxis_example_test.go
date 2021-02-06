@@ -18,11 +18,7 @@ func Example_invertedScale() {
 	// This example is nearly identical to the LogScale, other than
 	// both the X and Y axes are inverted. InvertedScale expects to act
 	// on another Normalizer - which should allow for more flexibility
-	p, err := plot.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Example of inverted axes"
 	p.Y.Scale = plot.InvertedScale{Normalizer: plot.LogScale{}}
 	p.X.Scale = plot.InvertedScale{Normalizer: plot.LinearScale{}}
@@ -47,7 +43,7 @@ func Example_invertedScale() {
 	p.Y.Min = math.Exp(f.XMin)
 	p.Y.Max = math.Exp(f.XMax)
 
-	err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/invertedlogscale.png")
+	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/invertedlogscale.png")
 	if err != nil {
 		log.Panic(err)
 	}

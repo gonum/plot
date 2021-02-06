@@ -35,10 +35,7 @@ func clippedFilledLine() {
 		return pts
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Filled Line Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

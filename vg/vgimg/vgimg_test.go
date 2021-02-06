@@ -33,10 +33,7 @@ func TestIssue179(t *testing.T) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	p, err := plot.New()
-	if err != nil {
-		log.Fatal(err)
-	}
+	p := plot.New()
 	p.Add(scatter)
 	p.HideAxes()
 
@@ -97,10 +94,7 @@ func TestUseBackgroundColor(t *testing.T) {
 }
 
 func TestIssue540(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
+	p := plot.New()
 
 	xys := plotter.XYs{
 		plotter.XY{X: 0, Y: 0},

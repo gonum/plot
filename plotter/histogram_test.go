@@ -22,12 +22,7 @@ func TestSingletonHistogram(t *testing.T) {
 	done := make(chan struct{}, 1)
 	go func() {
 		defer close(done)
-		p, err := plot.New()
-		if err != nil {
-			t.Errorf("unexpected error from plot.New: %v", err)
-			return
-		}
-
+		p := plot.New()
 		hist, err := plotter.NewHist(plotter.Values([]float64{1.0}), 60)
 		if err != nil {
 			t.Errorf("unexpected error from NewHist: %v", err)

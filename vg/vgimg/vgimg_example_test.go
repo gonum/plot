@@ -7,7 +7,6 @@ package vgimg_test
 import (
 	"image"
 	"image/color"
-	"log"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
@@ -16,10 +15,7 @@ import (
 )
 
 func ExampleUseDPI() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Title"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -42,10 +38,7 @@ func ExampleUseDPI() {
 }
 
 func ExampleUseImage() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Title"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -65,10 +58,7 @@ func ExampleUseImage() {
 }
 
 func ExampleUseBackgroundColor() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("%+v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Title"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

@@ -32,10 +32,7 @@ func ExampleLine_stepLine() {
 
 	n := 4
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Step Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

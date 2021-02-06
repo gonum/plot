@@ -29,11 +29,7 @@ func ExampleFunction() {
 	sin.Width = vg.Points(4)
 	sin.Color = color.RGBA{R: 255, A: 255}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Functions"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -49,7 +45,7 @@ func ExampleFunction() {
 	p.Y.Min = 0
 	p.Y.Max = 100
 
-	err = p.Save(200, 200, "testdata/functions.png")
+	err := p.Save(200, 200, "testdata/functions.png")
 	if err != nil {
 		log.Panic(err)
 	}
