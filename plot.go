@@ -58,8 +58,10 @@ type Plot struct {
 	// Legend is the plot's legend.
 	Legend Legend
 
-	// Fonts is the cache of fonts used by this plot.
-	Fonts *font.Cache
+	// TextHandler parses and formats text according to a given
+	// dialect (Markdown, LaTeX, plain, ...)
+	// The default is a plain text handler.
+	TextHandler text.Handler
 
 	// plotters are drawn by calling their Plot method
 	// after the axes are drawn.
@@ -93,17 +95,13 @@ const (
 // New returns a new plot with some reasonable
 // default settings.
 func New() (*Plot, error) {
-	var (
-		hdlr  = DefaultTextHandler
-		fonts = font.DefaultCache
-	)
-
+	hdlr := DefaultTextHandler
 	p := &Plot{
 		BackgroundColor: color.White,
 		X:               makeAxis(horizontal),
 		Y:               makeAxis(vertical),
 		Legend:          newLegend(hdlr),
-		Fonts:           fonts,
+		TextHandler:     hdlr,
 	}
 	p.Title.TextStyle = text.Style{
 		Color:   color.Black,
