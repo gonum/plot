@@ -22,10 +22,7 @@ func ExampleBarChart() {
 	horizontalLabels := []string{"Label A", "Label B", "Label C", "Label D"}
 
 	// Create a vertical BarChart
-	p1, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p1 := plot.New()
 	verticalBarChart, err := plotter.NewBarChart(values, 0.5*vg.Centimeter)
 	if err != nil {
 		log.Panic(err)
@@ -38,10 +35,7 @@ func ExampleBarChart() {
 	}
 
 	// Create a horizontal BarChart
-	p2, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p2 := plot.New()
 	horizontalBarChart, err := plotter.NewBarChart(values, 0.5*vg.Centimeter)
 	horizontalBarChart.Horizontal = true // Specify a horizontal BarChart.
 	if err != nil {
@@ -60,10 +54,7 @@ func ExampleBarChart() {
 	groupC := plotter.Values{12, 28, 15, 21, 8}
 	groupD := plotter.Values{30, 42, 6, 9, 12}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Bar chart"
 	p.Y.Label.Text = "Heights"
 
@@ -115,10 +106,7 @@ func ExampleBarChart() {
 	}
 
 	// Now, make a stacked BarChart.
-	p, err = plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p = plot.New()
 	p.Title.Text = "Bar chart"
 	p.Y.Label.Text = "Heights"
 
@@ -243,10 +231,7 @@ func ExampleBarChart_positiveNegative() {
 		log.Panic(err)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Add(zero, pos1, pos2, neg1, neg2, netDots)
 	p.NominalY("Alpha", "Bravo", "Charlie", "Echo", "Foxtrot", "Golf")
 

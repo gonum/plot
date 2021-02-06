@@ -28,11 +28,7 @@ func TestLabelsWithGlyphBoxes(t *testing.T) {
 		func() {
 			const fontSize = 24
 
-			p, err := plot.New()
-			if err != nil {
-				t.Fatalf("could not create plot: %+v", err)
-			}
-
+			p := plot.New()
 			p.Title.Text = "Labels"
 			p.X.Min = -1
 			p.X.Max = +1

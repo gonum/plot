@@ -34,11 +34,7 @@ func TestPolygon_clip(t *testing.T) {
 		t.Fatal(err)
 	}
 	poly.Color = color.Black // Give the polygon a color to fill.
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	p := plot.New()
 	// Set the plotting range so that the polygon is outside of it.
 	p.X.Min = 2
 	p.X.Max = 5

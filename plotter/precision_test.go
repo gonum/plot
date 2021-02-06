@@ -17,11 +17,7 @@ func TestFloatPrecision(t *testing.T) {
 	const fname = "precision.png"
 
 	cmpimg.CheckPlot(func() {
-		p, err := plot.New()
-		if err != nil {
-			log.Fatal(err)
-		}
-
+		p := plot.New()
 		p.X.Label.Text = "x"
 		p.Y.Label.Text = "y"
 

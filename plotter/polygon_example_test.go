@@ -40,10 +40,7 @@ func ExamplePolygon_holes() {
 	}
 	poly.Color = color.NRGBA{B: 255, A: 255}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Polygon with holes"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -95,10 +92,8 @@ func ExamplePolygon_hexagons() {
 		return g
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	var err error
+	p := plot.New()
 	p.Title.Text = "Hexagons"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

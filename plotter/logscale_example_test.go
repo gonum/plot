@@ -16,11 +16,7 @@ import (
 
 // Example_logScale shows how to create a plot with a log-scale on the Y-axis.
 func Example_logScale() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatal(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "My Plot"
 	p.Y.Scale = plot.LogScale{}
 	p.Y.Tick.Marker = plot.LogTicks{}
@@ -40,7 +36,7 @@ func Example_logScale() {
 	p.Y.Min = math.Exp(f.XMin)
 	p.Y.Max = math.Exp(f.XMax)
 
-	err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/logscale.png")
+	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/logscale.png")
 	if err != nil {
 		log.Panic(err)
 	}

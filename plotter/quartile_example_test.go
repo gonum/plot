@@ -43,10 +43,7 @@ func ExampleQuartPlot() {
 	}
 
 	// Create a vertical plot
-	p1, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p1 := plot.New()
 	p1.Title.Text = "Quartile Plot"
 	p1.Y.Label.Text = "plotter.Values"
 	p1.Add(qp1, qp2, qp3)
@@ -66,10 +63,7 @@ func ExampleQuartPlot() {
 	qp2.Horizontal = true
 	qp3.Horizontal = true
 
-	p2, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p2 := plot.New()
 	p2.Title.Text = "Quartile Plot"
 	p2.X.Label.Text = "plotter.Values"
 	p2.Add(qp1, qp2, qp3)
@@ -86,10 +80,7 @@ func ExampleQuartPlot() {
 
 	// Now, create a grouped quartile plot.
 
-	p3, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p3 := plot.New()
 	p3.Title.Text = "Box Plot"
 	p3.Y.Label.Text = "plotter.Values"
 

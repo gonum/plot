@@ -31,12 +31,8 @@ func ExampleField() {
 	})
 	f.LineStyle.Width = 0.2
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Vector field"
-
 	p.X.Tick.Marker = integerTicks{}
 	p.Y.Tick.Marker = integerTicks{}
 
@@ -99,12 +95,8 @@ func ExampleField_colors() {
 		c.Stroke(pa)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Vortex"
-
 	p.X.Tick.Marker = integerTicks{}
 	p.Y.Tick.Marker = integerTicks{}
 
@@ -161,12 +153,8 @@ func ExampleField_gophers() {
 		c.DrawImage(vg.Rectangle{Max: vg.Point{X: 2, Y: 2}}, gopher)
 	}
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Gopher vortex"
-
 	p.X.Tick.Marker = integerTicks{}
 	p.Y.Tick.Marker = integerTicks{}
 

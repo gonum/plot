@@ -56,10 +56,7 @@ func Example_volcano() {
 
 	h := plotter.NewHeatMap(volcano, palette.Heat(len(levels)*2, 1))
 
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Maunga Whau Volcano"
 
 	p.Add(h)

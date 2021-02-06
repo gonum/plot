@@ -26,10 +26,7 @@ func ExampleAlign() {
 				continue
 			}
 
-			p, err := plot.New()
-			if err != nil {
-				panic(err)
-			}
+			p := plot.New()
 
 			if j == 0 && i == 2 {
 				// This shows what happens when the axis padding
@@ -93,11 +90,7 @@ func ExampleAlign() {
 }
 
 func ExampleAxis_labelsPosition() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Title"
 	p.X.Label.Text = "X [mm]"
 	p.Y.Label.Text = "Y [A.U.]"
@@ -108,7 +101,7 @@ func ExampleAxis_labelsPosition() {
 	p.Y.Min = -10
 	p.Y.Max = +10
 
-	err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/axis_labels.png")
+	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/axis_labels.png")
 	if err != nil {
 		log.Fatalf("could not save plot: %+v", err)
 	}

@@ -60,10 +60,7 @@ func ExampleBoxPlot() {
 		log.Panic(err)
 	}
 
-	p1, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p1 := plot.New()
 	p1.Title.Text = "Vertical Box Plot"
 	p1.Y.Label.Text = "plotter.Values"
 	p1.Y.Max = 6
@@ -97,10 +94,7 @@ func ExampleBoxPlot() {
 		log.Panic(err)
 	}
 
-	p2, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p2 := plot.New()
 	p2.Title.Text = "Horizontal Box Plot"
 	p2.X.Label.Text = "plotter.Values"
 
@@ -117,10 +111,7 @@ func ExampleBoxPlot() {
 	}
 
 	// Now, make a grouped box plot.
-	p3, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p3 := plot.New()
 	p3.Title.Text = "Box Plot"
 	p3.Y.Label.Text = "plotter.Values"
 

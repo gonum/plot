@@ -19,11 +19,7 @@ import (
 )
 
 func TestMultiCanvas(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Fatal(err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Title"
 	p.X.Label.Text = "x"
 	p.Y.Label.Text = "y"

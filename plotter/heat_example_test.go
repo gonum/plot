@@ -30,10 +30,7 @@ func ExampleHeatMap() {
 	pal := palette.Heat(12, 1)
 	h := plotter.NewHeatMap(m, pal)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Heat map"
 
 	p.X.Tick.Marker = integerTicks{}

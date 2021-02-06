@@ -24,16 +24,13 @@ func ExampleHeatMap_rasterized() {
 		})}
 
 	pal := palette.Heat(12, 1)
-	plt, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	plt := plot.New()
 
 	raster := plotter.NewHeatMap(&m, pal)
 	raster.Rasterized = true
 	plt.Add(raster)
 
-	err = plt.Save(250, 175, "testdata/rasterHeatMap.png")
+	err := plt.Save(250, 175, "testdata/rasterHeatMap.png")
 	if err != nil {
 		log.Panic(err)
 	}

@@ -47,10 +47,7 @@ func Example_timeSeries() {
 	n := 10
 	data := randomPoints(n)
 
-	p, err := plot.New()
-	if err != nil {
-		log.Panic(err)
-	}
+	p := plot.New()
 	p.Title.Text = "Time Series"
 	p.X.Tick.Marker = xticks
 	p.Y.Label.Text = "Number of Gophers\n(Billions)"

@@ -73,10 +73,7 @@ func TestFieldDims(t *testing.T) {
 				},
 			})
 
-			p, err := plot.New()
-			if err != nil {
-				t.Errorf("unexpected error: %v", err)
-			}
+			p := plot.New()
 			p.Add(f)
 
 			img := vgimg.New(250, 175)

@@ -59,10 +59,7 @@ func Example_addFont() {
 	plot.DefaultFont = mincho
 	plotter.DefaultFont = mincho
 
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Hello, 世界!"
 	p.X.Label.Text = "世"
 	p.Y.Label.Text = "界"
@@ -116,11 +113,7 @@ func untargz(name string, r io.Reader) ([]byte, error) {
 }
 
 func Example_inMemoryCanvas() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "sin(x)"
 	p.X.Label.Text = "x"
 	p.Y.Label.Text = "f(x)"
@@ -157,11 +150,7 @@ func Example_inMemoryCanvas() {
 }
 
 func Example_writerToCanvas() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "cos(x)"
 	p.X.Label.Text = "x"
 	p.Y.Label.Text = "f(x)"

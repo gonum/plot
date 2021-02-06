@@ -33,11 +33,7 @@ func TestPersistency(t *testing.T) {
 	lineData := randomPoints(n, rnd)
 	linePointsData := randomPoints(n, rnd)
 
-	p, err := plot.New()
-	if err != nil {
-		t.Fatalf("error creating plot: %v\n", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Plot Example"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

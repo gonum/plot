@@ -21,10 +21,7 @@ func TestTexCanvas(t *testing.T) {
 func TestLineLatex(t *testing.T) {
 	test := func(fname string) func() {
 		return func() {
-			p, err := plot.New()
-			if err != nil {
-				t.Fatalf("error: %+v", err)
-			}
+			p := plot.New()
 			p.X.Min = -10
 			p.X.Max = +10
 			p.Y.Min = -10
@@ -55,7 +52,7 @@ func TestLineLatex(t *testing.T) {
 			p.Add(plotter.NewGrid())
 
 			const size = 5 * vg.Centimeter
-			err = p.Save(size, size, fname)
+			err := p.Save(size, size, fname)
 			if err != nil {
 				t.Fatalf("error: %+v", err)
 			}
@@ -67,10 +64,7 @@ func TestLineLatex(t *testing.T) {
 
 func TestFillStyle(t *testing.T) {
 	cmpimg.CheckPlot(func() {
-		p, err := plot.New()
-		if err != nil {
-			t.Fatalf("error: %+v", err)
-		}
+		p := plot.New()
 		p.Title.Text = "Fill style"
 		p.Legend.Top = true
 		p.Legend.Left = true

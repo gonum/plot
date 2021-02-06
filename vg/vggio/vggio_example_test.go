@@ -6,7 +6,6 @@ package vggio_test
 
 import (
 	"image/color"
-	"log"
 	"math"
 	"os"
 	"time"
@@ -47,10 +46,7 @@ func ExampleCanvas() {
 		for e := range win.Events() {
 			switch e := e.(type) {
 			case system.FrameEvent:
-				p, err := plot.New()
-				if err != nil {
-					log.Fatalf("could not create plot: %+v", err)
-				}
+				p := plot.New()
 				p.Title.Text = "My title"
 				p.X.Label.Text = "X"
 				p.Y.Label.Text = "Y"

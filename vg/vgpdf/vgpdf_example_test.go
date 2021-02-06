@@ -20,10 +20,7 @@ import (
 // Example_embedFonts shows how one can embed (or not) fonts inside
 // a PDF plot.
 func Example_embedFonts() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %v", err)
-	}
+	p := plot.New()
 
 	pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
 	line, err := plotter.NewLine(pts)
@@ -67,10 +64,7 @@ func Example_multipage() {
 			c.NextPage()
 		}
 
-		p, err := plot.New()
-		if err != nil {
-			log.Fatalf("could not create plot: %v", err)
-		}
+		p := plot.New()
 
 		pts := plotter.XYs{{X: 0, Y: 0}, {X: 0, Y: 1}, {X: 1, Y: 0}, {X: 1, Y: 1}}
 		line, err := plotter.NewLine(pts)

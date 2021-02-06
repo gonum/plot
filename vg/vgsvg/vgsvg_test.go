@@ -22,10 +22,7 @@ func TestSVG(t *testing.T) {
 }
 
 func TestNewWith(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Fatalf("could not create plot: %v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Scatter plot"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"
@@ -59,10 +56,7 @@ func TestNewWith(t *testing.T) {
 }
 
 func TestHtmlEscape(t *testing.T) {
-	p, err := plot.New()
-	if err != nil {
-		t.Fatalf("could not create plot: %v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Scatter & line plot"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

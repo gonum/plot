@@ -16,11 +16,7 @@ import (
 )
 
 func ExampleLabels() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Labels"
 	p.X.Min = -10
 	p.X.Max = +10
@@ -55,11 +51,7 @@ func ExampleLabels() {
 // always in the same location of a plot, irrespective of the minute
 // details of a particular plot data range.
 func ExampleLabels_inCanvasCoordinates() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %+v", err)
-	}
-
+	p := plot.New()
 	p.Title.Text = "Labels - X"
 	p.X.Min = -10
 	p.X.Max = +10

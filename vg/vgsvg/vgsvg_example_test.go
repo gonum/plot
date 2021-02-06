@@ -13,10 +13,7 @@ import (
 )
 
 func Example() {
-	p, err := plot.New()
-	if err != nil {
-		log.Fatalf("could not create plot: %v", err)
-	}
+	p := plot.New()
 	p.Title.Text = "Scatter plot"
 	p.X.Label.Text = "X"
 	p.Y.Label.Text = "Y"

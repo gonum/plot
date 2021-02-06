@@ -156,11 +156,7 @@ func TestAxisPadding(t *testing.T) {
 	for _, padding := range []int{0, 5, 10} {
 		t.Run(fmt.Sprintf("padding-%d", padding), func(t *testing.T) {
 			cmpimg.CheckPlot(func() {
-				p, err := New()
-				if err != nil {
-					t.Fatalf("error: %+v", err)
-				}
-
+				p := New()
 				p.Title.Text = fmt.Sprintf("padding=%d", padding)
 				p.X.Label.Text = "X-Axis"
 				p.X.Label.Padding = vg.Points(float64(padding))
@@ -168,7 +164,7 @@ func TestAxisPadding(t *testing.T) {
 				p.Y.Label.Padding = vg.Points(float64(padding))
 
 				const size = 5 * vg.Centimeter
-				err = p.Save(size, size, fmt.Sprintf("testdata/axis_padding_%02d.png", padding))
+				err := p.Save(size, size, fmt.Sprintf("testdata/axis_padding_%02d.png", padding))
 				if err != nil {
 					t.Fatalf("error: %+v", err)
 				}

@@ -119,10 +119,7 @@ func Example() {
 
 		h := plotter.NewHeatMap(m, plte.cmap)
 
-		p, err := plot.New()
-		if err != nil {
-			log.Panic(err)
-		}
+		p := plot.New()
 		p.Title.Text = plte.name
 
 		p.Add(h)
