@@ -50,6 +50,11 @@ type Legend struct {
 	// ThumbnailWidth is the width of legend thumbnails.
 	ThumbnailWidth vg.Length
 
+	// TextHandler parses and formats text according to a given
+	// dialect (Markdown, LaTeX, plain, ...)
+	// The default is a plain text handler.
+	TextHandler text.Handler
+
 	// entries are all of the legendEntries described
 	// by this legend.
 	entries []legendEntry
@@ -90,6 +95,7 @@ func newLegend(hdlr text.Handler) Legend {
 			Font:    font.From(DefaultFont, 12),
 			Handler: hdlr,
 		},
+		TextHandler: hdlr,
 	}
 }
 

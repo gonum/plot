@@ -31,6 +31,7 @@ func TestLegendAlignment(t *testing.T) {
 			Font:    font.From(plot.DefaultFont, 10),
 			Handler: plot.DefaultTextHandler,
 		},
+		TextHandler: plot.DefaultTextHandler,
 	}
 	for i, n := range []string{"A", "B", "C", "D"} {
 		b, err := plotter.NewBarChart(plotter.Values{0}, 1)
