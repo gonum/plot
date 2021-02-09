@@ -34,7 +34,7 @@ func TestNewWith(t *testing.T) {
 	p.Add(scatter)
 
 	c := vgsvg.NewWith(vgsvg.UseWH(5*vg.Centimeter, 5*vg.Centimeter))
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	b := new(bytes.Buffer)
 	if _, err = c.WriteTo(b); err != nil {
@@ -75,7 +75,7 @@ func TestHtmlEscape(t *testing.T) {
 	p.Add(line)
 
 	c := vgsvg.NewWith(vgsvg.UseWH(5*vg.Centimeter, 5*vg.Centimeter))
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	b := new(bytes.Buffer)
 	if _, err = c.WriteTo(b); err != nil {

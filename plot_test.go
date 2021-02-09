@@ -25,6 +25,7 @@ import (
 )
 
 func TestLegendAlignment(t *testing.T) {
+	hdlr := plot.DefaultTextHandler
 	l := plot.Legend{
 		ThumbnailWidth: vg.Points(20),
 		TextStyle: text.Style{
@@ -43,7 +44,7 @@ func TestLegendAlignment(t *testing.T) {
 	}
 
 	c := vgimg.PngCanvas{Canvas: vgimg.New(5*vg.Centimeter, 5*vg.Centimeter)}
-	l.Draw(draw.New(c))
+	l.Draw(draw.New(c, hdlr))
 	var buf bytes.Buffer
 	if _, err := c.WriteTo(&buf); err != nil {
 		t.Fatal(err)
@@ -114,7 +115,7 @@ func TestIssue514(t *testing.T) {
 
 				p.Add(pts)
 
-				c := draw.NewCanvas(&recorder.Canvas{}, 100, 100)
+				c := draw.NewCanvas(&recorder.Canvas{}, 100, 100, plot.DefaultTextHandler)
 				p.Draw(c)
 			}()
 

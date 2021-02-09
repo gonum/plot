@@ -143,7 +143,7 @@ func ExampleSankey_simple() {
 func ExampleSankey_grouped() {
 	p := plot.New()
 	c := vgimg.New(vg.Points(300), vg.Points(180))
-	dc := draw.New(c)
+	dc := draw.New(c, p.TextHandler)
 
 	// Define the stock categories
 	const (

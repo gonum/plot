@@ -129,7 +129,7 @@ func Example_inMemoryCanvas() {
 	p.Add(fct, plotter.NewGrid())
 
 	c := vgimg.New(10*vg.Centimeter, 5*vg.Centimeter)
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	// Save image.
 	f, err := os.Create("testdata/sine.png")
@@ -168,7 +168,7 @@ func Example_writerToCanvas() {
 	c := vgimg.PngCanvas{
 		Canvas: vgimg.New(10*vg.Centimeter, 5*vg.Centimeter),
 	}
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	// Save image.
 	f, err := os.Create("testdata/cosine.png")

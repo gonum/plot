@@ -127,6 +127,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 			Min: vg.Point{X: iconx, Y: y},
 			Max: vg.Point{X: iconx + l.ThumbnailWidth, Y: y + enth},
 		},
+		Handler: c.Handler,
 	}
 
 	if l.YPosition < draw.PosBottom || draw.PosTop < l.YPosition {

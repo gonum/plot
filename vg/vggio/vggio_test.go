@@ -77,7 +77,7 @@ func TestCanvas(t *testing.T) {
 			)),
 		}
 		cnv := New(gtx, w, h, UseDPI(dpi))
-		p.Draw(draw.New(cnv))
+		p.Draw(draw.New(cnv, p.TextHandler))
 
 		img, err := cnv.Screenshot()
 		if err != nil {
@@ -237,7 +237,7 @@ func TestLabels(t *testing.T) {
 			)),
 		}
 		cnv := New(gtx, w, h, UseDPI(dpi))
-		p.Draw(draw.New(cnv))
+		p.Draw(draw.New(cnv, p.TextHandler))
 
 		img, err := cnv.Screenshot()
 		if err != nil {

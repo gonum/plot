@@ -35,7 +35,7 @@ func Example_embedFonts() {
 
 	// enable/disable embedding fonts
 	c.EmbedFonts(true)
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	f, err := os.Create("testdata/enable-embedded-fonts.pdf")
 	if err != nil {
@@ -78,7 +78,7 @@ func Example_multipage() {
 		p.Y.Label.Text = "Y axis"
 
 		// Write plot to page.
-		p.Draw(draw.New(c))
+		p.Draw(draw.New(c, p.TextHandler))
 	}
 
 	f, err := os.Create("testdata/multipage.pdf")

@@ -47,7 +47,7 @@ func Example() {
 	)
 
 	c := vgtex.NewDocument(5*vg.Centimeter, 5*vg.Centimeter)
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	c.SetColor(color.Black)
 	c.FillString(txtFont, vg.Point{X: 2.5 * vg.Centimeter, Y: 2.5 * vg.Centimeter}, "x")

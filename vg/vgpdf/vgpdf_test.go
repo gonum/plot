@@ -50,7 +50,7 @@ func TestEmbedFonts(t *testing.T) {
 
 			// enable/disable embedding fonts
 			c.EmbedFonts(tc.embed)
-			p.Draw(draw.New(c))
+			p.Draw(draw.New(c, p.TextHandler))
 
 			var buf bytes.Buffer
 			_, err = c.WriteTo(&buf)
@@ -96,7 +96,7 @@ func TestArc(t *testing.T) {
 	c := vgpdf.New(100, 100)
 
 	c.EmbedFonts(false)
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 
 	if *cmpimg.GenerateTestData {
 		// Recreate Golden images and exit.

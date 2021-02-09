@@ -10,6 +10,7 @@ import (
 	"reflect"
 	"testing"
 
+	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/recorder"
@@ -22,17 +23,18 @@ import (
 )
 
 func TestCrop(t *testing.T) {
+	hdlr := plot.DefaultTextHandler
 	ls := draw.LineStyle{
 		Color: color.NRGBA{0, 20, 0, 123},
 		Width: 0.1 * vg.Inch,
 	}
 	var r1 recorder.Canvas
-	c1 := draw.NewCanvas(&r1, 6, 3)
+	c1 := draw.NewCanvas(&r1, 6, 3, hdlr)
 	c11 := draw.Crop(c1, 0, -3, 0, 0)
 	c12 := draw.Crop(c1, 3, 0, 0, 0)
 
 	var r2 recorder.Canvas
-	c2 := draw.NewCanvas(&r2, 6, 3)
+	c2 := draw.NewCanvas(&r2, 6, 3, hdlr)
 	c21 := draw.Canvas{
 		Canvas: c2.Canvas,
 		Rectangle: vg.Rectangle{
@@ -71,7 +73,7 @@ func TestCrop(t *testing.T) {
 
 func TestTile(t *testing.T) {
 	var r recorder.Canvas
-	c := draw.NewCanvas(&r, 13, 7)
+	c := draw.NewCanvas(&r, 13, 7, plot.DefaultTextHandler)
 	const (
 		rows = 2
 		cols = 3

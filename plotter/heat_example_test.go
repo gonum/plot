@@ -66,7 +66,7 @@ func ExampleHeatMap() {
 	p.Y.Max = 1.5
 
 	img := vgimg.New(250, 175)
-	dc := draw.New(img)
+	dc := draw.New(img, p.TextHandler)
 
 	l.Top = true
 	// Calculate the width of the legend.

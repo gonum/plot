@@ -67,7 +67,7 @@ func Example() {
 		cols = 3
 	)
 	c := vgimg.New(vg.Points(800), vg.Points(800))
-	dc := draw.New(c)
+	dc := draw.New(c, plot.DefaultTextHandler)
 	tiles := draw.Tiles{
 		Rows: rows,
 		Cols: cols,

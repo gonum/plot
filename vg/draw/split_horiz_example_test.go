@@ -7,13 +7,14 @@ package draw_test
 import (
 	"fmt"
 
+	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
 func ExampleCrop_splitHorizontal() {
-	c := draw.New(vgimg.New(vg.Points(10), vg.Points(16)))
+	c := draw.New(vgimg.New(vg.Points(10), vg.Points(16)), plot.DefaultTextHandler)
 
 	// Split c along a vertical line centered on the canvas.
 	left, right := SplitHorizontal(c, c.Size().X/2)

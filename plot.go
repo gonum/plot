@@ -221,6 +221,7 @@ func padX(p *Plot, c draw.Canvas) draw.Canvas {
 			Min: vg.Point{X: n, Y: c.Min.Y},
 			Max: vg.Point{X: m, Y: c.Max.Y},
 		},
+		Handler: c.Handler,
 	}
 }
 
@@ -277,6 +278,7 @@ func padY(p *Plot, c draw.Canvas) draw.Canvas {
 			Min: vg.Point{Y: n, X: c.Min.X},
 			Max: vg.Point{Y: m, X: c.Max.X},
 		},
+		Handler: c.Handler,
 	}
 }
 
@@ -448,7 +450,7 @@ func (p *Plot) WriterTo(w, h vg.Length, format string) (io.WriterTo, error) {
 	if err != nil {
 		return nil, err
 	}
-	p.Draw(draw.New(c))
+	p.Draw(draw.New(c, p.TextHandler))
 	return c, nil
 }
 

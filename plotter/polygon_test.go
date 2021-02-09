@@ -41,6 +41,6 @@ func TestPolygon_clip(t *testing.T) {
 
 	p.Add(poly)
 	c := new(recorder.Canvas)
-	dc := draw.NewCanvas(c, vg.Centimeter, vg.Centimeter)
+	dc := draw.NewCanvas(c, vg.Centimeter, vg.Centimeter, p.TextHandler)
 	p.Draw(dc) // If this does not panic, then the test passes.
 }

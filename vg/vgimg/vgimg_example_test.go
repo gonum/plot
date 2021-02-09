@@ -33,7 +33,7 @@ func ExampleUseDPI() {
 		vgimg.UseDPI(72),
 	)
 
-	dc := draw.New(c)
+	dc := draw.New(c, p.TextHandler)
 	p.Draw(dc)
 }
 
@@ -53,7 +53,7 @@ func ExampleUseImage() {
 		vgimg.UseImage(img),
 	)
 
-	dc := draw.New(c)
+	dc := draw.New(c, p.TextHandler)
 	p.Draw(dc)
 }
 
@@ -75,6 +75,6 @@ func ExampleUseBackgroundColor() {
 		vgimg.UseBackgroundColor(color.Transparent),
 	)
 
-	dc := draw.New(c)
+	dc := draw.New(c, p.TextHandler)
 	p.Draw(dc)
 }

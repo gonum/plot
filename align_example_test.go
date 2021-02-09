@@ -56,7 +56,7 @@ func ExampleAlign() {
 	}
 
 	img := vgimg.New(vg.Points(150), vg.Points(175))
-	dc := draw.New(img)
+	dc := draw.New(img, plot.DefaultTextHandler)
 
 	t := draw.Tiles{
 		Rows:      rows,

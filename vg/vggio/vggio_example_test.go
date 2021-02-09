@@ -85,7 +85,7 @@ func ExampleCanvas() {
 
 				gtx := layout.NewContext(new(op.Ops), e)
 				cnv := vggio.New(gtx, w, h, vggio.UseDPI(dpi))
-				p.Draw(draw.New(cnv))
+				p.Draw(draw.New(cnv, p.TextHandler))
 
 				e.Frame(cnv.Paint())
 

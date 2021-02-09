@@ -84,7 +84,7 @@ func ExampleLabels_inCanvasCoordinates() {
 		Canvas: vgimg.New(10*vg.Centimeter, 10*vg.Centimeter),
 	}
 
-	dc := draw.New(cnv)
+	dc := draw.New(cnv, p.TextHandler)
 	p.Draw(dc)
 
 	// Put an 'X' in the middle of the data-canvas.

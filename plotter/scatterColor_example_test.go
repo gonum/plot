@@ -109,7 +109,7 @@ func ExampleScatter_color() {
 	p.Legend.XOffs = legendWidth
 
 	img := vgimg.New(300, 230)
-	dc := draw.New(img)
+	dc := draw.New(img, p.TextHandler)
 	dc = draw.Crop(dc, 0, -legendWidth, 0, 0) // Make space for the legend.
 	p.Draw(dc)
 

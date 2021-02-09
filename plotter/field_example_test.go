@@ -39,7 +39,7 @@ func ExampleField() {
 	p.Add(f)
 
 	img := vgimg.New(250, 175)
-	dc := draw.New(img)
+	dc := draw.New(img, p.TextHandler)
 
 	p.Draw(dc)
 	w, err := os.Create("testdata/field.png")
@@ -103,7 +103,7 @@ func ExampleField_colors() {
 	p.Add(f)
 
 	img := vgimg.New(250, 175)
-	dc := draw.New(img)
+	dc := draw.New(img, p.TextHandler)
 
 	p.Draw(dc)
 	w, err := os.Create("testdata/color_field.png")
@@ -161,7 +161,7 @@ func ExampleField_gophers() {
 	p.Add(f)
 
 	img := vgimg.New(250, 175)
-	dc := draw.New(img)
+	dc := draw.New(img, p.TextHandler)
 
 	p.Draw(dc)
 	w, err := os.Create("testdata/gopher_field.png")

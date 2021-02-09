@@ -33,6 +33,7 @@ func Align(plots [][]*Plot, t draw.Tiles, dc draw.Canvas) [][]draw.Canvas {
 		o[j] = make([]draw.Canvas, len(plots[j]))
 		for i := 0; i < t.Cols; i++ {
 			o[j][i] = t.At(dc, i, j)
+			o[j][i].Handler = dc.Handler
 		}
 	}
 

@@ -47,6 +47,7 @@ func TestMultiCanvas(t *testing.T) {
 	p.Draw(draw.NewCanvas(
 		vg.MultiCanvas(c1, c2, vg.MultiCanvas()),
 		width, height,
+		p.TextHandler,
 	))
 
 	if !reflect.DeepEqual(c1, c2) {

@@ -57,6 +57,8 @@ func RegisterFormat(name string, fn func(w, h vg.Length) vg.CanvasWriterTo) {
 type Canvas struct {
 	vg.Canvas
 	vg.Rectangle
+
+	Handler text.Handler
 }
 
 // XAlignment specifies text alignment in the X direction. Three preset
@@ -284,9 +286,9 @@ func (CrossGlyph) DrawGlyph(c *Canvas, sty GlyphStyle, pt vg.Point) {
 }
 
 // New returns a new (bounded) draw.Canvas.
-func New(c vg.CanvasSizer) Canvas {
+func New(c vg.CanvasSizer, hdlr text.Handler) Canvas {
 	w, h := c.Size()
-	return NewCanvas(c, w, h)
+	return NewCanvas(c, w, h, hdlr)
 }
 
 // NewFormattedCanvas creates a new vg.CanvasWriterTo with the specified
@@ -312,13 +314,14 @@ func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error
 }
 
 // NewCanvas returns a new (bounded) draw.Canvas of the given size.
-func NewCanvas(c vg.Canvas, w, h vg.Length) Canvas {
+func NewCanvas(c vg.Canvas, w, h vg.Length, hdlr text.Handler) Canvas {
 	return Canvas{
 		Canvas: c,
 		Rectangle: vg.Rectangle{
 			Min: vg.Point{X: 0, Y: 0},
 			Max: vg.Point{X: w, Y: h},
 		},
+		Handler: hdlr,
 	}
 }
 
@@ -382,6 +385,7 @@ func Crop(c Canvas, left, right, bottom, top vg.Length) Canvas {
 	return Canvas{
 		Canvas:    c,
 		Rectangle: vg.Rectangle{Min: minpt, Max: maxpt},
+		Handler:   c.Handler,
 	}
 }
 
@@ -416,6 +420,7 @@ func (ts Tiles) At(c Canvas, x, y int) Canvas {
 			Min: vg.Point{X: xmin, Y: ymin},
 			Max: vg.Point{X: xmax, Y: ymax},
 		},
+		Handler: c.Handler,
 	}
 }
 
@@ -629,5 +634,5 @@ func isect(p0, p1, clip, norm vg.Point) vg.Point {
 // FillText fills lines of text in the draw area.
 // pt specifies the location where the text is to be drawn.
 func (c *Canvas) FillText(sty TextStyle, pt vg.Point, txt string) {
-	sty.Handler.Draw(c, txt, sty, pt)
+	c.Handler.Draw(c, txt, sty, pt)
 }

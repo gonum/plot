@@ -77,7 +77,7 @@ func TestFieldDims(t *testing.T) {
 			p.Add(f)
 
 			img := vgimg.New(250, 175)
-			dc := draw.New(img)
+			dc := draw.New(img, p.TextHandler)
 
 			p.Draw(dc)
 		}()

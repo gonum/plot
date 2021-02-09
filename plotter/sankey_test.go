@@ -52,12 +52,12 @@ func TestSankey_idempotent(t *testing.T) {
 
 	// Draw the plot once.
 	c1 := new(recorder.Canvas)
-	dc1 := draw.NewCanvas(c1, vg.Centimeter, vg.Centimeter)
+	dc1 := draw.NewCanvas(c1, vg.Centimeter, vg.Centimeter, p.TextHandler)
 	p.Draw(dc1)
 
 	// Draw the plot a second time.
 	c2 := new(recorder.Canvas)
-	dc2 := draw.NewCanvas(c2, vg.Centimeter, vg.Centimeter)
+	dc2 := draw.NewCanvas(c2, vg.Centimeter, vg.Centimeter, p.TextHandler)
 	p.Draw(dc2)
 
 	if len(c1.Actions) != len(c2.Actions) {
