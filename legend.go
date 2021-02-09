@@ -76,10 +76,9 @@ type Thumbnailer interface {
 	Thumbnail(c *draw.Canvas)
 }
 
-// NewLegend returns a legend with the default
-// parameter settings.
-func NewLegend() (Legend, error) {
-	return newLegend(DefaultTextHandler), nil
+// NewLegend returns a legend with the default parameter settings.
+func NewLegend() Legend {
+	return newLegend(DefaultTextHandler)
 }
 
 func newLegend(hdlr text.Handler) Legend {

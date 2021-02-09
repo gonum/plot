@@ -48,10 +48,7 @@ func ExampleLegend_standalone() {
 	green := exampleThumbnailer{Color: color.NRGBA{G: 255, A: 255}}
 	blue := exampleThumbnailer{Color: color.NRGBA{B: 255, A: 255}}
 
-	l, err := plot.NewLegend()
-	if err != nil {
-		panic(err)
-	}
+	l := plot.NewLegend()
 	l.Add("red", red)
 	l.Add("green", green)
 	l.Add("blue", blue)
@@ -90,6 +87,7 @@ func ExampleLegend_standalone() {
 		panic(err)
 	}
 	defer w.Close()
+
 	png := vgimg.PngCanvas{Canvas: c}
 	if _, err := png.WriteTo(w); err != nil {
 		panic(err)
