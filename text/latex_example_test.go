@@ -65,7 +65,7 @@ func ExampleLatex() {
 	labels.TextStyle[2].Font.Size = 24
 	labels.TextStyle[2].Rotation = math.Pi / 4
 	labels.TextStyle[2].YAlign = draw.YCenter
-	labels.TextStyle[2].Handler = &text.Plain{Fonts: fonts}
+	//labels.TextStyle[2].Handler = &text.Plain{Fonts: fonts}
 
 	labels.TextStyle[3].Font.Size = 24
 	labels.TextStyle[3].Rotation = math.Pi / 2

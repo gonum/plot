@@ -86,41 +86,36 @@ type Style struct {
 	// XAlign and YAlign specify the alignment of the text.
 	XAlign XAlignment
 	YAlign YAlignment
-
-	// Handler parses and formats text according to a given
-	// dialect (Markdown, LaTeX, plain, ...)
-	// The default is a plain text handler.
-	Handler Handler
 }
 
 // FontExtents returns the extents of this Style's font.
-func (s Style) FontExtents() font.Extents {
-	return s.Handler.Extents(s.Font)
+func (s Style) FontExtents(hdlr Handler) font.Extents {
+	return hdlr.Extents(s.Font)
 }
 
 // Width returns the width of lines of text
 // when using the given font before any text rotation is applied.
-func (s Style) Width(txt string) (max vg.Length) {
-	w, _ := s.box(txt)
+func (s Style) Width(hdlr Handler, txt string) (max vg.Length) {
+	w, _ := s.box(hdlr, txt)
 	return w
 }
 
 // Height returns the height of the text when using
 // the given font before any text rotation is applied.
-func (s Style) Height(txt string) vg.Length {
-	_, h := s.box(txt)
+func (s Style) Height(hdlr Handler, txt string) vg.Length {
+	_, h := s.box(hdlr, txt)
 	return h
 }
 
 // box returns the bounding box of a possibly multi-line text.
-func (s Style) box(txt string) (w, h vg.Length) {
+func (s Style) box(hdlr Handler, txt string) (w, h vg.Length) {
 	var (
-		lines   = s.Handler.Lines(txt)
-		e       = s.FontExtents()
+		lines   = hdlr.Lines(txt)
+		e       = s.FontExtents(hdlr)
 		linegap = (e.Height - e.Ascent - e.Descent)
 	)
 	for i, line := range lines {
-		ww, hh, dd := s.Handler.Box(line, s.Font)
+		ww, hh, dd := hdlr.Box(line, s.Font)
 		if ww > w {
 			w = ww
 		}
@@ -135,9 +130,9 @@ func (s Style) box(txt string) (w, h vg.Length) {
 
 // Rectangle returns a rectangle giving the bounds of
 // this text assuming that it is drawn at (0, 0).
-func (s Style) Rectangle(txt string) vg.Rectangle {
-	e := s.Handler.Extents(s.Font)
-	w, h := s.box(txt)
+func (s Style) Rectangle(hdlr Handler, txt string) vg.Rectangle {
+	e := hdlr.Extents(s.Font)
+	w, h := s.box(hdlr, txt)
 	desc := vg.Length(e.Height - e.Ascent) // descent + linegap
 	xoff := vg.Length(s.XAlign) * w
 	yoff := vg.Length(s.YAlign)*h - desc

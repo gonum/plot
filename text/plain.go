@@ -72,7 +72,7 @@ func (hdlr Plain) Draw(c vg.Canvas, txt string, sty Style, pt vg.Point) {
 	pt.X, pt.Y = pt.Y*sin+pt.X*cos, pt.Y*cos-pt.X*sin
 
 	lines := hdlr.Lines(txt)
-	ht := sty.Height(txt)
+	ht := sty.Height(hdlr, txt)
 	pt.Y += ht*vg.Length(sty.YAlign) - fnt.Extents().Ascent
 	for i, line := range lines {
 		xoffs := vg.Length(sty.XAlign) * fnt.Width(line)

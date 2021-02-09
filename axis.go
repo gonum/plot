@@ -107,11 +107,10 @@ func makeAxis(o orientation) Axis {
 		Scale:   LinearScale{},
 	}
 	a.Label.TextStyle = text.Style{
-		Color:   color.Black,
-		Font:    font.From(DefaultFont, 12),
-		XAlign:  draw.XCenter,
-		YAlign:  draw.YBottom,
-		Handler: DefaultTextHandler,
+		Color:  color.Black,
+		Font:   font.From(DefaultFont, 12),
+		XAlign: draw.XCenter,
+		YAlign: draw.YBottom,
 	}
 	a.Label.Position = draw.PosCenter
 
@@ -129,11 +128,10 @@ func makeAxis(o orientation) Axis {
 	}
 
 	a.Tick.Label = text.Style{
-		Color:   color.Black,
-		Font:    font.From(DefaultFont, 10),
-		XAlign:  xalign,
-		YAlign:  yalign,
-		Handler: DefaultTextHandler,
+		Color:  color.Black,
+		Font:   font.From(DefaultFont, 10),
+		XAlign: xalign,
+		YAlign: yalign,
 	}
 	a.Tick.LineStyle = draw.LineStyle{
 		Color: color.Black,
@@ -221,10 +219,10 @@ type horizontalAxis struct {
 }
 
 // size returns the height of the axis.
-func (a horizontalAxis) size() (h vg.Length) {
+func (a horizontalAxis) size(hdlr text.Handler) (h vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		h += a.Label.TextStyle.FontExtents().Descent
-		h += a.Label.TextStyle.Height(a.Label.Text)
+		h += a.Label.TextStyle.FontExtents(hdlr).Descent
+		h += a.Label.TextStyle.Height(hdlr, a.Label.Text)
 		h += a.Label.Padding
 	}
 
@@ -233,7 +231,7 @@ func (a horizontalAxis) size() (h vg.Length) {
 		if a.drawTicks() {
 			h += a.Tick.Length
 		}
-		h += tickLabelHeight(a.Tick.Label, marks)
+		h += tickLabelHeight(hdlr, a.Tick.Label, marks)
 	}
 	h += a.Width / 2
 	h += a.Padding
@@ -244,26 +242,27 @@ func (a horizontalAxis) size() (h vg.Length) {
 // draw draws the axis along the lower edge of a draw.Canvas.
 func (a horizontalAxis) draw(c draw.Canvas) {
 	var (
-		x vg.Length
-		y = c.Min.Y
+		hdlr = c.Handler
+		x    vg.Length
+		y    = c.Min.Y
 	)
 	switch a.Label.Position {
 	case draw.PosCenter:
 		x = c.Center().X
 	case draw.PosRight:
 		x = c.Max.X
-		x -= a.Label.TextStyle.Width(a.Label.Text) / 2
+		x -= a.Label.TextStyle.Width(hdlr, a.Label.Text) / 2
 	}
 	if a.Label.Text != "" {
-		descent := a.Label.TextStyle.FontExtents().Descent
+		descent := a.Label.TextStyle.FontExtents(hdlr).Descent
 		c.FillText(a.Label.TextStyle, vg.Point{X: x, Y: y + descent}, a.Label.Text)
-		y += a.Label.TextStyle.Height(a.Label.Text)
+		y += a.Label.TextStyle.Height(hdlr, a.Label.Text)
 		y += a.Label.Padding
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	ticklabelheight := tickLabelHeight(a.Tick.Label, marks)
-	descent := a.Tick.Label.FontExtents().Descent
+	ticklabelheight := tickLabelHeight(hdlr, a.Tick.Label, marks)
+	descent := a.Tick.Label.FontExtents(hdlr).Descent
 	for _, t := range marks {
 		x := c.X(a.Norm(t.Value))
 		if !c.ContainsX(x) || t.IsMinor() {
@@ -295,7 +294,7 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a horizontalAxis) GlyphBoxes(*Plot) []GlyphBox {
+func (a horizontalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
@@ -303,7 +302,7 @@ func (a horizontalAxis) GlyphBoxes(*Plot) []GlyphBox {
 		}
 		box := GlyphBox{
 			X:         a.Norm(t.Value),
-			Rectangle: a.Tick.Label.Rectangle(t.Label),
+			Rectangle: a.Tick.Label.Rectangle(p.TextHandler, t.Label),
 		}
 		boxes = append(boxes, box)
 	}
@@ -316,18 +315,18 @@ type verticalAxis struct {
 }
 
 // size returns the width of the axis.
-func (a verticalAxis) size() (w vg.Length) {
+func (a verticalAxis) size(hdlr text.Handler) (w vg.Length) {
 	if a.Label.Text != "" { // We assume that the label isn't rotated.
-		w += a.Label.TextStyle.FontExtents().Descent
-		w += a.Label.TextStyle.Height(a.Label.Text)
+		w += a.Label.TextStyle.FontExtents(hdlr).Descent
+		w += a.Label.TextStyle.Height(hdlr, a.Label.Text)
 		w += a.Label.Padding
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
 	if len(marks) > 0 {
-		if lwidth := tickLabelWidth(a.Tick.Label, marks); lwidth > 0 {
+		if lwidth := tickLabelWidth(hdlr, a.Tick.Label, marks); lwidth > 0 {
 			w += lwidth
-			w += a.Label.TextStyle.Width(" ")
+			w += a.Label.TextStyle.Width(hdlr, " ")
 		}
 		if a.drawTicks() {
 			w += a.Tick.Length
@@ -342,32 +341,33 @@ func (a verticalAxis) size() (w vg.Length) {
 // draw draws the axis along the left side of a draw.Canvas.
 func (a verticalAxis) draw(c draw.Canvas) {
 	var (
-		x = c.Min.X
-		y vg.Length
+		hdlr = c.Handler
+		x    = c.Min.X
+		y    vg.Length
 	)
 	if a.Label.Text != "" {
 		sty := a.Label.TextStyle
 		sty.Rotation += math.Pi / 2
-		x += a.Label.TextStyle.Height(a.Label.Text)
+		x += a.Label.TextStyle.Height(hdlr, a.Label.Text)
 		switch a.Label.Position {
 		case draw.PosCenter:
 			y = c.Center().Y
 		case draw.PosTop:
 			y = c.Max.Y
-			y -= a.Label.TextStyle.Width(a.Label.Text) / 2
+			y -= a.Label.TextStyle.Width(hdlr, a.Label.Text) / 2
 		}
-		descent := a.Label.TextStyle.FontExtents().Descent
+		descent := a.Label.TextStyle.FontExtents(hdlr).Descent
 		c.FillText(sty, vg.Point{X: x - descent, Y: y}, a.Label.Text)
 		x += descent
 		x += a.Label.Padding
 	}
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
+	if w := tickLabelWidth(hdlr, a.Tick.Label, marks); len(marks) > 0 && w > 0 {
 		x += w
 	}
 
 	major := false
-	descent := a.Tick.Label.FontExtents().Descent
+	descent := a.Tick.Label.FontExtents(hdlr).Descent
 	for _, t := range marks {
 		y := c.Y(a.Norm(t.Value))
 		if !c.ContainsY(y) || t.IsMinor() {
@@ -377,7 +377,7 @@ func (a verticalAxis) draw(c draw.Canvas) {
 		major = true
 	}
 	if major {
-		x += a.Tick.Label.Width(" ")
+		x += a.Tick.Label.Width(hdlr, " ")
 	}
 	if a.drawTicks() && len(marks) > 0 {
 		len := a.Tick.Length
@@ -396,7 +396,7 @@ func (a verticalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a verticalAxis) GlyphBoxes(*Plot) []GlyphBox {
+func (a verticalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 	var boxes []GlyphBox
 	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
 		if t.IsMinor() {
@@ -404,7 +404,7 @@ func (a verticalAxis) GlyphBoxes(*Plot) []GlyphBox {
 		}
 		box := GlyphBox{
 			Y:         a.Norm(t.Value),
-			Rectangle: a.Tick.Label.Rectangle(t.Label),
+			Rectangle: a.Tick.Label.Rectangle(p.TextHandler, t.Label),
 		}
 		boxes = append(boxes, box)
 	}
@@ -625,13 +625,13 @@ func (t Tick) lengthOffset(len vg.Length) vg.Length {
 }
 
 // tickLabelHeight returns height of the tick mark labels.
-func tickLabelHeight(sty text.Style, ticks []Tick) vg.Length {
+func tickLabelHeight(hdlr text.Handler, sty text.Style, ticks []Tick) vg.Length {
 	maxHeight := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {
 			continue
 		}
-		r := sty.Rectangle(t.Label)
+		r := sty.Rectangle(hdlr, t.Label)
 		h := r.Max.Y - r.Min.Y
 		if h > maxHeight {
 			maxHeight = h
@@ -641,13 +641,13 @@ func tickLabelHeight(sty text.Style, ticks []Tick) vg.Length {
 }
 
 // tickLabelWidth returns the width of the widest tick mark label.
-func tickLabelWidth(sty text.Style, ticks []Tick) vg.Length {
+func tickLabelWidth(hdlr text.Handler, sty text.Style, ticks []Tick) vg.Length {
 	maxWidth := vg.Length(0)
 	for _, t := range ticks {
 		if t.IsMinor() {
 			continue
 		}
-		r := sty.Rectangle(t.Label)
+		r := sty.Rectangle(hdlr, t.Label)
 		w := r.Max.X - r.Min.X
 		if w > maxWidth {
 			maxWidth = w

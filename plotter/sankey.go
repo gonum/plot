@@ -181,9 +181,9 @@ func NewSankey(flows ...Flow) (*Sankey, error) {
 		Rotation: math.Pi / 2,
 		XAlign:   draw.XCenter,
 		YAlign:   draw.YCenter,
-		Handler:  plot.DefaultTextHandler,
 	}
-	s.StockBarWidth = s.TextStyle.FontExtents().Height * 1.15
+	hdlr := plot.DefaultTextHandler
+	s.StockBarWidth = s.TextStyle.FontExtents(hdlr).Height * 1.15
 
 	s.FlowStyle = func(_ string) (color.Color, draw.LineStyle) {
 		return s.Color, s.LineStyle
@@ -396,7 +396,7 @@ func (s *Sankey) GlyphBoxes(plt *plot.Plot) []plot.GlyphBox {
 			},
 		}
 		label, textStyle, xOff, yOff, _, _ := s.StockStyle(stk.label, stk.category)
-		rect := textStyle.Rectangle(label)
+		rect := textStyle.Rectangle(plt.TextHandler, label)
 		rect.Min.X += xOff
 		rect.Max.X += xOff
 		rect.Min.Y += yOff

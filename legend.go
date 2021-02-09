@@ -92,8 +92,7 @@ func newLegend(hdlr text.Handler) Legend {
 		YPosition:      draw.PosBottom,
 		ThumbnailWidth: vg.Points(20),
 		TextStyle: text.Style{
-			Font:    font.From(DefaultFont, 12),
-			Handler: hdlr,
+			Font: font.From(DefaultFont, 12),
 		},
 		TextHandler: hdlr,
 	}
@@ -103,7 +102,7 @@ func newLegend(hdlr text.Handler) Legend {
 func (l *Legend) Draw(c draw.Canvas) {
 	iconx := c.Min.X
 	sty := l.TextStyle
-	em := sty.Rectangle(" ")
+	em := sty.Rectangle(c.Handler, " ")
 	textx := iconx + l.ThumbnailWidth + em.Max.X
 	if !l.Left {
 		iconx = c.Max.X - l.ThumbnailWidth
@@ -113,7 +112,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 	textx += l.XOffs
 	iconx += l.XOffs
 
-	descent := sty.FontExtents().Descent
+	descent := sty.FontExtents(c.Handler).Descent
 	enth := l.entryHeight()
 	y := c.Max.Y - enth
 	if !l.Top {
@@ -140,7 +139,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 		for _, t := range e.thumbs {
 			t.Thumbnail(icon)
 		}
-		yoffs := (enth - descent - sty.Rectangle(e.text).Max.Y) / 2
+		yoffs := (enth - descent - sty.Rectangle(c.Handler, e.text).Max.Y) / 2
 		yoffs += yoff
 		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
 		icon.Min.Y -= enth + l.Padding
@@ -154,7 +153,7 @@ func (l *Legend) Rectangle(c draw.Canvas) vg.Rectangle {
 	sty := l.TextStyle
 	entryHeight := l.entryHeight()
 	for i, e := range l.entries {
-		width = vg.Length(math.Max(float64(width), float64(l.ThumbnailWidth+sty.Rectangle(" "+e.text).Max.X)))
+		width = vg.Length(math.Max(float64(width), float64(l.ThumbnailWidth+sty.Rectangle(c.Handler, " "+e.text).Max.X)))
 		height += entryHeight
 		if i != 0 {
 			height += l.Padding
@@ -182,7 +181,7 @@ func (l *Legend) Rectangle(c draw.Canvas) vg.Rectangle {
 // entry text.
 func (l *Legend) entryHeight() (height vg.Length) {
 	for _, e := range l.entries {
-		if h := l.TextStyle.Rectangle(e.text).Max.Y; h > height {
+		if h := l.TextStyle.Rectangle(l.TextHandler, e.text).Max.Y; h > height {
 			height = h
 		}
 	}

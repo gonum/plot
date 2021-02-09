@@ -103,11 +103,10 @@ func New() *Plot {
 		TextHandler:     hdlr,
 	}
 	p.Title.TextStyle = text.Style{
-		Color:   color.Black,
-		Font:    font.From(DefaultFont, 12),
-		XAlign:  draw.XCenter,
-		YAlign:  draw.YTop,
-		Handler: hdlr,
+		Color:  color.Black,
+		Font:   font.From(DefaultFont, 12),
+		XAlign: draw.XCenter,
+		YAlign: draw.YTop,
 	}
 	return p
 }
@@ -148,9 +147,9 @@ func (p *Plot) Draw(c draw.Canvas) {
 		c.Fill(c.Rectangle.Path())
 	}
 	if p.Title.Text != "" {
-		descent := p.Title.TextStyle.FontExtents().Descent
+		descent := p.Title.TextStyle.FontExtents(c.Handler).Descent
 		c.FillText(p.Title.TextStyle, vg.Point{X: c.Center().X, Y: c.Max.Y + descent}, p.Title.Text)
-		_, h, d := p.Title.TextStyle.Handler.Box(p.Title.Text, p.Title.TextStyle.Font)
+		_, h, d := c.Handler.Box(p.Title.Text, p.Title.TextStyle.Font)
 		c.Max.Y -= h + d
 		c.Max.Y -= p.Title.Padding
 	}
@@ -160,9 +159,9 @@ func (p *Plot) Draw(c draw.Canvas) {
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
 
-	ywidth := y.size()
+	ywidth := y.size(c.Handler)
 
-	xheight := x.size()
+	xheight := x.size(c.Handler)
 	x.draw(padX(p, draw.Crop(c, ywidth, 0, 0, 0)))
 	y.draw(padY(p, draw.Crop(c, 0, 0, xheight, 0)))
 
@@ -178,15 +177,16 @@ func (p *Plot) Draw(c draw.Canvas) {
 // is the subset of the given draw area into which
 // the plot data will be drawn.
 func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
+	hdlr := da.Handler
 	if p.Title.Text != "" {
-		da.Max.Y -= p.Title.TextStyle.Height(p.Title.Text) + p.Title.TextStyle.FontExtents().Descent
+		da.Max.Y -= p.Title.TextStyle.Height(hdlr, p.Title.Text) + p.Title.TextStyle.FontExtents(hdlr).Descent
 		da.Max.Y -= p.Title.Padding
 	}
 	p.X.sanitizeRange()
 	x := horizontalAxis{p.X}
 	p.Y.sanitizeRange()
 	y := verticalAxis{p.Y}
-	return padY(p, padX(p, draw.Crop(da, y.size(), 0, x.size(), 0)))
+	return padY(p, padX(p, draw.Crop(da, y.size(hdlr), 0, x.size(hdlr), 0)))
 }
 
 // DrawGlyphBoxes draws red outlines around the plot's
@@ -398,7 +398,7 @@ func (p *Plot) NominalX(names ...string) {
 	p.X.Tick.Width = 0
 	p.X.Tick.Length = 0
 	p.X.Width = 0
-	p.Y.Padding = p.X.Tick.Label.Width(names[0]) / 2
+	p.Y.Padding = p.X.Tick.Label.Width(p.TextHandler, names[0]) / 2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
 		ticks[i] = Tick{float64(i), name}
@@ -431,7 +431,7 @@ func (p *Plot) NominalY(names ...string) {
 	p.Y.Tick.Width = 0
 	p.Y.Tick.Length = 0
 	p.Y.Width = 0
-	p.X.Padding = p.Y.Tick.Label.Height(names[0]) / 2
+	p.X.Padding = p.Y.Tick.Label.Height(p.TextHandler, names[0]) / 2
 	ticks := make([]Tick, len(names))
 	for i, name := range names {
 		ticks[i] = Tick{float64(i), name}

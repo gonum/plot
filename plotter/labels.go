@@ -60,8 +60,7 @@ func NewLabels(d XYLabeller) (*Labels, error) {
 	styles := make([]text.Style, d.Len())
 	for i := range styles {
 		styles[i] = text.Style{
-			Font:    font.From(DefaultFont, DefaultFontSize),
-			Handler: plot.DefaultTextHandler,
+			Font: font.From(DefaultFont, DefaultFontSize),
 		}
 	}
 
@@ -100,7 +99,7 @@ func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 		bs[i].X = p.X.Norm(l.XYs[i].X)
 		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
 		sty := l.TextStyle[i]
-		bs[i].Rectangle = sty.Rectangle(label)
+		bs[i].Rectangle = sty.Rectangle(p.TextHandler, label)
 	}
 	return bs
 }

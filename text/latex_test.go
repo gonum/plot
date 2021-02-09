@@ -18,6 +18,7 @@ func TestLatexText(t *testing.T) {
 	type box struct{ w, h, d vg.Length }
 
 	fonts := font.NewCache(liberation.Collection())
+	hdlr := &text.Latex{Fonts: fonts}
 
 	tr12 := font.Font{Variant: "Serif", Size: 12}
 	ti12 := font.Font{Variant: "Serif", Size: 12, Style: stdfnt.StyleItalic}
@@ -110,31 +111,28 @@ func TestLatexText(t *testing.T) {
 				fnt = tr12
 			}
 
-			sty := text.Style{
-				Font:    fnt,
-				Handler: &text.Latex{Fonts: fonts},
-			}
+			sty := text.Style{Font: fnt}
 
-			lines := sty.Handler.Lines(tc.txt)
+			lines := hdlr.Lines(tc.txt)
 			if got, want := len(lines), len(tc.box); got != want {
 				t.Errorf("invalid number of lines: got=%d, want=%d", got, want)
 			}
 
 			for i, line := range lines {
 				var b box
-				b.w, b.h, b.d = sty.Handler.Box(line, sty.Font)
+				b.w, b.h, b.d = hdlr.Box(line, sty.Font)
 
 				if got, want := b, tc.box[i]; got != want {
 					t.Errorf("invalid box[%d]: got=%v, want=%v", i, got, want)
 				}
 			}
 
-			w := sty.Width(tc.txt)
+			w := sty.Width(hdlr, tc.txt)
 			if got, want := w, tc.w; got != want {
 				t.Errorf("invalid width: got=%v, want=%v", got, want)
 			}
 
-			h := sty.Height(tc.txt)
+			h := sty.Height(hdlr, tc.txt)
 			if got, want := h, tc.h; got != want {
 				t.Errorf("invalid height: got=%v, want=%v", got, want)
 			}
