@@ -39,10 +39,7 @@ func ExampleHeatMap() {
 	p.Add(h)
 
 	// Create a legend.
-	l, err := plot.NewLegend()
-	if err != nil {
-		log.Panic(err)
-	}
+	l := plot.NewLegend()
 	thumbs := plotter.PaletteThumbnailers(pal)
 	for i := len(thumbs) - 1; i >= 0; i-- {
 		t := thumbs[i]
