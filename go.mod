@@ -11,5 +11,6 @@ require (
 	github.com/phpdave11/gofpdf v1.4.2
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3
 	golang.org/x/image v0.0.0-20210216034530-4410531fe030
+	golang.org/x/text v0.3.5 // indirect
 	gonum.org/v1/gonum v0.8.2
 )
