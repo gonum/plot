@@ -6,6 +6,7 @@ package plotter_test
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"golang.org/x/exp/rand"
@@ -37,14 +38,17 @@ func ExampleBoxPlot() {
 	if err != nil {
 		log.Panic(err)
 	}
+	uniBox.FillColor = color.RGBA{127, 188, 165, 1}
 	normBox, err := plotter.NewBoxPlot(vg.Points(20), 1, normal)
 	if err != nil {
 		log.Panic(err)
 	}
+	normBox.FillColor = color.RGBA{127, 188, 165, 1}
 	expBox, err := plotter.NewBoxPlot(vg.Points(20), 2, expon)
 	if err != nil {
 		log.Panic(err)
 	}
+	expBox.FillColor = color.RGBA{127, 188, 165, 1}
 
 	// Make a vertical box plot.
 	uniLabels, err := uniBox.OutsideLabels(uniform)

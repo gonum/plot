@@ -6,6 +6,7 @@ package plotter
 
 import (
 	"errors"
+	"image/color"
 	"math"
 	"sort"
 
@@ -63,6 +64,10 @@ type BoxPlot struct {
 
 	// GlyphStyle is the style of the outside point glyphs.
 	GlyphStyle draw.GlyphStyle
+
+	// FillColor is the color used to fill the box.
+	// The default is no fill.
+	FillColor color.Color
 
 	// BoxStyle is the line style for the box.
 	BoxStyle draw.LineStyle
@@ -206,13 +211,17 @@ func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	aLow := trY(b.AdjLow)
 	aHigh := trY(b.AdjHigh)
 
-	box := c.ClipLinesY([]vg.Point{
+	pts := []vg.Point{
 		{X: x - b.Width/2, Y: q1},
 		{X: x - b.Width/2, Y: q3},
 		{X: x + b.Width/2, Y: q3},
 		{X: x + b.Width/2, Y: q1},
 		{X: x - b.Width/2 - b.BoxStyle.Width/2, Y: q1},
-	})
+	}
+	box := c.ClipLinesY(pts)
+	if b.FillColor != nil {
+		c.FillPolygon(b.FillColor, c.ClipPolygonY(pts))
+	}
 	c.StrokeLines(b.BoxStyle, box...)
 
 	medLine := c.ClipLinesY([]vg.Point{
@@ -334,13 +343,17 @@ func (b horizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 	aLow := trX(b.AdjLow)
 	aHigh := trX(b.AdjHigh)
 
-	box := c.ClipLinesX([]vg.Point{
+	pts := []vg.Point{
 		{X: q1, Y: y - b.Width/2},
 		{X: q3, Y: y - b.Width/2},
 		{X: q3, Y: y + b.Width/2},
 		{X: q1, Y: y + b.Width/2},
 		{X: q1, Y: y - b.Width/2 - b.BoxStyle.Width/2},
-	})
+	}
+	box := c.ClipLinesX(pts)
+	if b.FillColor != nil {
+		c.FillPolygon(b.FillColor, c.ClipPolygonX(pts))
+	}
 	c.StrokeLines(b.BoxStyle, box...)
 
 	medLine := c.ClipLinesX([]vg.Point{
