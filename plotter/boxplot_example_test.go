@@ -35,21 +35,20 @@ func ExampleBoxPlot() {
 
 	// Make boxes for our data and add them to the plot.
 	uniBox, err := plotter.NewBoxPlot(vg.Points(20), 0, uniform)
+	if err != nil {
+		log.Panic(err)
+	}
 	uniBox.FillColor = color.RGBA{127, 188, 165, 1}
-
-	if err != nil {
-		log.Panic(err)
-	}
 	normBox, err := plotter.NewBoxPlot(vg.Points(20), 1, normal)
+	if err != nil {
+		log.Panic(err)
+	}
 	normBox.FillColor = color.RGBA{127, 188, 165, 1}
-	if err != nil {
-		log.Panic(err)
-	}
 	expBox, err := plotter.NewBoxPlot(vg.Points(20), 2, expon)
-	expBox.FillColor = color.RGBA{127, 188, 165, 1}
 	if err != nil {
 		log.Panic(err)
 	}
+	expBox.FillColor = color.RGBA{127, 188, 165, 1}
 
 	// Make a vertical box plot.
 	uniLabels, err := uniBox.OutsideLabels(uniform)

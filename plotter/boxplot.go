@@ -113,7 +113,6 @@ func NewBoxPlot(w vg.Length, loc float64, values Valuer) (*BoxPlot, error) {
 	b.CapWidth = 3 * w / 4
 
 	b.GlyphStyle = DefaultGlyphStyle
-	b.FillColor = nil
 	b.BoxStyle = DefaultLineStyle
 	b.MedianStyle = DefaultLineStyle
 	b.WhiskerStyle = draw.LineStyle{
@@ -219,9 +218,7 @@ func (b *BoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 		{X: x + b.Width/2, Y: q1},
 		{X: x - b.Width/2 - b.BoxStyle.Width/2, Y: q1},
 	}
-
 	box := c.ClipLinesY(pts)
-
 	if b.FillColor != nil {
 		c.FillPolygon(b.FillColor, c.ClipPolygonY(pts))
 	}
@@ -353,13 +350,10 @@ func (b horizBoxPlot) Plot(c draw.Canvas, plt *plot.Plot) {
 		{X: q1, Y: y + b.Width/2},
 		{X: q1, Y: y - b.Width/2 - b.BoxStyle.Width/2},
 	}
-
 	box := c.ClipLinesX(pts)
-
 	if b.FillColor != nil {
 		c.FillPolygon(b.FillColor, c.ClipPolygonX(pts))
 	}
-
 	c.StrokeLines(b.BoxStyle, box...)
 
 	medLine := c.ClipLinesX([]vg.Point{
