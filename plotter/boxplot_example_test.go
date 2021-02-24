@@ -6,6 +6,7 @@ package plotter_test
 
 import (
 	"fmt"
+	"image/color"
 	"log"
 
 	"golang.org/x/exp/rand"
@@ -34,14 +35,18 @@ func ExampleBoxPlot() {
 
 	// Make boxes for our data and add them to the plot.
 	uniBox, err := plotter.NewBoxPlot(vg.Points(20), 0, uniform)
+	uniBox.FillColor = color.RGBA{127, 188, 165, 1}
+
 	if err != nil {
 		log.Panic(err)
 	}
 	normBox, err := plotter.NewBoxPlot(vg.Points(20), 1, normal)
+	normBox.FillColor = color.RGBA{127, 188, 165, 1}
 	if err != nil {
 		log.Panic(err)
 	}
 	expBox, err := plotter.NewBoxPlot(vg.Points(20), 2, expon)
+	expBox.FillColor = color.RGBA{127, 188, 165, 1}
 	if err != nil {
 		log.Panic(err)
 	}
