@@ -66,7 +66,7 @@ type BoxPlot struct {
 	GlyphStyle draw.GlyphStyle
 
 	// FillColor is the color used to fill the box.
-	// Default value is nil
+	// The default is no fill.
 	FillColor color.Color
 
 	// BoxStyle is the line style for the box.
