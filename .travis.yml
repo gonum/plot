@@ -16,6 +16,7 @@ matrix:
 env:
   global:
    - GO111MODULE: "on"
+   - EGL_PLATFORM: "x11"
 
 # Get coverage tools, and start the virtual framebuffer.
 before_install:

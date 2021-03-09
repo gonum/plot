@@ -17,6 +17,7 @@ jobs:
         GO111MODULE: on
         GOPATH: ${{ github.workspace }}
         DISPLAY: ":99.0"
+        EGL_PLATFORM: "x11"
     defaults:
         run:
             working-directory: ${{ env.GOPATH }}/src/gonum.org/v1/plot
