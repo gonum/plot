@@ -14,9 +14,9 @@ import (
 	"image/color"
 	"strings"
 
-	"gioui.org/app/headless"
 	"gioui.org/font/gofont"
 	"gioui.org/font/opentype"
+	"gioui.org/gpu/headless"
 	"gioui.org/layout"
 	"gioui.org/op"
 	"gioui.org/op/clip"
