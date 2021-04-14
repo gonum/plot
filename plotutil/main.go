@@ -86,10 +86,7 @@ func Example_errpoints() *plot.Plot {
 		}
 	}
 
-	plt, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	plt := plot.New()
 
 	mean95, err := plotutil.NewErrorPoints(plotutil.MeanAndConf95, pts...)
 	if err != nil {
@@ -125,10 +122,7 @@ func (n stackValues) Value(i int) float64 {
 
 // An example of making a stacked area chart.
 func Example_stackedAreaChart() *plot.Plot {
-	p, err := plot.New()
-	if err != nil {
-		panic(err)
-	}
+	p := plot.New()
 
 	p.Title.Text = "Example: Software Version Comparison"
 	p.X.Label.Text = "Date"
@@ -147,7 +141,7 @@ func Example_stackedAreaChart() *plot.Plot {
 		{0, 0, 0, 0, 0, 0.68, 5.67},
 	}
 
-	err = plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013},
+	err := plotutil.AddStackedAreaPlots(p, plotter.Values{2007, 2008, 2009, 2010, 2011, 2012, 2013},
 		"Version 3.0",
 		stackValues{vs: vals[0:7]},
 		"Version 2.1",
