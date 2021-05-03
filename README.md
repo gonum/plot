@@ -36,4 +36,12 @@ You can get `gonum/plot` using go get:
 
 `go get gonum.org/v1/plot/...`
 
+
+Note: If you get this error during install "Package glesv2 was not found in the pkg-config search path.", install the `libgles-dev` package for your system:
+
+`sudo apt install libgles-dev`
+
+Once complete you may run the `go get` command again.
+
+
 If you write a cool plotter that you think others may be interested in using, please post to the list so that we can link to it in the `gonum/plot` wiki or possibly integrate it into the `plotter` package.
