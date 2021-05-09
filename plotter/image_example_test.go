@@ -66,8 +66,8 @@ func ExampleImage_log() {
 	// Transform axes.
 	p.X.Scale = plot.LogScale{}
 	p.Y.Scale = plot.LogScale{}
-	p.X.Tick.Marker = plot.LogTicks{}
-	p.Y.Tick.Marker = plot.LogTicks{}
+	p.X.Tick.Marker = plot.LogTicks{Prec: -1}
+	p.Y.Tick.Marker = plot.LogTicks{Prec: 3}
 
 	const (
 		w = 5 * vg.Centimeter

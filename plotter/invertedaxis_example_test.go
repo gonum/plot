@@ -22,7 +22,7 @@ func Example_invertedScale() {
 	p.Title.Text = "Example of inverted axes"
 	p.Y.Scale = plot.InvertedScale{Normalizer: plot.LogScale{}}
 	p.X.Scale = plot.InvertedScale{Normalizer: plot.LinearScale{}}
-	p.Y.Tick.Marker = plot.LogTicks{}
+	p.Y.Tick.Marker = plot.LogTicks{Prec: -1}
 	p.X.Label.Text = "x"
 	p.Y.Label.Text = "f(x)"
 
