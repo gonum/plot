@@ -60,7 +60,7 @@ func ExampleHistogram_logScaleY() {
 	p := plot.New()
 	p.Title.Text = "Histogram in log-y"
 	p.Y.Scale = plot.LogScale{}
-	p.Y.Tick.Marker = plot.LogTicks{}
+	p.Y.Tick.Marker = plot.LogTicks{Prec: -1}
 	p.Y.Label.Text = "Y"
 	p.X.Label.Text = "X"
 

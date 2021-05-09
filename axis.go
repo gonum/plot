@@ -509,12 +509,16 @@ func maxInt(a, b int) int {
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
 // it returns tick marks suitable for a log-scale axis.
-type LogTicks struct{}
+type LogTicks struct {
+	// Prec specifies the precision of tick rendering
+	// according to the documentation for strconv.FormatFloat.
+	Prec int
+}
 
 var _ Ticker = LogTicks{}
 
 // Ticks returns Ticks in a specified range
-func (LogTicks) Ticks(min, max float64) []Tick {
+func (t LogTicks) Ticks(min, max float64) []Tick {
 	if min <= 0 || max <= 0 {
 		panic("Values must be greater than 0 for a log scale.")
 	}
@@ -525,13 +529,13 @@ func (LogTicks) Ticks(min, max float64) []Tick {
 	for val < max {
 		for i := 1; i < 10; i++ {
 			if i == 1 {
-				ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
+				ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, t.Prec)})
 			}
 			ticks = append(ticks, Tick{Value: val * float64(i)})
 		}
 		val *= 10
 	}
-	ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, -1)})
+	ticks = append(ticks, Tick{Value: val, Label: formatFloatTick(val, t.Prec)})
 
 	return ticks
 }

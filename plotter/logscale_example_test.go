@@ -19,7 +19,7 @@ func Example_logScale() {
 	p := plot.New()
 	p.Title.Text = "My Plot"
 	p.Y.Scale = plot.LogScale{}
-	p.Y.Tick.Marker = plot.LogTicks{}
+	p.Y.Tick.Marker = plot.LogTicks{Prec: -1}
 	p.X.Label.Text = "x"
 	p.Y.Label.Text = "f(x)"
 

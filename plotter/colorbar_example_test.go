@@ -44,7 +44,7 @@ func ExampleColorBar_horizontal_log() {
 	p.X.Padding = 0
 	p.Title.Text = "Title"
 	p.X.Scale = plot.LogScale{}
-	p.X.Tick.Marker = plot.LogTicks{}
+	p.X.Tick.Marker = plot.LogTicks{Prec: -1}
 
 	if err = p.Save(300, 48, "testdata/colorBarHorizontalLog.png"); err != nil {
 		log.Panic(err)
