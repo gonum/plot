@@ -235,28 +235,25 @@ func (c *Canvas) font(fnt font.Face, pt vg.Point) {
 		return
 	}
 	name := fnt.Name()
-	if n, ok := vg.FontMap[name]; ok {
-		raw, err := fonts.Asset(n + ".ttf")
-		if err != nil {
-			log.Panicf("vgpdf: could not load TTF data from asset for TTF font %q: %v", n+".ttf", err)
-		}
-
-		enc, err := fonts.Asset("cp1252.map")
-		if err != nil {
-			log.Panicf("vgpdf: could not load encoding map: %v", err)
-		}
-
-		key := fontKey{font: fnt, embed: c.embed}
-		zdata, jdata, err := getFont(key, raw, enc)
-		if err != nil {
-			log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
-		}
-
-		c.fonts[fnt.Font] = struct{}{}
-		c.doc.AddFontFromBytes(name, "", jdata, zdata)
-		return
+	key := fontKey{font: fnt, embed: c.embed}
+	raw := new(bytes.Buffer)
+	_, err := fnt.Face.WriteSourceTo(nil, raw)
+	if err != nil {
+		log.Panicf("vgpdf: could not generate font %q data for PDF: %+v", name, err)
 	}
-	log.Panicf("vgpdf: could not find font %q in the pre-registered fonts map", fnt.Name())
+
+	enc, err := fonts.Asset("cp1252.map")
+	if err != nil {
+		log.Panicf("vgpdf: could not load encoding map: %v", err)
+	}
+
+	zdata, jdata, err := getFont(key, raw.Bytes(), enc)
+	if err != nil {
+		log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
+	}
+
+	c.fonts[fnt.Font] = struct{}{}
+	c.doc.AddFontFromBytes(name, "", jdata, zdata)
 }
 
 // pdfPath processes a vg.Path and applies it to the canvas.
