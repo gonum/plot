@@ -9,12 +9,13 @@
 package vggio // import "gonum.org/v1/plot/vg/vggio"
 
 import (
+	"bytes"
 	"fmt"
 	"image"
 	"image/color"
 	"strings"
+	"sync"
 
-	"gioui.org/font/gofont"
 	"gioui.org/font/opentype"
 	"gioui.org/gpu/headless"
 	"gioui.org/layout"
@@ -24,10 +25,10 @@ import (
 	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget/material"
+	"golang.org/x/image/font/sfnt"
 
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
-	vgfonts "gonum.org/v1/plot/vg/fonts"
 )
 
 var (
@@ -363,66 +364,76 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 	c.ctx.pop()
 }
 
-var dbfonts = make(map[string][]text.FontFace)
+var dbfonts = &gioFontsCache{
+	cache: make(map[string][]text.FontFace),
+	fonts: make(map[string]struct{}),
+}
 
-func init() {
-	registerFont(text.Font{}, "Courier", "LiberationMono-Regular")
-	registerFont(
-		text.Font{Weight: text.Bold},
-		"Courier-Bold", "LiberationMono-Bold",
-	)
-	registerFont(
-		text.Font{Style: text.Italic},
-		"Courier-Oblique", "LiberationMono-Italic",
-	)
-	registerFont(
-		text.Font{
-			Style:  text.Italic,
-			Weight: text.Bold,
-		},
-		"Courier-BoldOblique", "LiberationMono-BoldItalic",
-	)
+type gioFontsCache struct {
+	sync.RWMutex
+	cache map[string][]text.FontFace
+	fonts map[string]struct{}
+	buf   sfnt.Buffer
+}
 
-	registerFont(text.Font{}, "Helvetica", "LiberationSans-Regular")
-	registerFont(
-		text.Font{Weight: text.Bold},
-		"Helvetica-Bold", "LiberationSans-Bold",
-	)
-	registerFont(
-		text.Font{Style: text.Italic},
-		"Helvetica-Oblique", "LiberationSans-Italic",
-	)
-	registerFont(
-		text.Font{
-			Style:  text.Italic,
-			Weight: text.Bold,
-		},
-		"Helvetica-BoldOblique", "LiberationSans-BoldItalic",
-	)
+func (cache *gioFontsCache) get(fnt font.Face) ([]text.FontFace, bool) {
+	cache.RLock()
+	defer cache.RUnlock()
 
-	registerFont(text.Font{}, "Times-Roman", "LiberationSerif-Regular")
-	registerFont(
-		text.Font{Weight: text.Bold},
-		"Times-Bold", "LiberationSerif-Bold",
-	)
-	registerFont(
-		text.Font{Style: text.Italic},
-		"Times-Oblique", "LiberationSerif-Italic",
-	)
-	registerFont(
-		text.Font{
-			Style:  text.Italic,
-			Weight: text.Bold,
-		},
-		"Times-BoldOblique", "LiberationSerif-BoldItalic",
-	)
+	_, ok := cache.fonts[fnt.Name()]
+	if !ok {
+		return nil, false
+	}
+	name := collectionName(fnt.Name())
+	return cache.cache[name], ok
+}
+
+func (cache *gioFontsCache) add(fnt font.Face) []text.FontFace {
+	cache.Lock()
+	defer cache.Unlock()
+
+	name := fnt.Name()
+	if fnt.Face == nil {
+		panic(fmt.Errorf("vggio: nil plot/font.Face %q", name))
+	}
+	buf := new(bytes.Buffer)
+	_, err := fnt.Face.WriteSourceTo(&cache.buf, buf)
+	if err != nil {
+		panic(fmt.Errorf("vggio: could not load font %q: %+v", name, err))
+	}
+
+	gioFace, err := opentype.Parse(buf.Bytes())
+	if err != nil {
+		panic(fmt.Errorf("vggio: could not parse font %q: %+v", name, err))
+	}
+
+	gioFnt := gonumToGioFont(fnt.Font)
+	gioFnt.Variant = "" // Gio expects a zero variant for the default font face
+
+	colName := collectionName(fnt.Name())
+	cache.cache[colName] = append(cache.cache[colName], text.FontFace{
+		Font: gioFnt,
+		Face: gioFace,
+	})
+	cache.fonts[name] = struct{}{}
+
+	return cache.cache[colName]
+}
+
+func gonumToGioFont(fnt font.Font) text.Font {
+	o := text.Font{
+		Typeface: text.Typeface(fnt.Typeface),
+		Style:    text.Style(fnt.Style),
+		Weight:   text.Weight(fnt.Weight),
+		Variant:  text.Variant(fnt.Variant),
+	}
+	return o
 }
 
 func collectionFor(fnt font.Face) []text.FontFace {
-	name := collectionName(fnt.Name())
-	coll, ok := dbfonts[name]
+	coll, ok := dbfonts.get(fnt)
 	if !ok {
-		return gofont.Collection()
+		coll = dbfonts.add(fnt)
 	}
 	return coll
 }
@@ -435,30 +446,4 @@ func collectionName(name string) string {
 		name = name[:i]
 	}
 	return name
-}
-
-func registerFont(fnt text.Font, name, alias string) {
-	raw, err := vgfonts.Asset(alias + ".ttf")
-	if err != nil {
-		panic(fmt.Errorf("vggio: could not locate font %q: %+v", name, err))
-	}
-
-	face, err := opentype.Parse(raw)
-	if err != nil {
-		panic(fmt.Errorf("vggio: could not parse font %q: %+v", name, err))
-	}
-
-	fnt.Typeface = text.Typeface(name)
-	colName := collectionName(name)
-	dbfonts[colName] = append(dbfonts[colName], text.FontFace{
-		Font: fnt,
-		Face: face,
-	})
-
-	fnt.Typeface = text.Typeface(alias)
-	colName = collectionName(alias)
-	dbfonts[colName] = append(dbfonts[colName], text.FontFace{
-		Font: fnt,
-		Face: face,
-	})
 }
