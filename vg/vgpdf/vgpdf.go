@@ -19,6 +19,7 @@ import (
 	"math"
 	"os"
 	"path/filepath"
+	"sync"
 
 	pdf "github.com/phpdave11/gofpdf"
 	stdfnt "golang.org/x/image/font"
@@ -245,7 +246,8 @@ func (c *Canvas) font(fnt font.Face, pt vg.Point) {
 			log.Panicf("vgpdf: could not load encoding map: %v", err)
 		}
 
-		zdata, jdata, err := makeFont(raw, enc, c.embed)
+		key := fontKey{font: fnt, embed: c.embed}
+		zdata, jdata, err := getFont(key, raw, enc)
 		if err != nil {
 			log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
 		}
@@ -368,23 +370,69 @@ func rgba(c color.Color) (int, int, int, float64) {
 	return int(r >> 8), int(g >> 8), int(b >> 8), float64(a) / math.MaxUint16
 }
 
-func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
+type fontsCache struct {
+	sync.RWMutex
+	cache map[fontKey]fontVal
+}
+
+// fontKey represents a PDF font request.
+// fontKey needs to know whether the font will be embedded or not,
+// as gofpdf.MakeFont will generate different informations.
+type fontKey struct {
+	font  font.Face
+	embed bool
+}
+
+type fontVal struct {
+	z, j []byte
+}
+
+func (c *fontsCache) get(key fontKey) (fontVal, bool) {
+	c.RLock()
+	defer c.RUnlock()
+	v, ok := c.cache[key]
+	return v, ok
+}
+
+func (c *fontsCache) add(k fontKey, v fontVal) {
+	c.Lock()
+	defer c.Unlock()
+	c.cache[k] = v
+}
+
+var pdfFonts = &fontsCache{
+	cache: make(map[fontKey]fontVal),
+}
+
+func getFont(key fontKey, font, encoding []byte) (z, j []byte, err error) {
+	if v, ok := pdfFonts.get(key); ok {
+		return v.z, v.j, nil
+	}
+
+	v, err := makeFont(key, font, encoding)
+	if err != nil {
+		return nil, nil, err
+	}
+	return v.z, v.j, nil
+}
+
+func makeFont(key fontKey, font, encoding []byte) (val fontVal, err error) {
 	tmpdir, err := ioutil.TempDir("", "gofpdf-makefont-")
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 	defer os.RemoveAll(tmpdir)
 
 	indir := filepath.Join(tmpdir, "input")
 	err = os.Mkdir(indir, 0755)
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 
 	outdir := filepath.Join(tmpdir, "output")
 	err = os.Mkdir(outdir, 0755)
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 
 	fname := filepath.Join(indir, "font.ttf")
@@ -392,28 +440,36 @@ func makeFont(font, encoding []byte, embed bool) (z, j []byte, err error) {
 
 	err = ioutil.WriteFile(fname, font, 0644)
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 
 	err = ioutil.WriteFile(encname, encoding, 0644)
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 
-	err = pdf.MakeFont(fname, encname, outdir, ioutil.Discard, embed)
+	err = pdf.MakeFont(fname, encname, outdir, ioutil.Discard, key.embed)
 	if err != nil {
-		return z, j, err
+		return val, err
 	}
 
-	if embed {
-		z, err = ioutil.ReadFile(filepath.Join(outdir, "font.z"))
+	if key.embed {
+		z, err := ioutil.ReadFile(filepath.Join(outdir, "font.z"))
 		if err != nil {
-			return z, j, err
+			return val, err
 		}
+		val.z = z
 	}
-	j, err = ioutil.ReadFile(filepath.Join(outdir, "font.json"))
 
-	return z, j, err
+	j, err := ioutil.ReadFile(filepath.Join(outdir, "font.json"))
+	if err != nil {
+		return val, err
+	}
+	val.j = j
+
+	pdfFonts.add(key, val)
+
+	return val, nil
 }
 
 // NextPage creates a new page in the final PDF document.
