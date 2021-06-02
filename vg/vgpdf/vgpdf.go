@@ -9,6 +9,7 @@ package vgpdf // import "gonum.org/v1/plot/vg/vgpdf"
 import (
 	"bufio"
 	"bytes"
+	_ "embed"
 	"fmt"
 	"image"
 	"image/color"
@@ -27,7 +28,6 @@ import (
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
-	"gonum.org/v1/plot/vg/fonts"
 )
 
 // codePageEncoding holds informations about the characters encoding of TrueType
@@ -38,18 +38,14 @@ import (
 //
 // TODO: provide a Canvas-level func option to embed fonts with a user provided
 // code page schema?
+//
+//go:embed cp1252.map
 var codePageEncoding []byte
 
 func init() {
 	draw.RegisterFormat("pdf", func(w, h vg.Length) vg.CanvasWriterTo {
 		return New(w, h)
 	})
-
-	var err error
-	codePageEncoding, err = fonts.Asset("cp1252.map")
-	if err != nil {
-		panic(fmt.Errorf("vgpdf: could not load PDF charset encoding map: %+v", err))
-	}
 }
 
 // DPI is the nominal resolution of drawing in PDF.
