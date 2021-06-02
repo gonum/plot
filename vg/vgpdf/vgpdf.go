@@ -30,10 +30,26 @@ import (
 	"gonum.org/v1/plot/vg/fonts"
 )
 
+// codePageEncoding holds informations about the characters encoding of TrueType
+// font files, needed by gofpdf to embed fonts in a PDF document.
+// We use cp1252 (code page 1252, Windows Western) to encode characters.
+// See:
+//  - https://en.wikipedia.org/wiki/Windows-1252
+//
+// TODO: provide a Canvas-level func option to embed fonts with a user provided
+// code page schema?
+var codePageEncoding []byte
+
 func init() {
 	draw.RegisterFormat("pdf", func(w, h vg.Length) vg.CanvasWriterTo {
 		return New(w, h)
 	})
+
+	var err error
+	codePageEncoding, err = fonts.Asset("cp1252.map")
+	if err != nil {
+		panic(fmt.Errorf("vgpdf: could not load PDF charset encoding map: %+v", err))
+	}
 }
 
 // DPI is the nominal resolution of drawing in PDF.
@@ -242,12 +258,7 @@ func (c *Canvas) font(fnt font.Face, pt vg.Point) {
 		log.Panicf("vgpdf: could not generate font %q data for PDF: %+v", name, err)
 	}
 
-	enc, err := fonts.Asset("cp1252.map")
-	if err != nil {
-		log.Panicf("vgpdf: could not load encoding map: %v", err)
-	}
-
-	zdata, jdata, err := getFont(key, raw.Bytes(), enc)
+	zdata, jdata, err := getFont(key, raw.Bytes(), codePageEncoding)
 	if err != nil {
 		log.Panicf("vgpdf: could not generate font data for PDF: %v", err)
 	}
