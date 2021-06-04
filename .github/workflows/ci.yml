@@ -63,8 +63,8 @@ jobs:
           # Required for copyright header check.
           go get gonum.org/v1/tools/cmd/check-copyright
 
-          ./.travis/check-copyright.sh
-          ./.travis/check-formatting.sh
+          ./.ci/check-copyright.sh
+          ./.ci/check-formatting.sh
 
     - name: Build
       run: |
@@ -75,8 +75,8 @@ jobs:
       run: |
         go test -v ./...
         test -z "$(gofmt -d .)"
-        ./.travis/check-imports.sh
-        ./.github/workflows/test-coverage.sh
+        ./.ci/check-imports.sh
+        ./.ci/test-coverage.sh
 
     - name: Test Windows
       if: matrix.platform == 'windows-latest'
