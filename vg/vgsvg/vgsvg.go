@@ -17,8 +17,10 @@ import (
 	"image/png"
 	"io"
 	"math"
+	"strings"
 
 	svgo "github.com/ajstarks/svgo"
+	stdfnt "golang.org/x/image/font"
 
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/vg"
@@ -307,13 +309,12 @@ func large(a float64) int {
 // FillString draws str at position pt using the specified font.
 // Text passed to FillString is escaped with html.EscapeString.
 func (c *Canvas) FillString(font font.Face, pt vg.Point, str string) {
-	fontStr, ok := fontMap[font.Name()]
-	if !ok {
-		panic(fmt.Sprintf("Unknown font: %s", font.Name()))
-	}
-	sty := style(fontStr,
+	name := svgFontDescr(font.Font)
+	sty := style(
+		name,
 		elm("font-size", "medium", "%.*gpx", pr, font.Font.Size.Points()),
-		elm("fill", "#000000", colorString(c.context().color)))
+		elm("fill", "#000000", colorString(c.context().color)),
+	)
 	if sty != "" {
 		sty = "\n\t" + sty
 	}
@@ -350,38 +351,87 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 	)
 }
 
-var (
-	// fontMap maps Postscript-style font names to their
-	// corresponding SVG style string.
-	fontMap = map[string]string{
-		"Courier":               "font-family:Courier;font-weight:normal;font-style:normal",
-		"Courier-Bold":          "font-family:Courier;font-weight:bold;font-style:normal",
-		"Courier-Oblique":       "font-family:Courier;font-weight:normal;font-style:oblique",
-		"Courier-BoldOblique":   "font-family:Courier;font-weight:bold;font-style:oblique",
-		"Helvetica":             "font-family:Helvetica;font-weight:normal;font-style:normal",
-		"Helvetica-Bold":        "font-family:Helvetica;font-weight:bold;font-style:normal",
-		"Helvetica-Oblique":     "font-family:Helvetica;font-weight:normal;font-style:oblique",
-		"Helvetica-BoldOblique": "font-family:Helvetica;font-weight:bold;font-style:oblique",
-		"Times-Roman":           "font-family:Times;font-weight:normal;font-style:normal",
-		"Times-Bold":            "font-family:Times;font-weight:bold;font-style:normal",
-		"Times-Italic":          "font-family:Times;font-weight:normal;font-style:italic",
-		"Times-BoldItalic":      "font-family:Times;font-weight:bold;font-style:italic",
+// svgFontDescr returns a SVG compliant font name from the provided font face.
+func svgFontDescr(fnt font.Font) string {
+	var (
+		family  = svgFamilyName(fnt)
+		variant = svgVariantName(fnt.Variant)
+		style   = svgStyleName(fnt.Style)
+		weight  = svgWeightName(fnt.Weight)
+	)
 
-		// Liberation fonts
-		"LiberationMono-Regular":     "font-family:Courier;font-weight:normal;font-style:normal",
-		"LiberationMono-Bold":        "font-family:Courier;font-weight:bold;font-style:normal",
-		"LiberationMono-Italic":      "font-family:Courier;font-weight:normal;font-style:oblique",
-		"LiberationMono-BoldItalic":  "font-family:Courier;font-weight:bold;font-style:oblique",
-		"LiberationSans-Regular":     "font-family:Helvetica;font-weight:normal;font-style:normal",
-		"LiberationSans-Bold":        "font-family:Helvetica;font-weight:bold;font-style:normal",
-		"LiberationSans-Italic":      "font-family:Helvetica;font-weight:normal;font-style:oblique",
-		"LiberationSans-BoldItalic":  "font-family:Helvetica;font-weight:bold;font-style:oblique",
-		"LiberationSerif-Regular":    "font-family:Times;font-weight:normal;font-style:normal",
-		"LiberationSerif-Bold":       "font-family:Times;font-weight:bold;font-style:normal",
-		"LiberationSerif-Italic":     "font-family:Times;font-weight:normal;font-style:italic",
-		"LiberationSerif-BoldItalic": "font-family:Times;font-weight:bold;font-style:italic",
+	o := "font-family:" + family + ";" +
+		"font-variant:" + variant + ";" +
+		"font-weight:" + weight + ";" +
+		"font-style:" + style
+	return o
+}
+
+func svgFamilyName(fnt font.Font) string {
+	// https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-family
+	v := string(fnt.Typeface)
+	if fnt.Variant != "" {
+		v += ", " + svgVariantName(fnt.Variant)
 	}
-)
+	return v
+}
+
+func svgVariantName(v font.Variant) string {
+	// https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-variant
+	str := strings.ToLower(string(v))
+	switch str {
+	case "":
+		return "normal"
+	case "smallcaps":
+		return "small-caps"
+	case "mono":
+		return "monospace"
+	case "sans", "sansserif", "sans-serif":
+		return "sans-serif"
+	default:
+		return str
+	}
+}
+
+func svgStyleName(sty stdfnt.Style) string {
+	// https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-style
+	switch sty {
+	case stdfnt.StyleNormal:
+		return "normal"
+	case stdfnt.StyleItalic:
+		return "italic"
+	case stdfnt.StyleOblique:
+		return "oblique"
+	}
+	panic(fmt.Errorf("vgsvg: invalid font style %+v (v=%d)", sty, int(sty)))
+}
+
+func svgWeightName(w stdfnt.Weight) string {
+	// see:
+	//  https://developer.mozilla.org/en-US/docs/Web/SVG/Attribute/font-weight
+	//  https://developer.mozilla.org/en-US/docs/Web/CSS/font-weight
+	switch w {
+	case stdfnt.WeightThin:
+		return "100"
+	case stdfnt.WeightExtraLight:
+		return "200"
+	case stdfnt.WeightLight:
+		return "300"
+	case stdfnt.WeightNormal:
+		return "normal"
+	case stdfnt.WeightMedium:
+		return "500"
+	case stdfnt.WeightSemiBold:
+		return "600"
+	case stdfnt.WeightBold:
+		return "bold"
+	case stdfnt.WeightExtraBold:
+		return "800"
+	case stdfnt.WeightBlack:
+		return "900"
+	}
+	panic(fmt.Errorf("vgsvg: invalid font weight %+v (v=%d)", w, int(w)))
+}
 
 // WriteTo writes the canvas to an io.Writer.
 func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
