@@ -198,8 +198,9 @@ func (c *Canvas) pathData(path vg.Path) string {
 			y = comp.Pos.Y.Points()
 		case vg.ArcComp:
 			r := comp.Radius.Points()
-			x0 := comp.Pos.X.Points() + r*math.Cos(comp.Start)
-			y0 := comp.Pos.Y.Points() + r*math.Sin(comp.Start)
+			sin, cos := math.Sincos(comp.Start)
+			x0 := comp.Pos.X.Points() + r*cos
+			y0 := comp.Pos.Y.Points() + r*sin
 			if x0 != x || y0 != y {
 				fmt.Fprintf(buf, "L%.*g,%.*g", pr, x0, pr, y0)
 			}
@@ -247,11 +248,14 @@ func circle(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 		panic("Impossible angle")
 	}
 
+	s0, c0 := math.Sincos(comp.Start + 0.5*angle)
+	s1, c1 := math.Sincos(comp.Start + angle)
+
 	r := comp.Radius.Points()
-	x0 := comp.Pos.X.Points() + r*math.Cos(comp.Start+angle/2)
-	y0 := comp.Pos.Y.Points() + r*math.Sin(comp.Start+angle/2)
-	x = comp.Pos.X.Points() + r*math.Cos(comp.Start+angle)
-	y = comp.Pos.Y.Points() + r*math.Sin(comp.Start+angle)
+	x0 := comp.Pos.X.Points() + r*c0
+	y0 := comp.Pos.Y.Points() + r*s0
+	x = comp.Pos.X.Points() + r*c1
+	y = comp.Pos.Y.Points() + r*s1
 
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(angle/2), sweep(angle/2), pr, x0, pr, y0) //
@@ -274,8 +278,9 @@ func remainder(x, y float64) float64 {
 // circle should be used instead.
 func arc(w io.Writer, c *Canvas, comp *vg.PathComp) (x, y float64) {
 	r := comp.Radius.Points()
-	x = comp.Pos.X.Points() + r*math.Cos(comp.Start+comp.Angle)
-	y = comp.Pos.Y.Points() + r*math.Sin(comp.Start+comp.Angle)
+	sin, cos := math.Sincos(comp.Start + comp.Angle)
+	x = comp.Pos.X.Points() + r*cos
+	y = comp.Pos.Y.Points() + r*sin
 	fmt.Fprintf(w, "A%.*g,%.*g 0 %d %d %.*g,%.*g", pr, r, pr, r,
 		large(comp.Angle), sweep(comp.Angle), pr, x, pr, y)
 	return
