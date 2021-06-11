@@ -6,15 +6,15 @@
 <g transform="scale(1, -1) translate(0, -141.73)">
 <path d="M0,0L141.73,0L141.73,141.73L0,141.73Z" style="fill:#FFFFFF" />
 <text x="43.374" y="-132.35" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">Scatter plot</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">Scatter plot</text>
 <text x="86.976" y="-3.9023" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">X</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">X</text>
 <text x="40.885" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
 <text x="85.059" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
 <text x="129.23" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
 <path d="M47.135,24.363L47.135,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M91.309,24.363L91.309,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M135.48,24.363L135.48,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
@@ -29,14 +29,14 @@
 <path d="M47.135,32.363L135.48,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <g transform="rotate(90)">
 <text x="79.768" y="9.3867" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">Y</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">Y</text>
 </g>
 <text x="15.885" y="-40.424" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0.0</text>
 <text x="15.885" y="-81.816" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0.5</text>
 <text x="15.885" y="-123.21" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">1.0</text>
 <path d="M30.885,42.709L38.885,42.709" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M30.885,84.101L38.885,84.101" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M30.885,125.49L38.885,125.49" style="fill:none;stroke:#000000;stroke-width:0.5" />
