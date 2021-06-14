@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -52,7 +53,7 @@ func TestLineWidth(t *testing.T) {
 				t.Fatalf("failed to write plot for %v:%s: %v", w, typ, err)
 			}
 
-			name := filepath.Join(".", "testdata", fmt.Sprintf("width_%v.%s", w, typ))
+			name := filepath.Join(".", "testdata", fmt.Sprintf("width_%v_golden.%s", w, typ))
 
 			// Recreate Golden images.
 			if *cmpimg.GenerateTestData {
@@ -73,6 +74,8 @@ func TestLineWidth(t *testing.T) {
 			}
 
 			if !ok {
+				got := strings.Replace(name, "_golden.", ".", 1)
+				_ = ioutil.WriteFile(got, buf.Bytes(), 0644)
 				t.Errorf("image mismatch for %v:%s", w, typ)
 			}
 		}
