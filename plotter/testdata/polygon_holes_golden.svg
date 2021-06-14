@@ -6,15 +6,15 @@
 <g transform="scale(1, -1) translate(0, -100)">
 <path d="M0,0L100,0L100,100L0,100Z" style="fill:#FFFFFF" />
 <text x="3.6641" y="-90.613" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">Polygon with holes</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">Polygon with holes</text>
 <text x="62.984" y="-3.9023" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">X</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">X</text>
 <text x="34.635" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0</text>
 <text x="64.817" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">2</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">2</text>
 <text x="95" y="-16.541" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">4</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">4</text>
 <path d="M37.135,24.363L37.135,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M67.317,24.363L67.317,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M97.5,24.363L97.5,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
@@ -23,14 +23,14 @@
 <path d="M37.135,32.363L97.5,32.363" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <g transform="rotate(90)">
 <text x="57.652" y="9.3867" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:12px">Y</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:12px">Y</text>
 </g>
 <text x="15.885" y="-37.924" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">0</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">0</text>
 <text x="15.885" y="-59.7" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">2</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">2</text>
 <text x="15.885" y="-81.477" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:10px">4</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:10px">4</text>
 <path d="M23.385,40.209L31.385,40.209" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M23.385,61.985L31.385,61.985" style="fill:none;stroke:#000000;stroke-width:0.5" />
 <path d="M23.385,83.762L31.385,83.762" style="fill:none;stroke:#000000;stroke-width:0.5" />
@@ -44,6 +44,6 @@
 <path d="M90,40.209L90,46.998L100,46.998L100,40.209Z" style="fill:#0000FF" />
 <path d="M90,40.209L90,46.998L100,46.998L100,40.209L90,40.209" style="fill:none;stroke:#000000" />
 <text x="76.449" y="-41.945" transform="scale(1, -1)"
-	style="font-family:Times;font-weight:normal;font-style:normal;font-size:8px;fill:#FFFFFF">key</text>
+	style="font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal;font-size:8px;fill:#FFFFFF">key</text>
 </g>
 </svg>

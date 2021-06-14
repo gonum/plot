@@ -402,8 +402,9 @@ func svgStyleName(sty stdfnt.Style) string {
 		return "italic"
 	case stdfnt.StyleOblique:
 		return "oblique"
+	default:
+		panic(fmt.Errorf("vgsvg: invalid font style %+v (v=%d)", sty, int(sty)))
 	}
-	panic(fmt.Errorf("vgsvg: invalid font style %+v (v=%d)", sty, int(sty)))
 }
 
 func svgWeightName(w stdfnt.Weight) string {
@@ -429,8 +430,9 @@ func svgWeightName(w stdfnt.Weight) string {
 		return "800"
 	case stdfnt.WeightBlack:
 		return "900"
+	default:
+		panic(fmt.Errorf("vgsvg: invalid font weight %+v (v=%d)", w, int(w)))
 	}
-	panic(fmt.Errorf("vgsvg: invalid font weight %+v (v=%d)", w, int(w)))
 }
 
 // WriteTo writes the canvas to an io.Writer.
