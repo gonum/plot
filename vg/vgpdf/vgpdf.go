@@ -21,7 +21,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	pdf "github.com/phpdave11/gofpdf"
+	pdf "github.com/go-pdf/fpdf"
 	stdfnt "golang.org/x/image/font"
 
 	"gonum.org/v1/plot/font"
