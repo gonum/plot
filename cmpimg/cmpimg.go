@@ -16,7 +16,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/phpdave11/gofpdf"
+	"github.com/go-pdf/fpdf"
 
 	_ "image/jpeg"
 	_ "image/png"
@@ -90,7 +90,7 @@ func EqualApprox(typ string, raw1, raw2 []byte, delta float64) (bool, error) {
 }
 
 func cmpPdf(pdf1, pdf2 []byte) bool {
-	return gofpdf.CompareBytes(pdf1, pdf1, false) == nil
+	return fpdf.CompareBytes(pdf1, pdf1, false) == nil
 }
 
 func cmpImg(v1, v2 image.Image, delta float64) bool {

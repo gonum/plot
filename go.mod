@@ -8,9 +8,8 @@ require (
 	github.com/fogleman/gg v1.3.0
 	github.com/go-fonts/liberation v0.1.1
 	github.com/go-latex/latex v0.0.0-20210118124228-b3d85cf34e07
-	github.com/phpdave11/gofpdf v1.4.2
+	github.com/go-pdf/fpdf v0.4.0
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3
-	golang.org/x/image v0.0.0-20210216034530-4410531fe030
-	golang.org/x/text v0.3.5 // indirect
+	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9
 	gonum.org/v1/gonum v0.8.2
 )

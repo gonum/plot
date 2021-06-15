@@ -8,6 +8,7 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
+	"image/png"
 	"io/ioutil"
 	"log"
 	"os"
@@ -16,6 +17,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
 	"gonum.org/v1/plot/plotter"
+	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgpdf"
 )
@@ -205,5 +207,53 @@ func TestIssue540(t *testing.T) {
 	}
 	if !ok {
 		t.Fatalf("images differ")
+	}
+}
+
+func BenchmarkCanvas(b *testing.B) {
+	p := plot.New()
+
+	xys := plotter.XYs{
+		plotter.XY{X: 0, Y: 0},
+		plotter.XY{X: 1, Y: 1},
+		plotter.XY{X: 2, Y: 2},
+	}
+
+	p.Title.Text = "My title"
+	p.X.Tick.Label.Font.Size = 0 // hide X-axis labels
+	p.Y.Tick.Label.Font.Size = 0 // hide Y-axis labels
+
+	lines, points, err := plotter.NewLinePoints(xys)
+	if err != nil {
+		log.Fatal(err)
+	}
+	lines.Color = color.RGBA{B: 255, A: 255}
+
+	p.Add(lines, points)
+	p.Add(plotter.NewGrid())
+
+	c := vgpdf.New(5*vg.Centimeter, 5*vg.Centimeter)
+	d := draw.New(c)
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		p.Draw(d)
+	}
+}
+
+func BenchmarkCanvasImage(b *testing.B) {
+	c := vgpdf.New(5*vg.Centimeter, 5*vg.Centimeter)
+	raw, err := ioutil.ReadFile("../../plotter/testdata/gopher.png")
+	if err != nil {
+		b.Fatalf("could not read test image: %+v", err)
+	}
+	img, err := png.Decode(bytes.NewReader(raw))
+	if err != nil {
+		b.Fatalf("could not decode test image: %+v", err)
+	}
+
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		c.DrawImage(vg.Rectangle{Max: vg.Point{X: 2, Y: 2}}, img)
 	}
 }
