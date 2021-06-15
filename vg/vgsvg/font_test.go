@@ -7,157 +7,222 @@ package vgsvg
 import (
 	"testing"
 
-	stdfnt "golang.org/x/image/font"
+	"github.com/go-fonts/latin-modern/lmroman10regular"
+	"github.com/go-fonts/liberation/liberationmonoregular"
+	"github.com/go-fonts/liberation/liberationsansregular"
+	"github.com/go-fonts/liberation/liberationserifbold"
+	"github.com/go-fonts/liberation/liberationserifbolditalic"
+	"github.com/go-fonts/liberation/liberationserifitalic"
+	"github.com/go-fonts/liberation/liberationserifregular"
+	xfnt "golang.org/x/image/font"
+	"golang.org/x/image/font/sfnt"
+
 	"gonum.org/v1/plot/font"
 )
 
 func TestSVGFontDescr(t *testing.T) {
+	newFace := func(fnt font.Font, raw []byte) font.Face {
+		ttf, err := sfnt.Parse(raw)
+		if err != nil {
+			t.Fatalf("could not parse %q: %+v", fnt.Typeface, err)
+		}
+		return font.Face{Font: fnt, Face: ttf}
+	}
+
 	for i, tc := range []struct {
-		fnt  font.Font
+		fnt  font.Face
 		want string
 	}{
 		// typefaces
 		{
-			fnt:  font.Font{Typeface: "Liberation"},
-			want: "font-family:Liberation;font-variant:normal;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{Typeface: "Liberation"},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "My-Font-Name",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:My-Font-Name;font-variant:normal;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Latin Modern",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				lmroman10regular.TTF,
+			),
+			want: "font-family:Latin Modern Roman;font-variant:none;font-weight:normal;font-style:normal",
 		},
 		// variants
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "Mono",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, monospace;font-variant:monospace;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "Mono",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationmonoregular.TTF,
+			),
+			want: "font-family:Liberation Mono;font-variant:normal;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "Serif",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, serif;font-variant:serif;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "Serif",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:normal;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "Sans",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, sans-serif;font-variant:sans-serif;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "Sans",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationsansregular.TTF,
+			),
+			want: "font-family:Liberation Sans;font-variant:normal;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "SansSerif",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, sans-serif;font-variant:sans-serif;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "SansSerif",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationsansregular.TTF,
+			),
+			want: "font-family:Liberation Sans;font-variant:normal;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "Sans-Serif",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, sans-serif;font-variant:sans-serif;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "Sans-Serif",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationsansregular.TTF,
+			),
+			want: "font-family:Liberation Sans;font-variant:normal;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "Smallcaps",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation, small-caps;font-variant:small-caps;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "Smallcaps",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:small-caps;font-weight:normal;font-style:normal",
 		},
 		// styles
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleItalic,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:normal;font-style:italic",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleItalic,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationserifitalic.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:normal;font-style:italic",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleOblique,
-				Weight:   stdfnt.WeightNormal,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:normal;font-style:oblique",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleOblique,
+					Weight:   xfnt.WeightNormal,
+				},
+				liberationserifitalic.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:normal;font-style:oblique",
 		},
 		// weights
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightThin,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:100;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightThin,
+				},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:100;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightBold,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:bold;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightBold,
+				},
+				liberationserifbold.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:bold;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:normal;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+				},
+				liberationserifregular.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:normal;font-style:normal",
 		},
 		{
-			fnt: font.Font{
-				Typeface: "Liberation",
-				Variant:  "",
-				Style:    stdfnt.StyleNormal,
-				Weight:   stdfnt.WeightExtraBold,
-			},
-			want: "font-family:Liberation;font-variant:normal;font-weight:800;font-style:normal",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleNormal,
+					Weight:   xfnt.WeightExtraBold,
+				},
+				liberationserifbold.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:800;font-style:normal",
 		},
 		// weights+styles
 		{
-			fnt: font.Font{
-				Typeface: "Times",
-				Variant:  "",
-				Style:    stdfnt.StyleItalic,
-				Weight:   stdfnt.WeightBold,
-			},
-			want: "font-family:Times;font-variant:normal;font-weight:bold;font-style:italic",
+			fnt: newFace(
+				font.Font{
+					Typeface: "Liberation",
+					Variant:  "",
+					Style:    xfnt.StyleItalic,
+					Weight:   xfnt.WeightBold,
+				},
+				liberationserifbolditalic.TTF,
+			),
+			want: "font-family:Liberation Serif;font-variant:none;font-weight:bold;font-style:italic",
 		},
 	} {
 		got := svgFontDescr(tc.fnt)

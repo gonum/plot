@@ -21,6 +21,24 @@ func TestSVG(t *testing.T) {
 	cmpimg.CheckPlot(Example, t, "scatter.svg")
 }
 
+func TestEmbedFonts(t *testing.T) {
+	fnt := plot.DefaultFont
+	defer func() {
+		plot.DefaultFont = fnt
+	}()
+
+	cmpimg.CheckPlot(Example_embedFonts, t, "embed_fonts.svg")
+}
+
+func TestStandardFonts(t *testing.T) {
+	fnt := plot.DefaultFont
+	defer func() {
+		plot.DefaultFont = fnt
+	}()
+
+	cmpimg.CheckPlot(Example_standardFonts, t, "standard_fonts.svg")
+}
+
 func TestNewWith(t *testing.T) {
 	p := plot.New()
 	p.Title.Text = "Scatter plot"
