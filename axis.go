@@ -295,15 +295,29 @@ func (a horizontalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels.
-func (a horizontalAxis) GlyphBoxes(*Plot) []GlyphBox {
-	var boxes []GlyphBox
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
+func (a horizontalAxis) GlyphBoxes(p *Plot) []GlyphBox {
+	var (
+		boxes []GlyphBox
+		yoff  font.Length
+	)
+
+	if a.Label.Text != "" {
+		yoff += a.Label.TextStyle.Height(a.Label.Text)
+		yoff += a.Label.Padding
+	}
+
+	var (
+		marks   = a.Tick.Marker.Ticks(a.Min, a.Max)
+		height  = tickLabelHeight(a.Tick.Label, marks)
+		descent = a.Tick.Label.FontExtents().Descent
+	)
+	for _, t := range marks {
 		if t.IsMinor() {
 			continue
 		}
 		box := GlyphBox{
 			X:         a.Norm(t.Value),
-			Rectangle: a.Tick.Label.Rectangle(t.Label),
+			Rectangle: a.Tick.Label.Rectangle(t.Label).Add(vg.Point{Y: yoff + height + descent}),
 		}
 		boxes = append(boxes, box)
 	}
@@ -396,15 +410,37 @@ func (a verticalAxis) draw(c draw.Canvas) {
 }
 
 // GlyphBoxes returns the GlyphBoxes for the tick labels
-func (a verticalAxis) GlyphBoxes(*Plot) []GlyphBox {
-	var boxes []GlyphBox
-	for _, t := range a.Tick.Marker.Ticks(a.Min, a.Max) {
+func (a verticalAxis) GlyphBoxes(p *Plot) []GlyphBox {
+	var (
+		boxes []GlyphBox
+		xoff  font.Length
+	)
+
+	if a.Label.Text != "" {
+		sty := a.Label.TextStyle
+		sty.Rotation += math.Pi / 2
+
+		xoff += a.Label.TextStyle.Height(a.Label.Text)
+		xoff += a.Label.TextStyle.FontExtents().Descent
+		xoff += a.Label.Padding
+	}
+
+	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
+	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
+		xoff += w
+	}
+
+	var (
+		ext  = a.Tick.Label.FontExtents()
+		desc = ext.Height - ext.Ascent // descent + linegap
+	)
+	for _, t := range marks {
 		if t.IsMinor() {
 			continue
 		}
 		box := GlyphBox{
 			Y:         a.Norm(t.Value),
-			Rectangle: a.Tick.Label.Rectangle(t.Label),
+			Rectangle: a.Tick.Label.Rectangle(t.Label).Add(vg.Point{X: xoff, Y: desc}),
 		}
 		boxes = append(boxes, box)
 	}
