@@ -108,7 +108,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 
 	descent := sty.FontExtents().Descent
 	enth := l.entryHeight()
-	y := c.Max.Y - enth
+	y := c.Max.Y - enth - descent
 	if !l.Top {
 		y = c.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
 	}
@@ -168,6 +168,11 @@ func (l *Legend) Rectangle(c draw.Canvas) vg.Rectangle {
 		r.Min.Y = c.Min.Y
 	}
 	return r
+}
+
+func (l *Legend) GlyphBoxes(*Plot) (boxes []GlyphBox) {
+	// TODO
+	return
 }
 
 // entryHeight returns the height of the tallest legend

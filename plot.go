@@ -191,12 +191,51 @@ func (p *Plot) DataCanvas(da draw.Canvas) draw.Canvas {
 
 // DrawGlyphBoxes draws red outlines around the plot's
 // GlyphBoxes.  This is intended for debugging.
-func (p *Plot) DrawGlyphBoxes(c *draw.Canvas) {
-	c.SetColor(color.RGBA{R: 255, A: 255})
+func (p *Plot) DrawGlyphBoxes(c draw.Canvas) {
+	dac := p.DataCanvas(c)
+	sty := draw.LineStyle{
+		Color: color.RGBA{R: 255, A: 255},
+		Width: vg.Points(0.5),
+	}
+
+	drawBox := func(c draw.Canvas, b GlyphBox) {
+		x := c.X(b.X) + b.Rectangle.Min.X
+		y := c.Y(b.Y) + b.Rectangle.Min.Y
+		c.StrokeLines(sty, []vg.Point{
+			{X: x, Y: y},
+			{X: x + b.Rectangle.Size().X, Y: y},
+			{X: x + b.Rectangle.Size().X, Y: y + b.Rectangle.Size().Y},
+			{X: x, Y: y + b.Rectangle.Size().Y},
+			{X: x, Y: y},
+		})
+	}
+
 	for _, b := range p.GlyphBoxes(p) {
-		b.Rectangle.Min.X += c.X(b.X)
-		b.Rectangle.Min.Y += c.Y(b.Y)
-		c.Stroke(b.Rectangle.Path())
+		drawBox(dac, b)
+	}
+
+	p.X.sanitizeRange()
+	p.Y.sanitizeRange()
+
+	x := horizontalAxis{p.X}
+	y := verticalAxis{p.Y}
+
+	ywidth := y.size()
+	xheight := x.size()
+
+	cx := padX(p, draw.Crop(c, ywidth, 0, 0, 0))
+	for _, b := range x.GlyphBoxes(nil) {
+		drawBox(cx, b)
+	}
+
+	cy := padY(p, draw.Crop(c, 0, 0, xheight, 0))
+	for _, b := range y.GlyphBoxes(nil) {
+		drawBox(cy, b)
+	}
+
+	cl := draw.Crop(c, ywidth, 0, xheight, 0)
+	for _, b := range p.Legend.GlyphBoxes(p) {
+		drawBox(cl, b)
 	}
 }
 
