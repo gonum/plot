@@ -5,8 +5,8 @@
 package palette_test
 
 import (
-	"fmt"
 	"log"
+	"strconv"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette"
@@ -40,7 +40,7 @@ func ExampleReverse_palette() {
 	p := plot.New()
 	thumbs := plotter.PaletteThumbnailers(palette.Reverse(moreland.Kindlmann()).Palette(10))
 	for i, t := range thumbs {
-		p.Legend.Add(fmt.Sprint(i), t)
+		p.Legend.Add(strconv.Itoa(i), t)
 	}
 	p.HideAxes()
 	p.X.Padding = 0
