@@ -108,7 +108,7 @@ func (l *Legend) Draw(c draw.Canvas) {
 
 	descent := sty.FontExtents().Descent
 	enth := l.entryHeight()
-	y := c.Max.Y - enth
+	y := c.Max.Y - enth - descent
 	if !l.Top {
 		y = c.Min.Y + (enth+l.Padding)*(vg.Length(len(l.entries))-1)
 	}
@@ -173,12 +173,8 @@ func (l *Legend) Rectangle(c draw.Canvas) vg.Rectangle {
 // entryHeight returns the height of the tallest legend
 // entry text.
 func (l *Legend) entryHeight() (height vg.Length) {
-	var (
-		ext  = l.TextStyle.FontExtents()
-		desc = ext.Height - ext.Ascent // descent + linegap
-	)
 	for _, e := range l.entries {
-		if h := l.TextStyle.Rectangle(e.text).Max.Y + desc; h > height {
+		if h := l.TextStyle.Rectangle(e.text).Max.Y; h > height {
 			height = h
 		}
 	}
