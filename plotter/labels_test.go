@@ -102,6 +102,36 @@ func TestLabelsWithGlyphBoxes(t *testing.T) {
 				sty.YAlign = draw.YBottom
 			}
 
+			// label with positive x/y-offsets
+			loffp, err := plotter.NewLabels(plotter.XYLabels{
+				XYs:    []plotter.XY{{X: left}},
+				Labels: []string{"Bg"},
+			})
+			if err != nil {
+				t.Fatalf("could not creates labels plotter: %+v", err)
+			}
+			for i := range loffp.TextStyle {
+				sty := &loffp.TextStyle[i]
+				sty.Font.Size = vg.Length(fontSize)
+				sty.Color = color.RGBA{G: 255, A: 255}
+			}
+			loffp.Offset = vg.Point{X: 75, Y: 75}
+
+			// label with negative x/y-offsets
+			loffm, err := plotter.NewLabels(plotter.XYLabels{
+				XYs:    []plotter.XY{{X: left}},
+				Labels: []string{"Bg"},
+			})
+			if err != nil {
+				t.Fatalf("could not creates labels plotter: %+v", err)
+			}
+			for i := range loffm.TextStyle {
+				sty := &loffm.TextStyle[i]
+				sty.Font.Size = vg.Length(fontSize)
+				sty.Color = color.RGBA{B: 255, A: 255}
+			}
+			loffm.Offset = vg.Point{X: -40, Y: -40}
+
 			m5 := plotter.NewFunction(func(float64) float64 { return -0.5 })
 			m5.LineStyle.Color = color.RGBA{R: 255, A: 255}
 
@@ -111,7 +141,7 @@ func TestLabelsWithGlyphBoxes(t *testing.T) {
 			p5 := plotter.NewFunction(func(float64) float64 { return +0.5 })
 			p5.LineStyle.Color = color.RGBA{B: 255, A: 255}
 
-			p.Add(labels, lred, m5, l0, p5)
+			p.Add(labels, lred, m5, l0, p5, loffp, loffm)
 			p.Add(plotter.NewGrid())
 			p.Add(plotter.NewGlyphBoxes())
 
