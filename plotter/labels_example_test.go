@@ -31,8 +31,7 @@ func ExampleLabels() {
 			{X: -5, Y: 15},
 		},
 		Labels: []string{"A", "B", "C", "D"},
-	},
-	)
+	})
 	if err != nil {
 		log.Fatalf("could not creates labels plotter: %+v", err)
 	}

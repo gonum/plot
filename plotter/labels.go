@@ -95,10 +95,11 @@ func (l *Labels) DataRange() (xmin, xmax, ymin, ymax float64) {
 func (l *Labels) GlyphBoxes(p *plot.Plot) []plot.GlyphBox {
 	bs := make([]plot.GlyphBox, len(l.Labels))
 	for i, label := range l.Labels {
-		bs[i].X = p.X.Norm(l.XYs[i].X)
-		bs[i].Y = p.Y.Norm(l.XYs[i].Y)
-		sty := l.TextStyle[i]
-		bs[i].Rectangle = sty.Rectangle(label)
+		bs[i] = plot.GlyphBox{
+			X:         p.X.Norm(l.XYs[i].X),
+			Y:         p.Y.Norm(l.XYs[i].Y),
+			Rectangle: l.TextStyle[i].Rectangle(label).Add(l.Offset),
+		}
 	}
 	return bs
 }
