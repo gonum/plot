@@ -301,8 +301,8 @@ func (b *BoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	if err != nil {
 		return nil, err
 	}
-	ls.XOffset += b.GlyphStyle.Radius / 2
-	ls.YOffset += b.GlyphStyle.Radius / 2
+	off := 0.5 * b.GlyphStyle.Radius
+	ls.Offset = ls.Offset.Add(vg.Point{X: off, Y: off})
 	return ls, nil
 }
 
@@ -421,8 +421,8 @@ func (b *horizBoxPlot) OutsideLabels(labels Labeller) (*Labels, error) {
 	if err != nil {
 		return nil, err
 	}
-	ls.XOffset += b.GlyphStyle.Radius / 2
-	ls.YOffset += b.GlyphStyle.Radius / 2
+	off := 0.5 * b.GlyphStyle.Radius
+	ls.Offset = ls.Offset.Add(vg.Point{X: off, Y: off})
 	return ls, nil
 }
 
