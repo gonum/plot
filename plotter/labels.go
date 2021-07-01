@@ -35,9 +35,8 @@ type Labels struct {
 	// can have a different text style.
 	TextStyle []text.Style
 
-	// XOffset and YOffset are added directly to the final
-	// label X and Y location respectively.
-	XOffset, YOffset vg.Length
+	// Offset is added directly to the final label location.
+	Offset vg.Point
 }
 
 // NewLabels returns a new Labels using the DefaultFont and
@@ -80,8 +79,7 @@ func (l *Labels) Plot(c draw.Canvas, p *plot.Plot) {
 		if !c.Contains(pt) {
 			continue
 		}
-		pt.X += l.XOffset
-		pt.Y += l.YOffset
+		pt = pt.Add(l.Offset)
 		c.FillText(l.TextStyle[i], pt, label)
 	}
 }
