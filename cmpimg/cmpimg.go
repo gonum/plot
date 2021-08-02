@@ -119,8 +119,8 @@ func cmpImg(v1, v2 image.Image, delta float64) bool {
 			}
 		}
 	}
-	return ok
 
+	return true
 }
 
 // yiqEqApprox compares the colors of 2 pixels, in the NTSC YIQ color space,
