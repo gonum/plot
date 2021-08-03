@@ -13,4 +13,5 @@ require (
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3
 	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9
 	gonum.org/v1/gonum v0.8.2
+	rsc.io/pdf v0.1.1
 )
