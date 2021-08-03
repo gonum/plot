@@ -139,18 +139,16 @@ func TestEqualApprox(t *testing.T) {
 		want  bool
 	}{
 		{
-			name:  "svg-ok",
-			img1:  []byte("<svg></svg>"),
-			img2:  []byte("<svg></svg>"),
-			delta: -10,
-			want:  true,
+			name: "svg-ok",
+			img1: []byte("<svg></svg>"),
+			img2: []byte("<svg></svg>"),
+			want: true,
 		},
 		{
-			name:  "svg-diff",
-			img1:  []byte("<svg></svg>"),
-			img2:  []byte("<svg>1</svg>"),
-			delta: +10,
-			want:  false,
+			name: "svg-diff",
+			img1: []byte("<svg></svg>"),
+			img2: []byte("<svg>1</svg>"),
+			want: false,
 		},
 		{
 			name: "eps-ok",
@@ -159,18 +157,16 @@ func TestEqualApprox(t *testing.T) {
 			want: true,
 		},
 		{
-			name:  "eps-diff-1",
-			img1:  []byte("line1\nline2\nCreationDate:now\n"),
-			img2:  []byte("line1\nline2\nCreationDate:later"),
-			delta: +10,
-			want:  false,
+			name: "eps-diff-1",
+			img1: []byte("line1\nline2\nCreationDate:now\n"),
+			img2: []byte("line1\nline2\nCreationDate:later"),
+			want: false,
 		},
 		{
-			name:  "eps-diff-2",
-			img1:  []byte("line1\nline2\nCreationDate:now\n"),
-			img2:  []byte("line1\nline3\nCreationDate:later\n"),
-			delta: +10,
-			want:  false,
+			name: "eps-diff-2",
+			img1: []byte("line1\nline2\nCreationDate:now\n"),
+			img2: []byte("line1\nline3\nCreationDate:later\n"),
+			want: false,
 		},
 		{
 			name: "pdf-ok",
@@ -179,18 +175,16 @@ func TestEqualApprox(t *testing.T) {
 			want: true,
 		},
 		{
-			name:  "pdf-diff",
-			img1:  read("../vg/vgpdf/testdata/arc_golden.pdf"),
-			img2:  read("../vg/vgpdf/testdata/issue540_golden.pdf"),
-			delta: +10,
-			want:  false,
+			name: "pdf-diff",
+			img1: read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			img2: read("../vg/vgpdf/testdata/issue540_golden.pdf"),
+			want: false,
 		},
 		{
-			name:  "pdf-diff-2",
-			img1:  read("../vg/vgpdf/testdata/arc_golden.pdf"),
-			img2:  read("../vg/vgpdf/testdata/multipage_golden.pdf"),
-			delta: +10,
-			want:  false,
+			name: "pdf-diff-2",
+			img1: read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			img2: read("../vg/vgpdf/testdata/multipage_golden.pdf"),
+			want: false,
 		},
 		{
 			name:  "png-ok",
@@ -210,7 +204,7 @@ func TestEqualApprox(t *testing.T) {
 			name:  "png-ok-rgba64-2",
 			img1:  read("testdata/approx_got_golden.png"),
 			img2:  asPNG_RGBA64(read("testdata/approx_got_golden.png")),
-			delta: 0,
+			delta: -10, // clips to 0.0
 			want:  true,
 		},
 		{
@@ -238,7 +232,7 @@ func TestEqualApprox(t *testing.T) {
 			name:  "png-diff-3",
 			img1:  read("testdata/approx_got_golden.png"),
 			img2:  read("testdata/good_golden.png"),
-			delta: 10,
+			delta: 10, // clips to 1.0
 			want:  false,
 		},
 	} {
