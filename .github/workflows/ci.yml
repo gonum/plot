@@ -44,7 +44,8 @@ jobs:
     - name: Prepare Git
       if: matrix.platform == 'windows-latest'
       run: |
-          git config --global core.autocrlf false
+        # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
+        git config --global core.autocrlf false
 
     - name: Checkout code
       uses: actions/checkout@v2
