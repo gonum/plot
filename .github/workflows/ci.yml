@@ -41,6 +41,11 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
+    - name: Prepare Git
+      if: matrix.platform == 'windows-latest'
+      run: |
+          git config --global core.autocrlf false
+
     - name: Checkout code
       uses: actions/checkout@v2
       with:
