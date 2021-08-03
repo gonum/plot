@@ -41,16 +41,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
-    - name: Prepare Git
-      if: matrix.platform == 'windows-latest'
-      run: |
-        # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
-        git config --global core.autocrlf false
-
     - name: Checkout code
       uses: actions/checkout@v2
       with:
           path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
+      run: |
+        # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
+        git config --global core.autocrlf false
 
     - name: Install Linux packages
       if: matrix.platform == 'ubuntu-latest'
