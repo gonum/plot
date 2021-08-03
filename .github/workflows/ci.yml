@@ -47,6 +47,8 @@ jobs:
         # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
         cd ${{ env.RUNNER_TEMP }}
         git config --global core.autocrlf false
+      env:
+        PWD: ${{ env.RUNNER_TEMP }} 
 
     - name: Checkout code
       uses: actions/checkout@v2
