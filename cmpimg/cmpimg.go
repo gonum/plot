@@ -40,6 +40,8 @@ func Equal(typ string, raw1, raw2 []byte) (bool, error) {
 // and returns whether the two images are equal or not.
 //
 // EqualApprox may return an error if the decoding of the raw image somehow failed.
+// EqualApprox only uses the normalized delta parameter for "jpeg", "jpg", "png",
+// and "tiff" images. It ignores that parameter for other document types.
 func EqualApprox(typ string, raw1, raw2 []byte, delta float64) (bool, error) {
 	switch {
 	case delta < 0:
