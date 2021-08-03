@@ -46,7 +46,7 @@ jobs:
         # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
         git config --global core.autocrlf false
 
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
       with:
           path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
 
