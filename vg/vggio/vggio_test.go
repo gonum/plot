@@ -5,6 +5,7 @@
 package vggio
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -23,6 +24,41 @@ import (
 )
 
 const deltaGio = 0.05 // empirical value from experimentation.
+
+// init makes sure the headless display is ready for tests with Gio.
+// On GitHub Actions and on linux, that headless display may take some time to
+// be properly available and appears to be setup "on demand".
+// So we request it by trying to take a screenshot twice:
+//  - the first time around might fail
+//  - the second time shouldn't.
+func init() {
+	if runtime.GOOS != "linux" {
+		return
+	}
+
+	const (
+		w   = 20 * vg.Centimeter
+		h   = 15 * vg.Centimeter
+		dpi = 96
+	)
+	gtx := layout.Context{
+		Ops: new(op.Ops),
+		Constraints: layout.Exact(image.Pt(
+			int(w.Dots(dpi)),
+			int(h.Dots(dpi)),
+		)),
+	}
+
+	var err error
+	for try := 0; try < 2; try++ {
+		_, err = New(gtx, w, h, UseDPI(dpi)).Screenshot()
+		if err == nil {
+			return
+		}
+	}
+
+	panic(fmt.Errorf("vg/vggio_test: could not setup headless display: %+v", err))
+}
 
 func TestCanvas(t *testing.T) {
 	if runtime.GOOS == "darwin" {
