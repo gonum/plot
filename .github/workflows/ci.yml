@@ -42,12 +42,13 @@ jobs:
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
     - name: Checkout code
-      uses: actions/checkout@v2
-      with:
-          path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
       run: |
         # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
         git config --global core.autocrlf false
+
+      uses: actions/checkout@v2
+      with:
+          path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
 
     - name: Install Linux packages
       if: matrix.platform == 'ubuntu-latest'
