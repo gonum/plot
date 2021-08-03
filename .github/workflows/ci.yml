@@ -43,12 +43,12 @@ jobs:
 
     - name: Prepare Git
       if: matrix.platform == 'windows-latest'
+      env:
+        PWD: ${{ env.HOME }}
       run: |
         # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
-        cd ${{ env.RUNNER_TEMP }}
+        echo $PWD
         git config --global core.autocrlf false
-      env:
-        PWD: ${{ env.RUNNER_TEMP }} 
 
     - name: Checkout code
       uses: actions/checkout@v2
