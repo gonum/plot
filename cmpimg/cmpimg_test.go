@@ -9,9 +9,11 @@ import (
 	"encoding/base64"
 	"fmt"
 	"image"
+	"image/draw"
 	"image/png"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -68,7 +70,7 @@ func TestEqual(t *testing.T) {
 	}
 }
 
-func TestEqualApprox(t *testing.T) {
+func TestEqualApproxPNG(t *testing.T) {
 	got, err := ioutil.ReadFile("testdata/approx_got_golden.png")
 	if err != nil {
 		t.Fatal(err)
@@ -97,6 +99,158 @@ func TestEqualApprox(t *testing.T) {
 			}
 			if ok != tc.ok {
 				t.Fatalf("got=%v, want=%v", ok, tc.ok)
+			}
+		})
+	}
+}
+
+func TestEqualApprox(t *testing.T) {
+	read := func(name string) []byte {
+		raw, err := ioutil.ReadFile(name)
+		if err != nil {
+			t.Fatalf("could not read file %q: %+v", name, err)
+		}
+		return raw
+	}
+
+	asPNG_RGBA64 := func(raw []byte) []byte {
+		src, _, err := image.Decode(bytes.NewReader(raw))
+		if err != nil {
+			t.Fatalf("could not decode image: %+v", err)
+		}
+		var (
+			bnds = src.Bounds()
+			dst  = image.NewRGBA64(bnds)
+			out  = new(bytes.Buffer)
+		)
+		draw.Draw(dst, bnds, src, image.Point{}, draw.Src)
+		err = png.Encode(out, dst)
+		if err != nil {
+			t.Fatalf("could not encode image: %+v", err)
+		}
+		return out.Bytes()
+	}
+
+	for _, tc := range []struct {
+		name  string
+		img1  []byte
+		img2  []byte
+		delta float64
+		want  bool
+	}{
+		{
+			name:  "svg-ok",
+			img1:  []byte("<svg></svg>"),
+			img2:  []byte("<svg></svg>"),
+			delta: -10,
+			want:  true,
+		},
+		{
+			name:  "svg-diff",
+			img1:  []byte("<svg></svg>"),
+			img2:  []byte("<svg>1</svg>"),
+			delta: +10,
+			want:  false,
+		},
+		{
+			name: "eps-ok",
+			img1: []byte("line1\nline2\nCreationDate:now\n"),
+			img2: []byte("line1\nline2\nCreationDate:later\n"),
+			want: true,
+		},
+		{
+			name:  "eps-diff-1",
+			img1:  []byte("line1\nline2\nCreationDate:now\n"),
+			img2:  []byte("line1\nline2\nCreationDate:later"),
+			delta: +10,
+			want:  false,
+		},
+		{
+			name:  "eps-diff-2",
+			img1:  []byte("line1\nline2\nCreationDate:now\n"),
+			img2:  []byte("line1\nline3\nCreationDate:later\n"),
+			delta: +10,
+			want:  false,
+		},
+		{
+			name: "pdf-ok",
+			img1: read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			img2: read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			want: true,
+		},
+		{
+			name:  "pdf-diff",
+			img1:  read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			img2:  read("../vg/vgpdf/testdata/issue540_golden.pdf"),
+			delta: +10,
+			want:  false,
+		},
+		{
+			name:  "pdf-diff-2",
+			img1:  read("../vg/vgpdf/testdata/arc_golden.pdf"),
+			img2:  read("../vg/vgpdf/testdata/multipage_golden.pdf"),
+			delta: +10,
+			want:  false,
+		},
+		{
+			name:  "png-ok",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  read("testdata/approx_want_golden.png"),
+			delta: 0.1,
+			want:  true,
+		},
+		{
+			name:  "png-ok-rgba64",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  asPNG_RGBA64(read("testdata/approx_want_golden.png")),
+			delta: 0.1,
+			want:  true,
+		},
+		{
+			name:  "png-ok-rgba64-2",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  asPNG_RGBA64(read("testdata/approx_got_golden.png")),
+			delta: 0,
+			want:  true,
+		},
+		{
+			name:  "png-ok-rgba64-3",
+			img1:  asPNG_RGBA64(read("testdata/approx_got_golden.png")),
+			img2:  read("testdata/approx_got_golden.png"),
+			delta: 0,
+			want:  true,
+		},
+		{
+			name:  "png-diff-1",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  read("testdata/approx_want_golden.png"),
+			delta: 0,
+			want:  false,
+		},
+		{
+			name:  "png-diff-2",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  read("testdata/approx_want_golden.png"),
+			delta: 0.01,
+			want:  false,
+		},
+		{
+			name:  "png-diff-3",
+			img1:  read("testdata/approx_got_golden.png"),
+			img2:  read("testdata/good_golden.png"),
+			delta: 10,
+			want:  false,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			typ := tc.name[:strings.Index(tc.name, "-")]
+			got, err := EqualApprox(typ, tc.img1, tc.img2, tc.delta)
+			if err != nil {
+				t.Fatalf("could not run equal-approx: %+v", err)
+			}
+
+			if got != tc.want {
+				t.Fatalf("invalid equal-approx: got=%v, want=%v", got, tc.want)
 			}
 		})
 	}

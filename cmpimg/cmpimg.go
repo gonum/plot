@@ -89,9 +89,6 @@ func EqualApprox(typ string, raw1, raw2 []byte, delta float64) (bool, error) {
 		if err != nil {
 			return false, err
 		}
-		if delta == 0 {
-			return reflect.DeepEqual(v1, v2), nil
-		}
 		return cmpImg(v1, v2, delta), nil
 
 	default:
