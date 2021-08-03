@@ -5,6 +5,7 @@
 package vggio
 
 import (
+	"fmt"
 	"image"
 	"image/color"
 	"image/png"
@@ -12,6 +13,7 @@ import (
 	"os"
 	"runtime"
 	"testing"
+	"time"
 
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -23,6 +25,45 @@ import (
 )
 
 const deltaGio = 0.05 // empirical value from experimentation.
+
+func init() {
+	if runtime.GOOS != "linux" {
+		return
+	}
+
+	test := func() error {
+		const (
+			w   = 20 * vg.Centimeter
+			h   = 15 * vg.Centimeter
+			dpi = 96
+		)
+		gtx := layout.Context{
+			Ops: new(op.Ops),
+			Constraints: layout.Exact(image.Pt(
+				int(w.Dots(dpi)),
+				int(h.Dots(dpi)),
+			)),
+		}
+		_, err := New(gtx, w, h, UseDPI(dpi)).Screenshot()
+		return err
+	}
+
+	tck := time.NewTimer(10 * time.Second)
+	defer tck.Stop()
+
+	var err error
+	for {
+		select {
+		case <-tck.C:
+			panic(fmt.Errorf("vg/vggio_test timeout: %+v", err))
+		default:
+			err = test()
+			if err == nil {
+				return
+			}
+		}
+	}
+}
 
 func TestCanvas(t *testing.T) {
 	if runtime.GOOS == "darwin" {
