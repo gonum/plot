@@ -44,9 +44,8 @@ jobs:
     - name: Prepare Git
       if: matrix.platform == 'windows-latest'
       env:
-        PWD: ${{ env.HOME }}
+        PWD: ${{ env.RUNNER_TEMP }}
       run: |
-        # configure Git to not automatically translate LF (\n) into CRLF (\r\n)
         echo $PWD
         git config --global core.autocrlf false
 
