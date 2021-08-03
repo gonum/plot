@@ -41,18 +41,15 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
+    - name: Set git to use LF
+￼      run: |
+￼        git config --global core.autocrlf false
+￼        git config --global core.eol lf
+
     - name: Checkout code
       uses: actions/checkout@v2
       with:
           path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
-
-    - name: Prepare Git
-      if: matrix.platform == 'windows-latest'
-      run: |
-        cd ${{ env.GOPATH }}/src/gonum.org/v1
-        git config --global core.autocrlf false
-        mv ./plot ./plot-orig
-        git checkout ./plot-orig ./plot
 
     - name: Install Linux packages
       if: matrix.platform == 'ubuntu-latest'
