@@ -133,10 +133,14 @@ func TestDrawGlyphBoxes(t *testing.T) {
 	cmpimg.CheckPlot(func() {
 		p := plot.New()
 
+		p.Title.Text = "My very very very\nlong Title"
 		p.X.Min = 0
 		p.X.Max = 10
 		p.Y.Min = 0
 		p.Y.Max = 10
+
+		p.X.Label.Text = "X-axis"
+		p.Y.Label.Text = "Y-axis"
 
 		f1 := plotter.NewFunction(func(x float64) float64 { return 5 })
 		f1.LineStyle.Color = color.RGBA{R: 255, A: 255}
