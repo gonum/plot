@@ -302,6 +302,18 @@ func (a horizontalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 	)
 
 	if a.Label.Text != "" {
+		x := a.Norm(p.X.Max)
+		switch a.Label.Position {
+		case draw.PosCenter:
+			x = a.Norm(0.5 * (p.X.Max + p.X.Min))
+		case draw.PosRight:
+			x -= a.Norm(0.5 * a.Label.TextStyle.Width(a.Label.Text).Points()) // FIXME(sbinet): want data coordinates
+		}
+		descent := a.Label.TextStyle.FontExtents().Descent
+		boxes = append(boxes, GlyphBox{
+			X:         x,
+			Rectangle: a.Label.TextStyle.Rectangle(a.Label.Text).Add(vg.Point{Y: yoff + descent}),
+		})
 		yoff += a.Label.TextStyle.Height(a.Label.Text)
 		yoff += a.Label.Padding
 	}
@@ -417,16 +429,29 @@ func (a verticalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 	)
 
 	if a.Label.Text != "" {
+		yoff := a.Norm(p.Y.Max)
+		switch a.Label.Position {
+		case draw.PosCenter:
+			yoff = a.Norm(0.5 * (p.Y.Max + p.Y.Min))
+		case draw.PosTop:
+			yoff -= a.Norm(0.5 * a.Label.TextStyle.Width(a.Label.Text).Points()) // FIXME(sbinet): want data coordinates
+		}
+
 		sty := a.Label.TextStyle
 		sty.Rotation += math.Pi / 2
 
 		xoff += a.Label.TextStyle.Height(a.Label.Text)
-		xoff += a.Label.TextStyle.FontExtents().Descent
+		descent := a.Label.TextStyle.FontExtents().Descent
+		boxes = append(boxes, GlyphBox{
+			Y:         yoff,
+			Rectangle: sty.Rectangle(a.Label.Text).Add(vg.Point{X: xoff - descent}),
+		})
+		xoff += descent
 		xoff += a.Label.Padding
 	}
 
 	marks := a.Tick.Marker.Ticks(a.Min, a.Max)
-	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) > 0 && w > 0 {
+	if w := tickLabelWidth(a.Tick.Label, marks); len(marks) != 0 && w > 0 {
 		xoff += w
 	}
 
