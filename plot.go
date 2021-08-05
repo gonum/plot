@@ -246,6 +246,7 @@ func (p *Plot) DrawGlyphBoxes(c draw.Canvas) {
 	}
 
 	cy := padY(p, draw.Crop(c, 0, 0, xheight, 0))
+	cy.Max.Y -= title
 	for _, b := range y.GlyphBoxes(p) {
 		drawBox(cy, b)
 	}
