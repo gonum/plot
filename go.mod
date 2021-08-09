@@ -9,9 +9,9 @@ require (
 	github.com/go-fonts/latin-modern v0.2.0
 	github.com/go-fonts/liberation v0.2.0
 	github.com/go-latex/latex v0.0.0-20210118124228-b3d85cf34e07
-	github.com/go-pdf/fpdf v0.4.0
+	github.com/go-pdf/fpdf v0.4.1
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3
-	golang.org/x/image v0.0.0-20210607152325-775e3b0c77b9
+	golang.org/x/image v0.0.0-20210628002857-a66eb6448b8d
 	gonum.org/v1/gonum v0.8.2
 	rsc.io/pdf v0.1.1
 )
