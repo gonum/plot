@@ -6,7 +6,7 @@ package vgsvg_test
 
 import (
 	"bytes"
-	"io/ioutil"
+	"os"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -59,7 +59,7 @@ func TestNewWith(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/scatter_golden.svg")
+	want, err := os.ReadFile("testdata/scatter_golden.svg")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -102,14 +102,14 @@ func TestHtmlEscape(t *testing.T) {
 
 	if *cmpimg.GenerateTestData {
 		// Recreate Golden images and exit.
-		err = ioutil.WriteFile("testdata/scatter_line_golden.svg", b.Bytes(), 0o644)
+		err = os.WriteFile("testdata/scatter_line_golden.svg", b.Bytes(), 0o644)
 		if err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
 
-	want, err := ioutil.ReadFile("testdata/scatter_line_golden.svg")
+	want, err := os.ReadFile("testdata/scatter_line_golden.svg")
 	if err != nil {
 		t.Fatal(err)
 	}

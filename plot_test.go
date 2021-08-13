@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
-	"io/ioutil"
 	"math"
+	"os"
 	"testing"
 	"time"
 
@@ -50,19 +50,19 @@ func TestLegendAlignment(t *testing.T) {
 
 	if *cmpimg.GenerateTestData {
 		// Recreate Golden images and exit.
-		err := ioutil.WriteFile("testdata/legendAlignment_golden.png", buf.Bytes(), 0o644)
+		err := os.WriteFile("testdata/legendAlignment_golden.png", buf.Bytes(), 0o644)
 		if err != nil {
 			t.Fatal(err)
 		}
 		return
 	}
 
-	err := ioutil.WriteFile("testdata/legendAlignment.png", buf.Bytes(), 0o644)
+	err := os.WriteFile("testdata/legendAlignment.png", buf.Bytes(), 0o644)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/legendAlignment_golden.png")
+	want, err := os.ReadFile("testdata/legendAlignment_golden.png")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -182,7 +182,7 @@ func TestDrawGlyphBoxes(t *testing.T) {
 			t.Fatalf("error: %+v", err)
 		}
 
-		err = ioutil.WriteFile("testdata/glyphbox.png", buf.Bytes(), 0644)
+		err = os.WriteFile("testdata/glyphbox.png", buf.Bytes(), 0644)
 		if err != nil {
 			t.Fatalf("could not save plot: %+v", err)
 		}

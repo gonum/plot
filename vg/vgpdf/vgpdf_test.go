@@ -9,7 +9,6 @@ import (
 	"fmt"
 	"image/color"
 	"image/png"
-	"io/ioutil"
 	"log"
 	"os"
 	"testing"
@@ -62,14 +61,14 @@ func TestEmbedFonts(t *testing.T) {
 
 			if *cmpimg.GenerateTestData {
 				// Recreate Golden images and exit.
-				err = ioutil.WriteFile(tc.name, buf.Bytes(), 0o644)
+				err = os.WriteFile(tc.name, buf.Bytes(), 0o644)
 				if err != nil {
 					t.Fatal(err)
 				}
 				return
 			}
 
-			want, err := ioutil.ReadFile(tc.name)
+			want, err := os.ReadFile(tc.name)
 			if err != nil {
 				t.Fatalf("failed to read golden plot: %v", err)
 			}
@@ -131,12 +130,12 @@ func TestArc(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/arc_golden.pdf")
+	want, err := os.ReadFile("testdata/arc_golden.pdf")
 	if err != nil {
 		t.Fatalf("failed to read golden plot: %v", err)
 	}
 
-	got, err := ioutil.ReadFile("testdata/arc.pdf")
+	got, err := os.ReadFile("testdata/arc.pdf")
 	if err != nil {
 		t.Fatalf("failed to read plot: %v", err)
 	}
@@ -191,12 +190,12 @@ func TestIssue540(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/issue540_golden.pdf")
+	want, err := os.ReadFile("testdata/issue540_golden.pdf")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	got, err := ioutil.ReadFile("testdata/issue540.pdf")
+	got, err := os.ReadFile("testdata/issue540.pdf")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -243,7 +242,7 @@ func BenchmarkCanvas(b *testing.B) {
 
 func BenchmarkCanvasImage(b *testing.B) {
 	c := vgpdf.New(5*vg.Centimeter, 5*vg.Centimeter)
-	raw, err := ioutil.ReadFile("../../plotter/testdata/gopher.png")
+	raw, err := os.ReadFile("../../plotter/testdata/gopher.png")
 	if err != nil {
 		b.Fatalf("could not read test image: %+v", err)
 	}

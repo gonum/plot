@@ -7,8 +7,8 @@ package vg_test
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -63,7 +63,7 @@ func TestLineWidth(t *testing.T) {
 				}
 			}
 
-			want, err := ioutil.ReadFile(name)
+			want, err := os.ReadFile(name)
 			if err != nil {
 				t.Fatalf("failed to read test image [%s]: %v\n", name, err)
 			}
@@ -75,7 +75,7 @@ func TestLineWidth(t *testing.T) {
 
 			if !ok {
 				got := strings.Replace(name, "_golden.", ".", 1)
-				err = ioutil.WriteFile(got, buf.Bytes(), 0644)
+				err = os.WriteFile(got, buf.Bytes(), 0644)
 				if err != nil {
 					t.Errorf("could not write plot image %q: %+v", got, err)
 				}
