@@ -8,8 +8,8 @@ import (
 	"bytes"
 	"fmt"
 	"image/color"
-	"io/ioutil"
 	"log"
+	"os"
 	"reflect"
 	"sync"
 	"testing"
@@ -44,7 +44,7 @@ func TestIssue179(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/issue179_golden.jpg")
+	want, err := os.ReadFile("testdata/issue179_golden.jpg")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -54,7 +54,7 @@ func TestIssue179(t *testing.T) {
 		t.Fatal(err)
 	}
 	if !ok {
-		_ = ioutil.WriteFile("testdata/issue179.jpg", b.Bytes(), 0644)
+		_ = os.WriteFile("testdata/issue179.jpg", b.Bytes(), 0644)
 		t.Fatalf("images differ")
 	}
 }
@@ -129,12 +129,12 @@ func TestIssue540(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	want, err := ioutil.ReadFile("testdata/issue540_golden.png")
+	want, err := os.ReadFile("testdata/issue540_golden.png")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	got, err := ioutil.ReadFile("testdata/issue540.png")
+	got, err := os.ReadFile("testdata/issue540.png")
 	if err != nil {
 		t.Fatal(err)
 	}

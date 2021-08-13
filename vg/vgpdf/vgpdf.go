@@ -15,7 +15,6 @@ import (
 	"image/color"
 	"image/png"
 	"io"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
@@ -421,7 +420,7 @@ func getFont(key fontKey, font, encoding []byte) (z, j []byte, err error) {
 }
 
 func makeFont(key fontKey, font, encoding []byte) (val fontVal, err error) {
-	tmpdir, err := ioutil.TempDir("", "gofpdf-makefont-")
+	tmpdir, err := os.MkdirTemp("", "gofpdf-makefont-")
 	if err != nil {
 		return val, err
 	}
@@ -442,30 +441,30 @@ func makeFont(key fontKey, font, encoding []byte) (val fontVal, err error) {
 	fname := filepath.Join(indir, "font.ttf")
 	encname := filepath.Join(indir, "cp1252.map")
 
-	err = ioutil.WriteFile(fname, font, 0644)
+	err = os.WriteFile(fname, font, 0644)
 	if err != nil {
 		return val, err
 	}
 
-	err = ioutil.WriteFile(encname, encoding, 0644)
+	err = os.WriteFile(encname, encoding, 0644)
 	if err != nil {
 		return val, err
 	}
 
-	err = pdf.MakeFont(fname, encname, outdir, ioutil.Discard, key.embed)
+	err = pdf.MakeFont(fname, encname, outdir, io.Discard, key.embed)
 	if err != nil {
 		return val, err
 	}
 
 	if key.embed {
-		z, err := ioutil.ReadFile(filepath.Join(outdir, "font.z"))
+		z, err := os.ReadFile(filepath.Join(outdir, "font.z"))
 		if err != nil {
 			return val, err
 		}
 		val.z = z
 	}
 
-	j, err := ioutil.ReadFile(filepath.Join(outdir, "font.json"))
+	j, err := os.ReadFile(filepath.Join(outdir, "font.json"))
 	if err != nil {
 		return val, err
 	}

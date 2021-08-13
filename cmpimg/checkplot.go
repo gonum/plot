@@ -10,7 +10,6 @@ import (
 	"flag"
 	"image"
 	"image/png"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,13 +65,13 @@ func CheckPlotApprox(ExampleFunc func(), t *testing.T, delta float64, filenames 
 	// Read the images we've just generated and check them against the
 	// Golden Images.
 	for _, path := range paths {
-		got, err := ioutil.ReadFile(path)
+		got, err := os.ReadFile(path)
 		if err != nil {
 			t.Errorf("Failed to read %s: %v", path, err)
 			continue
 		}
 		golden := goldenPath(path)
-		want, err := ioutil.ReadFile(golden)
+		want, err := os.ReadFile(golden)
 		if err != nil {
 			t.Errorf("Failed to read golden file %s: %v", golden, err)
 			continue
