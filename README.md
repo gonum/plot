@@ -1,7 +1,6 @@
 # Gonum Plot
 
 [![Build status](https://github.com/gonum/plot/workflows/CI/badge.svg)](https://github.com/gonum/plot/actions)
-[![Build status](https://ci.appveyor.com/api/projects/status/6vtroet40gj5jhoe/branch/master?svg=true)](https://ci.appveyor.com/project/Gonum/plot/branch/master)
 [![codecov.io](https://codecov.io/gh/gonum/plot/branch/master/graph/badge.svg)](https://codecov.io/gh/gonum/plot)
 [![coveralls.io](https://coveralls.io/repos/gonum/plot/badge.svg?branch=master&service=github)](https://coveralls.io/github/gonum/plot?branch=master)
 [![GoDoc](https://godoc.org/gonum.org/v1/plot?status.svg)](https://godoc.org/gonum.org/v1/plot)

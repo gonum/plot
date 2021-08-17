@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.17.x, 1.16.x]
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.platform }}
     env:
         GO111MODULE: on
@@ -40,6 +40,11 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+
+    - name: Setup Git for Windows
+      run: |
+        git config --global core.autocrlf false
+        git config --global core.eol lf
 
     - name: Checkout code
       uses: actions/checkout@v2
