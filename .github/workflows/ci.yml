@@ -42,6 +42,8 @@ jobs:
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
     - name: Setup Git for Windows
+      with:
+          path: ${{ env.GOPATH }}
       run: |
         git config --global core.autocrlf false
         git config --global core.eol lf
