@@ -26,17 +26,17 @@ func TestFontExtends(t *testing.T) {
 		{
 			font: font.Font{Typeface: "Liberation", Variant: "Serif"},
 			want: map[font.Length]font.Extents{
-				10: font.Extents{
+				10: {
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: font.Extents{
+				12: {
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: font.Extents{
+				24: {
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -46,17 +46,17 @@ func TestFontExtends(t *testing.T) {
 		{
 			font: font.Font{Typeface: "Liberation", Variant: "Serif", Weight: stdfnt.WeightBold},
 			want: map[font.Length]font.Extents{
-				10: font.Extents{
+				10: {
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: font.Extents{
+				12: {
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: font.Extents{
+				24: {
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -66,17 +66,17 @@ func TestFontExtends(t *testing.T) {
 		{
 			font: font.Font{Typeface: "Liberation", Variant: "Serif", Style: stdfnt.StyleItalic},
 			want: map[font.Length]font.Extents{
-				10: font.Extents{
+				10: {
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: font.Extents{
+				12: {
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: font.Extents{
+				24: {
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
@@ -86,17 +86,17 @@ func TestFontExtends(t *testing.T) {
 		{
 			font: font.Font{Typeface: "Liberation", Variant: "Serif", Style: stdfnt.StyleItalic, Weight: stdfnt.WeightBold},
 			want: map[font.Length]font.Extents{
-				10: font.Extents{
+				10: {
 					Ascent:  8.9111328125,
 					Descent: 2.1630859375,
 					Height:  11.4990234375,
 				},
-				12: font.Extents{
+				12: {
 					Ascent:  10.693359375,
 					Descent: 2.595703125,
 					Height:  13.798828125,
 				},
-				24: font.Extents{
+				24: {
 					Ascent:  21.38671875,
 					Descent: 5.19140625,
 					Height:  27.59765625,
