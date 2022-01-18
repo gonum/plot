@@ -10,6 +10,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"path/filepath"
 	"reflect"
 	"sync"
 	"testing"
@@ -146,4 +147,40 @@ func TestIssue540(t *testing.T) {
 	if !ok {
 		t.Fatalf("images differ")
 	}
+}
+
+func TestIssue687(t *testing.T) {
+	min := func(a, b int) int {
+		if a < b {
+			return a
+		}
+		return b
+	}
+
+	const (
+		fname = "testdata/issue687.png"
+		size  = 500
+	)
+	cmpimg.CheckPlot(func() {
+		p := plot.New()
+		p.Title.Text = "Issue 687"
+		p.X.Label.Text = "X"
+		p.Y.Label.Text = "Y"
+		data := make(plotter.XYs, 4779) // Lower values still lose part of horizontal.
+		for i := range data {
+			data[i] = plotter.XY{X: float64(i) / float64(len(data)*2), Y: float64(len(data) - min(i, len(data)/2))}
+		}
+		lines, err := plotter.NewLine(data)
+		lines.Color = color.RGBA{R: 0xff, A: 0xff}
+		if err != nil {
+			t.Fatal(err)
+		}
+		p.Add(lines)
+
+		err = p.Save(size, size, fname)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+	}, t, filepath.Base(fname))
 }
