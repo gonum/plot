@@ -3,7 +3,7 @@
 // license that can be found in the LICENSE file.
 
 // Package vgimg implements the vg.Canvas interface using
-// github.com/fogleman/gg as a backend to output raster images.
+// git.sr.ht/~sbinet/gg as a backend to output raster images.
 package vgimg // import "gonum.org/v1/plot/vg/vgimg"
 
 import (
@@ -16,7 +16,7 @@ import (
 	"image/png"
 	"io"
 
-	"github.com/fogleman/gg"
+	"git.sr.ht/~sbinet/gg"
 	"golang.org/x/image/tiff"
 
 	"gonum.org/v1/plot/font"
