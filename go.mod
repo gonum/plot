@@ -1,6 +1,6 @@
 module gonum.org/v1/plot
 
-go 1.16
+go 1.17
 
 require (
 	gioui.org v0.0.0-20210308172011-57750fc8a0a6
@@ -16,4 +16,8 @@ require (
 	rsc.io/pdf v0.1.1
 )
 
-require golang.org/x/text v0.3.7 // indirect
+require (
+	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
+	golang.org/x/sys v0.0.0-20210304124612-50617c2ba197 // indirect
+	golang.org/x/text v0.3.7 // indirect
+)
