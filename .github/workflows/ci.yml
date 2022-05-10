@@ -32,6 +32,7 @@ jobs:
       uses: actions/checkout@v2
       with:
         path: ${{ env.GOPATH }}/src/gonum.org/v1/plot
+        fetch-depth: 1
 
     - name: Cache-Go
       uses: actions/cache@v2
