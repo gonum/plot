@@ -67,7 +67,7 @@ func TestRecorder(t *testing.T) {
 	switch {
 	case err == nil:
 		t.Errorf("expected an error")
-	case !strings.HasPrefix(err.Error(), "Unknown font: Foo."):
+	case !strings.HasPrefix(err.Error(), "unknown font: Foo"):
 		t.Errorf("unexpected error: %v", err)
 	}
 }

@@ -95,7 +95,7 @@ func (c *Canvas) ReplayOn(dst vg.Canvas) error {
 		f := fontID{name: fa.Font.Name(), size: fa.Size}
 		if _, exists := c.fonts[f]; !exists {
 			if !c.cache.Has(fa.Font) {
-				return fmt.Errorf("Unknown font: %s.", fa.Font.Typeface)
+				return fmt.Errorf("unknown font: %s", fa.Font.Typeface)
 			}
 			face := c.cache.Lookup(
 				fa.Font,
