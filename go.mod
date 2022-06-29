@@ -1,4 +1,4 @@
-module gonum.org/v1/plot
+module plot
 
 go 1.17
 
@@ -13,6 +13,7 @@ require (
 	golang.org/x/exp v0.0.0-20191002040644-a1355ae1e2c3
 	golang.org/x/image v0.0.0-20220302094943-723b81ca9867
 	gonum.org/v1/gonum v0.11.0
+	gonum.org/v1/plot v0.10.1
 	rsc.io/pdf v0.1.1
 )
 
