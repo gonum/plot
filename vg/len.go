@@ -27,10 +27,11 @@ const (
 // e.g. "42cm" "2.4in" "66pt"
 // If no unit was given, ParseLength assumes it was (postscript) points.
 // Currently valid units are:
-//   mm (millimeter)
-//   cm (centimeter)
-//   in (inch)
-//   pt (point)
+//
+//   - mm (millimeter)
+//   - cm (centimeter)
+//   - in (inch)
+//   - pt (point)
 func ParseLength(value string) (Length, error) {
 	return font.ParseLength(value)
 }

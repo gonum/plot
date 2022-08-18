@@ -293,11 +293,11 @@ func New(c vg.CanvasSizer) Canvas {
 // image format. Supported formats need to be registered by importing one or
 // more of the following packages:
 //
-//     gonum.org/v1/plot/vg/vgeps // provides eps
-//     gonum.org/v1/plot/vg/vgimg // provides png, jpg|jpeg, tif|tiff
-//     gonum.org/v1/plot/vg/vgpdf // provides pdf
-//     gonum.org/v1/plot/vg/vgsvg // provides svg
-//     gonum.org/v1/plot/vg/vgtex // provides tex
+//   - gonum.org/v1/plot/vg/vgeps: provides eps
+//   - gonum.org/v1/plot/vg/vgimg: provides png, jpg|jpeg, tif|tiff
+//   - gonum.org/v1/plot/vg/vgpdf: provides pdf
+//   - gonum.org/v1/plot/vg/vgsvg: provides svg
+//   - gonum.org/v1/plot/vg/vgtex: provides tex
 func NewFormattedCanvas(w, h vg.Length, format string) (vg.CanvasWriterTo, error) {
 	formats.RLock()
 	defer formats.RUnlock()

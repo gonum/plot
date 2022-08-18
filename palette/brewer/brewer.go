@@ -15,7 +15,6 @@
 //
 // For more information see:
 // http://www.personal.psu.edu/cab38/ColorBrewer/ColorBrewer_learnMore.html
-//
 package brewer // import "gonum.org/v1/plot/palette/brewer"
 
 import (

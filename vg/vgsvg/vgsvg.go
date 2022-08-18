@@ -13,7 +13,7 @@
 // this issue.
 //
 // Alternatively, users may want to install the Liberation fonts on their system:
-//  - https://en.wikipedia.org/wiki/Liberation_fonts
+//   - https://en.wikipedia.org/wiki/Liberation_fonts
 package vgsvg // import "gonum.org/v1/plot/vg/vgsvg"
 
 import (
