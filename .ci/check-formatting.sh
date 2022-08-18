@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 test -z "$(goimports -d .)"
 if [[ -n "$(gofmt -s -l .)" ]]; then
 	echo -e '\e[31mCode not gofmt simplified in:\n\n'
