@@ -151,9 +151,9 @@ func cmpImg(v1, v2 image.Image, delta float64) bool {
 // yiqEqApprox compares the colors of 2 pixels, in the NTSC YIQ color space,
 // as described in:
 //
-//   Measuring perceived color difference using YIQ NTSC
-//   transmission color space in mobile applications.
-//   Yuriy Kotsarenko, Fernando Ramos.
+//	Measuring perceived color difference using YIQ NTSC
+//	transmission color space in mobile applications.
+//	Yuriy Kotsarenko, Fernando Ramos.
 //
 // An electronic version is available at:
 //

@@ -87,7 +87,7 @@ type BoxPlot struct {
 // NewBoxPlot returns a new BoxPlot that represents
 // the distribution of the given values.  The style of
 // the box plot is that used for Tukey's schematic
-// plots is ``Exploratory Data Analysis.''
+// plots in “Exploratory Data Analysis.”
 //
 // An error is returned if the boxplot is created with
 // no values.

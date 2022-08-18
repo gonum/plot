@@ -50,9 +50,9 @@ func (hdlr Latex) Lines(txt string) []string {
 }
 
 // Box returns the bounding box of the given non-multiline text where:
-//  - width is the horizontal space from the origin.
-//  - height is the vertical space above the baseline.
-//  - depth is the vertical space below the baseline, a positive number.
+//   - width is the horizontal space from the origin.
+//   - height is the vertical space above the baseline.
+//   - depth is the vertical space below the baseline, a positive number.
 func (hdlr Latex) Box(txt string, fnt font.Font) (width, height, depth vg.Length) {
 	cnv := drawtex.New()
 	face := hdlr.Fonts.Lookup(fnt, fnt.Size)

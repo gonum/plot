@@ -29,8 +29,8 @@ const deltaGio = 0.05 // empirical value from experimentation.
 // On GitHub Actions and on linux, that headless display may take some time to
 // be properly available and appears to be setup "on demand".
 // So we request it by trying to take a screenshot twice:
-//  - the first time around might fail
-//  - the second time shouldn't.
+//   - the first time around might fail
+//   - the second time shouldn't.
 func init() {
 	if runtime.GOOS != "linux" {
 		return

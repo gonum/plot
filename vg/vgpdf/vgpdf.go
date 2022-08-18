@@ -33,7 +33,7 @@ import (
 // font files, needed by gofpdf to embed fonts in a PDF document.
 // We use cp1252 (code page 1252, Windows Western) to encode characters.
 // See:
-//  - https://en.wikipedia.org/wiki/Windows-1252
+//   - https://en.wikipedia.org/wiki/Windows-1252
 //
 // TODO: provide a Canvas-level func option to embed fonts with a user provided
 // code page schema?
