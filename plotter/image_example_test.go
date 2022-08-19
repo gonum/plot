@@ -5,6 +5,8 @@
 package plotter_test
 
 import (
+	"image"
+	"image/color"
 	"image/png"
 	"log"
 	"os"
@@ -75,6 +77,25 @@ func ExampleImage_log() {
 	)
 
 	err = p.Save(w, h, "testdata/image_plot_log.png")
+	if err != nil {
+		log.Fatalf("error saving image plot: %v\n", err)
+	}
+}
+
+// An example of embedding a uniform image in a plot.
+func ExampleImage_uniform() {
+	p := plot.New()
+	p.Title.Text = "Uniform image"
+
+	img := image.NewUniform(color.RGBA{R: 90, G: 155, B: 212, A: 255})
+	p.Add(plotter.NewImage(img, 100, 100, 10000, 10000))
+
+	const (
+		w = 5 * vg.Centimeter
+		h = 5 * vg.Centimeter
+	)
+
+	err := p.Save(w, h, "testdata/image_plot_uniform.png")
 	if err != nil {
 		log.Fatalf("error saving image plot: %v\n", err)
 	}

@@ -17,3 +17,7 @@ func TestImagePlot(t *testing.T) {
 func TestImagePlot_log(t *testing.T) {
 	cmpimg.CheckPlot(ExampleImage_log, t, "image_plot_log.png")
 }
+
+func TestImagePlot_uniform(t *testing.T) {
+	cmpimg.CheckPlot(ExampleImage_uniform, t, "image_plot_uniform.png")
+}
