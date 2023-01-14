@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         go-version: [1.19.x, 1.18.x]
-        platform: [ubuntu-latest, macos-latest]
+        platform: [ubuntu-20.04, macos-latest]
     runs-on: ${{ matrix.platform }}
     env:
         GO111MODULE: on
@@ -52,7 +52,7 @@ jobs:
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
 
     - name: Install Linux packages
-      if: matrix.platform == 'ubuntu-latest'
+      if: matrix.platform == 'ubuntu-20.04'
       run: |
         sudo apt-get update
         sudo apt-get install -qq pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev xvfb xdotool
@@ -76,7 +76,7 @@ jobs:
         go install -v ./...
 
     - name: Test Linux
-      if: matrix.platform == 'ubuntu-latest'
+      if: matrix.platform == 'ubuntu-20.04'
       run: |
         go test -v ./...
         ./.ci/check-imports.sh
@@ -93,5 +93,5 @@ jobs:
         go test -v ./...
 
     - name: Upload-Coverage
-      if: matrix.platform == 'ubuntu-latest'
+      if: matrix.platform == 'ubuntu-20.04'
       uses: codecov/codecov-action@v2
