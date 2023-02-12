@@ -13,6 +13,7 @@ import (
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/plotutil"
+	"gonum.org/v1/plot/vg"
 )
 
 var examples = []struct {
@@ -35,37 +36,37 @@ func main() {
 }
 
 func drawEps(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".eps"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".eps"); err != nil {
 		panic(err)
 	}
 }
 
 func drawPdf(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".pdf"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".pdf"); err != nil {
 		panic(err)
 	}
 }
 
 func drawSvg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".svg"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".svg"); err != nil {
 		panic(err)
 	}
 }
 
 func drawPng(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".png"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".png"); err != nil {
 		panic(err)
 	}
 }
 
 func drawTiff(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".tiff"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".tiff"); err != nil {
 		panic(err)
 	}
 }
 
 func drawJpg(name string, mkplot func() *plot.Plot) {
-	if err := mkplot().Save(4, 4, name+".jpg"); err != nil {
+	if err := mkplot().Save(10*vg.Centimeter, 10*vg.Centimeter, name+".jpg"); err != nil {
 		panic(err)
 	}
 }
