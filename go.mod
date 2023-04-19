@@ -1,4 +1,4 @@
-module gonum.org/v1/plot
+module github.com/gonum/plot
 
 go 1.19
 
@@ -13,6 +13,7 @@ require (
 	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
 	golang.org/x/image v0.5.0
 	gonum.org/v1/gonum v0.12.0
+	gonum.org/v1/plot v0.10.1
 	rsc.io/pdf v0.1.1
 )
 
