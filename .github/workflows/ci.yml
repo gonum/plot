@@ -55,7 +55,7 @@ jobs:
       if: matrix.platform == 'ubuntu-20.04'
       run: |
         sudo apt-get update
-        sudo apt-get install -qq pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev xvfb xdotool
+        sudo apt-get install -qq gcc pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev libvulkan-dev xvfb xdotool
         # start a virtual frame buffer
         Xvfb :99 -screen 0 1920x1024x24 &
 
