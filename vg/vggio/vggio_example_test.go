@@ -15,6 +15,7 @@ import (
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
+	"gioui.org/op/clip"
 	"gioui.org/unit"
 
 	"gonum.org/v1/plot"
@@ -31,14 +32,15 @@ func ExampleCanvas() {
 		dpi = 96
 	)
 	go func(w, h vg.Length) {
+		defer os.Exit(0)
+
 		win := app.NewWindow(
 			app.Title("Gonum"),
 			app.Size(
-				unit.Px(float32(w.Dots(dpi))),
-				unit.Px(float32(h.Dots(dpi))),
+				unit.Dp(float32(w.Dots(dpi))),
+				unit.Dp(float32(h.Dots(dpi))),
 			),
 		)
-		defer win.Close()
 
 		done := time.NewTimer(2 * time.Second)
 		defer done.Stop()
@@ -46,6 +48,35 @@ func ExampleCanvas() {
 		for e := range win.Events() {
 			switch e := e.(type) {
 			case system.FrameEvent:
+				var (
+					ops op.Ops
+					gtx = layout.NewContext(&ops, e)
+				)
+				// register a global key listener for the escape key wrapping our entire UI.
+				area := clip.Rect{Max: gtx.Constraints.Max}.Push(gtx.Ops)
+				key.InputOp{
+					Tag:  win,
+					Keys: key.NameEscape + "|Ctrl-Q|Alt-Q",
+				}.Add(gtx.Ops)
+
+				for _, e := range gtx.Events(win) {
+					switch e := e.(type) {
+					case key.Event:
+						switch e.Name {
+						case key.NameEscape:
+							return
+						case "Q":
+							if e.Modifiers.Contain(key.ModCtrl) {
+								return
+							}
+							if e.Modifiers.Contain(key.ModAlt) {
+								return
+							}
+						}
+					}
+				}
+				area.Pop()
+
 				p := plot.New()
 				p.Title.Text = "My title"
 				p.X.Label.Text = "X"
@@ -83,20 +114,12 @@ func ExampleCanvas() {
 
 				p.Add(plotter.NewGrid())
 
-				gtx := layout.NewContext(new(op.Ops), e)
 				cnv := vggio.New(gtx, w, h, vggio.UseDPI(dpi))
 				p.Draw(draw.New(cnv))
-
 				e.Frame(cnv.Paint())
 
-			case key.Event:
-				switch e.Name {
-				case "Q", key.NameEscape:
-					win.Close()
-				}
-
 			case system.DestroyEvent:
-				os.Exit(0)
+				return
 			}
 		}
 	}(w, h)

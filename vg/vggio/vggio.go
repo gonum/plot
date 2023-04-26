@@ -16,6 +16,8 @@ import (
 	"strings"
 	"sync"
 
+	"gioui.org/f32"
+	giofont "gioui.org/font"
 	"gioui.org/font/opentype"
 	"gioui.org/gpu/headless"
 	"gioui.org/layout"
@@ -25,6 +27,7 @@ import (
 	"gioui.org/text"
 	"gioui.org/unit"
 	"gioui.org/widget/material"
+	"gioui.org/x/stroke"
 	"golang.org/x/image/font/sfnt"
 
 	"gonum.org/v1/plot/font"
@@ -140,7 +143,8 @@ func (c *Canvas) Screenshot() (image.Image, error) {
 		return nil, fmt.Errorf("vggio: could not run headless frame: %w", err)
 	}
 
-	img, err := win.Screenshot()
+	img := image.NewRGBA(image.Rectangle{Max: win.Size()})
+	err = win.Screenshot(img)
 	if err != nil {
 		return nil, fmt.Errorf("vggio: could not create screenshot: %w", err)
 	}
@@ -228,26 +232,23 @@ func (c *Canvas) Stroke(p vg.Path) {
 
 	var (
 		cur    = c.ctx.cur()
-		dashes clip.Dash
+		dashes stroke.Dashes
 	)
-	dashes.Begin(c.gtx.Ops)
-	dashes.Phase(float32(cur.offset.Dots(c.ctx.dpi)))
-	for _, v := range cur.pattern {
-		dashes.Dash(float32(v.Dots(c.ctx.dpi)))
+	dashes.Phase = float32(cur.offset.Dots(c.ctx.dpi))
+	dashes.Dashes = make([]float32, len(cur.pattern))
+	for i, v := range cur.pattern {
+		dashes.Dashes[i] = float32(v.Dots(c.ctx.dpi))
 	}
 
-	clip.Stroke{
-		Path: c.outline(p),
-		Style: clip.StrokeStyle{
-			Width: float32(cur.linew.Dots(c.ctx.dpi)),
-			Cap:   clip.FlatCap,
-		},
-		Dashes: dashes.End(),
-	}.Op().Add(c.gtx.Ops)
+	shape := stroke.Stroke{
+		Path:   c.stroke(p),
+		Width:  float32(cur.linew.Dots(c.ctx.dpi)),
+		Cap:    stroke.FlatCap,
+		Dashes: dashes,
+	}.Op(c.ctx.ops)
 
-	r32 := c.ctx.rect()
 	clr := c.ctx.cur().color
-	paint.FillShape(c.gtx.Ops, rgba(clr), r32.Op())
+	paint.FillShape(c.ctx.ops, rgba(clr), shape)
 }
 
 // Fill fills the given path.
@@ -255,13 +256,12 @@ func (c *Canvas) Fill(p vg.Path) {
 	c.ctx.push()
 	defer c.ctx.pop()
 
-	clip.Outline{
+	shape := clip.Outline{
 		Path: c.outline(p),
-	}.Op().Add(c.gtx.Ops)
+	}.Op()
 
-	r32 := c.ctx.rect()
 	clr := c.ctx.cur().color
-	paint.FillShape(c.gtx.Ops, rgba(clr), r32.Op())
+	paint.FillShape(c.ctx.ops, rgba(clr), shape)
 }
 
 func rgba(c color.Color) color.NRGBA {
@@ -271,32 +271,32 @@ func rgba(c color.Color) color.NRGBA {
 
 func (c *Canvas) outline(p vg.Path) clip.PathSpec {
 	var path clip.Path
-	path.Begin(c.gtx.Ops)
+	path.Begin(c.ctx.ops)
 	for _, comp := range p {
 		switch comp.Type {
 		case vg.MoveComp:
-			pt := c.ctx.pt32(comp.Pos).Sub(path.Pos())
-			path.Move(pt)
+			pt := c.ctx.pt32(comp.Pos)
+			path.MoveTo(pt)
 
 		case vg.LineComp:
-			pt := c.ctx.pt32(comp.Pos).Sub(path.Pos())
-			path.Line(pt)
+			pt := c.ctx.pt32(comp.Pos)
+			path.LineTo(pt)
 
 		case vg.ArcComp:
-			center := c.ctx.pt32(comp.Pos).Sub(path.Pos())
-			path.Arc(center, center, float32(comp.Angle))
+			center := c.ctx.pt32(comp.Pos)
+			path.ArcTo(center, center, float32(comp.Angle))
 
 		case vg.CurveComp:
 			switch len(comp.Control) {
 			case 1:
-				ctl := c.ctx.pt32(comp.Control[0]).Sub(path.Pos())
-				end := c.ctx.pt32(comp.Pos).Sub(path.Pos())
-				path.Quad(ctl, end)
+				ctl := c.ctx.pt32(comp.Control[0])
+				end := c.ctx.pt32(comp.Pos)
+				path.QuadTo(ctl, end)
 			case 2:
-				ctl0 := c.ctx.pt32(comp.Control[0]).Sub(path.Pos())
-				ctl1 := c.ctx.pt32(comp.Control[1]).Sub(path.Pos())
-				end := c.ctx.pt32(comp.Pos).Sub(path.Pos())
-				path.Cube(ctl0, ctl1, end)
+				ctl0 := c.ctx.pt32(comp.Control[0])
+				ctl1 := c.ctx.pt32(comp.Control[1])
+				end := c.ctx.pt32(comp.Pos)
+				path.CubeTo(ctl0, ctl1, end)
 			default:
 				panic("vggio: invalid number of control points")
 			}
@@ -305,10 +305,65 @@ func (c *Canvas) outline(p vg.Path) clip.PathSpec {
 			path.Close()
 
 		default:
-			panic(fmt.Sprintf("Unknown path component: %d", comp.Type))
+			panic(fmt.Sprintf("vggio: unknown path component %d", comp.Type))
 		}
 	}
 	return path.End()
+}
+
+func (c *Canvas) stroke(p vg.Path) stroke.Path {
+	var (
+		path stroke.Path
+		add  = func(seg stroke.Segment) {
+			path.Segments = append(path.Segments, seg)
+		}
+		beg f32.Point
+	)
+
+	for i, comp := range p {
+		if i == 0 {
+			beg = c.ctx.pt32(comp.Pos)
+		}
+		switch comp.Type {
+		case vg.MoveComp:
+			pt := c.ctx.pt32(comp.Pos)
+			add(stroke.MoveTo(pt))
+
+		case vg.LineComp:
+			pt := c.ctx.pt32(comp.Pos)
+			add(stroke.LineTo(pt))
+
+		case vg.ArcComp:
+			center := c.ctx.pt32(comp.Pos)
+			add(stroke.ArcTo(center, float32(comp.Angle)))
+
+		case vg.CurveComp:
+			switch len(comp.Control) {
+			case 1:
+				var (
+					ctl = c.ctx.pt32(comp.Control[0])
+					end = c.ctx.pt32(comp.Pos)
+				)
+				add(stroke.QuadTo(ctl, end))
+			case 2:
+				var (
+					ctl0 = c.ctx.pt32(comp.Control[0])
+					ctl1 = c.ctx.pt32(comp.Control[1])
+					end  = c.ctx.pt32(comp.Pos)
+				)
+				add(stroke.CubeTo(ctl0, ctl1, end))
+			default:
+				panic("vggio: invalid number of control points")
+			}
+
+		case vg.CloseComp:
+			add(stroke.LineTo(beg))
+
+		default:
+			panic(fmt.Sprintf("vggio: unknown path component %d", comp.Type))
+		}
+	}
+	return path
 }
 
 // FillString fills in text at the specified
@@ -331,7 +386,7 @@ func (c *Canvas) FillString(fnt font.Face, pt vg.Point, txt string) {
 
 	lbl := material.Label(
 		material.NewTheme(collectionFor(fnt)),
-		unit.Px(float32(fnt.Font.Size.Dots(c.ctx.dpi))),
+		unit.Sp(float32(fnt.Font.Size.Dots(c.ctx.dpi))),
 		txt,
 	)
 	lbl.Color = rgba(c.ctx.cur().color)
@@ -342,8 +397,11 @@ func (c *Canvas) FillString(fnt font.Face, pt vg.Point, txt string) {
 // DrawImage draws the image, scaled to fit
 // the destination rectangle.
 func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
+	c.ctx.push()
+	defer c.ctx.pop()
+
 	var (
-		ops    = c.gtx.Ops
+		ops    = c.ctx.ops
 		dpi    = c.DPI()
 		min    = rect.Min
 		xmin   = min.X.Dots(dpi)
@@ -355,28 +413,26 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 		dy     = float64(img.Bounds().Dy())
 	)
 
-	c.ctx.push()
 	c.ctx.scale(1, -1)
 	c.ctx.translate(xmin, -ymin-height)
 	c.ctx.scale(width/dx, height/dy)
 	paint.NewImageOp(img).Add(ops)
 	paint.PaintOp{}.Add(ops)
-	c.ctx.pop()
 }
 
 var dbfonts = &gioFontsCache{
-	cache: make(map[string][]text.FontFace),
+	cache: make(map[string][]giofont.FontFace),
 	fonts: make(map[string]struct{}),
 }
 
 type gioFontsCache struct {
 	sync.RWMutex
-	cache map[string][]text.FontFace
+	cache map[string][]giofont.FontFace
 	fonts map[string]struct{}
 	buf   sfnt.Buffer
 }
 
-func (cache *gioFontsCache) get(fnt font.Face) ([]text.FontFace, bool) {
+func (cache *gioFontsCache) get(fnt font.Face) ([]giofont.FontFace, bool) {
 	cache.RLock()
 	defer cache.RUnlock()
 
@@ -388,7 +444,7 @@ func (cache *gioFontsCache) get(fnt font.Face) ([]text.FontFace, bool) {
 	return cache.cache[name], ok
 }
 
-func (cache *gioFontsCache) add(fnt font.Face) []text.FontFace {
+func (cache *gioFontsCache) add(fnt font.Face) []giofont.FontFace {
 	cache.Lock()
 	defer cache.Unlock()
 
@@ -411,7 +467,7 @@ func (cache *gioFontsCache) add(fnt font.Face) []text.FontFace {
 	gioFnt.Variant = "" // Gio expects a zero variant for the default font face
 
 	colName := collectionName(fnt.Name())
-	cache.cache[colName] = append(cache.cache[colName], text.FontFace{
+	cache.cache[colName] = append(cache.cache[colName], giofont.FontFace{
 		Font: gioFnt,
 		Face: gioFace,
 	})
@@ -420,17 +476,17 @@ func (cache *gioFontsCache) add(fnt font.Face) []text.FontFace {
 	return cache.cache[colName]
 }
 
-func gonumToGioFont(fnt font.Font) text.Font {
-	o := text.Font{
-		Typeface: text.Typeface(fnt.Typeface),
-		Style:    text.Style(fnt.Style),
-		Weight:   text.Weight(fnt.Weight),
-		Variant:  text.Variant(fnt.Variant),
+func gonumToGioFont(fnt font.Font) giofont.Font {
+	o := giofont.Font{
+		Typeface: giofont.Typeface(fnt.Typeface),
+		Style:    giofont.Style(fnt.Style),
+		Weight:   giofont.Weight(fnt.Weight),
+		Variant:  giofont.Variant(fnt.Variant),
 	}
 	return o
 }
 
-func collectionFor(fnt font.Face) []text.FontFace {
+func collectionFor(fnt font.Face) []giofont.FontFace {
 	coll, ok := dbfonts.get(fnt)
 	if !ok {
 		coll = dbfonts.add(fnt)
