@@ -414,3 +414,69 @@ func TestPaths(t *testing.T) {
 	}, t, deltaGio, "paths.png",
 	)
 }
+
+// An example of embedding an image in a plot.
+func TestImage(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("TODO: github actions for darwin with headless setup.")
+	}
+
+	const fname = "testdata/image.png"
+
+	const (
+		w   = 20 * vg.Centimeter
+		h   = 15 * vg.Centimeter
+		dpi = 96
+	)
+
+	cmpimg.CheckPlotApprox(func() {
+		p := plot.New()
+		p.Title.Text = "A Logo"
+
+		// load an image
+		src, err := os.Open("../../plotter/testdata/gopher.png")
+		if err != nil {
+			t.Fatalf("error opening image file: %v\n", err)
+		}
+		defer src.Close()
+
+		img, err := png.Decode(src)
+		if err != nil {
+			t.Fatalf("error decoding image file: %v\n", err)
+		}
+
+		p.Add(plotter.NewImage(img, 100, 100, 200, 200))
+
+		gtx := layout.Context{
+			Ops: new(op.Ops),
+			Constraints: layout.Exact(image.Pt(
+				int(w.Dots(dpi)),
+				int(h.Dots(dpi)),
+			)),
+		}
+		cnv := New(gtx, w, h, UseDPI(dpi), UseBackgroundColor(color.Transparent))
+		p.Draw(draw.New(cnv))
+
+		scr, err := cnv.Screenshot()
+		if err != nil {
+			t.Fatalf("could not create screenshot: %+v", err)
+		}
+
+		out, err := os.Create(fname)
+		if err != nil {
+			t.Fatalf("could not create output file: %+v", err)
+		}
+		defer out.Close()
+
+		err = png.Encode(out, scr)
+		if err != nil {
+			t.Fatalf("could not encode screenshot: %+v", err)
+		}
+
+		err = out.Close()
+		if err != nil {
+			t.Fatalf("could not save screenshot: %+v", err)
+		}
+	}, t, deltaGio, "image.png",
+	)
+}
