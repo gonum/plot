@@ -297,3 +297,120 @@ func TestLabels(t *testing.T) {
 	}, t, deltaGio, "labels.png",
 	)
 }
+
+func TestPaths(t *testing.T) {
+	if runtime.GOOS == "darwin" {
+		t.Skip("TODO: github actions for darwin with headless setup.")
+	}
+
+	const fname = "testdata/paths.png"
+
+	const (
+		w   = 20 * vg.Centimeter
+		h   = 15 * vg.Centimeter
+		dpi = 96
+	)
+
+	cmpimg.CheckPlotApprox(func() {
+		p := plot.New()
+		p.Title.Text = "Paths"
+		p.X.Min = -1
+		p.X.Max = +1
+		p.Y.Min = -1
+		p.Y.Max = +1
+
+		newScatter := func(c color.Color, sty draw.GlyphDrawer, x, y float64) *plotter.Scatter {
+			t.Helper()
+
+			pts := make(plotter.XYs, 1)
+			pts[0].X = x
+			pts[0].Y = y
+
+			plt, err := plotter.NewScatter(pts)
+			if err != nil {
+				t.Fatal(err)
+			}
+			plt.GlyphStyle.Color = c
+			plt.GlyphStyle.Radius = vg.Points(10)
+			plt.GlyphStyle.Shape = sty
+			return plt
+		}
+
+		p.Add(
+			newScatter(
+				color.RGBA{R: 255, A: 255},
+				draw.CircleGlyph{},
+				-0.8, -0.8,
+			),
+			newScatter(
+				color.RGBA{B: 255, A: 255},
+				draw.RingGlyph{},
+				-0.6, -0.6,
+			),
+			newScatter(
+				color.RGBA{R: 255, A: 255},
+				draw.SquareGlyph{},
+				-0.4, -0.4,
+			),
+			newScatter(
+				color.RGBA{B: 255, A: 255},
+				draw.BoxGlyph{},
+				-0.2, -0.2,
+			),
+			newScatter(
+				color.RGBA{R: 255, A: 255},
+				draw.TriangleGlyph{},
+				0, 0,
+			),
+			newScatter(
+				color.RGBA{B: 255, A: 255},
+				draw.PyramidGlyph{},
+				0.2, 0.2,
+			),
+			newScatter(
+				color.RGBA{R: 255, A: 255},
+				draw.PlusGlyph{},
+				0.4, 0.4,
+			),
+			newScatter(
+				color.RGBA{B: 255, A: 255},
+				draw.CrossGlyph{},
+				0.6, 0.6,
+			),
+		)
+
+		p.Add(plotter.NewGrid())
+		p.Add(plotter.NewGlyphBoxes())
+
+		gtx := layout.Context{
+			Ops: new(op.Ops),
+			Constraints: layout.Exact(image.Pt(
+				int(w.Dots(dpi)),
+				int(h.Dots(dpi)),
+			)),
+		}
+		cnv := New(gtx, w, h, UseDPI(dpi), UseBackgroundColor(color.Transparent))
+		p.Draw(draw.New(cnv))
+
+		img, err := cnv.Screenshot()
+		if err != nil {
+			t.Fatalf("could not create screenshot: %+v", err)
+		}
+		f, err := os.Create(fname)
+		if err != nil {
+			t.Fatalf("could not create output file: %+v", err)
+		}
+		defer f.Close()
+
+		err = png.Encode(f, img)
+		if err != nil {
+			t.Fatalf("could not encode screenshot: %+v", err)
+		}
+
+		err = f.Close()
+		if err != nil {
+			t.Fatalf("could not save screenshot: %+v", err)
+		}
+	}, t, deltaGio, "paths.png",
+	)
+}
