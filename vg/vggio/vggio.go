@@ -29,6 +29,7 @@ import (
 	"gioui.org/widget/material"
 	"gioui.org/x/stroke"
 	bstroke "github.com/andybalholm/stroke"
+	"golang.org/x/image/draw"
 	"golang.org/x/image/font/sfnt"
 
 	"gonum.org/v1/plot/font"
@@ -418,14 +419,14 @@ func (c *Canvas) DrawImage(rect vg.Rectangle, img image.Image) {
 		rsz    = rect.Size()
 		width  = rsz.X.Dots(dpi)
 		height = rsz.Y.Dots(dpi)
-		dx     = float64(img.Bounds().Dx())
-		dy     = float64(img.Bounds().Dy())
+		dst    = image.NewRGBA(image.Rect(0, 0, int(width), int(height)))
 	)
+
+	draw.NearestNeighbor.Scale(dst, dst.Rect, img, img.Bounds(), draw.Src, nil)
 
 	c.ctx.scale(1, -1)
 	c.ctx.translate(xmin, -ymin-height)
-	c.ctx.scale(width/dx, height/dy)
-	paint.NewImageOp(img).Add(ops)
+	paint.NewImageOp(dst).Add(ops)
 	paint.PaintOp{}.Add(ops)
 }
 
