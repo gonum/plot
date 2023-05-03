@@ -28,6 +28,7 @@ import (
 	"gioui.org/unit"
 	"gioui.org/widget/material"
 	"gioui.org/x/stroke"
+	bstroke "github.com/andybalholm/stroke"
 	"golang.org/x/image/font/sfnt"
 
 	"gonum.org/v1/plot/font"
@@ -317,6 +318,7 @@ func (c *Canvas) stroke(p vg.Path) stroke.Path {
 		add  = func(seg stroke.Segment) {
 			path.Segments = append(path.Segments, seg)
 		}
+		pen f32.Point
 		beg f32.Point
 	)
 
@@ -328,14 +330,18 @@ func (c *Canvas) stroke(p vg.Path) stroke.Path {
 		case vg.MoveComp:
 			pt := c.ctx.pt32(comp.Pos)
 			add(stroke.MoveTo(pt))
+			pen = pt
 
 		case vg.LineComp:
 			pt := c.ctx.pt32(comp.Pos)
 			add(stroke.LineTo(pt))
+			pen = pt
 
 		case vg.ArcComp:
 			center := c.ctx.pt32(comp.Pos)
-			add(stroke.ArcTo(center, float32(comp.Angle)))
+			arcs := arcTo(pen, center, center, float32(comp.Angle))
+			path.Segments = append(path.Segments, xStroke(arcs)...)
+			pen = f32.Point(arcs[len(arcs)-1].End)
 
 		case vg.CurveComp:
 			switch len(comp.Control) {
@@ -345,6 +351,7 @@ func (c *Canvas) stroke(p vg.Path) stroke.Path {
 					end = c.ctx.pt32(comp.Pos)
 				)
 				add(stroke.QuadTo(ctl, end))
+				pen = end
 			case 2:
 				var (
 					ctl0 = c.ctx.pt32(comp.Control[0])
@@ -352,12 +359,14 @@ func (c *Canvas) stroke(p vg.Path) stroke.Path {
 					end  = c.ctx.pt32(comp.Pos)
 				)
 				add(stroke.CubeTo(ctl0, ctl1, end))
+				pen = end
 			default:
 				panic("vggio: invalid number of control points")
 			}
 
 		case vg.CloseComp:
 			add(stroke.LineTo(beg))
+			pen = beg
 
 		default:
 			panic(fmt.Sprintf("vggio: unknown path component %d", comp.Type))
@@ -502,4 +511,19 @@ func collectionName(name string) string {
 		name = name[:i]
 	}
 	return name
+}
+
+func arcTo(start, f1, f2 f32.Point, angle float32) []bstroke.Segment {
+	if f1 == f2 {
+		return bstroke.AppendArc(nil, bstroke.Pt(start.X, start.Y), bstroke.Pt(f1.X, f1.Y), angle)
+	}
+	return bstroke.AppendEllipticalArc(nil, bstroke.Pt(start.X, start.Y), bstroke.Pt(f1.X, f1.Y), bstroke.Pt(f2.X, f2.Y), angle)
+}
+
+func xStroke(bs []bstroke.Segment) []stroke.Segment {
+	vs := make([]stroke.Segment, len(bs))
+	for i, b := range bs {
+		vs[i] = stroke.CubeTo(f32.Point(b.CP1), f32.Point(b.CP2), f32.Point(b.End))
+	}
+	return vs
 }
