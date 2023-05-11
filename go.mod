@@ -3,18 +3,18 @@ module gonum.org/v1/plot
 go 1.19
 
 require (
-	gioui.org v0.0.0-20230502183330-59695984e53c
+	gioui.org v0.0.0-20230506155350-febadd314531
 	gioui.org/x v0.0.0-20230426160849-752f112c7a59
-	git.sr.ht/~sbinet/gg v0.3.1
+	git.sr.ht/~sbinet/gg v0.4.1
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/andybalholm/stroke v0.0.0-20221221101821-bd29b49d73f0
-	github.com/go-fonts/latin-modern v0.3.0
-	github.com/go-fonts/liberation v0.3.0
-	github.com/go-latex/latex v0.0.0-20210823091927-c0d11ff05a81
-	github.com/go-pdf/fpdf v0.6.0
-	golang.org/x/exp v0.0.0-20230213192124-5e25df0256eb
+	github.com/go-fonts/latin-modern v0.3.1
+	github.com/go-fonts/liberation v0.3.1
+	github.com/go-latex/latex v0.0.0-20230307184459-12ec69307ad9
+	github.com/go-pdf/fpdf v0.8.0
+	golang.org/x/exp v0.0.0-20230510235704-dd950f8aeaea
 	golang.org/x/image v0.7.0
-	gonum.org/v1/gonum v0.12.0
+	gonum.org/v1/gonum v0.13.0
 	rsc.io/pdf v0.1.1
 )
 
