@@ -13,3 +13,7 @@ import (
 func TestLogScale(t *testing.T) {
 	cmpimg.CheckPlot(Example_logScale, t, "logscale.png")
 }
+
+func TestLogScaleWithAutoRescale(t *testing.T) {
+	cmpimg.CheckPlot(Example_logScaleWithAutoRescale, t, "logscale_autorescale.png")
+}
