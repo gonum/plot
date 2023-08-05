@@ -394,8 +394,10 @@ func (c *Canvas) FillString(fnt font.Face, pt vg.Point, txt string) {
 	c.ctx.invertY()
 	c.ctx.translate(x, h-y-fnt.Font.Size.Dots(c.ctx.dpi))
 
+	th := material.NewTheme()
+	th.Shaper = text.NewShaper(text.NoSystemFonts(), text.WithCollection(collectionFor(fnt)))
 	lbl := material.Label(
-		material.NewTheme(collectionFor(fnt)),
+		th,
 		unit.Sp(float32(fnt.Font.Size.Dots(c.ctx.dpi))),
 		txt,
 	)
@@ -474,7 +476,6 @@ func (cache *gioFontsCache) add(fnt font.Face) []giofont.FontFace {
 	}
 
 	gioFnt := gonumToGioFont(fnt.Font)
-	gioFnt.Variant = "" // Gio expects a zero variant for the default font face
 
 	colName := collectionName(fnt.Name())
 	cache.cache[colName] = append(cache.cache[colName], giofont.FontFace{
@@ -491,7 +492,6 @@ func gonumToGioFont(fnt font.Font) giofont.Font {
 		Typeface: giofont.Typeface(fnt.Typeface),
 		Style:    giofont.Style(fnt.Style),
 		Weight:   giofont.Weight(fnt.Weight),
-		Variant:  giofont.Variant(fnt.Variant),
 	}
 	return o
 }
