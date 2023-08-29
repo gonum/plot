@@ -14,7 +14,7 @@ require (
 	github.com/go-pdf/fpdf v0.8.0
 	golang.org/x/exp v0.0.0-20230713183714-613f0c0eb8a1
 	golang.org/x/image v0.9.0
-	gonum.org/v1/gonum v0.13.0
+	gonum.org/v1/gonum v0.14.0
 	rsc.io/pdf v0.1.1
 )
 
