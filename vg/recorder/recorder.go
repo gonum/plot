@@ -32,11 +32,6 @@ type Canvas struct {
 	// This includes source filename and line number.
 	KeepCaller bool
 
-	// c holds a backing vg.Canvas. If c is non-nil
-	// then method calls to the Canvas will be
-	// reflected to c.
-	c vg.Canvas
-
 	// fonts holds a collection of font/size descriptions.
 	fonts map[fontID]font.Face
 	cache *font.Cache
@@ -112,9 +107,6 @@ func (c *Canvas) ReplayOn(dst vg.Canvas) error {
 }
 
 func (c *Canvas) append(a Action) {
-	if c.c != nil {
-		a.ApplyTo(c)
-	}
 	if c.KeepCaller {
 		a.callerLocation().set()
 	}
