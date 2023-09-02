@@ -73,7 +73,7 @@ func (c *Canvas) Reset() {
 	c.Actions = c.Actions[:0]
 }
 
-// ReplayOn applies the set of Actions recorded by the Recorder onto
+// ReplayOn applies the set of Actions recorded by the Canvas onto
 // the destination Canvas.
 func (c *Canvas) ReplayOn(dst vg.Canvas) error {
 	if c.fonts == nil {
@@ -452,7 +452,7 @@ type Commenter interface {
 
 var _ Commenter = (*Canvas)(nil)
 
-// Comment implements a Recorder comment mechanism.
+// Comment implements a comment mechanism.
 type Comment struct {
 	Text string
 
