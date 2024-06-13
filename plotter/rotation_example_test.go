@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"runtime"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -92,7 +93,7 @@ func Example_rotation() {
 	p.Y.Tick.Label.XAlign = draw.XCenter
 	p.Y.Tick.Label.YAlign = draw.YBottom
 
-	err = p.Save(200, 150, "testdata/rotation.png")
+	err = p.Save(200, 150, "testdata/rotation_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Panic(err)
 	}

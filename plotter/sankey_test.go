@@ -5,6 +5,7 @@
 package plotter_test
 
 import (
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -20,7 +21,7 @@ func TestSankey_simple(t *testing.T) {
 }
 
 func TestSankey_grouped(t *testing.T) {
-	cmpimg.CheckPlot(ExampleSankey_grouped, t, "sankeyGrouped.png")
+	cmpimg.CheckPlot(ExampleSankey_grouped, t, "sankeyGrouped_"+runtime.GOARCH+".png")
 }
 
 // This test checks whether the Sankey plotter makes any changes to

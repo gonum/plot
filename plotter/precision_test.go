@@ -6,6 +6,7 @@ package plotter_test
 
 import (
 	"log"
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestFloatPrecision(t *testing.T) {
-	const fname = "precision.png"
+	const fname = "precision_" + runtime.GOARCH + ".png"
 
 	cmpimg.CheckPlot(func() {
 		p := plot.New()

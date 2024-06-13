@@ -7,6 +7,7 @@ package plotter_test
 import (
 	"log"
 	"math"
+	"runtime"
 	"testing"
 
 	"golang.org/x/exp/rand"
@@ -51,7 +52,7 @@ func ExampleContour() {
 
 	p.Add(c)
 
-	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/contour.png")
+	err := p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/contour_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Fatalf("could not save plot: %+v", err)
 	}
@@ -77,5 +78,5 @@ func (g unitGrid) Y(r int) float64 {
 }
 
 func TestContour(t *testing.T) {
-	cmpimg.CheckPlotApprox(ExampleContour, t, 0.01, "contour.png")
+	cmpimg.CheckPlotApprox(ExampleContour, t, 0.01, "contour_"+runtime.GOARCH+".png")
 }

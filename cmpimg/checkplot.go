@@ -29,6 +29,8 @@ func goldenPath(path string) string {
 // For image.Image formats, a base64 encoded png representation is output to
 // the testing log when a difference is identified.
 func CheckPlot(ExampleFunc func(), t *testing.T, filenames ...string) {
+	t.Helper()
+
 	CheckPlotApprox(ExampleFunc, t, 0, filenames...)
 }
 

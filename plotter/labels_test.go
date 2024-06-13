@@ -6,6 +6,7 @@ package plotter_test
 
 import (
 	"image/color"
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -145,11 +146,11 @@ func TestLabelsWithGlyphBoxes(t *testing.T) {
 			p.Add(plotter.NewGrid())
 			p.Add(plotter.NewGlyphBoxes())
 
-			err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/labels_glyphboxes.png")
+			err = p.Save(10*vg.Centimeter, 10*vg.Centimeter, "testdata/labels_glyphboxes_"+runtime.GOARCH+".png")
 			if err != nil {
-				t.Fatalf("could save plot: %+v", err)
+				t.Fatalf("could not save plot: %+v", err)
 			}
 		},
-		t, "labels_glyphboxes.png",
+		t, "labels_glyphboxes_"+runtime.GOARCH+".png",
 	)
 }

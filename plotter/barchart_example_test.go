@@ -7,6 +7,7 @@ package plotter_test
 import (
 	"image/color"
 	"log"
+	"runtime"
 
 	"golang.org/x/exp/rand"
 
@@ -43,7 +44,7 @@ func ExampleBarChart() {
 	}
 	p2.Add(horizontalBarChart)
 	p2.NominalY(horizontalLabels...)
-	err = p2.Save(100, 100, "testdata/horizontalBarChart.png")
+	err = p2.Save(100, 100, "testdata/horizontalBarChart_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Panic(err)
 	}

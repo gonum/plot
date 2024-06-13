@@ -10,6 +10,7 @@ import (
 	"image/color"
 	"math"
 	"os"
+	"runtime"
 	"testing"
 	"time"
 
@@ -182,9 +183,9 @@ func TestDrawGlyphBoxes(t *testing.T) {
 			t.Fatalf("error: %+v", err)
 		}
 
-		err = os.WriteFile("testdata/glyphbox.png", buf.Bytes(), 0644)
+		err = os.WriteFile("testdata/glyphbox_"+runtime.GOARCH+".png", buf.Bytes(), 0644)
 		if err != nil {
 			t.Fatalf("could not save plot: %+v", err)
 		}
-	}, t, "glyphbox.png")
+	}, t, "glyphbox_"+runtime.GOARCH+".png")
 }
