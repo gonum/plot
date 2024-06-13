@@ -145,9 +145,9 @@ func (p *smoothDiverging) interpolateMSHDiverging(scalar, convergePoint float64)
 		// interpolation factor
 		interp := scalar / convergePoint
 		return msh{
-			M: (p.convergeM-p.start.M)*interp + p.start.M,
+			M: float64((p.convergeM-p.start.M)*interp) + p.start.M,
 			S: p.start.S * (1 - interp),
-			H: p.start.H + startHTwist*interp,
+			H: p.start.H + float64(startHTwist*interp),
 		}
 	}
 	// interpolation factors
@@ -155,10 +155,10 @@ func (p *smoothDiverging) interpolateMSHDiverging(scalar, convergePoint float64)
 	interp2 := (scalar/convergePoint - 1)
 	var H float64
 	if scalar > convergePoint {
-		H = p.end.H + endHTwist*interp1
+		H = p.end.H + float64(endHTwist*interp1)
 	}
 	return msh{
-		M: (p.convergeM-p.end.M)*interp1 + p.end.M,
+		M: float64((p.convergeM-p.end.M)*interp1) + p.end.M,
 		S: p.end.S * interp2,
 		H: H,
 	}
@@ -173,7 +173,7 @@ func (p smoothDiverging) Palette(n int) palette.Palette {
 	delta := (p.max - p.min) / float64(n-1)
 	c := make([]color.Color, n)
 	for i := range c {
-		v := p.min + delta*float64(i)
+		v := p.min + float64(delta*float64(i))
 		var err error
 		c[i], err = p.At(v)
 		if err != nil {

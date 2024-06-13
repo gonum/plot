@@ -95,9 +95,9 @@ func (l *luminance) At(v float64) (color.Color, error) {
 	c2 := l.colors[i]
 	frac := (scalar - l.scalars[i-1]) / (l.scalars[i] - l.scalars[i-1])
 	o := cieLAB{
-		L: frac*(c2.L-c1.L) + c1.L,
-		A: frac*(c2.A-c1.A) + c1.A,
-		B: frac*(c2.B-c1.B) + c1.B,
+		L: float64(frac*(c2.L-c1.L)) + float64(c1.L),
+		A: float64(frac*(c2.A-c1.A)) + float64(c1.A),
+		B: float64(frac*(c2.B-c1.B)) + float64(c1.B),
 	}.cieXYZ().rgb().sRGBA(l.alpha)
 	o.clamp()
 	return o, nil
@@ -179,7 +179,7 @@ func (l luminance) Palette(n int) palette.Palette {
 	var v float64
 	c := make([]color.Color, n)
 	for i := 0; i < n; i++ {
-		v = l.min + delta*float64(i)
+		v = l.min + float64(delta*float64(i))
 		var err error
 		c[i], err = l.At(v)
 		if err != nil {

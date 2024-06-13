@@ -17,9 +17,9 @@ type rgb struct {
 // cieXYZ returns a CIE XYZ color representation of the receiver.
 func (c rgb) cieXYZ() cieXYZ {
 	return cieXYZ{
-		X: 0.4124*c.R + 0.3576*c.G + 0.1805*c.B,
-		Y: 0.2126*c.R + 0.7152*c.G + 0.0722*c.B,
-		Z: 0.0193*c.R + 0.1192*c.G + 0.9505*c.B,
+		X: float64(0.4124*c.R) + float64(0.3576*c.G) + float64(0.1805*c.B),
+		Y: float64(0.2126*c.R) + float64(0.7152*c.G) + float64(0.0722*c.B),
+		Z: float64(0.0193*c.R) + float64(0.1192*c.G) + float64(0.9505*c.B),
 	}
 }
 
@@ -29,7 +29,7 @@ func (c rgb) sRGBA(alpha float64) sRGBA {
 	// f converts from a linear RGB component to an sRGB component.
 	f := func(v float64) float64 {
 		if v > 0.0031308 {
-			return 1.055*math.Pow(v, 1/2.4) - 0.055
+			return float64(1.055*math.Pow(v, 1/2.4)) - 0.055
 		}
 		return 12.92 * v
 	}
@@ -51,9 +51,9 @@ type cieXYZ struct {
 // rgb returns a linear RGB representation of the receiver.
 func (c cieXYZ) rgb() rgb {
 	return rgb{
-		R: c.X*3.2406 + c.Y*-1.5372 + c.Z*-0.4986,
-		G: c.X*-0.9689 + c.Y*1.8758 + c.Z*0.0415,
-		B: c.X*0.0557 + c.Y*-0.204 + c.Z*1.057,
+		R: float64(c.X*3.2406) + float64(c.Y*-1.5372) + float64(c.Z*-0.4986),
+		G: float64(c.X*-0.9689) + float64(c.Y*1.8758) + float64(c.Z*0.0415),
+		B: float64(c.X*0.0557) + float64(c.Y*-0.204) + float64(c.Z*1.057),
 	}
 }
 
@@ -64,14 +64,14 @@ func (c cieXYZ) cieLAB() cieLAB {
 		if v > 0.008856 {
 			return math.Pow(v, 1.0/3.0)
 		}
-		return 7.787*v + 16.0/116.0
+		return float64(7.787*v) + float64(16.0/116.0)
 	}
 
 	tempX := f(c.X / 0.9505)
 	tempY := f(c.Y)
 	tempZ := f(c.Z / 1.089)
 	return cieLAB{
-		L: (116.0 * tempY) - 16.0,
+		L: float64(116.0*tempY) - 16.0,
 		A: 500.0 * (tempX - tempY),
 		B: 200 * (tempY - tempZ),
 	}
