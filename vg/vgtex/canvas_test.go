@@ -6,6 +6,7 @@ package vgtex_test
 
 import (
 	"image/color"
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -15,7 +16,7 @@ import (
 )
 
 func TestTexCanvas(t *testing.T) {
-	cmpimg.CheckPlot(Example, t, "scatter.tex")
+	cmpimg.CheckPlot(Example, t, "scatter_"+runtime.GOARCH+".tex")
 }
 
 func TestLineLatex(t *testing.T) {
@@ -58,7 +59,7 @@ func TestLineLatex(t *testing.T) {
 			}
 		}
 	}
-	cmpimg.CheckPlot(test("testdata/linestyle.tex"), t, "linestyle.tex")
+	cmpimg.CheckPlot(test("testdata/linestyle_"+runtime.GOARCH+".tex"), t, "linestyle_"+runtime.GOARCH+".tex")
 	cmpimg.CheckPlot(test("testdata/linestyle.png"), t, "linestyle.png")
 }
 
@@ -85,9 +86,9 @@ func TestFillStyle(t *testing.T) {
 		p.Legend.Add("h", h)
 
 		const size = 5 * vg.Centimeter
-		err = p.Save(size, size, "testdata/fillstyle.tex")
+		err = p.Save(size, size, "testdata/fillstyle_"+runtime.GOARCH+".tex")
 		if err != nil {
 			t.Fatalf("error: %+v", err)
 		}
-	}, t, "fillstyle.tex")
+	}, t, "fillstyle_"+runtime.GOARCH+".tex")
 }

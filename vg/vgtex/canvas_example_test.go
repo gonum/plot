@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"runtime"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -52,7 +53,7 @@ func Example() {
 	c.SetColor(color.Black)
 	c.FillString(txtFont, vg.Point{X: 2.5 * vg.Centimeter, Y: 2.5 * vg.Centimeter}, "x")
 
-	f, err := os.Create("testdata/scatter.tex")
+	f, err := os.Create("testdata/scatter_" + runtime.GOARCH + ".tex")
 	if err != nil {
 		log.Fatal(err)
 	}

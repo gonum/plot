@@ -9,6 +9,7 @@ import (
 	"image/color"
 	"log"
 	"os"
+	"runtime"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -396,7 +397,7 @@ func ExampleSankey_grouped() {
 
 	p.Draw(dc)
 	pngimg := vgimg.PngCanvas{Canvas: c}
-	f, err := os.Create("testdata/sankeyGrouped.png")
+	f, err := os.Create("testdata/sankeyGrouped_" + runtime.GOARCH + ".png")
 	if err != nil {
 		log.Panic(err)
 	}

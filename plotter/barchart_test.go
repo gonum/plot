@@ -5,6 +5,7 @@
 package plotter_test
 
 import (
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot/cmpimg"
@@ -12,7 +13,7 @@ import (
 
 func TestBarChart(t *testing.T) {
 	cmpimg.CheckPlot(ExampleBarChart, t, "verticalBarChart.png",
-		"horizontalBarChart.png", "barChart2.png",
+		"horizontalBarChart_"+runtime.GOARCH+".png", "barChart2.png",
 		"stackedBarChart.png")
 }
 

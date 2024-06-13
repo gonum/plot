@@ -5,11 +5,12 @@
 package plotter_test
 
 import (
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot/cmpimg"
 )
 
 func TestRotation(t *testing.T) {
-	cmpimg.CheckPlot(Example_rotation, t, "rotation.png")
+	cmpimg.CheckPlot(Example_rotation, t, "rotation_"+runtime.GOARCH+".png")
 }

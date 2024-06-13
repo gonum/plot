@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math"
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -74,12 +75,12 @@ func ExampleLatex() {
 	p.Add(plotter.NewGlyphBoxes())
 	p.Add(plotter.NewGrid())
 
-	err = p.Save(10*vg.Centimeter, 5*vg.Centimeter, "testdata/latex.png")
+	err = p.Save(10*vg.Centimeter, 5*vg.Centimeter, "testdata/latex_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Fatalf("could not save plot: %+v", err)
 	}
 }
 
 func TestLatex(t *testing.T) {
-	cmpimg.CheckPlot(ExampleLatex, t, "latex.png")
+	cmpimg.CheckPlot(ExampleLatex, t, "latex_"+runtime.GOARCH+".png")
 }
