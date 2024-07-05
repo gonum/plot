@@ -13,7 +13,7 @@ require (
 	github.com/go-latex/latex v0.0.0-20230307184459-12ec69307ad9
 	github.com/go-pdf/fpdf v0.8.0
 	golang.org/x/exp v0.0.0-20230801115018-d63ba01acd4b
-	golang.org/x/image v0.11.0
+	golang.org/x/image v0.18.0
 	gonum.org/v1/gonum v0.14.0
 	rsc.io/pdf v0.1.1
 )
@@ -27,5 +27,5 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/exp/shiny v0.0.0-20230801115018-d63ba01acd4b // indirect
 	golang.org/x/sys v0.11.0 // indirect
-	golang.org/x/text v0.12.0 // indirect
+	golang.org/x/text v0.16.0 // indirect
 )
