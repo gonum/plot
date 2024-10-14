@@ -1,6 +1,6 @@
 module gonum.org/v1/plot
 
-go 1.21
+go 1.22.0
 
 require (
 	gioui.org v0.2.0
