@@ -5,7 +5,7 @@ go 1.21
 require (
 	gioui.org v0.2.0
 	gioui.org/x v0.2.0
-	git.sr.ht/~sbinet/gg v0.5.0
+	git.sr.ht/~sbinet/gg v0.6.0
 	github.com/ajstarks/svgo v0.0.0-20211024235047-1546f124cd8b
 	github.com/andybalholm/stroke v0.0.0-20221221101821-bd29b49d73f0
 	github.com/go-fonts/latin-modern v0.3.1
