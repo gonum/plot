@@ -15,4 +15,4 @@ jobs:
         fetch-depth: 1
     - uses: dominikh/staticcheck-action@v1
       with:
-        version: "2024.1"
+        version: "2025.1"
