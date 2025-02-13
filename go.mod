@@ -1,6 +1,6 @@
 module gonum.org/v1/plot
 
-go 1.22.0
+go 1.23
 
 require (
 	git.sr.ht/~sbinet/gg v0.6.0
