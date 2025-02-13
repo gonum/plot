@@ -9,16 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     env:
         GO111MODULE: on
-        DISPLAY: ":99.0"
-        EGL_PLATFORM: "x11"
     steps:
     - uses: actions/checkout@v4
       with:
         fetch-depth: 1
-    - name: cgo-dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -qq gcc pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev libvulkan-dev xvfb xdotool
     - uses: dominikh/staticcheck-action@v1
       with:
         version: "2024.1"
