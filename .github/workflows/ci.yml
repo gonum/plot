@@ -16,8 +16,6 @@ jobs:
     env:
         GO111MODULE: on
         GOPATH: ${{ github.workspace }}
-        DISPLAY: ":99.0"
-        EGL_PLATFORM: "x11"
     defaults:
         run:
             working-directory: ${{ env.GOPATH }}/src/gonum.org/v1/plot
@@ -50,14 +48,6 @@ jobs:
         key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
         restore-keys: |
           ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-
-    - name: Install Linux packages
-      if: matrix.platform == 'ubuntu-20.04'
-      run: |
-        sudo apt-get update
-        sudo apt-get install -qq gcc pkg-config libwayland-dev libx11-dev libx11-xcb-dev libxkbcommon-x11-dev libgles2-mesa-dev libegl1-mesa-dev libffi-dev libxcursor-dev libvulkan-dev xvfb xdotool
-        # start a virtual frame buffer
-        Xvfb :99 -screen 0 1920x1024x24 &
 
     - name: Check copyrights+formatting
       run: |
