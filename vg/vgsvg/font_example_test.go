@@ -8,8 +8,8 @@ import (
 	"log"
 	"os"
 
-	lmit "github.com/go-fonts/latin-modern/lmroman10italic"
-	lreg "github.com/go-fonts/liberation/liberationserifregular"
+	lmit "codeberg.org/go-fonts/latin-modern/lmroman10italic"
+	lreg "codeberg.org/go-fonts/liberation/liberationserifregular"
 	xfnt "golang.org/x/image/font"
 	"golang.org/x/image/font/opentype"
 
