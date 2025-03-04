@@ -7,13 +7,13 @@ package vgsvg
 import (
 	"testing"
 
-	"github.com/go-fonts/latin-modern/lmroman10regular"
-	"github.com/go-fonts/liberation/liberationmonoregular"
-	"github.com/go-fonts/liberation/liberationsansregular"
-	"github.com/go-fonts/liberation/liberationserifbold"
-	"github.com/go-fonts/liberation/liberationserifbolditalic"
-	"github.com/go-fonts/liberation/liberationserifitalic"
-	"github.com/go-fonts/liberation/liberationserifregular"
+	"codeberg.org/go-fonts/latin-modern/lmroman10regular"
+	"codeberg.org/go-fonts/liberation/liberationmonoregular"
+	"codeberg.org/go-fonts/liberation/liberationsansregular"
+	"codeberg.org/go-fonts/liberation/liberationserifbold"
+	"codeberg.org/go-fonts/liberation/liberationserifbolditalic"
+	"codeberg.org/go-fonts/liberation/liberationserifitalic"
+	"codeberg.org/go-fonts/liberation/liberationserifregular"
 	xfnt "golang.org/x/image/font"
 	"golang.org/x/image/font/sfnt"
 
