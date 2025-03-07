@@ -165,7 +165,7 @@ func ExampleBarChart_positiveNegative() {
 	data1 := make(plotter.Values, n)
 	data2 := make(plotter.Values, n)
 	net := make(plotter.XYs, n) // net = data1 + data2
-	for i := 0; i < n; i++ {
+	for i := range n {
 		data1[i] = rnd.Float64()*2 - 1
 		data2[i] = rnd.Float64()*2 - 1
 		net[i].X = data1[i] + data2[i]

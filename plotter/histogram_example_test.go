@@ -31,7 +31,7 @@ func ExampleHistogram() {
 
 	n := 10000
 	vals := make(plotter.Values, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		vals[i] = rnd.NormFloat64()
 	}
 

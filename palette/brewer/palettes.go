@@ -4752,7 +4752,7 @@ var (
 		"YlOrBr":  YlOrBr,
 		"YlOrRd":  YlOrRd,
 	}
-	all = map[string]interface{}{
+	all = map[string]any{
 		"BrBG":     BrBG,
 		"PiYG":     PiYG,
 		"PRGn":     PRGn,

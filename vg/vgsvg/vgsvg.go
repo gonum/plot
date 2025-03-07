@@ -199,7 +199,7 @@ func (c *Canvas) Push() {
 }
 
 func (c *Canvas) Pop() {
-	for i := 0; i < c.context().gEnds; i++ {
+	for range c.context().gEnds {
 		c.svg.Gend()
 	}
 	c.stack = c.stack[:len(c.stack)-1]
@@ -556,7 +556,7 @@ func (c *Canvas) WriteTo(w io.Writer) (int64, error) {
 	// Close the groups and svg in the output buffer
 	// so that the Canvas is not closed and can be
 	// used again if needed.
-	for i := 0; i < c.nEnds(); i++ {
+	for range c.nEnds() {
 		_, err = fmt.Fprintln(b, "</g>")
 		if err != nil {
 			return b.n, err
@@ -616,7 +616,7 @@ func elm(key, def, f string) string {
 // elmf returns a style element string with the
 // given key and value.  If the value matches
 // default then the empty string is returned.
-func elmf(key, def, f string, vls ...interface{}) string {
+func elmf(key, def, f string, vls ...any) string {
 	value := fmt.Sprintf(f, vls...)
 	if value == def {
 		return ""

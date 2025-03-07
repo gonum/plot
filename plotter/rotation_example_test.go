@@ -24,7 +24,7 @@ func Example_rotation() {
 	// Sin creates a sine curve.
 	sin := func(n int, xmax float64) plotter.XYs {
 		xy := make(plotter.XYs, n)
-		for i := 0; i < n; i++ {
+		for i := range n {
 			xy[i].X = xmax / float64(n) * float64(i)
 			xy[i].Y = math.Sin(xy[i].X) * 100
 		}

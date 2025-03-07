@@ -24,7 +24,7 @@ func ExampleBoxPlot() {
 	uniform := make(plotter.ValueLabels, n)
 	normal := make(plotter.ValueLabels, n)
 	expon := make(plotter.ValueLabels, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		uniform[i].Value = rnd.Float64()
 		uniform[i].Label = fmt.Sprintf("%4.4f", uniform[i].Value)
 		normal[i].Value = rnd.NormFloat64()

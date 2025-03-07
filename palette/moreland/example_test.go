@@ -53,8 +53,8 @@ func Example() {
 		YOffset: -50,
 		Data:    mat.NewDense(100, 100, nil),
 	}
-	for i := 0; i < 100; i++ {
-		for j := 0; j < 100; j++ {
+	for i := range 100 {
+		for j := range 100 {
 			x := float64(i-50) / 10
 			y := float64(j-50) / 10
 			v := math.Sin(x*x+y*y) / (x*x + y*y)

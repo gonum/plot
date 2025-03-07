@@ -22,7 +22,7 @@ func ExampleQuartPlot() {
 	uniform := make(plotter.Values, n)
 	normal := make(plotter.Values, n)
 	expon := make(plotter.Values, n)
-	for i := 0; i < n; i++ {
+	for i := range n {
 		uniform[i] = rnd.Float64()
 		normal[i] = rnd.NormFloat64()
 		expon[i] = rnd.ExpFloat64()
