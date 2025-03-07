@@ -125,7 +125,7 @@ func GetPalette(typ PaletteType, name string, colors int) (palette.Palette, erro
 	)
 	switch typ {
 	case TypeAny:
-		var pt interface{}
+		var pt any
 		pt, nameOk = all[name]
 		if !nameOk {
 			break

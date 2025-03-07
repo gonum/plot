@@ -13,6 +13,7 @@ import (
 	"image/color"
 	"image/png"
 	"runtime"
+	"slices"
 
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/font/liberation"
@@ -150,7 +151,7 @@ type SetLineDash struct {
 // SetLineDash implements the SetLineDash method of the vg.Canvas interface.
 func (c *Canvas) SetLineDash(dashes []vg.Length, offs vg.Length) {
 	c.append(&SetLineDash{
-		Dashes:  append([]vg.Length(nil), dashes...),
+		Dashes:  slices.Clone(dashes),
 		Offsets: offs,
 	})
 }
@@ -330,7 +331,7 @@ type Stroke struct {
 
 // Stroke implements the Stroke method of the vg.Canvas interface.
 func (c *Canvas) Stroke(path vg.Path) {
-	c.append(&Stroke{Path: append(vg.Path(nil), path...)})
+	c.append(&Stroke{Path: slices.Clone(path)})
 }
 
 // Call returns the method call that generated the action.
@@ -356,7 +357,7 @@ type Fill struct {
 
 // Fill implements the Fill method of the vg.Canvas interface.
 func (c *Canvas) Fill(path vg.Path) {
-	c.append(&Fill{Path: append(vg.Path(nil), path...)})
+	c.append(&Fill{Path: slices.Clone(path)})
 }
 
 // Call returns the method call that generated the action.

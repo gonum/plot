@@ -121,9 +121,9 @@ func ExamplePolygon_hexagons() {
 	for i, xmin := range xstart {
 		ymin := ystart[i]
 		x := xmin
-		for ix := 0; ix < nx; ix++ {
+		for range nx {
 			y := ymin
-			for iy := 0; iy < ny; iy++ {
+			for range ny {
 				var poly *plotter.Polygon
 				poly, err = plotter.NewPolygon(hex(x, y, r))
 				if err != nil {

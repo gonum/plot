@@ -18,9 +18,9 @@ import (
 func ExampleAlign() {
 	const rows, cols = 4, 3
 	plots := make([][]*plot.Plot, rows)
-	for j := 0; j < rows; j++ {
+	for j := range rows {
 		plots[j] = make([]*plot.Plot, cols)
-		for i := 0; i < cols; i++ {
+		for i := range cols {
 			if i == 0 && j == 2 {
 				// This shows what happens when there are nil plots.
 				continue
@@ -70,8 +70,8 @@ func ExampleAlign() {
 	}
 
 	canvases := plot.Align(plots, t, dc)
-	for j := 0; j < rows; j++ {
-		for i := 0; i < cols; i++ {
+	for j := range rows {
+		for i := range cols {
 			if plots[j][i] != nil {
 				plots[j][i].Draw(canvases[j][i])
 			}

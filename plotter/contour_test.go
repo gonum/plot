@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"reflect"
+	"slices"
 	"sort"
 	"testing"
 
@@ -457,8 +458,8 @@ func TestExciseLoops(t *testing.T) {
 		for i, test := range loopTests {
 			gotSet := make(contourSet)
 			c := &contour{
-				backward: append(path(nil), test.c.backward...),
-				forward:  append(path(nil), test.c.forward...),
+				backward: slices.Clone(test.c.backward),
+				forward:  slices.Clone(test.c.forward),
 			}
 			gotSet[c] = struct{}{}
 			c.exciseLoops(gotSet, quick)
