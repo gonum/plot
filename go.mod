@@ -4,8 +4,8 @@ go 1.22.0
 
 require (
 	codeberg.org/go-fonts/latin-modern v0.4.0
-	codeberg.org/go-fonts/liberation v0.4.0
-	codeberg.org/go-latex/latex v0.0.0-20250304174001-fb59698489e0
+	codeberg.org/go-fonts/liberation v0.4.1
+	codeberg.org/go-latex/latex v0.0.1
 	codeberg.org/go-pdf/fpdf v0.10.0
 	gioui.org v0.2.0
 	gioui.org/x v0.2.0
