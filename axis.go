@@ -490,14 +490,14 @@ type DefaultTicks struct{}
 var _ Ticker = DefaultTicks{}
 
 // Ticks returns Ticks in the specified range.
-func (DefaultTicks) Ticks(minTick, maxTick float64) []Tick {
-	if maxTick <= minTick {
+func (DefaultTicks) Ticks(min, max float64) []Tick {
+	if max <= min {
 		panic("illegal range")
 	}
 
 	const suggestedTicks = 3
 
-	labels, step, q, mag := talbotLinHanrahan(minTick, maxTick, suggestedTicks, withinData, nil, nil, nil)
+	labels, step, q, mag := talbotLinHanrahan(min, max, suggestedTicks, withinData, nil, nil, nil)
 	majorDelta := step * math.Pow10(mag)
 	if q == 0 {
 		// Simple fall back was chosen, so
@@ -516,7 +516,7 @@ func (DefaultTicks) Ticks(minTick, maxTick float64) []Tick {
 	if math.Trunc(q) != q {
 		off += 2
 	}
-	prec := min(6, max(off, -mag))
+	prec := minInt(6, maxInt(off, -mag))
 	ticks := make([]Tick, len(labels))
 	for i, v := range labels {
 		ticks[i] = Tick{Value: v, Label: strconv.FormatFloat(v, fc, prec, 64)}
@@ -539,7 +539,7 @@ func (DefaultTicks) Ticks(minTick, maxTick float64) []Tick {
 	// Find the first minor tick not greater
 	// than the lowest data value.
 	var i float64
-	for labels[0]+(i-1)*minorDelta > minTick {
+	for labels[0]+(i-1)*minorDelta > min {
 		i--
 	}
 	// Add ticks at minorDelta intervals when
@@ -547,7 +547,7 @@ func (DefaultTicks) Ticks(minTick, maxTick float64) []Tick {
 	// labelled tick.
 	for {
 		val := labels[0] + i*minorDelta
-		if val > maxTick {
+		if val > max {
 			break
 		}
 		found := false
@@ -563,6 +563,14 @@ func (DefaultTicks) Ticks(minTick, maxTick float64) []Tick {
 	}
 
 	return ticks
+}
+
+func minInt(a, b int) int {
+	return min(a, b)
+}
+
+func maxInt(a, b int) int {
+	return max(a, b)
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
