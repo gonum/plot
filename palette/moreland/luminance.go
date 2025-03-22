@@ -176,10 +176,9 @@ func (l luminance) Palette(n int) palette.Palette {
 		l.SetMax(1)
 	}
 	delta := (l.max - l.min) / float64(n-1)
-	var v float64
 	c := make([]color.Color, n)
 	for i := range n {
-		v = l.min + float64(delta*float64(i))
+		v := min(l.min+float64(delta*float64(i)), l.max)
 		var err error
 		c[i], err = l.At(v)
 		if err != nil {

@@ -246,3 +246,11 @@ func similar(a, b color.Color, tolerance float64) bool {
 	}
 	return true
 }
+
+func Test_smoothDiverging_Palette(t *testing.T) {
+	// https://github.com/gonum/plot/issues/798
+	colors := SmoothBlueRed()
+	colors.SetMin(0.3402859786606234)
+	colors.SetMax(15.322841335211892)
+	colors.Palette(15)
+}

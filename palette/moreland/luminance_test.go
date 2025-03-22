@@ -161,3 +161,11 @@ func BenchmarkLuminance_At(b *testing.B) {
 		})
 	}
 }
+
+func Test_luminance_Palette(t *testing.T) {
+	// https://github.com/gonum/plot/issues/798
+	colors := Kindlmann()
+	colors.SetMin(0.3402859786606234)
+	colors.SetMax(15.322841335211892)
+	colors.Palette(15)
+}

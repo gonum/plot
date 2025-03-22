@@ -173,7 +173,7 @@ func (p smoothDiverging) Palette(n int) palette.Palette {
 	delta := (p.max - p.min) / float64(n-1)
 	c := make([]color.Color, n)
 	for i := range c {
-		v := p.min + float64(delta*float64(i))
+		v := min(p.min+float64(delta*float64(i)), p.max)
 		var err error
 		c[i], err = p.At(v)
 		if err != nil {
