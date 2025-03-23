@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand/v2"
+	"runtime"
 	"testing"
 
 	"gonum.org/v1/plot"
@@ -58,6 +59,6 @@ func clippedFilledLine() {
 }
 
 func TestFilledLine(t *testing.T) {
-	cmpimg.CheckPlot(ExampleLine_filledLine, t, "filledLine.png")
+	cmpimg.CheckPlot(ExampleLine_filledLine, t, "filledLine_"+runtime.GOARCH+".png")
 	cmpimg.CheckPlot(clippedFilledLine, t, "clippedFilledLine.png")
 }

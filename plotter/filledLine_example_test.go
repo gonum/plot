@@ -8,6 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math/rand/v2"
+	"runtime"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -45,7 +46,7 @@ func ExampleLine_filledLine() {
 
 	p.Add(filled)
 
-	err = p.Save(200, 200, "testdata/filledLine.png")
+	err = p.Save(200, 200, "testdata/filledLine_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Panic(err)
 	}
