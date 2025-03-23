@@ -7,10 +7,9 @@ package plotter_test
 import (
 	"log"
 	"math"
+	"math/rand/v2"
 	"runtime"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
@@ -21,7 +20,7 @@ import (
 )
 
 func ExampleContour() {
-	rnd := rand.New(rand.NewSource(1234))
+	rnd := rand.New(rand.NewPCG(1234, 1234))
 
 	const stddev = 2
 	data := make([]float64, 6400)

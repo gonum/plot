@@ -8,10 +8,9 @@ import (
 	"bytes"
 	"encoding/gob"
 	"image/color"
+	"math/rand/v2"
 	"os"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	_ "gonum.org/v1/plot/gob"
@@ -25,7 +24,7 @@ func init() {
 }
 
 func TestPersistency(t *testing.T) {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// Get some random points
 	n := 15

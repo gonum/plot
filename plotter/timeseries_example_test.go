@@ -7,9 +7,8 @@ package plotter_test
 import (
 	"image/color"
 	"log"
+	"math/rand/v2"
 	"time"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -19,7 +18,7 @@ import (
 
 // Example_timeSeries draws a time series.
 func Example_timeSeries() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// xticks defines how we convert and display time.Time values.
 	xticks := plot.TimeTicks{Format: "2006-01-02\n15:04"}

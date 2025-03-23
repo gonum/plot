@@ -8,12 +8,11 @@ import (
 	"flag"
 	"fmt"
 	"math"
+	"math/rand/v2"
 	"reflect"
 	"slices"
 	"sort"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/gonum/mat"
 	"gonum.org/v1/plot"
@@ -74,7 +73,7 @@ func TestHeatMapWithContour(t *testing.T) {
 }
 
 func TestComplexContours(t *testing.T) {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	if !*visualDebug {
 		return
@@ -121,7 +120,7 @@ func BenchmarkComplexContour32(b *testing.B) { complexContourBench(32, b) }
 var cp map[float64][]vg.Path
 
 func complexContourBench(noise float64, b *testing.B) {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	data := make([]float64, 6400)
 	for i := range data {

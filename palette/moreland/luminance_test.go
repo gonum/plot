@@ -7,9 +7,8 @@ package moreland
 import (
 	"fmt"
 	"image/color"
+	"math/rand/v2"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/gonum/floats/scalar"
 )
@@ -151,10 +150,10 @@ func BenchmarkLuminance_At(b *testing.B) {
 			b.Fatal(err)
 		}
 		p.SetMax(1)
-		rand.Seed(1)
+		rng := rand.New(rand.NewPCG(1, 1))
 		b.Run(fmt.Sprintf("%d controls", n), func(b *testing.B) {
 			for i := 0; i < b.N; i++ {
-				if _, err := p.At(rand.Float64()); err != nil {
+				if _, err := p.At(rng.Float64()); err != nil {
 					b.Fatal(err)
 				}
 			}

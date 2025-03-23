@@ -7,9 +7,8 @@ package plotter_test
 import (
 	"image/color"
 	"log"
+	"math/rand/v2"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/cmpimg"
@@ -18,7 +17,7 @@ import (
 
 // See https://github.com/gonum/plot/issues/488
 func clippedFilledLine() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
@@ -49,8 +48,8 @@ func clippedFilledLine() {
 
 	p.Add(filled)
 	// testing clipping
-	p.X.Min, p.X.Max = 1, 3
-	p.Y.Max = -1
+	p.X.Min, p.X.Max = 1, 3.5
+	p.Y.Max = 4
 
 	err = p.Save(200, 200, "testdata/clippedFilledLine.png")
 	if err != nil {

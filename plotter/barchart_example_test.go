@@ -7,9 +7,8 @@ package plotter_test
 import (
 	"image/color"
 	"log"
+	"math/rand/v2"
 	"runtime"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -158,7 +157,7 @@ func ExampleBarChart() {
 
 // This example shows a bar chart with both positive and negative values.
 func ExampleBarChart_positiveNegative() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// Create random data points between -1 and 1.
 	const n = 6

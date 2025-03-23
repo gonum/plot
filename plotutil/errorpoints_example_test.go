@@ -5,7 +5,7 @@
 package plotutil_test
 
 import (
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -13,7 +13,7 @@ import (
 )
 
 func ExampleErrorPoints() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// Get some random data.
 	n, m := 5, 10

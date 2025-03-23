@@ -8,7 +8,7 @@
 package main
 
 import (
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -73,7 +73,7 @@ func drawJpg(name string, mkplot func() *plot.Plot) {
 
 // Example_errpoints draws some error points.
 func Example_errpoints() *plot.Plot {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// Get some random data.
 	n, m := 5, 10
