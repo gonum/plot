@@ -179,7 +179,13 @@ func (l luminance) Palette(n int) palette.Palette {
 	var v float64
 	c := make([]color.Color, n)
 	for i := range n {
-		v = l.min + float64(delta*float64(i))
+		if i == n-1 {
+			// Avoid potential overflow on last element
+			// due to floating point error.
+			v = l.max
+		} else {
+			v = l.min + float64(delta*float64(i))
+		}
 		var err error
 		c[i], err = l.At(v)
 		if err != nil {

@@ -246,3 +246,41 @@ func similar(a, b color.Color, tolerance float64) bool {
 	}
 	return true
 }
+
+// See https://github.com/gonum/plot/issues/798
+func TestIssue798SmoothBlueRed(t *testing.T) {
+	for _, test := range []struct {
+		n        int
+		min, max float64
+	}{
+		0: {n: 2, min: 0, max: 1},
+		1: {n: 15, min: 0.3402859786606234, max: 15.322841335211892},
+	} {
+		t.Run("", func(t *testing.T) {
+			defer func() {
+				r := recover()
+				if r != nil {
+					t.Errorf("unexpected panic with n=%d min=%f max=%f: %v", test.n, test.min, test.max, r)
+				}
+			}()
+			colors := SmoothBlueRed()
+			colors.SetMin(test.min)
+			colors.SetMax(test.max)
+			col := colors.Palette(test.n).Colors()
+			min, err := colors.At(test.min)
+			if err != nil {
+				t.Fatalf("unexpected error calling colors.At(min): %v", err)
+			}
+			if !sameColor(min, col[0]) {
+				t.Errorf("unexpected min color %#v != %#v", min, col[0])
+			}
+			max, err := colors.At(test.max)
+			if err != nil {
+				t.Fatalf("unexpected error calling colors.At(max): %v", err)
+			}
+			if !sameColor(max, col[len(col)-1]) {
+				t.Errorf("unexpected max color %#v != %#v", max, col[len(col)-1])
+			}
+		})
+	}
+}
