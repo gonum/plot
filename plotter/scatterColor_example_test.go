@@ -74,9 +74,9 @@ func ExampleScatter_color() {
 		_, _, z := scatterData.XYZ(i)
 		d := (z - minZ) / (maxZ - minZ)
 		rng := maxZ - minZ
-		// Possible floating point error, similar to https://github.com/gonum/plot/issues/798,
 		k := min(d*rng+minZ, maxZ)
-		c, err := colors.At(k)
+		// Clamp k to avoid potential overflow due to floating point error
+		c, err := colors.At(min(k, colors.Max()))
 		if err != nil {
 			log.Panic(err)
 		}
