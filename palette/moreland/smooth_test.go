@@ -7,10 +7,9 @@ package moreland
 import (
 	"image/color"
 	"math"
+	"math/rand/v2"
 	"strings"
 	"testing"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot/palette"
 )
@@ -177,7 +176,6 @@ func testRGB(t *testing.T, i int, label string, c1 color.Color, c2 [3]float64) {
 }
 
 func TestSmoothDiverging_At(t *testing.T) {
-
 	start := msh{M: 80, S: 1.08, H: -1.1}
 	end := msh{M: 80, S: 1.08, H: 0.5}
 	p := newSmoothDiverging(start, end, 88)
@@ -199,9 +197,9 @@ func TestSmoothDiverging_At(t *testing.T) {
 func BenchmarkSmoothDiverging_At(b *testing.B) {
 	p := SmoothBlueRed()
 	p.SetMax(1.0000000001)
-	rand.Seed(1)
+	rng := rand.New(rand.NewPCG(1, 1))
 	for i := 0; i < b.N; i++ {
-		if _, err := p.At(rand.Float64()); err != nil {
+		if _, err := p.At(rng.Float64()); err != nil {
 			b.Fatal(err)
 		}
 	}

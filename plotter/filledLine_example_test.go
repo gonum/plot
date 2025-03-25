@@ -7,15 +7,15 @@ package plotter_test
 import (
 	"image/color"
 	"log"
-
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
+	"runtime"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
 )
 
 func ExampleLine_filledLine() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
@@ -46,7 +46,7 @@ func ExampleLine_filledLine() {
 
 	p.Add(filled)
 
-	err = p.Save(200, 200, "testdata/filledLine.png")
+	err = p.Save(200, 200, "testdata/filledLine_"+runtime.GOARCH+".png")
 	if err != nil {
 		log.Panic(err)
 	}

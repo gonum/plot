@@ -8,8 +8,7 @@ import (
 	"image/color"
 	"log"
 	"math"
-
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -21,7 +20,7 @@ import (
 // Each point is plotted with a different radius size depending on
 // external criteria.
 func ExampleScatter_bubbles() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// randomTriples returns some random but correlated x, y, z triples
 	randomTriples := func(n int) plotter.XYZs {

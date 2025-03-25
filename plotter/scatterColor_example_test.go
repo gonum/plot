@@ -8,9 +8,8 @@ import (
 	"fmt"
 	"log"
 	"math"
+	"math/rand/v2"
 	"os"
-
-	"golang.org/x/exp/rand"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/palette/moreland"
@@ -24,7 +23,7 @@ import (
 // Each point is plotted with a different color depending on
 // external criteria.
 func ExampleScatter_color() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// randomTriples returns some random but correlated x, y, z triples
 	randomTriples := func(n int) plotter.XYZs {
@@ -76,7 +75,8 @@ func ExampleScatter_color() {
 		d := (z - minZ) / (maxZ - minZ)
 		rng := maxZ - minZ
 		k := d*rng + minZ
-		c, err := colors.At(k)
+		// Clamp k to avoid potential overflow due to floating point error.
+		c, err := colors.At(min(k, colors.Max()))
 		if err != nil {
 			log.Panic(err)
 		}

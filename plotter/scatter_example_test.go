@@ -7,8 +7,7 @@ package plotter_test
 import (
 	"image/color"
 	"log"
-
-	"golang.org/x/exp/rand"
+	"math/rand/v2"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -19,7 +18,7 @@ import (
 // ExampleScatter draws some scatter points, a line,
 // and a line with points.
 func ExampleScatter() {
-	rnd := rand.New(rand.NewSource(1))
+	rnd := rand.New(rand.NewPCG(1, 1))
 
 	// randomPoints returns some random x, y points
 	// with some interesting kind of trend.
