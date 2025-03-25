@@ -74,8 +74,8 @@ func ExampleScatter_color() {
 		_, _, z := scatterData.XYZ(i)
 		d := (z - minZ) / (maxZ - minZ)
 		rng := maxZ - minZ
-		k := min(d*rng+minZ, maxZ)
-		// Clamp k to avoid potential overflow due to floating point error
+		k := d*rng + minZ
+		// Clamp k to avoid potential overflow due to floating point error.
 		c, err := colors.At(min(k, colors.Max()))
 		if err != nil {
 			log.Panic(err)
