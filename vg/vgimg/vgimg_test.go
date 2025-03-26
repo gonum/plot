@@ -150,13 +150,6 @@ func TestIssue540(t *testing.T) {
 }
 
 func TestIssue687(t *testing.T) {
-	min := func(a, b int) int {
-		if a < b {
-			return a
-		}
-		return b
-	}
-
 	const (
 		fname = "testdata/issue687.png"
 		size  = 500

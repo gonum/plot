@@ -566,17 +566,11 @@ func (DefaultTicks) Ticks(min, max float64) []Tick {
 }
 
 func minInt(a, b int) int {
-	if a < b {
-		return a
-	}
-	return b
+	return min(a, b)
 }
 
 func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
+	return max(a, b)
 }
 
 // LogTicks is suitable for the Tick.Marker field of an Axis,
