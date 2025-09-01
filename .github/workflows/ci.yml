@@ -51,13 +51,6 @@ jobs:
 
     - name: Check copyrights+formatting
       run: |
-          # Required for format check.
-          go install golang.org/x/tools/cmd/goimports@latest
-          # Required for imports check.
-          go install gonum.org/v1/tools/cmd/check-imports@latest
-          # Required for copyright header check.
-          go install gonum.org/v1/tools/cmd/check-copyright@latest
-
           ./.ci/check-copyright.sh
           ./.ci/check-formatting.sh
 
