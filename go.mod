@@ -1,6 +1,6 @@
 module gonum.org/v1/plot
 
-go 1.24.0
+go 1.25.0
 
 require (
 	codeberg.org/go-fonts/latin-modern v0.4.0
