@@ -63,7 +63,7 @@ func TestSVGFontDescr(t *testing.T) {
 				},
 				lmroman10regular.TTF,
 			),
-			want: "font-family:Latin Modern Roman;font-variant:none;font-weight:normal;font-style:normal",
+			want: "font-family:LMRoman10;font-variant:none;font-weight:normal;font-style:normal",
 		},
 		// variants
 		{
