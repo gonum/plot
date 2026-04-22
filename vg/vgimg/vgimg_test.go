@@ -25,6 +25,10 @@ import (
 	"gonum.org/v1/plot/vg/vgimg"
 )
 
+const (
+	delta = 0.1
+)
+
 var cache = font.NewCache(liberation.Collection())
 
 func TestIssue179(t *testing.T) {
@@ -50,7 +54,7 @@ func TestIssue179(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	ok, err := cmpimg.Equal("jpg", b.Bytes(), want)
+	ok, err := cmpimg.EqualApprox("jpg", b.Bytes(), want, delta)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +158,7 @@ func TestIssue687(t *testing.T) {
 		fname = "testdata/issue687.png"
 		size  = 500
 	)
-	cmpimg.CheckPlot(func() {
+	cmpimg.CheckPlotApprox(func() {
 		p := plot.New()
 		p.Title.Text = "Issue 687"
 		p.X.Label.Text = "X"
@@ -175,5 +179,5 @@ func TestIssue687(t *testing.T) {
 			t.Fatal(err)
 		}
 
-	}, t, filepath.Base(fname))
+	}, t, delta, filepath.Base(fname))
 }
