@@ -11,7 +11,10 @@ import (
 	"testing"
 
 	"gonum.org/v1/plot/cmpimg"
+	"gonum.org/v1/plot/text"
 	"gonum.org/v1/plot/vg"
+	"gonum.org/v1/plot/vg/draw"
+	"gonum.org/v1/plot/vg/recorder"
 )
 
 var axisSmallTickTests = []struct {
@@ -169,6 +172,105 @@ func TestAxisPadding(t *testing.T) {
 					t.Fatalf("error: %+v", err)
 				}
 			}, t, fmt.Sprintf("axis_padding_%02d.png", padding))
+		})
+	}
+}
+
+// labelBoundsHandler records the bounds requested by axis drawing.
+type labelBoundsHandler struct {
+	text.Handler
+	bounds vg.Rectangle
+}
+
+func (h *labelBoundsHandler) Draw(_ vg.Canvas, label string, style text.Style, point vg.Point) {
+	h.bounds = style.Rectangle(label).Add(point)
+}
+
+func TestCenteredAxisLabelGlyphBoxes(t *testing.T) {
+	tests := []struct {
+		name     string
+		scale    Normalizer
+		min, max float64
+	}{
+		{name: "linear", scale: LinearScale{}, min: -10, max: 20},
+		{name: "log", scale: LogScale{}, min: 1, max: 100},
+		{name: "inverted-log", scale: InvertedScale{LogScale{}}, min: 1, max: 100},
+		{name: "large-linear", scale: LinearScale{}, min: math.MaxFloat64 / 2, max: math.MaxFloat64},
+	}
+	for _, test := range tests {
+		for _, horizontal := range []bool{true, false} {
+			t.Run(fmt.Sprintf("%s/horizontal=%t", test.name, horizontal), func(t *testing.T) {
+				p := New()
+				axis := &p.Y
+				if horizontal {
+					axis = &p.X
+				}
+				axis.Min, axis.Max, axis.Scale = test.min, test.max, test.scale
+				axis.Label.Text = "Axis label"
+				axis.Tick.Marker = ConstantTicks(nil)
+				handler := &labelBoundsHandler{Handler: axis.Label.TextStyle.Handler}
+				axis.Label.TextStyle.Handler = handler
+				canvas := draw.Canvas{
+					Canvas:    new(recorder.Canvas),
+					Rectangle: vg.Rectangle{Min: vg.Point{X: 100, Y: 150}, Max: vg.Point{X: 500, Y: 450}},
+				}
+				var boxes []GlyphBox
+				if horizontal {
+					a := horizontalAxis{*axis}
+					a.draw(canvas)
+					boxes = a.GlyphBoxes(p)
+				} else {
+					a := verticalAxis{*axis}
+					a.draw(canvas)
+					boxes = a.GlyphBoxes(p)
+				}
+				if len(boxes) != 1 {
+					t.Fatalf("got %d glyph boxes, want 1", len(boxes))
+				}
+				box := boxes[0]
+				got := box.Rectangle.Add(vg.Point{X: canvas.X(box.X), Y: canvas.Y(box.Y)})
+				want := handler.bounds
+				if math.IsNaN(float64(got.Min.X)) || math.IsNaN(float64(got.Min.Y)) ||
+					math.IsNaN(float64(got.Max.X)) || math.IsNaN(float64(got.Max.Y)) ||
+					math.Abs(float64(got.Min.X-want.Min.X)) > 1e-9 ||
+					math.Abs(float64(got.Min.Y-want.Min.Y)) > 1e-9 ||
+					math.Abs(float64(got.Max.X-want.Max.X)) > 1e-9 ||
+					math.Abs(float64(got.Max.Y-want.Max.Y)) > 1e-9 {
+					t.Errorf("glyph box does not match drawn label bounds:\ngot: %v\nwant: %v", got, want)
+				}
+			})
+		}
+	}
+}
+
+func TestCenteredAxisLabelPadding(t *testing.T) {
+	for _, horizontal := range []bool{true, false} {
+		t.Run(fmt.Sprintf("horizontal=%t", horizontal), func(t *testing.T) {
+			p := New()
+			p.X.Tick.Marker = ConstantTicks(nil)
+			p.Y.Tick.Marker = ConstantTicks(nil)
+			axis := &p.Y
+			if horizontal {
+				axis = &p.X
+			}
+			axis.Min, axis.Max = 1, 1e6
+			axis.Scale = LogScale{}
+			axis.Label.Text = "WWWWWWWWWWWWWWWW"
+			handler := &labelBoundsHandler{Handler: axis.Label.TextStyle.Handler}
+			axis.Label.TextStyle.Handler = handler
+			// The label fits in the canvas with 20 points to spare.
+			side := axis.Label.TextStyle.Width(axis.Label.Text) + vg.Points(20)
+			p.Draw(draw.Canvas{
+				Canvas:    new(recorder.Canvas),
+				Rectangle: vg.Rectangle{Max: vg.Point{X: side, Y: side}},
+			})
+			min, max := handler.bounds.Min.Y, handler.bounds.Max.Y
+			if horizontal {
+				min, max = handler.bounds.Min.X, handler.bounds.Max.X
+			}
+			if min < 0 || max > side {
+				t.Errorf("label clipped: bounds [%v, %v], canvas [0, %v]", min, max, side)
+			}
 		})
 	}
 }
