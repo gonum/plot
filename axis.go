@@ -316,7 +316,7 @@ func (a horizontalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 		x := a.Norm(p.X.Max)
 		switch a.Label.Position {
 		case draw.PosCenter:
-			x = a.Norm(0.5 * (p.X.Max + p.X.Min))
+			x = 0.5
 		case draw.PosRight:
 			x -= a.Norm(0.5 * a.Label.TextStyle.Width(a.Label.Text).Points()) // FIXME(sbinet): want data coordinates
 		}
@@ -443,7 +443,7 @@ func (a verticalAxis) GlyphBoxes(p *Plot) []GlyphBox {
 		yoff := a.Norm(p.Y.Max)
 		switch a.Label.Position {
 		case draw.PosCenter:
-			yoff = a.Norm(0.5 * (p.Y.Max + p.Y.Min))
+			yoff = 0.5
 		case draw.PosTop:
 			yoff -= a.Norm(0.5 * a.Label.TextStyle.Width(a.Label.Text).Points()) // FIXME(sbinet): want data coordinates
 		}
