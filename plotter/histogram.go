@@ -210,7 +210,9 @@ func binPoints(xys XYer, n int) (bins []HistogramBin, width float64) {
 	for i := range xys.Len() {
 		x, y := xys.XY(i)
 		bin := int((x - xmin) / w)
-		if x == xmax {
+		// A value at xmax belongs in the last bin. Float division can
+		// also round a smaller value up to n when the range is huge.
+		if x == xmax || bin >= n {
 			bin = n - 1
 		}
 		if bin < 0 || bin >= n {
