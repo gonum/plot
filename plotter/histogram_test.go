@@ -18,6 +18,21 @@ func TestHistogram(t *testing.T) {
 	cmpimg.CheckPlot(ExampleHistogram, t, "histogram.png")
 }
 
+func TestHistogramWideRangeDoesNotPanic(t *testing.T) {
+	data := plotter.Values{203.4, -9.223372036854776e17, 220.4}
+	h, err := plotter.NewHist(data, 10)
+	if err != nil {
+		t.Fatalf("NewHist: %v", err)
+	}
+	var weight float64
+	for _, bin := range h.Bins {
+		weight += bin.Weight
+	}
+	if weight != 3 {
+		t.Fatalf("total weight %v, want 3", weight)
+	}
+}
+
 func TestSingletonHistogram(t *testing.T) {
 	done := make(chan struct{}, 1)
 	go func() {
