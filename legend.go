@@ -5,7 +5,10 @@
 package plot
 
 import (
+	"image/color"
 	"math"
+
+	xfont "golang.org/x/image/font"
 
 	"gonum.org/v1/plot/font"
 	"gonum.org/v1/plot/text"
@@ -18,6 +21,10 @@ import (
 // and a thumbnail, where the thumbnail shows a small
 // sample of the display style of the corresponding data.
 type Legend struct {
+	// BackgroundColor is the color behind the legend entries.
+	// A nil color leaves the background transparent.
+	BackgroundColor color.Color
+
 	// TextStyle is the style given to the legend
 	// entry texts.
 	TextStyle text.Style
@@ -94,6 +101,21 @@ func newLegend(hdlr text.Handler) Legend {
 
 // Draw draws the legend to the given draw.Canvas.
 func (l *Legend) Draw(c draw.Canvas) {
+	if l.BackgroundColor != nil && len(l.entries) != 0 {
+		r := l.Rectangle(c)
+		c.SetColor(l.BackgroundColor)
+		c.Fill(r.Path())
+	}
+	l.layout(c, func(sty text.Style, pt vg.Point, icon *draw.Canvas, e legendEntry) {
+		for _, t := range e.thumbs {
+			t.Thumbnail(icon)
+		}
+		c.FillText(sty, pt, e.text)
+	})
+}
+
+// layout visits the entries at the positions used to draw them.
+func (l *Legend) layout(c draw.Canvas, visit func(text.Style, vg.Point, *draw.Canvas, legendEntry)) {
 	iconx := c.Min.X
 	sty := l.TextStyle
 	em := sty.Rectangle(" ")
@@ -129,12 +151,9 @@ func (l *Legend) Draw(c draw.Canvas) {
 	yoff += descent
 
 	for _, e := range l.entries {
-		for _, t := range e.thumbs {
-			t.Thumbnail(icon)
-		}
 		yoffs := (enth - descent - sty.Rectangle(e.text).Max.Y) / 2
 		yoffs += yoff
-		c.FillText(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, e.text)
+		visit(sty, vg.Point{X: textx, Y: icon.Min.Y + yoffs}, icon, e)
 		icon.Min.Y -= enth + l.Padding
 		icon.Max.Y -= enth + l.Padding
 	}
@@ -142,30 +161,68 @@ func (l *Legend) Draw(c draw.Canvas) {
 
 // Rectangle returns the extent of the Legend.
 func (l *Legend) Rectangle(c draw.Canvas) vg.Rectangle {
-	var width, height vg.Length
-	sty := l.TextStyle
-	entryHeight := l.entryHeight()
-	for i, e := range l.entries {
-		width = vg.Length(math.Max(float64(width), float64(l.ThumbnailWidth+sty.Rectangle(" "+e.text).Max.X)))
-		height += entryHeight
-		if i != 0 {
-			height += l.Padding
+	r := vg.Rectangle{
+		Min: vg.Point{X: vg.Length(math.Inf(1)), Y: vg.Length(math.Inf(1))},
+		Max: vg.Point{X: vg.Length(math.Inf(-1)), Y: vg.Length(math.Inf(-1))},
+	}
+	include := func(box vg.Rectangle) {
+		r.Min.X, r.Min.Y = min(r.Min.X, box.Min.X), min(r.Min.Y, box.Min.Y)
+		r.Max.X, r.Max.Y = max(r.Max.X, box.Max.X), max(r.Max.Y, box.Max.Y)
+	}
+	l.layout(c, func(sty text.Style, pt vg.Point, icon *draw.Canvas, e legendEntry) {
+		include(icon.Rectangle)
+		include(legendTextRectangle(sty, e.text).Add(pt))
+	})
+	if len(l.entries) == 0 {
+		p := c.Min
+		if !l.Left {
+			p.X = c.Max.X
 		}
+		if l.Top {
+			p.Y = c.Max.Y
+		}
+		p = p.Add(vg.Point{X: l.XOffs, Y: l.YOffs})
+		return vg.Rectangle{Min: p, Max: p}
 	}
-	var r vg.Rectangle
-	if l.Left {
-		r.Max.X = c.Max.X
-		r.Min.X = c.Max.X - width
-	} else {
-		r.Max.X = c.Min.X + width
-		r.Min.X = c.Min.X
+	return r
+}
+
+// legendTextRectangle includes glyph overhangs and the line positions used by
+// the plain text handler, as well as the handler's layout bounds.
+func legendTextRectangle(sty text.Style, txt string) vg.Rectangle {
+	r := sty.Rectangle(txt)
+	switch sty.Handler.(type) {
+	case text.Plain, *text.Plain:
+	default:
+		return r
 	}
-	if l.Top {
-		r.Max.Y = c.Max.Y
-		r.Min.Y = c.Max.Y - height
-	} else {
-		r.Max.Y = c.Min.Y + height
-		r.Min.Y = c.Min.Y
+	if sty.Font.Size <= 0 {
+		return r
+	}
+	face := sty.Handler.Cache().Lookup(sty.Font, sty.Font.Size)
+	// Measure at the font's design resolution to avoid pixel rounding.
+	em := float64(face.Face.UnitsPerEm())
+	glyphs := face.FontFace(72 * em / face.Font.Size.Points())
+	defer glyphs.Close()
+	scale := face.Font.Size / vg.Length(64*em)
+	lines := sty.Handler.Lines(txt)
+	y := sty.Height(txt)*vg.Length(sty.YAlign) - face.Extents().Ascent
+	sin, cos := math.Sincos(sty.Rotation)
+	for i, line := range lines {
+		if line == "" {
+			continue
+		}
+		bounds, _ := xfont.BoundString(glyphs, line)
+		xoff := vg.Length(sty.XAlign) * face.Width(line)
+		yoff := y + vg.Length(len(lines)-i)*sty.Font.Size
+		for _, x := range []vg.Length{vg.Length(bounds.Min.X) * scale, vg.Length(bounds.Max.X) * scale} {
+			for _, y := range []vg.Length{-vg.Length(bounds.Max.Y) * scale, -vg.Length(bounds.Min.Y) * scale} {
+				x, y := x+xoff, y+yoff
+				p := vg.Point{X: x*vg.Length(cos) - y*vg.Length(sin), Y: x*vg.Length(sin) + y*vg.Length(cos)}
+				r.Min.X, r.Min.Y = min(r.Min.X, p.X), min(r.Min.Y, p.Y)
+				r.Max.X, r.Max.Y = max(r.Max.X, p.X), max(r.Max.Y, p.Y)
+			}
+		}
 	}
 	return r
 }
