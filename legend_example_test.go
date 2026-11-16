@@ -9,6 +9,7 @@ import (
 	"os"
 
 	"gonum.org/v1/plot"
+	"gonum.org/v1/plot/plotter"
 	"gonum.org/v1/plot/vg"
 	"gonum.org/v1/plot/vg/draw"
 	"gonum.org/v1/plot/vg/vgimg"
@@ -16,6 +17,24 @@ import (
 
 type exampleThumbnailer struct {
 	color.Color
+}
+
+// This example gives an overlaid legend an opaque background.
+func ExampleLegend_background() {
+	p := plot.New()
+	line, err := plotter.NewLine(plotter.XYs{{X: 0, Y: 0}, {X: 1, Y: 1}})
+	if err != nil {
+		panic(err)
+	}
+	p.Add(line)
+	p.Legend.Add("data", line)
+	p.Legend.Top = true
+	p.Legend.BackgroundColor = color.NRGBA{R: 230, G: 240, B: 250, A: 255}
+	p.Legend.XOffs = -vg.Points(4)
+	p.Legend.YOffs = -vg.Points(4)
+	if err := p.Save(vg.Points(180), vg.Points(120), "testdata/legend_background.png"); err != nil {
+		panic(err)
+	}
 }
 
 // Thumbnail fulfills the plot.Thumbnailer interface.
