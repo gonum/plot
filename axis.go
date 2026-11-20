@@ -726,7 +726,7 @@ func tickLabelWidth(sty text.Style, ticks []Tick) vg.Length {
 	return maxWidth
 }
 
-// formatFloatTick returns a g-formated string representation of v
+// formatFloatTick returns a g-formatted string representation of v
 // to the specified precision.
 func formatFloatTick(v float64, prec int) string {
 	return strconv.FormatFloat(v, 'g', prec, 64)
